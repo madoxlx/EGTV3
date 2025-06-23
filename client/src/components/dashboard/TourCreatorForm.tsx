@@ -315,9 +315,11 @@ export function TourCreatorForm({ tourId }: TourCreatorFormProps) {
 
       if (existingTour.image_url || existingTour.imageUrl) {
         const imageUrl = existingTour.image_url || existingTour.imageUrl;
+        const formattedUrl = formatImageUrl(imageUrl);
+        console.log('Setting existing main image:', { original: imageUrl, formatted: formattedUrl });
         setImages([{
           id: 'main-existing',
-          preview: formatImageUrl(imageUrl),
+          preview: formattedUrl,
           isMain: true,
           file: null
         }]);
@@ -361,13 +363,16 @@ export function TourCreatorForm({ tourId }: TourCreatorFormProps) {
   const handleImageUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
     if (e.target.files && e.target.files.length > 0) {
       const file = e.target.files[0];
-      const id = Date.now().toString();
+      const id = `main-${Date.now()}`;
       const preview = URL.createObjectURL(file);
       
-      setImages([
-        ...images.filter(img => !img.isMain),
-        { id, file, preview, isMain: true }
-      ]);
+      // Remove any existing main images (including existing ones from server)
+      setImages(prev => prev.filter(img => !img.isMain));
+      
+      // Add the new main image
+      setImages(prev => [...prev, { id, file, preview, isMain: true }]);
+      
+      console.log('New main image uploaded:', { id, preview, fileName: file.name });
     }
   };
 
@@ -375,9 +380,10 @@ export function TourCreatorForm({ tourId }: TourCreatorFormProps) {
     if (e.target.files && e.target.files.length > 0) {
       const files = Array.from(e.target.files);
       
-      const newGalleryImages = files.map(file => {
-        const id = `gallery-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`;
+      const newGalleryImages = files.map((file, index) => {
+        const id = `gallery-new-${Date.now()}-${index}`;
         const preview = URL.createObjectURL(file);
+        console.log('New gallery image uploaded:', { id, preview, fileName: file.name });
         return { id, file, preview };
       });
       
@@ -917,18 +923,27 @@ export function TourCreatorForm({ tourId }: TourCreatorFormProps) {
                   </div>
                 </Label>
                 {images.find(img => img.isMain) && (
-                  <div className="mt-4">
+                  <div className="mt-4 relative">
                     <img
                       src={images.find(img => img.isMain)?.preview}
                       alt="Main tour image"
                       className="w-32 h-32 object-cover rounded-lg"
                       onError={(e) => {
                         const target = e.target as HTMLImageElement;
-                        target.style.display = 'none';
                         console.error('Failed to load main image:', target.src);
+                        target.src = '/api/placeholder/150/150';
                       }}
                       onLoad={() => console.log('Main image loaded successfully')}
                     />
+                    <Button
+                      type="button"
+                      variant="destructive"
+                      size="sm"
+                      className="absolute top-1 right-1 h-6 w-6 p-0"
+                      onClick={() => setImages(prev => prev.filter(img => !img.isMain))}
+                    >
+                      <X className="h-3 w-3" />
+                    </Button>
                   </div>
                 )}
               </div>
