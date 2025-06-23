@@ -108,9 +108,9 @@ export default function ToursManagement() {
     queryKey: ["/api/tour-categories"],
   });
 
-  // Fetch locations
+  // Fetch destinations (locations)
   const { data: locations = [] } = useQuery({
-    queryKey: ["/api/locations"],
+    queryKey: ["/api/destinations"],
   });
 
   // Create tour mutation
@@ -465,14 +465,22 @@ export default function ToursManagement() {
                     <TableRow key={tour.id}>
                       <TableCell className="font-medium">{tour.name}</TableCell>
                       <TableCell>
-                        {(categories as any[]).find((cat: any) => 
-                          cat.id === (tour.category_id || tour.categoryId || tour.category)
-                        )?.name || tour.trip_type || "Unknown"}
+                        {(() => {
+                          const categoryId = tour.category_id || tour.categoryId || tour.category;
+                          const category = (categories as any[]).find((cat: any) => 
+                            cat.id === categoryId || cat.id === parseInt(categoryId)
+                          );
+                          return category?.name || tour.trip_type || "No Category";
+                        })()}
                       </TableCell>
                       <TableCell>
-                        {(locations as any[]).find((loc: any) => 
-                          loc.id === (tour.destination_id || tour.destinationId || tour.locationId)
-                        )?.name || "Unknown"}
+                        {(() => {
+                          const locationId = tour.destination_id || tour.locationId || tour.location;
+                          const location = (locations as any[]).find((loc: any) => 
+                            loc.id === locationId || loc.id === parseInt(locationId)
+                          );
+                          return location?.name || "No Location";
+                        })()}
                       </TableCell>
                       <TableCell>${tour.price?.toLocaleString() || 0}</TableCell>
                       <TableCell>
