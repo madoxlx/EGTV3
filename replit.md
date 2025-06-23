@@ -106,12 +106,13 @@ The application uses a comprehensive PostgreSQL schema with the following core e
 
 ## Recent Changes
 
-- **Tour Image Display Fix (June 23, 2025)**: Fixed image display issues in tour edit page
-  - Added formatImageUrl helper function to properly construct image URLs
-  - Enhanced URL handling to support different formats (relative, absolute, with/without /uploads prefix)
-  - Added error handling with onError and onLoad event handlers for debugging
-  - Updated both main image and gallery image preview functionality
-  - Fixed broken image display in tour edit forms where images appeared corrupted
+- **Tour Image Management Professional Cleanup (June 23, 2025)**: Implemented professional image URL handling
+  - Added clean URL validation to prevent blob URLs from being saved to database
+  - Implemented `getCleanUrl` function that only allows proper server URLs starting with /uploads
+  - Added filtering for existing gallery images to exclude corrupted blob URLs
+  - Enhanced data integrity by ensuring only legitimate server paths are stored
+  - Fixed image display issues with proper URL formatting and error handling
+  - Professional data storage now maintains clean URLs like /uploads/tour-123456-abc.jpg only
 
 - **Tour Edit Route Implementation (June 23, 2025)**: Updated ToursManagement to use dedicated edit pages
   - Modified handleEdit function to navigate to /admin/tours/edit/{id} instead of dialog

@@ -216,10 +216,22 @@ export function TourCreatorForm({ tourId }: TourCreatorFormProps) {
         galleryUrls = uploadedUrls.filter(Boolean) as string[];
       }
       
+      // Get existing URLs only if they're proper server URLs (not blob URLs)
+      const getCleanUrl = (url: string) => {
+        if (!url || url.includes('blob:')) return '';
+        return url.startsWith('/uploads') ? url : '';
+      };
+
+      const existingImageUrl = getCleanUrl(existingTour?.imageUrl || existingTour?.image_url || '');
+      const existingGalleryUrls = (existingTour?.galleryUrls || existingTour?.gallery_urls || [])
+        .filter((url: string) => getCleanUrl(url))
+        .map((url: string) => getCleanUrl(url))
+        .filter(Boolean);
+
       const finalData = {
         ...data,
-        imageUrl: imageUrl || (existingTour?.imageUrl || ""),
-        galleryUrls: galleryUrls.length > 0 ? galleryUrls : (existingTour?.galleryUrls || []),
+        imageUrl: imageUrl || existingImageUrl,
+        galleryUrls: galleryUrls.length > 0 ? galleryUrls : existingGalleryUrls,
         date: data.startDate.toISOString(),
         endDate: data.endDate.toISOString(),
       };
@@ -326,18 +338,22 @@ export function TourCreatorForm({ tourId }: TourCreatorFormProps) {
       }
 
       if (existingTour.gallery_urls && Array.isArray(existingTour.gallery_urls)) {
-        const galleryImgs = existingTour.gallery_urls.map((url: string, index: number) => ({
-          id: `gallery-existing-${index}`,
-          preview: formatImageUrl(url),
-          file: null
-        }));
+        const galleryImgs = existingTour.gallery_urls
+          .filter((url: string) => url && !url.includes('blob:') && url.includes('/uploads'))
+          .map((url: string, index: number) => ({
+            id: `gallery-existing-${index}`,
+            preview: formatImageUrl(url),
+            file: null
+          }));
         setGalleryImages(galleryImgs);
       } else if (existingTour.galleryUrls && Array.isArray(existingTour.galleryUrls)) {
-        const galleryImgs = existingTour.galleryUrls.map((url: string, index: number) => ({
-          id: `gallery-existing-${index}`,
-          preview: formatImageUrl(url),
-          file: null
-        }));
+        const galleryImgs = existingTour.galleryUrls
+          .filter((url: string) => url && !url.includes('blob:') && url.includes('/uploads'))
+          .map((url: string, index: number) => ({
+            id: `gallery-existing-${index}`,
+            preview: formatImageUrl(url),
+            file: null
+          }));
         setGalleryImages(galleryImgs);
       }
     }
