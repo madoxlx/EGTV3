@@ -111,7 +111,18 @@ export function TourCreatorForm({ tourId }: TourCreatorFormProps) {
     queryKey: ['/api/tours', tourId],
     queryFn: async () => {
       if (!tourId) return null;
-      return await apiRequest(`/api/tours/${tourId}`);
+      try {
+        // Try admin endpoint first
+        const adminResult = await apiRequest(`/api/admin/tours/${tourId}`);
+        console.log('Admin tour data loaded:', adminResult);
+        return adminResult;
+      } catch (error) {
+        console.log('Admin endpoint failed, trying public endpoint:', error);
+        // Fallback to public endpoint
+        const publicResult = await apiRequest(`/api/tours/${tourId}`);
+        console.log('Public tour data loaded:', publicResult);
+        return publicResult;
+      }
     },
     enabled: isEditMode,
   });
@@ -353,6 +364,11 @@ export function TourCreatorForm({ tourId }: TourCreatorFormProps) {
 
   useEffect(() => {
     if (existingTour && isEditMode) {
+      console.log('Loading existing tour data:', { 
+        tourId, 
+        imageUrl: existingTour.imageUrl || existingTour.image_url,
+        galleryUrls: existingTour.galleryUrls || existingTour.gallery_urls 
+      });
       form.reset({
         name: existingTour.name || "",
         description: existingTour.description || "",
@@ -375,37 +391,56 @@ export function TourCreatorForm({ tourId }: TourCreatorFormProps) {
         categoryId: existingTour.category_id || existingTour.categoryId || null,
       });
 
-      if (existingTour.image_url || existingTour.imageUrl) {
-        const imageUrl = existingTour.image_url || existingTour.imageUrl;
-        const formattedUrl = formatImageUrl(imageUrl);
-        console.log('Setting existing main image:', { original: imageUrl, formatted: formattedUrl });
-        setImages([{
+      // Initialize images array
+      let allImages: any[] = [];
+      
+      // Load main image
+      const mainImageUrl = existingTour.image_url || existingTour.imageUrl;
+      if (mainImageUrl && mainImageUrl !== '' && !mainImageUrl.includes('blob:')) {
+        const formattedUrl = formatImageUrl(mainImageUrl);
+        console.log('Setting existing main image:', { original: mainImageUrl, formatted: formattedUrl });
+        allImages.push({
           id: 'main-existing',
           preview: formattedUrl,
           isMain: true,
           file: null
-        }]);
+        });
+      } else {
+        console.log('No main image found for tour');
       }
 
-      if (existingTour.gallery_urls && Array.isArray(existingTour.gallery_urls)) {
-        const galleryImgs = existingTour.gallery_urls
-          .filter((url: string) => url && !url.includes('blob:') && url.includes('/uploads'))
-          .map((url: string, index: number) => ({
-            id: `gallery-existing-${index}`,
-            preview: formatImageUrl(url),
-            file: null
-          }));
-        setGalleryImages(galleryImgs);
-      } else if (existingTour.galleryUrls && Array.isArray(existingTour.galleryUrls)) {
-        const galleryImgs = existingTour.galleryUrls
-          .filter((url: string) => url && !url.includes('blob:') && url.includes('/uploads'))
-          .map((url: string, index: number) => ({
-            id: `gallery-existing-${index}`,
-            preview: formatImageUrl(url),
-            file: null
-          }));
-        setGalleryImages(galleryImgs);
+      // Load gallery images
+      const galleryUrls = existingTour.gallery_urls || existingTour.galleryUrls || [];
+      if (Array.isArray(galleryUrls) && galleryUrls.length > 0) {
+        const validGalleryUrls = galleryUrls.filter((url: string) => 
+          url && 
+          url !== '' && 
+          !url.includes('blob:') && 
+          (url.includes('/uploads') || url.startsWith('http'))
+        );
+        
+        console.log('Found gallery URLs:', { total: galleryUrls.length, valid: validGalleryUrls.length, urls: validGalleryUrls });
+        
+        const galleryImgs = validGalleryUrls.map((url: string, index: number) => ({
+          id: `gallery-existing-${index}`,
+          preview: formatImageUrl(url),
+          file: null,
+          isMain: false
+        }));
+        
+        allImages.push(...galleryImgs);
+        console.log('Added gallery images:', galleryImgs);
+        console.log('Total images to set:', allImages.length);
+      } else {
+        console.log('No gallery URLs found or invalid format');
       }
+      
+      // Set all images at once
+      console.log('Setting all images:', allImages);
+      setImages(allImages);
+      
+      // Clear gallery images state since we're using unified state
+      setGalleryImages([]);
     }
   }, [existingTour, isEditMode, form]);
 
@@ -1037,6 +1072,13 @@ export function TourCreatorForm({ tourId }: TourCreatorFormProps) {
                     </Button>
                   </div>
                 )}
+                
+                {/* Show current images count for debugging */}
+                {images.length > 0 && (
+                  <div className="mt-2 text-sm text-gray-500">
+                    Current images: {images.length} (Main: {images.filter(img => img.isMain).length}, Gallery: {images.filter(img => !img.isMain).length})
+                  </div>
+                )}
               </div>
             </div>
 
@@ -1057,58 +1099,63 @@ export function TourCreatorForm({ tourId }: TourCreatorFormProps) {
                     <p className="mt-2 text-sm text-gray-600">انقر لرفع صور معرض الصور</p>
                   </div>
                 </Label>
+                {/* Show gallery images from both states */}
                 {(galleryImages.length > 0 || images.filter(img => !img.isMain).length > 0) && (
-                  <div className="mt-4 grid grid-cols-4 gap-4">
-                    {/* Display gallery images from galleryImages state */}
-                    {galleryImages.map((image) => (
-                      <div key={image.id} className="relative">
-                        <img
-                          src={image.preview}
-                          alt="Gallery image"
-                          className="w-full h-24 object-cover rounded-lg"
-                          onError={(e) => {
-                            const target = e.target as HTMLImageElement;
-                            target.style.display = 'none';
-                            console.error('Failed to load gallery image:', target.src);
-                          }}
-                          onLoad={() => console.log('Gallery image loaded successfully:', image.preview)}
-                        />
-                        <Button
-                          type="button"
-                          variant="destructive"
-                          size="sm"
-                          className="absolute top-1 right-1 h-6 w-6 p-0"
-                          onClick={() => handleRemoveGalleryImage(image.id)}
-                        >
-                          <X className="h-3 w-3" />
-                        </Button>
-                      </div>
-                    ))}
-                    {/* Also display existing gallery images from main images state */}
-                    {images.filter(img => !img.isMain).map((image) => (
-                      <div key={image.id} className="relative">
-                        <img
-                          src={image.preview}
-                          alt="Gallery image"
-                          className="w-full h-24 object-cover rounded-lg"
-                          onError={(e) => {
-                            const target = e.target as HTMLImageElement;
-                            target.style.display = 'none';
-                            console.error('Failed to load gallery image:', target.src);
-                          }}
-                          onLoad={() => console.log('Gallery image loaded successfully:', image.preview)}
-                        />
-                        <Button
-                          type="button"
-                          variant="destructive"
-                          size="sm"
-                          className="absolute top-1 right-1 h-6 w-6 p-0"
-                          onClick={() => handleRemoveImage(image.id)}
-                        >
-                          <X className="h-3 w-3" />
-                        </Button>
-                      </div>
-                    ))}
+                  <div className="mt-4">
+                    <div className="text-sm text-gray-600 mb-2">
+                      Gallery Images ({galleryImages.length + images.filter(img => !img.isMain).length})
+                    </div>
+                    <div className="grid grid-cols-4 gap-4">
+                      {/* Display new gallery images from galleryImages state */}
+                      {galleryImages.map((image) => (
+                        <div key={image.id} className="relative">
+                          <img
+                            src={image.preview}
+                            alt="Gallery image"
+                            className="w-full h-24 object-cover rounded-lg"
+                            onError={(e) => {
+                              const target = e.target as HTMLImageElement;
+                              target.style.display = 'none';
+                              console.error('Failed to load gallery image:', target.src);
+                            }}
+                            onLoad={() => console.log('Gallery image loaded successfully:', image.preview)}
+                          />
+                          <Button
+                            type="button"
+                            variant="destructive"
+                            size="sm"
+                            className="absolute top-1 right-1 h-6 w-6 p-0"
+                            onClick={() => handleRemoveGalleryImage(image.id)}
+                          >
+                            <X className="h-3 w-3" />
+                          </Button>
+                        </div>
+                      ))}
+                      {/* Display existing gallery images from unified images state */}
+                      {images.filter(img => !img.isMain).map((image) => (
+                        <div key={image.id} className="relative">
+                          <img
+                            src={image.preview}
+                            alt="Gallery image"
+                            className="w-full h-24 object-cover rounded-lg"
+                            onError={(e) => {
+                              const target = e.target as HTMLImageElement;
+                              target.style.display = 'none';
+                              console.error('Failed to load gallery image:', target.src);
+                            }}
+                            onLoad={() => console.log('Gallery image loaded successfully:', image.preview)}
+                          />
+                          <Button
+                            type="button"
+                            variant="destructive"
+                            size="sm"
+                            className="absolute top-1 right-1 h-6 w-6 p-0"
+                            onClick={() => handleRemoveImage(image.id)}
+                          >
+                            <X className="h-3 w-3" />
+                          </Button>
+                        </div>
+                      ))}
                   </div>
                 )}
               </div>
