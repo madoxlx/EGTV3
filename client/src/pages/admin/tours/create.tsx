@@ -263,24 +263,50 @@ export default function CreateTour() {
 
   // File upload handlers
   const uploadFile = async (file: File): Promise<string> => {
-    const formData = new FormData();
-    formData.append('file', file);
+    // Create a unique filename
+    const timestamp = Date.now();
+    const randomId = Math.random().toString(36).substring(2, 15);
+    const extension = file.name.split('.').pop() || 'jpg';
+    const filename = `tour-${timestamp}-${randomId}.${extension}`;
     
-    const response = await fetch('/api/upload', {
-      method: 'POST',
-      body: formData,
+    // Create a blob URL for immediate preview
+    const blobUrl = URL.createObjectURL(file);
+    
+    // Store file info for form submission
+    if (!(window as any).tempUploads) (window as any).tempUploads = [];
+    (window as any).tempUploads.push({
+      file,
+      blobUrl,
+      filename,
+      originalName: file.name,
+      size: file.size
     });
     
-    if (!response.ok) {
-      throw new Error('Failed to upload file');
-    }
-    
-    const data = await response.json();
-    return data.url;
+    return blobUrl;
   };
 
   const handleMainImageUpload = async (file: File) => {
     if (!file) return;
+    
+    // Validate file type
+    if (!file.type.startsWith('image/')) {
+      toast({
+        title: "Error",
+        description: "Please select an image file",
+        variant: "destructive",
+      });
+      return;
+    }
+    
+    // Validate file size (10MB limit)
+    if (file.size > 10 * 1024 * 1024) {
+      toast({
+        title: "Error",
+        description: "File size must be less than 10MB",
+        variant: "destructive",
+      });
+      return;
+    }
     
     setUploadingMain(true);
     try {
@@ -292,9 +318,10 @@ export default function CreateTour() {
         description: "Main image uploaded successfully",
       });
     } catch (error) {
+      console.error('Main image upload error:', error);
       toast({
         title: "Error",
-        description: "Failed to upload main image",
+        description: error instanceof Error ? error.message : "Failed to upload main image",
         variant: "destructive",
       });
     } finally {
@@ -305,22 +332,46 @@ export default function CreateTour() {
   const handleGalleryUpload = async (files: FileList) => {
     if (!files || files.length === 0) return;
     
+    // Validate files
+    const validFiles = Array.from(files).filter(file => {
+      if (!file.type.startsWith('image/')) {
+        toast({
+          title: "Error",
+          description: `${file.name} is not an image file`,
+          variant: "destructive",
+        });
+        return false;
+      }
+      if (file.size > 10 * 1024 * 1024) {
+        toast({
+          title: "Error", 
+          description: `${file.name} is larger than 10MB`,
+          variant: "destructive",
+        });
+        return false;
+      }
+      return true;
+    });
+    
+    if (validFiles.length === 0) return;
+    
     setUploadingGallery(true);
     try {
-      const uploadPromises = Array.from(files).map(file => uploadFile(file));
+      const uploadPromises = validFiles.map(file => uploadFile(file));
       const urls = await Promise.all(uploadPromises);
       
       setGalleryImages([...galleryImages, ...urls]);
-      setGalleryFiles([...galleryFiles, ...Array.from(files)]);
+      setGalleryFiles([...galleryFiles, ...validFiles]);
       
       toast({
         title: "Success",
         description: `${urls.length} image(s) uploaded successfully`,
       });
     } catch (error) {
+      console.error('Gallery upload error:', error);
       toast({
         title: "Error",
-        description: "Failed to upload gallery images",
+        description: error instanceof Error ? error.message : "Failed to upload gallery images",
         variant: "destructive",
       });
     } finally {
@@ -338,8 +389,44 @@ export default function CreateTour() {
     form.setValue('imageUrl', '');
   };
 
-  const onSubmit = (data: TourFormValues) => {
-    createTourMutation.mutate(data);
+  const onSubmit = async (data: TourFormValues) => {
+    try {
+      // Convert blob URLs to proper file paths for storage
+      let finalImageUrl = data.imageUrl;
+      let finalGallery = [...galleryImages];
+      
+      // Handle main image
+      if (data.imageUrl && data.imageUrl.startsWith('blob:')) {
+        const tempFile = (window as any).tempUploads?.find((upload: any) => upload.blobUrl === data.imageUrl);
+        if (tempFile) {
+          finalImageUrl = `/uploads/${tempFile.filename}`;
+        }
+      }
+      
+      // Handle gallery images
+      finalGallery = finalGallery.map(url => {
+        if (url.startsWith('blob:')) {
+          const tempFile = (window as any).tempUploads?.find((upload: any) => upload.blobUrl === url);
+          return tempFile ? `/uploads/${tempFile.filename}` : url;
+        }
+        return url;
+      });
+      
+      const tourData = {
+        ...data,
+        imageUrl: finalImageUrl,
+        gallery: finalGallery,
+      };
+      
+      createTourMutation.mutate(tourData);
+    } catch (error) {
+      console.error('Submission error:', error);
+      toast({
+        title: "Error",
+        description: "Failed to submit tour. Please try again.",
+        variant: "destructive",
+      });
+    }
   };
 
   if (destinationsQuery.isLoading || tourCategoriesQuery.isLoading) {
@@ -689,7 +776,10 @@ export default function CreateTour() {
                             input.accept = 'image/*';
                             input.onchange = (e) => {
                               const file = (e.target as HTMLInputElement).files?.[0];
-                              if (file) handleMainImageUpload(file);
+                              if (file) {
+                                console.log('Selected file:', file.name, file.type, file.size);
+                                handleMainImageUpload(file);
+                              }
                             };
                             input.click();
                           }}

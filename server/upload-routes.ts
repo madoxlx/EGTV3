@@ -41,32 +41,52 @@ const upload = multer({
 });
 
 export function setupUploadRoutes(app: Express) {
-  // Single file upload endpoint for tours
-  app.post('/api/upload', upload.single('file'), (req: Request, res: Response) => {
+  console.log('🔧 Setting up upload routes...');
+  
+  // Serve uploaded files statically first
+  app.use('/uploads', express.static(path.join(process.cwd(), 'public/uploads')));
+  
+  // Add a test endpoint to verify API routing
+  app.get('/api/upload/test', (req: Request, res: Response) => {
+    res.json({ message: 'Upload API is working', timestamp: new Date().toISOString() });
+  });
+  
+  // Single file upload endpoint for tours - with explicit content type handling
+  app.post('/api/upload', (req: Request, res: Response, next: any) => {
+    // Set response type to JSON explicitly
+    res.setHeader('Content-Type', 'application/json');
+    next();
+  }, upload.single('file'), (req: Request, res: Response) => {
+    console.log('📤 Upload request received:', req.file ? req.file.originalname : 'no file');
     try {
       if (!req.file) {
+        console.log('❌ No file in request');
         return res.status(400).json({ error: 'No file uploaded' });
       }
 
       // Return the public URL for the uploaded file
       const fileUrl = `/uploads/${req.file.filename}`;
       
+      console.log('✅ File uploaded successfully:', fileUrl);
       res.json({
+        success: true,
         url: fileUrl,
         filename: req.file.filename,
         originalName: req.file.originalname,
         size: req.file.size
       });
     } catch (error) {
-      console.error('Upload error:', error);
+      console.error('❌ Upload error:', error);
       res.status(500).json({ error: 'Upload failed' });
     }
   });
 
   // Multiple files upload endpoint
   app.post('/api/upload/multiple', upload.array('files', 10), (req: Request, res: Response) => {
+    console.log('Multiple upload request received:', req.files ? req.files.length : 'no files');
     try {
       if (!req.files || !Array.isArray(req.files) || req.files.length === 0) {
+        console.log('No files in multiple upload request');
         return res.status(400).json({ error: 'No files uploaded' });
       }
 
@@ -78,9 +98,10 @@ export function setupUploadRoutes(app: Express) {
         size: file.size
       }));
       
+      console.log('Multiple files uploaded successfully:', files.length);
       res.json({ files });
     } catch (error) {
-      console.error('Upload error:', error);
+      console.error('Multiple upload error:', error);
       res.status(500).json({ error: 'Upload failed' });
     }
   });

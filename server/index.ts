@@ -10,6 +10,8 @@ import passport from 'passport'; // استيراد passport
 import { setupAdmin } from './admin-setup'; // استيراد setupAdmin
 import { setupUnifiedAuth } from './unified-auth';
 import { setupHeroSlidesRoutes } from './hero-slides-routes';
+import { setupUploadRoutes } from './upload-routes';
+import express from 'express';
 
 // Load environment variables first
 dotenv.config();
@@ -120,7 +122,19 @@ app.use((req, res, next) => {
       console.error('❌ Hero slides routes setup failed:', error);
     }
 
-    // Start the server and register routes
+    // Setup upload routes and static file serving first
+    try {
+      setupUploadRoutes(app);
+      
+      // Serve static files from public directory
+      app.use('/uploads', express.static(path.join(process.cwd(), 'public/uploads')));
+      
+      console.log('✅ Upload routes and static serving setup completed');
+    } catch (error) {
+      console.error('❌ Upload routes setup failed:', error);
+    }
+
+    // Start the server and register other routes
     let server: any;
     try {
       server = await registerRoutes(app);
