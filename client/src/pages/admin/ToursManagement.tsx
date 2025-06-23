@@ -98,7 +98,7 @@ const TourFormSchema = z.object({
 type TourFormValues = z.infer<typeof TourFormSchema>;
 
 export default function ToursManagement() {
-  const [location] = useLocation();
+  const [location, setLocation] = useLocation();
   const { t } = useLanguage();
   const { toast } = useToast();
   const queryClient = useQueryClient();
