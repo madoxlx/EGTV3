@@ -168,13 +168,13 @@ export default function ToursManagement() {
       destinationId: parseInt(data.destinationId),
       duration: parseInt(data.duration),
       price: Math.round(parseFloat(data.price) * 100), // Convert to cents
-      maxCapacity: data.maxCapacity ? parseInt(data.maxCapacity) : null,
-      numPassengers: data.numPassengers ? parseInt(data.numPassengers) : null,
-      discountedPrice: data.discountedPrice ? Math.round(parseFloat(data.discountedPrice) * 100) : null,
-      maxGroupSize: data.maxGroupSize ? parseInt(data.maxGroupSize) : null,
-      rating: data.rating ? parseFloat(data.rating) : null,
-      reviewCount: data.reviewCount ? parseInt(data.reviewCount) : null,
-      categoryId: data.categoryId ? parseInt(data.categoryId) : null,
+      maxCapacity: data.maxCapacity && data.maxCapacity.trim() ? parseInt(data.maxCapacity) : undefined,
+      numPassengers: data.numPassengers && data.numPassengers.trim() ? parseInt(data.numPassengers) : undefined,
+      discountedPrice: data.discountedPrice && data.discountedPrice.trim() ? Math.round(parseFloat(data.discountedPrice) * 100) : undefined,
+      maxGroupSize: data.maxGroupSize && data.maxGroupSize.trim() ? parseInt(data.maxGroupSize) : undefined,
+      rating: data.rating && data.rating.trim() ? parseFloat(data.rating) : undefined,
+      reviewCount: data.reviewCount && data.reviewCount.trim() ? parseInt(data.reviewCount) : undefined,
+      categoryId: data.categoryId && data.categoryId.trim() ? parseInt(data.categoryId) : undefined,
     };
     
     // Parse JSON fields for included/excluded items
@@ -263,9 +263,15 @@ export default function ToursManagement() {
       setSelectedTour(null);
     },
     onError: (error: any) => {
+      const errorMessage = error?.field && error?.required 
+        ? `Required field missing: ${error.message}`
+        : error?.constraint
+        ? error.message
+        : error.message || "Failed to update tour";
+        
       toast({
-        title: "Error",
-        description: error.message || "Failed to update tour",
+        title: "Error updating tour",
+        description: errorMessage,
         variant: "destructive",
       });
     },
