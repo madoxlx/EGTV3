@@ -271,6 +271,24 @@ export function TourCreatorForm({ tourId }: TourCreatorFormProps) {
     }
   });
 
+  // Helper function to ensure proper image URL format
+  const formatImageUrl = (url: string) => {
+    if (!url) return '';
+    // If URL already starts with http/https, return as is
+    if (url.startsWith('http://') || url.startsWith('https://')) {
+      return url;
+    }
+    // If URL starts with /uploads, prepend the current origin
+    if (url.startsWith('/uploads')) {
+      return `${window.location.origin}${url}`;
+    }
+    // If URL doesn't start with /, add it and prepend origin
+    if (!url.startsWith('/')) {
+      return `${window.location.origin}/uploads/${url}`;
+    }
+    return `${window.location.origin}${url}`;
+  };
+
   useEffect(() => {
     if (existingTour && isEditMode) {
       form.reset({
@@ -296,9 +314,10 @@ export function TourCreatorForm({ tourId }: TourCreatorFormProps) {
       });
 
       if (existingTour.image_url || existingTour.imageUrl) {
+        const imageUrl = existingTour.image_url || existingTour.imageUrl;
         setImages([{
           id: 'main-existing',
-          preview: existingTour.image_url || existingTour.imageUrl,
+          preview: formatImageUrl(imageUrl),
           isMain: true,
           file: null
         }]);
@@ -307,14 +326,14 @@ export function TourCreatorForm({ tourId }: TourCreatorFormProps) {
       if (existingTour.gallery_urls && Array.isArray(existingTour.gallery_urls)) {
         const galleryImgs = existingTour.gallery_urls.map((url: string, index: number) => ({
           id: `gallery-existing-${index}`,
-          preview: url,
+          preview: formatImageUrl(url),
           file: null
         }));
         setGalleryImages(galleryImgs);
       } else if (existingTour.galleryUrls && Array.isArray(existingTour.galleryUrls)) {
         const galleryImgs = existingTour.galleryUrls.map((url: string, index: number) => ({
           id: `gallery-existing-${index}`,
-          preview: url,
+          preview: formatImageUrl(url),
           file: null
         }));
         setGalleryImages(galleryImgs);
@@ -903,6 +922,12 @@ export function TourCreatorForm({ tourId }: TourCreatorFormProps) {
                       src={images.find(img => img.isMain)?.preview}
                       alt="Main tour image"
                       className="w-32 h-32 object-cover rounded-lg"
+                      onError={(e) => {
+                        const target = e.target as HTMLImageElement;
+                        target.style.display = 'none';
+                        console.error('Failed to load main image:', target.src);
+                      }}
+                      onLoad={() => console.log('Main image loaded successfully')}
                     />
                   </div>
                 )}
@@ -934,6 +959,12 @@ export function TourCreatorForm({ tourId }: TourCreatorFormProps) {
                           src={image.preview}
                           alt="Gallery image"
                           className="w-full h-24 object-cover rounded-lg"
+                          onError={(e) => {
+                            const target = e.target as HTMLImageElement;
+                            target.style.display = 'none';
+                            console.error('Failed to load gallery image:', target.src);
+                          }}
+                          onLoad={() => console.log('Gallery image loaded successfully:', image.preview)}
                         />
                         <Button
                           type="button"

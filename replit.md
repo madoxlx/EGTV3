@@ -106,6 +106,19 @@ The application uses a comprehensive PostgreSQL schema with the following core e
 
 ## Recent Changes
 
+- **Tour Image Display Fix (June 23, 2025)**: Fixed image display issues in tour edit page
+  - Added formatImageUrl helper function to properly construct image URLs
+  - Enhanced URL handling to support different formats (relative, absolute, with/without /uploads prefix)
+  - Added error handling with onError and onLoad event handlers for debugging
+  - Updated both main image and gallery image preview functionality
+  - Fixed broken image display in tour edit forms where images appeared corrupted
+
+- **Tour Edit Route Implementation (June 23, 2025)**: Updated ToursManagement to use dedicated edit pages
+  - Modified handleEdit function to navigate to /admin/tours/edit/{id} instead of dialog
+  - Removed dialog-based editing functionality to use proper routing pattern
+  - Fixed setLocation undefined error by properly destructuring useLocation hook
+  - Streamlined component to follow consistent admin panel navigation
+
 - **Visa Functionality Database Integration (June 18, 2025)**: Connected visa search to real database data
   - Replaced mock visa data with actual API calls to /api/visas and /api/countries endpoints
   - Updated VisasSearchResults.tsx to use React Query for proper data fetching
