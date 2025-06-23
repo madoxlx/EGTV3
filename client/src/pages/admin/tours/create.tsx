@@ -1,9 +1,9 @@
-import { useState } from "react";
-import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
+import React, { useState } from "react";
+import { useForm } from "react-hook-form";
+import { zodResolver } from "@hookform/resolvers/zod";
+import { useMutation, useQuery } from "@tanstack/react-query";
 import { useLocation } from "wouter";
-import { apiRequest } from "@/lib/queryClient";
-import { useToast } from "@/hooks/use-toast";
-import { useLanguage } from "@/hooks/use-language";
+import { z } from "zod";
 import {
   Form,
   FormControl,
@@ -11,108 +11,128 @@ import {
   FormItem,
   FormLabel,
   FormMessage,
+  FormDescription,
 } from "@/components/ui/form";
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
-import { zodResolver } from "@hookform/resolvers/zod";
-import { useForm } from "react-hook-form";
-import * as z from "zod";
-import { ArrowLeft, Loader2, Save } from "lucide-react";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Switch } from "@/components/ui/switch";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { Badge } from "@/components/ui/badge";
 import { Label } from "@/components/ui/label";
+import { Separator } from "@/components/ui/separator";
+import { useToast } from "@/hooks/use-toast";
+import { queryClient } from "@/lib/queryClient";
+import { DashboardLayout } from "@/components/dashboard/DashboardLayout";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Breadcrumb, BreadcrumbItem, BreadcrumbLink } from "@/components/ui/breadcrumb";
+import { FormRequiredFieldsNote, FormValidationAlert } from "@/components/dashboard/FormValidationAlert";
+import { Home, Map, ArrowLeft, Loader2, Clock, Calendar, Plus, X, Languages, MapPin } from "lucide-react";
 
-// Form validation schema
-const TourFormSchema = z.object({
-  name: z.string().min(2, "Name must be at least 2 characters"),
-  description: z.string().min(10, "Description must be at least 10 characters"),
+const formSchema = z.object({
+  // Basic Information
+  name: z.string().min(3, "Tour name must be at least 3 characters"),
+  description: z.string().min(20, "Description must be at least 20 characters"),
   destinationId: z.string().min(1, "Please select a destination"),
+  categoryId: z.string().optional(),
+  
+  // Duration and Timing
   duration: z.string().min(1, "Duration is required"),
+  durationType: z.enum(["days", "hours"]).default("days"),
+  
+  // Pricing
   price: z.string().min(1, "Price is required"),
+  currency: z.string().default("EGP"),
+  discountedPrice: z.string().optional(),
+  
+  // Capacity and Group Size
   maxCapacity: z.string().optional(),
+  maxGroupSize: z.string().optional(),
+  numPassengers: z.string().optional(),
+  
+  // Content Details
+  itinerary: z.string().optional(),
+  included: z.array(z.string()).default([]),
+  excluded: z.array(z.string()).default([]),
+  
+  // Media
   imageUrl: z.string().optional(),
+  galleryUrls: z.array(z.string()).default([]),
+  
+  // Settings
   active: z.boolean().default(true),
   featured: z.boolean().default(false),
-  currency: z.string().default("EGP"),
   tripType: z.string().optional(),
-  numPassengers: z.string().optional(),
-  discountedPrice: z.string().optional(),
-  included: z.string().optional(),
-  excluded: z.string().optional(),
-  itinerary: z.string().optional(),
-  maxGroupSize: z.string().optional(),
+  
+  // Ratings
   rating: z.string().optional(),
   reviewCount: z.string().optional(),
-  status: z.string().default("active"),
-  categoryId: z.string().optional(),
-  durationType: z.enum(["days", "hours"]).default("days"),
+  
+  // Arabic Version
   nameAr: z.string().optional(),
   descriptionAr: z.string().optional(),
   itineraryAr: z.string().optional(),
-  includedAr: z.string().optional(),
-  excludedAr: z.string().optional(),
+  includedAr: z.array(z.string()).default([]),
+  excludedAr: z.array(z.string()).default([]),
   hasArabicVersion: z.boolean().default(false),
 });
 
-type TourFormValues = z.infer<typeof TourFormSchema>;
+type TourFormValues = z.infer<typeof formSchema>;
 
 export default function CreateTour() {
   const [, setLocation] = useLocation();
-  const { t } = useLanguage();
   const { toast } = useToast();
-  const queryClient = useQueryClient();
+  const [activeTab, setActiveTab] = useState("basic");
+  const [includedItems, setIncludedItems] = useState<string[]>([]);
+  const [excludedItems, setExcludedItems] = useState<string[]>([]);
+  const [includedItemsAr, setIncludedItemsAr] = useState<string[]>([]);
+  const [excludedItemsAr, setExcludedItemsAr] = useState<string[]>([]);
 
-  // Fetch destinations
-  const { data: destinations = [] } = useQuery({
-    queryKey: ["/api/destinations"],
-  });
-
-  // Fetch tour categories
-  const { data: categories = [] } = useQuery({
-    queryKey: ["/api/tour-categories"],
-  });
-
-  // Form setup
   const form = useForm<TourFormValues>({
-    resolver: zodResolver(TourFormSchema),
+    resolver: zodResolver(formSchema),
     defaultValues: {
       name: "",
       description: "",
       destinationId: "",
+      categoryId: "",
       duration: "",
+      durationType: "days",
       price: "",
+      currency: "EGP",
+      discountedPrice: "",
       maxCapacity: "",
+      maxGroupSize: "",
+      numPassengers: "",
+      itinerary: "",
+      included: [],
+      excluded: [],
       imageUrl: "",
+      galleryUrls: [],
       active: true,
       featured: false,
-      currency: "EGP",
       tripType: "",
-      numPassengers: "",
-      discountedPrice: "",
-      included: "",
-      excluded: "",
-      itinerary: "",
-      maxGroupSize: "",
       rating: "",
       reviewCount: "",
-      status: "active",
-      categoryId: "",
-      durationType: "days",
       nameAr: "",
       descriptionAr: "",
       itineraryAr: "",
-      includedAr: "",
-      excludedAr: "",
+      includedAr: [],
+      excludedAr: [],
       hasArabicVersion: false,
     },
+  });
+
+  // Fetch destinations
+  const destinationsQuery = useQuery({
+    queryKey: ["/api/destinations"],
+    queryFn: () => fetch("/api/destinations").then((res) => res.json()),
+  });
+
+  // Fetch tour categories
+  const tourCategoriesQuery = useQuery({
+    queryKey: ["/api/admin/tour-categories"],
+    queryFn: () => fetch("/api/admin/tour-categories").then((res) => res.json()),
   });
 
   // Create tour mutation
@@ -131,208 +151,257 @@ export default function CreateTour() {
         rating: data.rating && data.rating.trim() ? parseFloat(data.rating) : undefined,
         reviewCount: data.reviewCount && data.reviewCount.trim() ? parseInt(data.reviewCount) : undefined,
         categoryId: data.categoryId && data.categoryId.trim() ? parseInt(data.categoryId) : undefined,
-        // Parse JSON arrays for included/excluded
-        included: data.included ? data.included.split('\n').filter(item => item.trim()) : null,
-        excluded: data.excluded ? data.excluded.split('\n').filter(item => item.trim()) : null,
-        includedAr: data.includedAr ? data.includedAr.split('\n').filter(item => item.trim()) : null,
-        excludedAr: data.excludedAr ? data.excludedAr.split('\n').filter(item => item.trim()) : null,
+        included: includedItems,
+        excluded: excludedItems,
+        includedAr: includedItemsAr,
+        excludedAr: excludedItemsAr,
       };
 
-      return await apiRequest("/api/admin/tours", {
+      const response = await fetch("/api/admin/tours", {
         method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
         body: JSON.stringify(tourData),
       });
+
+      if (!response.ok) {
+        const error = await response.json();
+        throw error;
+      }
+
+      return response.json();
     },
     onSuccess: () => {
       toast({
         title: "Success",
         description: "Tour created successfully",
       });
-      queryClient.invalidateQueries({ queryKey: ["/api/tours"] });
       queryClient.invalidateQueries({ queryKey: ["/api/admin/tours"] });
       setLocation("/admin/tours");
     },
-    onError: (error: Error) => {
+    onError: (error: any) => {
+      const errorMessage = error?.field && error?.required 
+        ? `Required field missing: ${error.message}`
+        : error?.constraint
+        ? error.message
+        : error.message || "Failed to create tour";
+        
       toast({
         title: "Error creating tour",
-        description: error.message,
+        description: errorMessage,
         variant: "destructive",
       });
     },
   });
 
+  // Helper functions for managing included/excluded items
+  const addIncludedItem = (item: string) => {
+    if (item.trim() && !includedItems.includes(item.trim())) {
+      setIncludedItems([...includedItems, item.trim()]);
+    }
+  };
+
+  const removeIncludedItem = (index: number) => {
+    setIncludedItems(includedItems.filter((_, i) => i !== index));
+  };
+
+  const addExcludedItem = (item: string) => {
+    if (item.trim() && !excludedItems.includes(item.trim())) {
+      setExcludedItems([...excludedItems, item.trim()]);
+    }
+  };
+
+  const removeExcludedItem = (index: number) => {
+    setExcludedItems(excludedItems.filter((_, i) => i !== index));
+  };
+
+  const addIncludedItemAr = (item: string) => {
+    if (item.trim() && !includedItemsAr.includes(item.trim())) {
+      setIncludedItemsAr([...includedItemsAr, item.trim()]);
+    }
+  };
+
+  const removeIncludedItemAr = (index: number) => {
+    setIncludedItemsAr(includedItemsAr.filter((_, i) => i !== index));
+  };
+
+  const addExcludedItemAr = (item: string) => {
+    if (item.trim() && !excludedItemsAr.includes(item.trim())) {
+      setExcludedItemsAr([...excludedItemsAr, item.trim()]);
+    }
+  };
+
+  const removeExcludedItemAr = (index: number) => {
+    setExcludedItemsAr(excludedItemsAr.filter((_, i) => i !== index));
+  };
+
   const onSubmit = (data: TourFormValues) => {
     createTourMutation.mutate(data);
   };
 
-  return (
-    <div className="space-y-6">
-      <div className="flex items-center gap-4">
-        <Button
-          variant="outline"
-          size="sm"
-          onClick={() => setLocation("/admin/tours")}
-        >
-          <ArrowLeft className="h-4 w-4 mr-2" />
-          Back to Tours
-        </Button>
-        <div>
-          <h1 className="text-2xl font-bold">Create New Tour</h1>
-          <p className="text-muted-foreground">
-            Add a new tour to your travel offerings
-          </p>
+  if (destinationsQuery.isLoading || tourCategoriesQuery.isLoading) {
+    return (
+      <DashboardLayout>
+        <div className="flex items-center justify-center h-64">
+          <Loader2 className="h-8 w-8 animate-spin" />
         </div>
+      </DashboardLayout>
+    );
+  }
+
+  return (
+    <DashboardLayout>
+      <div className="mb-6">
+        <Breadcrumb>
+          <BreadcrumbItem>
+            <BreadcrumbLink href="/admin" className="flex items-center gap-1">
+              <Home size={16} />
+              <span>Dashboard</span>
+            </BreadcrumbLink>
+          </BreadcrumbItem>
+          <BreadcrumbItem>
+            <BreadcrumbLink href="/admin/tours" className="flex items-center gap-1">
+              <Map size={16} />
+              <span>Tours</span>
+            </BreadcrumbLink>
+          </BreadcrumbItem>
+          <BreadcrumbItem>
+            <span>Create New Tour</span>
+          </BreadcrumbItem>
+        </Breadcrumb>
       </div>
 
-      <Card>
-        <CardHeader>
-          <CardTitle>Tour Information</CardTitle>
-        </CardHeader>
-        <CardContent>
-          <Form {...form}>
-            <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                {/* Basic Information */}
-                <div className="space-y-4">
-                  <FormField
-                    control={form.control}
-                    name="name"
-                    render={({ field }) => (
-                      <FormItem>
-                        <FormLabel>Tour Name *</FormLabel>
-                        <FormControl>
-                          <Input placeholder="Enter tour name" {...field} />
-                        </FormControl>
-                        <FormMessage />
-                      </FormItem>
-                    )}
-                  />
+      <div className="bg-white rounded-lg shadow-sm border p-6">
+        <div className="flex justify-between items-center mb-6">
+          <h1 className="text-2xl font-bold text-zinc-800">Create New Tour</h1>
+          <Button variant="outline" className="gap-1" onClick={() => setLocation("/admin/tours")}>
+            <ArrowLeft size={16} />
+            <span>Back to Tours</span>
+          </Button>
+        </div>
 
-                  <FormField
-                    control={form.control}
-                    name="description"
-                    render={({ field }) => (
-                      <FormItem>
-                        <FormLabel>Description *</FormLabel>
-                        <FormControl>
-                          <Textarea
-                            placeholder="Describe the tour"
-                            rows={4}
-                            {...field}
-                          />
-                        </FormControl>
-                        <FormMessage />
-                      </FormItem>
-                    )}
-                  />
+        <Form {...form}>
+          <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
+            <FormRequiredFieldsNote />
+            
+            {createTourMutation.isError && (
+              <FormValidationAlert 
+                status="error" 
+                title="Tour Creation Failed" 
+                message={createTourMutation.error?.message || "An error occurred while creating the tour."} 
+                className="mb-6"
+              />
+            )}
 
-                  <FormField
-                    control={form.control}
-                    name="destinationId"
-                    render={({ field }) => (
-                      <FormItem>
-                        <FormLabel>Destination *</FormLabel>
-                        <Select onValueChange={field.onChange} defaultValue={field.value}>
-                          <FormControl>
-                            <SelectTrigger>
-                              <SelectValue placeholder="Select a destination" />
-                            </SelectTrigger>
-                          </FormControl>
-                          <SelectContent>
-                            {destinations.map((destination: any) => (
-                              <SelectItem key={destination.id} value={destination.id.toString()}>
-                                {destination.name}
-                              </SelectItem>
-                            ))}
-                          </SelectContent>
-                        </Select>
-                        <FormMessage />
-                      </FormItem>
-                    )}
-                  />
+            <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
+              <TabsList className="grid w-full grid-cols-5">
+                <TabsTrigger value="basic">Basic Info</TabsTrigger>
+                <TabsTrigger value="pricing">Pricing</TabsTrigger>
+                <TabsTrigger value="details">Details</TabsTrigger>
+                <TabsTrigger value="content">Content</TabsTrigger>
+                <TabsTrigger value="arabic">Arabic Version</TabsTrigger>
+              </TabsList>
 
-                  <FormField
-                    control={form.control}
-                    name="categoryId"
-                    render={({ field }) => (
-                      <FormItem>
-                        <FormLabel>Category</FormLabel>
-                        <Select onValueChange={field.onChange} defaultValue={field.value}>
-                          <FormControl>
-                            <SelectTrigger>
-                              <SelectValue placeholder="Select a category" />
-                            </SelectTrigger>
-                          </FormControl>
-                          <SelectContent>
-                            {categories.map((category: any) => (
-                              <SelectItem key={category.id} value={category.id.toString()}>
-                                {category.name}
-                              </SelectItem>
-                            ))}
-                          </SelectContent>
-                        </Select>
-                        <FormMessage />
-                      </FormItem>
-                    )}
-                  />
-                </div>
-
-                {/* Pricing and Duration */}
-                <div className="space-y-4">
-                  <div className="grid grid-cols-2 gap-4">
-                    <FormField
-                      control={form.control}
-                      name="duration"
-                      render={({ field }) => (
-                        <FormItem>
-                          <FormLabel>Duration *</FormLabel>
-                          <FormControl>
-                            <Input
-                              type="number"
-                              placeholder="Duration"
-                              {...field}
-                            />
-                          </FormControl>
-                          <FormMessage />
-                        </FormItem>
-                      )}
-                    />
-
-                    <FormField
-                      control={form.control}
-                      name="durationType"
-                      render={({ field }) => (
-                        <FormItem>
-                          <FormLabel>Duration Type</FormLabel>
-                          <Select onValueChange={field.onChange} defaultValue={field.value}>
+              <TabsContent value="basic" className="space-y-6">
+                <Card>
+                  <CardHeader>
+                    <CardTitle className="flex items-center gap-2">
+                      <MapPin className="h-5 w-5" />
+                      Basic Information
+                    </CardTitle>
+                  </CardHeader>
+                  <CardContent className="space-y-4">
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                      <FormField
+                        control={form.control}
+                        name="name"
+                        render={({ field }) => (
+                          <FormItem>
+                            <FormLabel>Tour Name *</FormLabel>
                             <FormControl>
-                              <SelectTrigger>
-                                <SelectValue />
-                              </SelectTrigger>
+                              <Input placeholder="Enter tour name" {...field} />
                             </FormControl>
-                            <SelectContent>
-                              <SelectItem value="days">Days</SelectItem>
-                              <SelectItem value="hours">Hours</SelectItem>
-                            </SelectContent>
-                          </Select>
-                          <FormMessage />
-                        </FormItem>
-                      )}
-                    />
-                  </div>
+                            <FormMessage />
+                          </FormItem>
+                        )}
+                      />
 
-                  <div className="grid grid-cols-2 gap-4">
+                      <FormField
+                        control={form.control}
+                        name="destinationId"
+                        render={({ field }) => (
+                          <FormItem>
+                            <FormLabel>Destination *</FormLabel>
+                            <Select onValueChange={field.onChange} defaultValue={field.value}>
+                              <FormControl>
+                                <SelectTrigger>
+                                  <SelectValue placeholder="Select destination" />
+                                </SelectTrigger>
+                              </FormControl>
+                              <SelectContent>
+                                {destinationsQuery.data?.map((destination) => (
+                                  <SelectItem key={destination.id} value={destination.id.toString()}>
+                                    {destination.name}
+                                  </SelectItem>
+                                ))}
+                              </SelectContent>
+                            </Select>
+                            <FormMessage />
+                          </FormItem>
+                        )}
+                      />
+
+                      <FormField
+                        control={form.control}
+                        name="categoryId"
+                        render={({ field }) => (
+                          <FormItem>
+                            <FormLabel>Category</FormLabel>
+                            <Select onValueChange={field.onChange} defaultValue={field.value}>
+                              <FormControl>
+                                <SelectTrigger>
+                                  <SelectValue placeholder="Select category" />
+                                </SelectTrigger>
+                              </FormControl>
+                              <SelectContent>
+                                {tourCategoriesQuery.data?.map((category) => (
+                                  <SelectItem key={category.id} value={category.id.toString()}>
+                                    {category.name}
+                                  </SelectItem>
+                                ))}
+                              </SelectContent>
+                            </Select>
+                            <FormMessage />
+                          </FormItem>
+                        )}
+                      />
+
+                      <FormField
+                        control={form.control}
+                        name="tripType"
+                        render={({ field }) => (
+                          <FormItem>
+                            <FormLabel>Trip Type</FormLabel>
+                            <FormControl>
+                              <Input placeholder="e.g., Adventure, Cultural, Relaxation" {...field} />
+                            </FormControl>
+                            <FormMessage />
+                          </FormItem>
+                        )}
+                      />
+                    </div>
+
                     <FormField
                       control={form.control}
-                      name="price"
+                      name="description"
                       render={({ field }) => (
                         <FormItem>
-                          <FormLabel>Price *</FormLabel>
+                          <FormLabel>Description *</FormLabel>
                           <FormControl>
-                            <Input
-                              type="number"
-                              step="0.01"
-                              placeholder="0.00"
+                            <Textarea
+                              placeholder="Enter detailed tour description"
+                              className="min-h-32"
                               {...field}
                             />
                           </FormControl>
@@ -341,17 +410,265 @@ export default function CreateTour() {
                       )}
                     />
 
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                      <FormField
+                        control={form.control}
+                        name="imageUrl"
+                        render={({ field }) => (
+                          <FormItem>
+                            <FormLabel>Main Image URL</FormLabel>
+                            <FormControl>
+                              <Input placeholder="Enter main image URL" {...field} />
+                            </FormControl>
+                            <FormMessage />
+                          </FormItem>
+                        )}
+                      />
+
+                      <div className="flex items-center space-x-6">
+                        <FormField
+                          control={form.control}
+                          name="active"
+                          render={({ field }) => (
+                            <FormItem className="flex flex-row items-center space-x-3 space-y-0">
+                              <FormControl>
+                                <Switch
+                                  checked={field.value}
+                                  onCheckedChange={field.onChange}
+                                />
+                              </FormControl>
+                              <div className="space-y-1 leading-none">
+                                <FormLabel>Active</FormLabel>
+                              </div>
+                            </FormItem>
+                          )}
+                        />
+
+                        <FormField
+                          control={form.control}
+                          name="featured"
+                          render={({ field }) => (
+                            <FormItem className="flex flex-row items-center space-x-3 space-y-0">
+                              <FormControl>
+                                <Switch
+                                  checked={field.value}
+                                  onCheckedChange={field.onChange}
+                                />
+                              </FormControl>
+                              <div className="space-y-1 leading-none">
+                                <FormLabel>Featured</FormLabel>
+                              </div>
+                            </FormItem>
+                          )}
+                        />
+                      </div>
+                    </div>
+                  </CardContent>
+                </Card>
+              </TabsContent>
+
+              <TabsContent value="pricing" className="space-y-6">
+                <Card>
+                  <CardHeader>
+                    <CardTitle className="flex items-center gap-2">
+                      <Clock className="h-5 w-5" />
+                      Duration & Pricing
+                    </CardTitle>
+                  </CardHeader>
+                  <CardContent className="space-y-4">
+                    <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                      <FormField
+                        control={form.control}
+                        name="duration"
+                        render={({ field }) => (
+                          <FormItem>
+                            <FormLabel>Duration *</FormLabel>
+                            <FormControl>
+                              <Input type="number" min="1" placeholder="Enter duration" {...field} />
+                            </FormControl>
+                            <FormMessage />
+                          </FormItem>
+                        )}
+                      />
+
+                      <FormField
+                        control={form.control}
+                        name="durationType"
+                        render={({ field }) => (
+                          <FormItem>
+                            <FormLabel>Duration Type</FormLabel>
+                            <Select onValueChange={field.onChange} defaultValue={field.value}>
+                              <FormControl>
+                                <SelectTrigger>
+                                  <SelectValue placeholder="Select type" />
+                                </SelectTrigger>
+                              </FormControl>
+                              <SelectContent>
+                                <SelectItem value="days">Days</SelectItem>
+                                <SelectItem value="hours">Hours</SelectItem>
+                              </SelectContent>
+                            </Select>
+                            <FormMessage />
+                          </FormItem>
+                        )}
+                      />
+
+                      <FormField
+                        control={form.control}
+                        name="currency"
+                        render={({ field }) => (
+                          <FormItem>
+                            <FormLabel>Currency</FormLabel>
+                            <Select onValueChange={field.onChange} defaultValue={field.value}>
+                              <FormControl>
+                                <SelectTrigger>
+                                  <SelectValue placeholder="Select currency" />
+                                </SelectTrigger>
+                              </FormControl>
+                              <SelectContent>
+                                <SelectItem value="EGP">EGP</SelectItem>
+                                <SelectItem value="USD">USD</SelectItem>
+                                <SelectItem value="EUR">EUR</SelectItem>
+                              </SelectContent>
+                            </Select>
+                            <FormMessage />
+                          </FormItem>
+                        )}
+                      />
+                    </div>
+
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                      <FormField
+                        control={form.control}
+                        name="price"
+                        render={({ field }) => (
+                          <FormItem>
+                            <FormLabel>Regular Price *</FormLabel>
+                            <FormControl>
+                              <Input type="number" min="0" step="0.01" placeholder="Enter price" {...field} />
+                            </FormControl>
+                            <FormMessage />
+                          </FormItem>
+                        )}
+                      />
+
+                      <FormField
+                        control={form.control}
+                        name="discountedPrice"
+                        render={({ field }) => (
+                          <FormItem>
+                            <FormLabel>Discounted Price</FormLabel>
+                            <FormControl>
+                              <Input type="number" min="0" step="0.01" placeholder="Enter discounted price" {...field} />
+                            </FormControl>
+                            <FormMessage />
+                          </FormItem>
+                        )}
+                      />
+                    </div>
+                  </CardContent>
+                </Card>
+              </TabsContent>
+
+              <TabsContent value="details" className="space-y-6">
+                <Card>
+                  <CardHeader>
+                    <CardTitle>Capacity & Details</CardTitle>
+                  </CardHeader>
+                  <CardContent className="space-y-4">
+                    <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                      <FormField
+                        control={form.control}
+                        name="maxCapacity"
+                        render={({ field }) => (
+                          <FormItem>
+                            <FormLabel>Maximum Capacity</FormLabel>
+                            <FormControl>
+                              <Input type="number" min="1" placeholder="Enter max capacity" {...field} />
+                            </FormControl>
+                            <FormMessage />
+                          </FormItem>
+                        )}
+                      />
+
+                      <FormField
+                        control={form.control}
+                        name="maxGroupSize"
+                        render={({ field }) => (
+                          <FormItem>
+                            <FormLabel>Max Group Size</FormLabel>
+                            <FormControl>
+                              <Input type="number" min="1" placeholder="Enter max group size" {...field} />
+                            </FormControl>
+                            <FormMessage />
+                          </FormItem>
+                        )}
+                      />
+
+                      <FormField
+                        control={form.control}
+                        name="numPassengers"
+                        render={({ field }) => (
+                          <FormItem>
+                            <FormLabel>Number of Passengers</FormLabel>
+                            <FormControl>
+                              <Input type="number" min="1" placeholder="Enter number of passengers" {...field} />
+                            </FormControl>
+                            <FormMessage />
+                          </FormItem>
+                        )}
+                      />
+                    </div>
+
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                      <FormField
+                        control={form.control}
+                        name="rating"
+                        render={({ field }) => (
+                          <FormItem>
+                            <FormLabel>Rating (0-5)</FormLabel>
+                            <FormControl>
+                              <Input type="number" min="0" max="5" step="0.1" placeholder="Enter rating" {...field} />
+                            </FormControl>
+                            <FormMessage />
+                          </FormItem>
+                        )}
+                      />
+
+                      <FormField
+                        control={form.control}
+                        name="reviewCount"
+                        render={({ field }) => (
+                          <FormItem>
+                            <FormLabel>Review Count</FormLabel>
+                            <FormControl>
+                              <Input type="number" min="0" placeholder="Enter review count" {...field} />
+                            </FormControl>
+                            <FormMessage />
+                          </FormItem>
+                        )}
+                      />
+                    </div>
+                  </CardContent>
+                </Card>
+              </TabsContent>
+
+              <TabsContent value="content" className="space-y-6">
+                <Card>
+                  <CardHeader>
+                    <CardTitle>Itinerary & Inclusions</CardTitle>
+                  </CardHeader>
+                  <CardContent className="space-y-6">
                     <FormField
                       control={form.control}
-                      name="discountedPrice"
+                      name="itinerary"
                       render={({ field }) => (
                         <FormItem>
-                          <FormLabel>Discounted Price</FormLabel>
+                          <FormLabel>Itinerary</FormLabel>
                           <FormControl>
-                            <Input
-                              type="number"
-                              step="0.01"
-                              placeholder="0.00"
+                            <Textarea
+                              placeholder="Enter detailed itinerary"
+                              className="min-h-32"
                               {...field}
                             />
                           </FormControl>
@@ -359,208 +676,294 @@ export default function CreateTour() {
                         </FormItem>
                       )}
                     />
-                  </div>
 
-                  <FormField
-                    control={form.control}
-                    name="currency"
-                    render={({ field }) => (
-                      <FormItem>
-                        <FormLabel>Currency</FormLabel>
-                        <Select onValueChange={field.onChange} defaultValue={field.value}>
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                      <div>
+                        <Label className="text-sm font-medium">Included Items</Label>
+                        <div className="space-y-2">
+                          <div className="flex gap-2">
+                            <Input
+                              placeholder="Add included item"
+                              onKeyDown={(e) => {
+                                if (e.key === 'Enter') {
+                                  e.preventDefault();
+                                  const target = e.target as HTMLInputElement;
+                                  addIncludedItem(target.value);
+                                  target.value = '';
+                                }
+                              }}
+                            />
+                            <Button
+                              type="button"
+                              size="sm"
+                              onClick={(e) => {
+                                const input = (e.target as HTMLElement).previousElementSibling as HTMLInputElement;
+                                addIncludedItem(input.value);
+                                input.value = '';
+                              }}
+                            >
+                              <Plus className="h-4 w-4" />
+                            </Button>
+                          </div>
+                          <div className="flex flex-wrap gap-2">
+                            {includedItems.map((item, index) => (
+                              <Badge key={index} variant="secondary" className="gap-1">
+                                {item}
+                                <X
+                                  className="h-3 w-3 cursor-pointer"
+                                  onClick={() => removeIncludedItem(index)}
+                                />
+                              </Badge>
+                            ))}
+                          </div>
+                        </div>
+                      </div>
+
+                      <div>
+                        <Label className="text-sm font-medium">Excluded Items</Label>
+                        <div className="space-y-2">
+                          <div className="flex gap-2">
+                            <Input
+                              placeholder="Add excluded item"
+                              onKeyDown={(e) => {
+                                if (e.key === 'Enter') {
+                                  e.preventDefault();
+                                  const target = e.target as HTMLInputElement;
+                                  addExcludedItem(target.value);
+                                  target.value = '';
+                                }
+                              }}
+                            />
+                            <Button
+                              type="button"
+                              size="sm"
+                              onClick={(e) => {
+                                const input = (e.target as HTMLElement).previousElementSibling as HTMLInputElement;
+                                addExcludedItem(input.value);
+                                input.value = '';
+                              }}
+                            >
+                              <Plus className="h-4 w-4" />
+                            </Button>
+                          </div>
+                          <div className="flex flex-wrap gap-2">
+                            {excludedItems.map((item, index) => (
+                              <Badge key={index} variant="outline" className="gap-1">
+                                {item}
+                                <X
+                                  className="h-3 w-3 cursor-pointer"
+                                  onClick={() => removeExcludedItem(index)}
+                                />
+                              </Badge>
+                            ))}
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                  </CardContent>
+                </Card>
+              </TabsContent>
+
+              <TabsContent value="arabic" className="space-y-6">
+                <Card>
+                  <CardHeader>
+                    <CardTitle className="flex items-center gap-2">
+                      <Languages className="h-5 w-5" />
+                      Arabic Version
+                    </CardTitle>
+                  </CardHeader>
+                  <CardContent className="space-y-4">
+                    <FormField
+                      control={form.control}
+                      name="hasArabicVersion"
+                      render={({ field }) => (
+                        <FormItem className="flex flex-row items-center space-x-3 space-y-0">
                           <FormControl>
-                            <SelectTrigger>
-                              <SelectValue />
-                            </SelectTrigger>
+                            <Switch
+                              checked={field.value}
+                              onCheckedChange={field.onChange}
+                            />
                           </FormControl>
-                          <SelectContent>
-                            <SelectItem value="EGP">EGP</SelectItem>
-                            <SelectItem value="USD">USD</SelectItem>
-                            <SelectItem value="EUR">EUR</SelectItem>
-                          </SelectContent>
-                        </Select>
-                        <FormMessage />
-                      </FormItem>
+                          <div className="space-y-1 leading-none">
+                            <FormLabel>Enable Arabic Version</FormLabel>
+                            <FormDescription>
+                              Create an Arabic version of this tour
+                            </FormDescription>
+                          </div>
+                        </FormItem>
+                      )}
+                    />
+
+                    {form.watch("hasArabicVersion") && (
+                      <div className="space-y-4 pt-4 border-t">
+                        <FormField
+                          control={form.control}
+                          name="nameAr"
+                          render={({ field }) => (
+                            <FormItem>
+                              <FormLabel>Tour Name (Arabic)</FormLabel>
+                              <FormControl>
+                                <Input placeholder="أدخل اسم الجولة" dir="rtl" {...field} />
+                              </FormControl>
+                              <FormMessage />
+                            </FormItem>
+                          )}
+                        />
+
+                        <FormField
+                          control={form.control}
+                          name="descriptionAr"
+                          render={({ field }) => (
+                            <FormItem>
+                              <FormLabel>Description (Arabic)</FormLabel>
+                              <FormControl>
+                                <Textarea
+                                  placeholder="أدخل وصف الجولة"
+                                  className="min-h-32"
+                                  dir="rtl"
+                                  {...field}
+                                />
+                              </FormControl>
+                              <FormMessage />
+                            </FormItem>
+                          )}
+                        />
+
+                        <FormField
+                          control={form.control}
+                          name="itineraryAr"
+                          render={({ field }) => (
+                            <FormItem>
+                              <FormLabel>Itinerary (Arabic)</FormLabel>
+                              <FormControl>
+                                <Textarea
+                                  placeholder="أدخل برنامج الجولة"
+                                  className="min-h-32"
+                                  dir="rtl"
+                                  {...field}
+                                />
+                              </FormControl>
+                              <FormMessage />
+                            </FormItem>
+                          )}
+                        />
+
+                        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                          <div>
+                            <Label className="text-sm font-medium">العناصر المشمولة</Label>
+                            <div className="space-y-2">
+                              <div className="flex gap-2">
+                                <Input
+                                  placeholder="أضف عنصر مشمول"
+                                  dir="rtl"
+                                  onKeyDown={(e) => {
+                                    if (e.key === 'Enter') {
+                                      e.preventDefault();
+                                      const target = e.target as HTMLInputElement;
+                                      addIncludedItemAr(target.value);
+                                      target.value = '';
+                                    }
+                                  }}
+                                />
+                                <Button
+                                  type="button"
+                                  size="sm"
+                                  onClick={(e) => {
+                                    const input = (e.target as HTMLElement).previousElementSibling as HTMLInputElement;
+                                    addIncludedItemAr(input.value);
+                                    input.value = '';
+                                  }}
+                                >
+                                  <Plus className="h-4 w-4" />
+                                </Button>
+                              </div>
+                              <div className="flex flex-wrap gap-2">
+                                {includedItemsAr.map((item, index) => (
+                                  <Badge key={index} variant="secondary" className="gap-1">
+                                    {item}
+                                    <X
+                                      className="h-3 w-3 cursor-pointer"
+                                      onClick={() => removeIncludedItemAr(index)}
+                                    />
+                                  </Badge>
+                                ))}
+                              </div>
+                            </div>
+                          </div>
+
+                          <div>
+                            <Label className="text-sm font-medium">العناصر غير المشمولة</Label>
+                            <div className="space-y-2">
+                              <div className="flex gap-2">
+                                <Input
+                                  placeholder="أضف عنصر غير مشمول"
+                                  dir="rtl"
+                                  onKeyDown={(e) => {
+                                    if (e.key === 'Enter') {
+                                      e.preventDefault();
+                                      const target = e.target as HTMLInputElement;
+                                      addExcludedItemAr(target.value);
+                                      target.value = '';
+                                    }
+                                  }}
+                                />
+                                <Button
+                                  type="button"
+                                  size="sm"
+                                  onClick={(e) => {
+                                    const input = (e.target as HTMLElement).previousElementSibling as HTMLInputElement;
+                                    addExcludedItemAr(input.value);
+                                    input.value = '';
+                                  }}
+                                >
+                                  <Plus className="h-4 w-4" />
+                                </Button>
+                              </div>
+                              <div className="flex flex-wrap gap-2">
+                                {excludedItemsAr.map((item, index) => (
+                                  <Badge key={index} variant="outline" className="gap-1">
+                                    {item}
+                                    <X
+                                      className="h-3 w-3 cursor-pointer"
+                                      onClick={() => removeExcludedItemAr(index)}
+                                    />
+                                  </Badge>
+                                ))}
+                              </div>
+                            </div>
+                          </div>
+                        </div>
+                      </div>
                     )}
-                  />
+                  </CardContent>
+                </Card>
+              </TabsContent>
+            </Tabs>
 
-                  <div className="grid grid-cols-2 gap-4">
-                    <FormField
-                      control={form.control}
-                      name="maxCapacity"
-                      render={({ field }) => (
-                        <FormItem>
-                          <FormLabel>Max Capacity</FormLabel>
-                          <FormControl>
-                            <Input
-                              type="number"
-                              placeholder="Max capacity"
-                              {...field}
-                            />
-                          </FormControl>
-                          <FormMessage />
-                        </FormItem>
-                      )}
-                    />
+            <Separator />
 
-                    <FormField
-                      control={form.control}
-                      name="maxGroupSize"
-                      render={({ field }) => (
-                        <FormItem>
-                          <FormLabel>Max Group Size</FormLabel>
-                          <FormControl>
-                            <Input
-                              type="number"
-                              placeholder="Max group size"
-                              {...field}
-                            />
-                          </FormControl>
-                          <FormMessage />
-                        </FormItem>
-                      )}
-                    />
-                  </div>
-                </div>
-              </div>
-
-              {/* Additional Details */}
-              <div className="space-y-4">
-                <FormField
-                  control={form.control}
-                  name="imageUrl"
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel>Image URL</FormLabel>
-                      <FormControl>
-                        <Input placeholder="https://..." {...field} />
-                      </FormControl>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
-
-                <FormField
-                  control={form.control}
-                  name="included"
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel>Included Items</FormLabel>
-                      <FormControl>
-                        <Textarea
-                          placeholder="Enter each included item on a new line"
-                          rows={4}
-                          {...field}
-                        />
-                      </FormControl>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
-
-                <FormField
-                  control={form.control}
-                  name="excluded"
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel>Excluded Items</FormLabel>
-                      <FormControl>
-                        <Textarea
-                          placeholder="Enter each excluded item on a new line"
-                          rows={4}
-                          {...field}
-                        />
-                      </FormControl>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
-
-                <FormField
-                  control={form.control}
-                  name="itinerary"
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel>Itinerary</FormLabel>
-                      <FormControl>
-                        <Textarea
-                          placeholder="Describe the tour itinerary"
-                          rows={6}
-                          {...field}
-                        />
-                      </FormControl>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
-              </div>
-
-              {/* Status and Features */}
-              <div className="flex items-center space-x-6">
-                <FormField
-                  control={form.control}
-                  name="active"
-                  render={({ field }) => (
-                    <FormItem className="flex flex-row items-center justify-between rounded-lg border p-4">
-                      <div className="space-y-0.5">
-                        <FormLabel className="text-base">Active</FormLabel>
-                        <div className="text-[13px] text-muted-foreground">
-                          Tour is visible to customers
-                        </div>
-                      </div>
-                      <FormControl>
-                        <Switch
-                          checked={field.value}
-                          onCheckedChange={field.onChange}
-                        />
-                      </FormControl>
-                    </FormItem>
-                  )}
-                />
-
-                <FormField
-                  control={form.control}
-                  name="featured"
-                  render={({ field }) => (
-                    <FormItem className="flex flex-row items-center justify-between rounded-lg border p-4">
-                      <div className="space-y-0.5">
-                        <FormLabel className="text-base">Featured</FormLabel>
-                        <div className="text-[13px] text-muted-foreground">
-                          Show in featured tours section
-                        </div>
-                      </div>
-                      <FormControl>
-                        <Switch
-                          checked={field.value}
-                          onCheckedChange={field.onChange}
-                        />
-                      </FormControl>
-                    </FormItem>
-                  )}
-                />
-              </div>
-
-              {/* Submit Button */}
-              <div className="flex justify-end space-x-4">
-                <Button
-                  type="button"
-                  variant="outline"
-                  onClick={() => setLocation("/admin/tours")}
-                >
-                  Cancel
-                </Button>
-                <Button type="submit" disabled={createTourMutation.isPending}>
-                  {createTourMutation.isPending && (
+            <div className="flex justify-end space-x-4">
+              <Button
+                type="button"
+                variant="outline"
+                onClick={() => setLocation("/admin/tours")}
+              >
+                Cancel
+              </Button>
+              <Button type="submit" disabled={createTourMutation.isPending} className="bg-blue-600 hover:bg-blue-700">
+                {createTourMutation.isPending ? (
+                  <>
                     <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                  )}
-                  <Save className="mr-2 h-4 w-4" />
-                  Create Tour
-                </Button>
-              </div>
-            </form>
-          </Form>
-        </CardContent>
-      </Card>
-    </div>
+                    Creating Tour...
+                  </>
+                ) : (
+                  "Create Tour"
+                )}
+              </Button>
+            </div>
+          </form>
+        </Form>
+      </div>
+    </DashboardLayout>
   );
 }
