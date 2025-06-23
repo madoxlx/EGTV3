@@ -1,4 +1,4 @@
-import type { Express, Request, Response } from "express";
+import express, { Express, Request, Response } from "express";
 import multer from "multer";
 import path from "path";
 import fs from "fs";
