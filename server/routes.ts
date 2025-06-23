@@ -2334,7 +2334,14 @@ export async function registerRoutes(app: Express): Promise<Server> {
         }
       }
       
-      const newTour = await storage.createTour(tourData);
+      // Add created_by and updated_by fields based on authenticated user
+      const tourDataWithUser = {
+        ...tourData,
+        createdBy: req.user?.id || null,
+        updatedBy: req.user?.id || null
+      };
+      
+      const newTour = await storage.createTour(tourDataWithUser);
       res.status(201).json(newTour);
     } catch (error) {
       if (error instanceof z.ZodError) {
@@ -2371,7 +2378,13 @@ export async function registerRoutes(app: Express): Promise<Server> {
       }
       
       // Perform the update
-      const updatedTour = await storage.updateTour(id, updateData);
+      // Add updated_by field based on authenticated user
+      const updateDataWithUser = {
+        ...updateData,
+        updatedBy: req.user?.id || null
+      };
+      
+      const updatedTour = await storage.updateTour(id, updateDataWithUser);
       res.json(updatedTour);
     } catch (error) {
       if (error instanceof z.ZodError) {
