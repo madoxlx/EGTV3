@@ -242,20 +242,35 @@ export function TourCreatorForm({ tourId }: TourCreatorFormProps) {
       };
 
       const existingImageUrl = getCleanUrl(existingTour?.imageUrl || existingTour?.image_url || '');
-      const existingGalleryUrls = (existingTour?.galleryUrls || existingTour?.gallery_urls || [])
-        .filter((url: string) => getCleanUrl(url))
-        .map((url: string) => getCleanUrl(url))
+      
+      // Get existing images that are still present in the current images state (not deleted by user)
+      const currentExistingImages = images
+        .filter(img => !img.file && !img.isMain && img.preview.startsWith('/uploads'))
+        .map(img => getCleanUrl(img.preview))
         .filter(Boolean);
 
+      // Also get existing gallery images from the separate gallery state
+      const currentExistingGalleryImages = galleryImages
+        .filter(img => !img.file && img.preview.startsWith('/uploads'))
+        .map(img => getCleanUrl(img.preview))
+        .filter(Boolean);
+
+      // Combine all existing images with newly uploaded ones
+      const allExistingImages = [...currentExistingImages, ...currentExistingGalleryImages];
+      const combinedGalleryUrls = [...allExistingImages, ...galleryUrls].filter(Boolean);
+      
       // Ensure clean URLs in final data
       const cleanImageUrl = imageUrl || existingImageUrl;
-      const cleanGalleryUrls = galleryUrls.length > 0 ? galleryUrls : existingGalleryUrls;
+      const cleanGalleryUrls = combinedGalleryUrls;
       
       console.log('Final image data:', { 
         newImageUrl: imageUrl, 
         existingImageUrl, 
         finalImageUrl: cleanImageUrl,
-        galleryCount: cleanGalleryUrls.length 
+        newGalleryCount: galleryUrls.length,
+        existingGalleryCount: allExistingImages.length,
+        totalGalleryCount: cleanGalleryUrls.length,
+        combinedGallery: cleanGalleryUrls
       });
 
       const finalData = {
@@ -443,7 +458,27 @@ export function TourCreatorForm({ tourId }: TourCreatorFormProps) {
   };
 
   const handleRemoveGalleryImage = (id: string) => {
+    const imageToRemove = galleryImages.find(img => img.id === id);
+    console.log('Removing gallery image:', { id, imageToRemove });
+    
     setGalleryImages(prev => prev.filter(img => img.id !== id));
+    
+    // If it's a blob URL, revoke it to free memory
+    if (imageToRemove?.preview && imageToRemove.preview.startsWith('blob:')) {
+      URL.revokeObjectURL(imageToRemove.preview);
+    }
+  };
+
+  const handleRemoveImage = (id: string) => {
+    const imageToRemove = images.find(img => img.id === id);
+    console.log('Removing main/gallery image:', { id, imageToRemove });
+    
+    setImages(prev => prev.filter(img => img.id !== id));
+    
+    // If it's a blob URL, revoke it to free memory
+    if (imageToRemove?.preview && imageToRemove.preview.startsWith('blob:')) {
+      URL.revokeObjectURL(imageToRemove.preview);
+    }
   };
 
   const handleAddInclusion = () => {
@@ -991,7 +1026,12 @@ export function TourCreatorForm({ tourId }: TourCreatorFormProps) {
                       variant="destructive"
                       size="sm"
                       className="absolute top-1 right-1 h-6 w-6 p-0"
-                      onClick={() => setImages(prev => prev.filter(img => !img.isMain))}
+                      onClick={() => {
+                        const mainImage = images.find(img => img.isMain);
+                        if (mainImage) {
+                          handleRemoveImage(mainImage.id);
+                        }
+                      }}
                     >
                       <X className="h-3 w-3" />
                     </Button>
@@ -1017,8 +1057,9 @@ export function TourCreatorForm({ tourId }: TourCreatorFormProps) {
                     <p className="mt-2 text-sm text-gray-600">انقر لرفع صور معرض الصور</p>
                   </div>
                 </Label>
-                {galleryImages.length > 0 && (
+                {(galleryImages.length > 0 || images.filter(img => !img.isMain).length > 0) && (
                   <div className="mt-4 grid grid-cols-4 gap-4">
+                    {/* Display gallery images from galleryImages state */}
                     {galleryImages.map((image) => (
                       <div key={image.id} className="relative">
                         <img
@@ -1038,6 +1079,31 @@ export function TourCreatorForm({ tourId }: TourCreatorFormProps) {
                           size="sm"
                           className="absolute top-1 right-1 h-6 w-6 p-0"
                           onClick={() => handleRemoveGalleryImage(image.id)}
+                        >
+                          <X className="h-3 w-3" />
+                        </Button>
+                      </div>
+                    ))}
+                    {/* Also display existing gallery images from main images state */}
+                    {images.filter(img => !img.isMain).map((image) => (
+                      <div key={image.id} className="relative">
+                        <img
+                          src={image.preview}
+                          alt="Gallery image"
+                          className="w-full h-24 object-cover rounded-lg"
+                          onError={(e) => {
+                            const target = e.target as HTMLImageElement;
+                            target.style.display = 'none';
+                            console.error('Failed to load gallery image:', target.src);
+                          }}
+                          onLoad={() => console.log('Gallery image loaded successfully:', image.preview)}
+                        />
+                        <Button
+                          type="button"
+                          variant="destructive"
+                          size="sm"
+                          className="absolute top-1 right-1 h-6 w-6 p-0"
+                          onClick={() => handleRemoveImage(image.id)}
                         >
                           <X className="h-3 w-3" />
                         </Button>

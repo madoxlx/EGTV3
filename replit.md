@@ -106,6 +106,16 @@ The application uses a comprehensive PostgreSQL schema with the following core e
 
 ## Recent Changes
 
+- **Complete Tour Image Management System Fix (June 23, 2025)**: Fixed comprehensive image management in tour edit functionality
+  - Resolved issue where updating tours deleted all existing images except newly uploaded ones
+  - Implemented proper image preservation during updates - existing images are kept unless specifically deleted
+  - Added individual image deletion capabilities for both main and gallery images
+  - Enhanced image state management to combine existing and new images properly
+  - Fixed main image removal button to use proper handleRemoveImage function
+  - Added unified gallery display showing both existing and newly uploaded images
+  - Improved memory management with proper blob URL cleanup
+  - System now supports: add new images, delete specific images, update while preserving existing images
+
 - **Tour Image Management Professional Cleanup (June 23, 2025)**: Implemented professional image URL handling
   - Added clean URL validation to prevent blob URLs from being saved to database
   - Implemented `getCleanUrl` function that only allows proper server URLs starting with /uploads
