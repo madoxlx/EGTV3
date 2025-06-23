@@ -1,7 +1,6 @@
 import { useState } from "react";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { useLocation } from "wouter";
-
 import { apiRequest } from "@/lib/queryClient";
 import { useToast } from "@/hooks/use-toast";
 import { useLanguage } from "@/hooks/use-language";
@@ -45,93 +44,183 @@ import { Textarea } from "@/components/ui/textarea";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
 import * as z from "zod";
-import { ArrowDownUp, ArrowUpDown, ClockIcon, Loader2, Pencil, Plus, Search, Trash2 } from "lucide-react";
+import { ArrowDownUp, ArrowUpDown, ClockIcon, Loader2, Pencil, Plus, Search, Trash2, Calendar } from "lucide-react";
 import { Switch } from "@/components/ui/switch";
 import { Label } from "@/components/ui/label";
-import { format, parseISO } from "date-fns";
+import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
+import { Calendar as CalendarComponent } from "@/components/ui/calendar";
+import { format } from "date-fns";
+import { cn } from "@/lib/utils";
 
-// Zod schema for tour validation
-const tourSchema = z.object({
-  name: z.string().min(1, "Tour name is required"),
-  description: z.string().min(1, "Description is required"),
-  price: z.coerce.number().min(0, "Price must be non-negative"),
-  duration: z.coerce.number().min(1, "Duration must be at least 1"),
-  durationType: z.enum(["days", "hours"], { message: "Please select duration type" }),
-  maxGroupSize: z.coerce.number().min(1, "Max group size must be at least 1"),
-  difficulty: z.enum(["Easy", "Moderate", "Hard"]),
-  categoryId: z.coerce.number().min(1, "Category is required"),
-  locationId: z.coerce.number().min(1, "Location is required"),
-  startDate: z.string().min(1, "Start date is required"),
-  endDate: z.string().min(1, "End date is required"),
-  isActive: z.boolean().default(true),
-  includes: z.string().optional(),
-  excludes: z.string().optional(),
-  highlights: z.string().optional(),
-  itinerary: z.string().optional(),
-  gallery: z.array(z.string()).default([]),
+// Form validation schema matching database structure
+const TourFormSchema = z.object({
+  // Required fields
+  name: z.string().min(2, "Name must be at least 2 characters"),
+  description: z.string().min(10, "Description must be at least 10 characters"),
+  destinationId: z.string().transform(val => parseInt(val)).refine(val => val > 0, "Please select a destination"),
+  duration: z.string().transform(val => parseInt(val)).refine(val => val > 0, "Duration must be greater than 0"),
+  price: z.string().transform(val => parseFloat(val)).refine(val => val > 0, "Price must be greater than 0"),
+  
+  // Optional fields matching database schema
+  maxCapacity: z.string().transform(val => val ? parseInt(val) : null).optional(),
+  imageUrl: z.string().optional(),
+  active: z.boolean().default(true),
   featured: z.boolean().default(false),
-  maxCapacity: z.coerce.number().min(1, "Max capacity is required"),
+  currency: z.string().default("EGP"),
+  galleryUrls: z.array(z.string()).optional(),
+  startDate: z.date().optional(),
+  endDate: z.date().optional(),
+  tripType: z.string().optional(),
+  numPassengers: z.string().transform(val => val ? parseInt(val) : null).optional(),
+  discountedPrice: z.string().transform(val => val ? parseFloat(val) : null).optional(),
+  included: z.string().optional(), // Will be parsed to JSON
+  excluded: z.string().optional(), // Will be parsed to JSON
+  itinerary: z.string().optional(),
+  maxGroupSize: z.string().transform(val => val ? parseInt(val) : null).optional(),
+  rating: z.string().transform(val => val ? parseFloat(val) : null).optional(),
+  reviewCount: z.string().transform(val => val ? parseInt(val) : null).optional(),
+  status: z.string().default("active"),
+  
+  // Arabic version fields
+  nameAr: z.string().optional(),
+  descriptionAr: z.string().optional(),
+  itineraryAr: z.string().optional(),
+  includedAr: z.string().optional(), // Will be parsed to JSON
+  excludedAr: z.string().optional(), // Will be parsed to JSON
+  hasArabicVersion: z.boolean().default(false),
+  
+  // Category and duration type
+  categoryId: z.string().transform(val => val ? parseInt(val) : null).optional(),
+  durationType: z.enum(["days", "hours"], { required_error: "Please select duration type" }),
+  date: z.date().optional(),
 });
 
-type TourFormValues = z.infer<typeof tourSchema>;
-type TourFormInput = z.input<typeof tourSchema>;
+type TourFormValues = z.infer<typeof TourFormSchema>;
 
 export default function ToursManagement() {
-  const [, setLocation] = useLocation();
-  const [searchQuery, setSearchQuery] = useState("");
-  const [sortBy, setSortBy] = useState<"name" | "updatedAt" | "createdAt">("name");
-  const [sortOrder, setSortOrder] = useState<"asc" | "desc">("asc");
-  const [selectedCategory, setSelectedCategory] = useState<string>("all");
+  const [location] = useLocation();
+  const { t } = useLanguage();
+  const { toast } = useToast();
+  const queryClient = useQueryClient();
+
+  // State
   const [isCreateDialogOpen, setIsCreateDialogOpen] = useState(false);
   const [isEditDialogOpen, setIsEditDialogOpen] = useState(false);
   const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false);
-  const [isArabicDialogOpen, setIsArabicDialogOpen] = useState(false);
-  const [editingTour, setEditingTour] = useState<any>(null);
+  const [selectedTour, setSelectedTour] = useState<any>(null);
   const [deletingTour, setDeletingTour] = useState<any>(null);
-  const [arabicTour, setArabicTour] = useState<any>(null);
 
-  const { toast } = useToast();
-  const queryClient = useQueryClient();
-  const { t } = useLanguage();
-
-  // Fetch tours
-  const {
-    data: tours = [],
-    isLoading,
-    error,
-  } = useQuery({
+  // Fetch tours data
+  const { data: tours = [], isLoading } = useQuery({
     queryKey: ["/api/tours"],
   });
 
-  // Fetch tour categories
+  // Fetch categories
   const { data: categories = [] } = useQuery({
     queryKey: ["/api/tour-categories"],
   });
 
-  // Fetch destinations (locations)
-  const { data: locations = [] } = useQuery({
+  // Fetch destinations
+  const { data: destinations = [] } = useQuery({
     queryKey: ["/api/destinations"],
   });
+
+  // Create form
+  const form = useForm<TourFormValues>({
+    resolver: zodResolver(TourFormSchema),
+    defaultValues: {
+      name: "",
+      description: "",
+      destinationId: "",
+      duration: "",
+      price: "",
+      active: true,
+      featured: false,
+      currency: "EGP",
+      status: "active",
+      durationType: "days",
+      hasArabicVersion: false,
+    },
+  });
+
+  // Edit form
+  const editForm = useForm<TourFormValues>({
+    resolver: zodResolver(TourFormSchema),
+    defaultValues: {
+      name: "",
+      description: "",
+      destinationId: "",
+      duration: "",
+      price: "",
+      active: true,
+      featured: false,
+      currency: "EGP",
+      status: "active",
+      durationType: "days",
+      hasArabicVersion: false,
+    },
+  });
+
+  // Helper function to prepare form data for API
+  const prepareFormData = (data: TourFormValues) => {
+    const formData = { ...data };
+    
+    // Parse JSON fields
+    if (formData.included) {
+      try {
+        formData.included = JSON.parse(formData.included);
+      } catch {
+        formData.included = formData.included.split('\n').filter(item => item.trim());
+      }
+    }
+    
+    if (formData.excluded) {
+      try {
+        formData.excluded = JSON.parse(formData.excluded);
+      } catch {
+        formData.excluded = formData.excluded.split('\n').filter(item => item.trim());
+      }
+    }
+    
+    if (formData.includedAr) {
+      try {
+        formData.includedAr = JSON.parse(formData.includedAr);
+      } catch {
+        formData.includedAr = formData.includedAr.split('\n').filter(item => item.trim());
+      }
+    }
+    
+    if (formData.excludedAr) {
+      try {
+        formData.excludedAr = JSON.parse(formData.excludedAr);
+      } catch {
+        formData.excludedAr = formData.excludedAr.split('\n').filter(item => item.trim());
+      }
+    }
+
+    return formData;
+  };
 
   // Create tour mutation
   const createTourMutation = useMutation({
     mutationFn: async (data: TourFormValues) => {
-      const response = await apiRequest("/api/tours", {
+      const preparedData = prepareFormData(data);
+      return await apiRequest("/api/tours", {
         method: "POST",
-        body: JSON.stringify(data),
+        body: JSON.stringify(preparedData),
+        headers: { "Content-Type": "application/json" },
       });
-      return response;
     },
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ["/api/tours"] });
       toast({
         title: "Success",
         description: "Tour created successfully",
       });
+      queryClient.invalidateQueries({ queryKey: ["/api/tours"] });
       setIsCreateDialogOpen(false);
-      createForm.reset();
+      form.reset();
     },
-    onError: (error: Error) => {
+    onError: (error: any) => {
       toast({
         title: "Error",
         description: error.message || "Failed to create tour",
@@ -142,24 +231,24 @@ export default function ToursManagement() {
 
   // Update tour mutation
   const updateTourMutation = useMutation({
-    mutationFn: async ({ id, data }: { id: number; data: TourFormValues }) => {
-      const response = await apiRequest(`/api/tours/${id}`, {
-        method: "PATCH",
-        body: JSON.stringify(data),
+    mutationFn: async (data: TourFormValues) => {
+      const preparedData = prepareFormData(data);
+      return await apiRequest(`/api/tours/${selectedTour.id}`, {
+        method: "PUT",
+        body: JSON.stringify(preparedData),
+        headers: { "Content-Type": "application/json" },
       });
-      return response;
     },
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ["/api/tours"] });
       toast({
         title: "Success",
         description: "Tour updated successfully",
       });
+      queryClient.invalidateQueries({ queryKey: ["/api/tours"] });
       setIsEditDialogOpen(false);
-      editForm.reset();
-      setEditingTour(null);
+      setSelectedTour(null);
     },
-    onError: (error: Error) => {
+    onError: (error: any) => {
       toast({
         title: "Error",
         description: error.message || "Failed to update tour",
@@ -171,21 +260,18 @@ export default function ToursManagement() {
   // Delete tour mutation
   const deleteTourMutation = useMutation({
     mutationFn: async (id: number) => {
-      const response = await apiRequest(`/api/tours/${id}`, {
-        method: "DELETE",
-      });
-      return response;
+      return await apiRequest(`/api/tours/${id}`, { method: "DELETE" });
     },
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ["/api/tours"] });
       toast({
         title: "Success",
         description: "Tour deleted successfully",
       });
+      queryClient.invalidateQueries({ queryKey: ["/api/tours"] });
       setIsDeleteDialogOpen(false);
       setDeletingTour(null);
     },
-    onError: (error: Error) => {
+    onError: (error: any) => {
       toast({
         title: "Error",
         description: error.message || "Failed to delete tour",
@@ -194,121 +280,64 @@ export default function ToursManagement() {
     },
   });
 
-  // Forms
-  const createForm = useForm<TourFormInput>({
-    resolver: zodResolver(tourSchema),
-    defaultValues: {
-      name: "",
-      description: "",
-      price: 0,
-      duration: 1,
-      durationType: "days",
-      maxGroupSize: 1,
-      difficulty: "Easy",
-      categoryId: 0,
-      locationId: 0,
-      startDate: "",
-      endDate: "",
-      isActive: true,
-      includes: "",
-      excludes: "",
-      highlights: "",
-      itinerary: "",
-      gallery: [],
-      featured: false,
-      maxCapacity: 1,
-    },
-  });
-
-  const editForm = useForm<TourFormInput>({
-    resolver: zodResolver(tourSchema),
-    defaultValues: {
-      name: "",
-      description: "",
-      price: 0,
-      duration: 1,
-      durationType: "days",
-      maxGroupSize: 1,
-      difficulty: "Easy",
-      categoryId: 0,
-      locationId: 0,
-      startDate: "",
-      endDate: "",
-      isActive: true,
-      includes: "",
-      excludes: "",
-      highlights: "",
-      itinerary: "",
-      gallery: [],
-      featured: false,
-      maxCapacity: 1,
-    },
-  });
-
-  // Dialog handlers
-  const onCreateDialogOpenChange = (open: boolean) => {
-    setIsCreateDialogOpen(open);
-    if (!open) {
-      createForm.reset();
-    }
+  // Handle form submissions
+  const onCreateSubmit = (data: TourFormValues) => {
+    createTourMutation.mutate(data);
   };
 
-  const onEditDialogOpenChange = (open: boolean) => {
-    setIsEditDialogOpen(open);
-    if (!open) {
-      editForm.reset();
-      setEditingTour(null);
-    }
+  const onEditSubmit = (data: TourFormValues) => {
+    updateTourMutation.mutate(data);
   };
 
-  const onDeleteDialogOpenChange = (open: boolean) => {
-    setIsDeleteDialogOpen(open);
-    if (!open) {
-      setDeletingTour(null);
-    }
-  };
-
-  // Form handlers
-  const onCreateSubmit = (data: TourFormInput) => {
-    createTourMutation.mutate({
-      ...data,
-      category_id: parseInt(data.categoryId as any, 10),
-      destination_id: parseInt(data.locationId as any, 10),
-      max_capacity: parseInt(data.maxCapacity as any, 10),
-    } as TourFormValues);
-  };
-
-  const onEditSubmit = (data: TourFormInput) => {
-    if (editingTour) {
-      const status = data.isActive ? "active" : "inactive";
-      const active = !!data.isActive;
-      updateTourMutation.mutate({
-        id: editingTour.id,
-        data: {
-          ...data,
-          status,
-          active,
-          tripType: data.tripType,
-          category_id: parseInt(data.categoryId as any, 10),
-          destination_id: parseInt(data.locationId as any, 10),
-          max_capacity: parseInt(data.maxCapacity as any, 10),
-        },
-      });
-    }
-  };
-
-  // Helper functions
-  function getQuery(url: string) {
-    const urlObj = new URL(url, window.location.origin);
-    return Object.fromEntries(urlObj.searchParams.entries());
-  }
-
-  // Event handlers
+  // Handle edit tour
   const handleEdit = (tour: any) => {
-    // Navigate to dedicated edit page
-    setLocation(`/admin/tours/edit/${tour.id}`);
+    setSelectedTour(tour);
+    
+    // Format included/excluded arrays as strings
+    const formatArrayField = (field: any) => {
+      if (!field) return "";
+      if (Array.isArray(field)) return field.join('\n');
+      return JSON.stringify(field, null, 2);
+    };
+
+    editForm.reset({
+      name: tour.name || "",
+      description: tour.description || "",
+      destinationId: tour.destination_id?.toString() || "",
+      duration: tour.duration?.toString() || "",
+      price: tour.price?.toString() || "",
+      maxCapacity: tour.max_capacity?.toString() || "",
+      imageUrl: tour.image_url || "",
+      active: tour.active !== undefined ? tour.active : true,
+      featured: tour.featured || false,
+      currency: tour.currency || "EGP",
+      galleryUrls: tour.gallery_urls || [],
+      startDate: tour.start_date ? new Date(tour.start_date) : undefined,
+      endDate: tour.end_date ? new Date(tour.end_date) : undefined,
+      tripType: tour.trip_type || "",
+      numPassengers: tour.num_passengers?.toString() || "",
+      discountedPrice: tour.discounted_price?.toString() || "",
+      included: formatArrayField(tour.included),
+      excluded: formatArrayField(tour.excluded),
+      itinerary: tour.itinerary || "",
+      maxGroupSize: tour.max_group_size?.toString() || "",
+      rating: tour.rating?.toString() || "",
+      reviewCount: tour.review_count?.toString() || "",
+      status: tour.status || "active",
+      nameAr: tour.name_ar || "",
+      descriptionAr: tour.description_ar || "",
+      itineraryAr: tour.itinerary_ar || "",
+      includedAr: formatArrayField(tour.included_ar),
+      excludedAr: formatArrayField(tour.excluded_ar),
+      hasArabicVersion: tour.has_arabic_version || false,
+      categoryId: tour.category_id?.toString() || "",
+      durationType: tour.duration_type || "days",
+      date: tour.date ? new Date(tour.date) : undefined,
+    });
+    setIsEditDialogOpen(true);
   };
 
+  // Handle delete tour
   const handleDelete = (tour: any) => {
     setDeletingTour(tour);
     setIsDeleteDialogOpen(true);
@@ -320,128 +349,32 @@ export default function ToursManagement() {
     }
   };
 
-  const handleCreateArabicVersion = (tour: any) => {
-    setArabicTour(tour);
-    setIsArabicDialogOpen(true);
-  };
-
-  const handleEditArabicVersion = (tour: any) => {
-    setArabicTour(tour);
-    setIsArabicDialogOpen(true);
-  };
-
-  // Filter and sort tours
-  const filteredTours = (tours as any[]).filter((tour: any) => {
-    const matchesSearch = tour.name?.toLowerCase().includes(searchQuery.toLowerCase()) ||
-                         tour.description?.toLowerCase().includes(searchQuery.toLowerCase());
-    const matchesCategory = selectedCategory === "all" || tour.categoryId?.toString() === selectedCategory;
-    return matchesSearch && matchesCategory;
-  });
-
-  const sortedTours = [...filteredTours].sort((a: any, b: any) => {
-    let aValue = a[sortBy];
-    let bValue = b[sortBy];
-
-    if (sortBy === "updatedAt" || sortBy === "createdAt") {
-      aValue = new Date(aValue).getTime();
-      bValue = new Date(bValue).getTime();
-    } else if (typeof aValue === "string") {
-      aValue = aValue.toLowerCase();
-      bValue = bValue?.toLowerCase() || "";
-    }
-
-    if (sortOrder === "asc") {
-      return aValue > bValue ? 1 : -1;
-    } else {
-      return aValue < bValue ? 1 : -1;
-    }
-  });
-
-  if (isLoading) {
-    return (
-      <div className="flex items-center justify-center h-64">
-        <Loader2 className="h-8 w-8 animate-spin" />
-      </div>
-    );
-  }
-
-  if (error) {
-    return (
-      <div className="flex items-center justify-center h-64">
-        <div className="text-center">
-          <p className="text-destructive mb-2">Error loading tours</p>
-          <Button onClick={() => window.location.reload()}>Retry</Button>
-        </div>
-      </div>
-    );
-  }
-
   return (
-    <div className="space-y-4 p-4 sm:p-6 lg:p-8">
-      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
-        <h1 className="text-2xl font-bold tracking-tight">{t('admin.tours.title', 'Tour Management')}</h1>
-        <div className="flex flex-col sm:flex-row gap-4">
-          <div className="relative">
-            <Search className="absolute left-2.5 top-2.5 h-4 w-4 text-muted-foreground" />
-            <Input
-              type="search"
-              placeholder={t('admin.tours.searchPlaceholder', 'Search tours...')}
-              className="pl-8 w-full md:w-[300px]"
-              value={searchQuery}
-              onChange={(e) => setSearchQuery(e.target.value)}
-            />
-          </div>
-          <div className="flex items-center gap-2">
-            <Select
-              value={sortBy}
-              onValueChange={(value) => setSortBy(value as "name" | "updatedAt" | "createdAt")}
-            >
-              <SelectTrigger className="w-[180px]">
-                <SelectValue placeholder={t('admin.tours.sortBy', 'Sort by')} />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="name">{t('admin.tours.sortByName', 'Name')}</SelectItem>
-                <SelectItem value="updatedAt">{t('admin.tours.sortByUpdated', 'Last Updated')}</SelectItem>
-                <SelectItem value="createdAt">{t('admin.tours.sortByCreated', 'Date Created')}</SelectItem>
-              </SelectContent>
-            </Select>
-            <Button
-              variant="outline"
-              size="icon"
-              onClick={() => setSortOrder(sortOrder === "asc" ? "desc" : "asc")}
-            >
-              {sortOrder === "asc" ? <ArrowUpDown className="h-4 w-4" /> : <ArrowDownUp className="h-4 w-4" />}
-            </Button>
-          </div>
-          <Select value={selectedCategory} onValueChange={setSelectedCategory}>
-            <SelectTrigger className="w-[180px]">
-              <SelectValue placeholder="Filter by category" />
-            </SelectTrigger>
-            <SelectContent>
-              <SelectItem value="all">All Categories</SelectItem>
-              {(categories as any[]).map((category: any) => (
-                <SelectItem key={category.id} value={category.id.toString()}>
-                  {category.name}
-                </SelectItem>
-              ))}
-            </SelectContent>
-          </Select>
+    <div className="space-y-6">
+      <div className="flex justify-between items-center">
+        <div>
+          <h1 className="text-2xl font-bold">Tours Management</h1>
+          <p className="text-muted-foreground">
+            Manage your tour offerings with complete CRUD operations
+          </p>
         </div>
-      </div>
-
-      <div className="flex flex-col sm:flex-row gap-4">
-        <Button onClick={() => setLocation("/admin/tours/create")}>
-          <Plus className="h-4 w-4 mr-2" />
+        <Button onClick={() => setIsCreateDialogOpen(true)}>
+          <Plus className="mr-2 h-4 w-4" />
           Add Tour
         </Button>
       </div>
 
+      {/* Tours Table */}
       <Card>
         <CardHeader>
-          <CardTitle>Tours ({sortedTours.length})</CardTitle>
+          <CardTitle>Tours ({tours.length})</CardTitle>
         </CardHeader>
         <CardContent>
-          {sortedTours.length === 0 ? (
+          {isLoading ? (
+            <div className="flex justify-center py-8">
+              <Loader2 className="h-6 w-6 animate-spin" />
+            </div>
+          ) : tours.length === 0 ? (
             <div className="text-center py-8">
               <p className="text-muted-foreground">No tours found</p>
             </div>
@@ -452,88 +385,55 @@ export default function ToursManagement() {
                   <TableRow>
                     <TableHead>Name</TableHead>
                     <TableHead>Category</TableHead>
-                    <TableHead>Location</TableHead>
+                    <TableHead>Destination</TableHead>
                     <TableHead>Price</TableHead>
                     <TableHead>Duration</TableHead>
-                    <TableHead>Max Group</TableHead>
                     <TableHead>Status</TableHead>
                     <TableHead>Actions</TableHead>
                   </TableRow>
                 </TableHeader>
                 <TableBody>
-                  {sortedTours.map((tour: any) => (
-                    <TableRow key={tour.id}>
-                      <TableCell className="font-medium">{tour.name}</TableCell>
-                      <TableCell>
-                        {(() => {
-                          const categoryId = tour.category_id || tour.categoryId || tour.category;
-                          const category = (categories as any[]).find((cat: any) => 
-                            cat.id === categoryId || cat.id === parseInt(categoryId)
-                          );
-                          return category?.name || tour.trip_type || "No Category";
-                        })()}
-                      </TableCell>
-                      <TableCell>
-                        {(() => {
-                          const locationId = tour.destination_id || tour.locationId || tour.location;
-                          const location = (locations as any[]).find((loc: any) => 
-                            loc.id === locationId || loc.id === parseInt(locationId)
-                          );
-                          return location?.name || "No Location";
-                        })()}
-                      </TableCell>
-                      <TableCell>${tour.price?.toLocaleString() || 0}</TableCell>
-                      <TableCell>
-                        {tour.duration} {(tour.duration_type || tour.durationType) === 'hours' ? 'ساعات' : 'أيام'}
-                      </TableCell>
-                      <TableCell>{tour.max_group_size || tour.maxGroupSize}</TableCell>
-                      <TableCell>
-                        <span className={`px-2 py-1 rounded-full text-xs ${
-                          tour.active ? "bg-green-100 text-green-800" : "bg-red-100 text-red-800"
-                        }`}>
-                          {tour.active ? "Active" : "Inactive"}
-                        </span>
-                      </TableCell>
-                      <TableCell>
-                        <div className="flex items-center gap-2">
-                          <Button
-                            variant="outline"
-                            size="sm"
-                            onClick={() => handleEdit(tour)}
-                          >
-                            <Pencil className="h-4 w-4" />
-                          </Button>
-                          {!tour.hasArabicVersion && (
+                  {tours.map((tour: any) => {
+                    const category = categories.find((cat: any) => cat.id === tour.category_id);
+                    const destination = destinations.find((dest: any) => dest.id === tour.destination_id);
+                    
+                    return (
+                      <TableRow key={tour.id}>
+                        <TableCell className="font-medium">{tour.name}</TableCell>
+                        <TableCell>{category?.name || "No Category"}</TableCell>
+                        <TableCell>{destination?.name || "No Destination"}</TableCell>
+                        <TableCell>${tour.price?.toLocaleString() || 0}</TableCell>
+                        <TableCell>
+                          {tour.duration} {tour.duration_type === 'hours' ? 'Hours' : 'Days'}
+                        </TableCell>
+                        <TableCell>
+                          <span className={`px-2 py-1 rounded-full text-xs ${
+                            tour.active ? "bg-green-100 text-green-800" : "bg-red-100 text-red-800"
+                          }`}>
+                            {tour.active ? "Active" : "Inactive"}
+                          </span>
+                        </TableCell>
+                        <TableCell>
+                          <div className="flex items-center gap-2">
                             <Button
                               variant="outline"
                               size="sm"
-                              onClick={() => handleCreateArabicVersion(tour)}
-                              className="text-blue-600 hover:text-blue-700"
+                              onClick={() => handleEdit(tour)}
                             >
-                              {t('admin.tours.createArabicVersion', 'Arabic')}
+                              <Pencil className="h-4 w-4" />
                             </Button>
-                          )}
-                          {tour.hasArabicVersion && (
                             <Button
                               variant="outline"
                               size="sm"
-                              onClick={() => handleEditArabicVersion(tour)}
-                              className="text-green-600 hover:text-green-700"
+                              onClick={() => handleDelete(tour)}
                             >
-                              {t('admin.tours.editArabicVersion', 'Edit Arabic')}
+                              <Trash2 className="h-4 w-4" />
                             </Button>
-                          )}
-                          <Button
-                            variant="outline"
-                            size="sm"
-                            onClick={() => handleDelete(tour)}
-                          >
-                            <Trash2 className="h-4 w-4" />
-                          </Button>
-                        </div>
-                      </TableCell>
-                    </TableRow>
-                  ))}
+                          </div>
+                        </TableCell>
+                      </TableRow>
+                    );
+                  })}
                 </TableBody>
               </Table>
             </div>
@@ -541,340 +441,48 @@ export default function ToursManagement() {
         </CardContent>
       </Card>
 
-      {/* Edit Tour Dialog */}
-      <Dialog open={isEditDialogOpen} onOpenChange={onEditDialogOpenChange}>
-        <DialogContent className="sm:max-w-[600px] max-h-[90vh] overflow-y-auto">
+      {/* Create Tour Dialog */}
+      <Dialog open={isCreateDialogOpen} onOpenChange={setIsCreateDialogOpen}>
+        <DialogContent className="max-w-4xl max-h-[90vh] overflow-y-auto">
           <DialogHeader>
-            <DialogTitle>Edit Tour</DialogTitle>
+            <DialogTitle>Create New Tour</DialogTitle>
             <DialogDescription>
-              Modify the tour details and save your changes.
+              Add a new tour with all the required details
             </DialogDescription>
           </DialogHeader>
-          <Form {...editForm}>
-            <form onSubmit={editForm.handleSubmit(onEditSubmit)} className="space-y-4">
-              <FormField
-                control={editForm.control}
-                name="name"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>Tour Name</FormLabel>
-                    <FormControl>
-                      <Input placeholder="Enter tour name" {...field} />
-                    </FormControl>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
-
-              <FormField
-                control={editForm.control}
-                name="description"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>Description</FormLabel>
-                    <FormControl>
-                      <Textarea placeholder="Enter tour description" {...field} />
-                    </FormControl>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
-
-              <div className="grid grid-cols-2 gap-4">
-                <FormField
-                  control={editForm.control}
-                  name="price"
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel>Price ($)</FormLabel>
-                      <FormControl>
-                        <Input type="number" placeholder="0" {...field} />
-                      </FormControl>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
-              </div>
-
-              <FormField
-                control={editForm.control}
-                name="durationType"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>نوع المدة</FormLabel>
-                    <div className="flex items-center space-x-4">
-                      <div className="flex items-center space-x-2">
-                        <input
-                          type="radio"
-                          id="edit-duration-days"
-                          name="durationType"
-                          value="days"
-                          checked={field.value === "days"}
-                          onChange={(e) => field.onChange(e.target.value)}
-                          className="w-4 h-4 text-blue-600 bg-gray-100 border-gray-300 focus:ring-blue-500"
-                        />
-                        <Label htmlFor="edit-duration-days" className="text-sm font-medium">
-                          أيام
-                        </Label>
-                      </div>
-                      <div className="flex items-center space-x-2">
-                        <input
-                          type="radio"
-                          id="edit-duration-hours"
-                          name="durationType"
-                          value="hours"
-                          checked={field.value === "hours"}
-                          onChange={(e) => field.onChange(e.target.value)}
-                          className="w-4 h-4 text-blue-600 bg-gray-100 border-gray-300 focus:ring-blue-500"
-                        />
-                        <Label htmlFor="edit-duration-hours" className="text-sm font-medium">
-                          ساعات
-                        </Label>
-                      </div>
-                    </div>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
-
-              <FormField
-                control={editForm.control}
-                name="duration"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>
-                      المدة ({editForm.watch('durationType') === 'hours' ? 'ساعات' : 'أيام'})
-                    </FormLabel>
-                    <FormControl>
-                      <Input 
-                        type="number" 
-                        placeholder={`أدخل المدة بال${editForm.watch('durationType') === 'hours' ? 'ساعات' : 'أيام'}`}
-                        {...field} 
-                      />
-                    </FormControl>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
-
-              <div className="grid grid-cols-2 gap-4">
-                <FormField
-                  control={editForm.control}
-                  name="maxGroupSize"
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel>Max Group Size</FormLabel>
-                      <FormControl>
-                        <Input type="number" placeholder="1" {...field} />
-                      </FormControl>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
-
-                <FormField
-                  control={editForm.control}
-                  name="difficulty"
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel>Difficulty</FormLabel>
-                      <Select onValueChange={field.onChange} defaultValue={field.value}>
-                        <FormControl>
-                          <SelectTrigger>
-                            <SelectValue placeholder="Select difficulty" />
-                          </SelectTrigger>
-                        </FormControl>
-                        <SelectContent>
-                          <SelectItem value="Easy">Easy</SelectItem>
-                          <SelectItem value="Moderate">Moderate</SelectItem>
-                          <SelectItem value="Hard">Hard</SelectItem>
-                        </SelectContent>
-                      </Select>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
-              </div>
-
-              <div className="grid grid-cols-2 gap-4">
-                <FormField
-                  control={editForm.control}
-                  name="categoryId"
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel>Category</FormLabel>
-                      <Select onValueChange={(value) => field.onChange(parseInt(value))} value={field.value?.toString()}>
-                        <FormControl>
-                          <SelectTrigger>
-                            <SelectValue placeholder="Select category" />
-                          </SelectTrigger>
-                        </FormControl>
-                        <SelectContent>
-                          {(categories as any[]).map((category: any) => (
-                            <SelectItem key={category.id} value={category.id.toString()}>
-                              {category.name}
-                            </SelectItem>
-                          ))}
-                        </SelectContent>
-                      </Select>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
-
-                <FormField
-                  control={editForm.control}
-                  name="locationId"
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel>Location</FormLabel>
-                      <Select onValueChange={(value) => field.onChange(parseInt(value))} value={field.value?.toString()}>
-                        <FormControl>
-                          <SelectTrigger>
-                            <SelectValue placeholder="Select location" />
-                          </SelectTrigger>
-                        </FormControl>
-                        <SelectContent>
-                          {(locations as any[]).map((location: any) => (
-                            <SelectItem key={location.id} value={location.id.toString()}>
-                              {location.name}
-                            </SelectItem>
-                          ))}
-                        </SelectContent>
-                      </Select>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
-              </div>
-
-              <div className="grid grid-cols-2 gap-4">
-                <FormField
-                  control={editForm.control}
-                  name="startDate"
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel>Start Date</FormLabel>
-                      <FormControl>
-                        <Input type="date" {...field} />
-                      </FormControl>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
-
-                <FormField
-                  control={editForm.control}
-                  name="endDate"
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel>End Date</FormLabel>
-                      <FormControl>
-                        <Input type="date" {...field} />
-                      </FormControl>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
-              </div>
-
-              <FormField
-                control={editForm.control}
-                name="isActive"
-                render={({ field }) => (
-                  <FormItem className="flex flex-row items-center justify-between rounded-lg border p-3 shadow-sm">
-                    <div className="space-y-0.5">
-                      <FormLabel className="text-base">Active Status</FormLabel>
-                      <FormDescription>
-                        Make this tour available for booking
-                      </FormDescription>
-                    </div>
-                    <FormControl>
-                      <Switch
-                        checked={field.value}
-                        onCheckedChange={field.onChange}
-                      />
-                    </FormControl>
-                  </FormItem>
-                )}
-              />
-
-              <FormField
-                control={editForm.control}
-                name="featured"
-                render={({ field }) => (
-                  <FormItem className="flex flex-row items-center justify-between rounded-lg border p-3 shadow-sm">
-                    <div className="space-y-0.5">
-                      <FormLabel className="text-base">Featured Tour</FormLabel>
-                      <FormDescription>
-                        Mark this tour as featured
-                      </FormDescription>
-                    </div>
-                    <FormControl>
-                      <Switch
-                        checked={field.value}
-                        onCheckedChange={field.onChange}
-                      />
-                    </FormControl>
-                  </FormItem>
-                )}
-              />
-
-              <FormField
-                control={editForm.control}
-                name="maxCapacity"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>Max Capacity</FormLabel>
-                    <FormControl>
-                      <Input type="number" placeholder="1" {...field} />
-                    </FormControl>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
-
-              <DialogFooter>
-                <Button type="button" variant="outline" onClick={() => setIsEditDialogOpen(false)}>
-                  Cancel
-                </Button>
-                <Button type="submit" disabled={updateTourMutation.isPending}>
-                  {updateTourMutation.isPending && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
-                  Update Tour
-                </Button>
-              </DialogFooter>
-            </form>
-          </Form>
+          <TourForm
+            form={form}
+            onSubmit={onCreateSubmit}
+            isSubmitting={createTourMutation.isPending}
+            categories={categories}
+            destinations={destinations}
+            submitLabel="Create Tour"
+          />
         </DialogContent>
       </Dialog>
 
-      {/* Arabic Version Dialog */}
-      <Dialog open={isArabicDialogOpen} onOpenChange={setIsArabicDialogOpen}>
-        <DialogContent className="sm:max-w-[700px] max-h-[90vh] overflow-y-auto">
+      {/* Edit Tour Dialog */}
+      <Dialog open={isEditDialogOpen} onOpenChange={setIsEditDialogOpen}>
+        <DialogContent className="max-w-4xl max-h-[90vh] overflow-y-auto">
           <DialogHeader>
-            <DialogTitle>
-              {arabicTour?.hasArabicVersion 
-                ? t('admin.tours.editArabicVersion', 'تحرير النسخة العربية')
-                : t('admin.tours.createArabicVersion', 'إنشاء النسخة العربية')
-              }
-            </DialogTitle>
+            <DialogTitle>Edit Tour</DialogTitle>
             <DialogDescription>
-              {t('admin.tours.arabicVersionDescription', 'أضف أو حرر المحتوى العربي للجولة')}
+              Update the tour details
             </DialogDescription>
           </DialogHeader>
-          <ArabicVersionForm 
-            tour={arabicTour} 
-            onClose={() => setIsArabicDialogOpen(false)}
-            onSuccess={() => {
-              setIsArabicDialogOpen(false);
-              queryClient.invalidateQueries({ queryKey: ["/api/tours"] });
-            }}
+          <TourForm
+            form={editForm}
+            onSubmit={onEditSubmit}
+            isSubmitting={updateTourMutation.isPending}
+            categories={categories}
+            destinations={destinations}
+            submitLabel="Update Tour"
           />
         </DialogContent>
       </Dialog>
 
       {/* Delete Tour Dialog */}
-      <Dialog open={isDeleteDialogOpen} onOpenChange={onDeleteDialogOpenChange}>
+      <Dialog open={isDeleteDialogOpen} onOpenChange={setIsDeleteDialogOpen}>
         <DialogContent>
           <DialogHeader>
             <DialogTitle>Delete Tour</DialogTitle>
@@ -886,7 +494,11 @@ export default function ToursManagement() {
             <Button variant="outline" onClick={() => setIsDeleteDialogOpen(false)}>
               Cancel
             </Button>
-            <Button variant="destructive" onClick={confirmDelete} disabled={deleteTourMutation.isPending}>
+            <Button 
+              variant="destructive" 
+              onClick={confirmDelete} 
+              disabled={deleteTourMutation.isPending}
+            >
               {deleteTourMutation.isPending && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
               Delete Tour
             </Button>
@@ -897,82 +509,63 @@ export default function ToursManagement() {
   );
 }
 
-// Arabic Version Form Component
-interface ArabicVersionFormProps {
-  tour: any;
-  onClose: () => void;
-  onSuccess: () => void;
+// Tour Form Component
+interface TourFormProps {
+  form: any;
+  onSubmit: (data: TourFormValues) => void;
+  isSubmitting: boolean;
+  categories: any[];
+  destinations: any[];
+  submitLabel: string;
 }
 
-function ArabicVersionForm({ tour, onClose, onSuccess }: ArabicVersionFormProps) {
-  const { t } = useLanguage();
-  const { toast } = useToast();
-  
-  const arabicSchema = z.object({
-    nameAr: z.string().min(1, "الاسم العربي مطلوب"),
-    descriptionAr: z.string().min(1, "الوصف العربي مطلوب"),
-    itineraryAr: z.string().optional(),
-    includedAr: z.string().optional(),
-    excludedAr: z.string().optional(),
-  });
-
-  const form = useForm<z.infer<typeof arabicSchema>>({
-    resolver: zodResolver(arabicSchema),
-    defaultValues: {
-      nameAr: tour?.nameAr || "",
-      descriptionAr: tour?.descriptionAr || "",
-      itineraryAr: tour?.itineraryAr || "",
-      includedAr: tour?.includedAr ? JSON.stringify(tour.includedAr, null, 2) : "",
-      excludedAr: tour?.excludedAr ? JSON.stringify(tour.excludedAr, null, 2) : "",
-    },
-  });
-
-  const updateArabicMutation = useMutation({
-    mutationFn: async (data: z.infer<typeof arabicSchema>) => {
-      const payload = {
-        ...data,
-        includedAr: data.includedAr ? JSON.parse(data.includedAr) : null,
-        excludedAr: data.excludedAr ? JSON.parse(data.excludedAr) : null,
-        hasArabicVersion: true,
-      };
-      
-      return await apiRequest(`/api/tours/${tour.id}/arabic`, {
-        method: "PUT",
-        body: JSON.stringify(payload),
-        headers: { "Content-Type": "application/json" },
-      });
-    },
-    onSuccess: () => {
-      toast({
-        title: t('admin.tours.arabicVersionSaved', 'تم حفظ النسخة العربية'),
-        description: t('admin.tours.arabicVersionSavedDesc', 'تم حفظ النسخة العربية بنجاح'),
-      });
-      onSuccess();
-    },
-    onError: (error: any) => {
-      toast({
-        title: t('admin.tours.arabicVersionError', 'خطأ في حفظ النسخة العربية'),
-        description: error.message,
-        variant: "destructive",
-      });
-    },
-  });
-
-  const onSubmit = (data: z.infer<typeof arabicSchema>) => {
-    updateArabicMutation.mutate(data);
-  };
-
+function TourForm({ form, onSubmit, isSubmitting, categories, destinations, submitLabel }: TourFormProps) {
   return (
     <Form {...form}>
-      <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
+      <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
+        {/* Basic Information */}
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+          <FormField
+            control={form.control}
+            name="name"
+            render={({ field }) => (
+              <FormItem>
+                <FormLabel>Tour Name *</FormLabel>
+                <FormControl>
+                  <Input placeholder="Enter tour name" {...field} />
+                </FormControl>
+                <FormMessage />
+              </FormItem>
+            )}
+          />
+
+          <FormField
+            control={form.control}
+            name="nameAr"
+            render={({ field }) => (
+              <FormItem>
+                <FormLabel>Tour Name (Arabic)</FormLabel>
+                <FormControl>
+                  <Input placeholder="أدخل اسم الجولة بالعربية" {...field} />
+                </FormControl>
+                <FormMessage />
+              </FormItem>
+            )}
+          />
+        </div>
+
         <FormField
           control={form.control}
-          name="nameAr"
+          name="description"
           render={({ field }) => (
             <FormItem>
-              <FormLabel>{t('admin.tours.nameAr', 'الاسم (عربي)')}</FormLabel>
+              <FormLabel>Description *</FormLabel>
               <FormControl>
-                <Input {...field} dir="rtl" placeholder="أدخل اسم الجولة بالعربية" />
+                <Textarea 
+                  placeholder="Enter tour description" 
+                  className="min-h-[100px]"
+                  {...field} 
+                />
               </FormControl>
               <FormMessage />
             </FormItem>
@@ -984,13 +577,394 @@ function ArabicVersionForm({ tour, onClose, onSuccess }: ArabicVersionFormProps)
           name="descriptionAr"
           render={({ field }) => (
             <FormItem>
-              <FormLabel>{t('admin.tours.descriptionAr', 'الوصف (عربي)')}</FormLabel>
+              <FormLabel>Description (Arabic)</FormLabel>
               <FormControl>
                 <Textarea 
+                  placeholder="أدخل وصف الجولة بالعربية" 
+                  className="min-h-[100px]"
                   {...field} 
-                  dir="rtl" 
-                  placeholder="أدخل وصف الجولة بالعربية"
-                  rows={4}
+                />
+              </FormControl>
+              <FormMessage />
+            </FormItem>
+          )}
+        />
+
+        {/* Location and Category */}
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+          <FormField
+            control={form.control}
+            name="destinationId"
+            render={({ field }) => (
+              <FormItem>
+                <FormLabel>Destination *</FormLabel>
+                <Select onValueChange={field.onChange} value={field.value}>
+                  <FormControl>
+                    <SelectTrigger>
+                      <SelectValue placeholder="Select destination" />
+                    </SelectTrigger>
+                  </FormControl>
+                  <SelectContent>
+                    {destinations.map((destination: any) => (
+                      <SelectItem key={destination.id} value={destination.id.toString()}>
+                        {destination.name}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+                <FormMessage />
+              </FormItem>
+            )}
+          />
+
+          <FormField
+            control={form.control}
+            name="categoryId"
+            render={({ field }) => (
+              <FormItem>
+                <FormLabel>Category</FormLabel>
+                <Select onValueChange={field.onChange} value={field.value}>
+                  <FormControl>
+                    <SelectTrigger>
+                      <SelectValue placeholder="Select category" />
+                    </SelectTrigger>
+                  </FormControl>
+                  <SelectContent>
+                    {categories.map((category: any) => (
+                      <SelectItem key={category.id} value={category.id.toString()}>
+                        {category.name}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+                <FormMessage />
+              </FormItem>
+            )}
+          />
+        </div>
+
+        {/* Duration and Pricing */}
+        <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
+          <FormField
+            control={form.control}
+            name="duration"
+            render={({ field }) => (
+              <FormItem>
+                <FormLabel>Duration *</FormLabel>
+                <FormControl>
+                  <Input type="number" placeholder="Duration" {...field} />
+                </FormControl>
+                <FormMessage />
+              </FormItem>
+            )}
+          />
+
+          <FormField
+            control={form.control}
+            name="durationType"
+            render={({ field }) => (
+              <FormItem>
+                <FormLabel>Duration Type *</FormLabel>
+                <Select onValueChange={field.onChange} value={field.value}>
+                  <FormControl>
+                    <SelectTrigger>
+                      <SelectValue placeholder="Select type" />
+                    </SelectTrigger>
+                  </FormControl>
+                  <SelectContent>
+                    <SelectItem value="days">Days</SelectItem>
+                    <SelectItem value="hours">Hours</SelectItem>
+                  </SelectContent>
+                </Select>
+                <FormMessage />
+              </FormItem>
+            )}
+          />
+
+          <FormField
+            control={form.control}
+            name="price"
+            render={({ field }) => (
+              <FormItem>
+                <FormLabel>Price *</FormLabel>
+                <FormControl>
+                  <Input type="number" step="0.01" placeholder="Price" {...field} />
+                </FormControl>
+                <FormMessage />
+              </FormItem>
+            )}
+          />
+
+          <FormField
+            control={form.control}
+            name="discountedPrice"
+            render={({ field }) => (
+              <FormItem>
+                <FormLabel>Discounted Price</FormLabel>
+                <FormControl>
+                  <Input type="number" step="0.01" placeholder="Discounted price" {...field} />
+                </FormControl>
+                <FormMessage />
+              </FormItem>
+            )}
+          />
+        </div>
+
+        {/* Capacity and Settings */}
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+          <FormField
+            control={form.control}
+            name="maxCapacity"
+            render={({ field }) => (
+              <FormItem>
+                <FormLabel>Max Capacity</FormLabel>
+                <FormControl>
+                  <Input type="number" placeholder="Max capacity" {...field} />
+                </FormControl>
+                <FormMessage />
+              </FormItem>
+            )}
+          />
+
+          <FormField
+            control={form.control}
+            name="maxGroupSize"
+            render={({ field }) => (
+              <FormItem>
+                <FormLabel>Max Group Size</FormLabel>
+                <FormControl>
+                  <Input type="number" placeholder="Max group size" {...field} />
+                </FormControl>
+                <FormMessage />
+              </FormItem>
+            )}
+          />
+
+          <FormField
+            control={form.control}
+            name="numPassengers"
+            render={({ field }) => (
+              <FormItem>
+                <FormLabel>Number of Passengers</FormLabel>
+                <FormControl>
+                  <Input type="number" placeholder="Number of passengers" {...field} />
+                </FormControl>
+                <FormMessage />
+              </FormItem>
+            )}
+          />
+        </div>
+
+        {/* Dates */}
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+          <FormField
+            control={form.control}
+            name="date"
+            render={({ field }) => (
+              <FormItem className="flex flex-col">
+                <FormLabel>Tour Date</FormLabel>
+                <Popover>
+                  <PopoverTrigger asChild>
+                    <FormControl>
+                      <Button
+                        variant={"outline"}
+                        className={cn(
+                          "w-full pl-3 text-left font-normal",
+                          !field.value && "text-muted-foreground"
+                        )}
+                      >
+                        {field.value ? (
+                          format(field.value, "PPP")
+                        ) : (
+                          <span>Pick a date</span>
+                        )}
+                        <Calendar className="ml-auto h-4 w-4 opacity-50" />
+                      </Button>
+                    </FormControl>
+                  </PopoverTrigger>
+                  <PopoverContent className="w-auto p-0" align="start">
+                    <CalendarComponent
+                      mode="single"
+                      selected={field.value}
+                      onSelect={field.onChange}
+                      disabled={(date) =>
+                        date < new Date()
+                      }
+                      initialFocus
+                    />
+                  </PopoverContent>
+                </Popover>
+                <FormMessage />
+              </FormItem>
+            )}
+          />
+
+          <FormField
+            control={form.control}
+            name="startDate"
+            render={({ field }) => (
+              <FormItem className="flex flex-col">
+                <FormLabel>Start Date</FormLabel>
+                <Popover>
+                  <PopoverTrigger asChild>
+                    <FormControl>
+                      <Button
+                        variant={"outline"}
+                        className={cn(
+                          "w-full pl-3 text-left font-normal",
+                          !field.value && "text-muted-foreground"
+                        )}
+                      >
+                        {field.value ? (
+                          format(field.value, "PPP")
+                        ) : (
+                          <span>Pick start date</span>
+                        )}
+                        <Calendar className="ml-auto h-4 w-4 opacity-50" />
+                      </Button>
+                    </FormControl>
+                  </PopoverTrigger>
+                  <PopoverContent className="w-auto p-0" align="start">
+                    <CalendarComponent
+                      mode="single"
+                      selected={field.value}
+                      onSelect={field.onChange}
+                      disabled={(date) =>
+                        date < new Date()
+                      }
+                      initialFocus
+                    />
+                  </PopoverContent>
+                </Popover>
+                <FormMessage />
+              </FormItem>
+            )}
+          />
+
+          <FormField
+            control={form.control}
+            name="endDate"
+            render={({ field }) => (
+              <FormItem className="flex flex-col">
+                <FormLabel>End Date</FormLabel>
+                <Popover>
+                  <PopoverTrigger asChild>
+                    <FormControl>
+                      <Button
+                        variant={"outline"}
+                        className={cn(
+                          "w-full pl-3 text-left font-normal",
+                          !field.value && "text-muted-foreground"
+                        )}
+                      >
+                        {field.value ? (
+                          format(field.value, "PPP")
+                        ) : (
+                          <span>Pick end date</span>
+                        )}
+                        <Calendar className="ml-auto h-4 w-4 opacity-50" />
+                      </Button>
+                    </FormControl>
+                  </PopoverTrigger>
+                  <PopoverContent className="w-auto p-0" align="start">
+                    <CalendarComponent
+                      mode="single"
+                      selected={field.value}
+                      onSelect={field.onChange}
+                      disabled={(date) =>
+                        date < new Date()
+                      }
+                      initialFocus
+                    />
+                  </PopoverContent>
+                </Popover>
+                <FormMessage />
+              </FormItem>
+            )}
+          />
+        </div>
+
+        {/* Media */}
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+          <FormField
+            control={form.control}
+            name="imageUrl"
+            render={({ field }) => (
+              <FormItem>
+                <FormLabel>Image URL</FormLabel>
+                <FormControl>
+                  <Input placeholder="Enter image URL" {...field} />
+                </FormControl>
+                <FormMessage />
+              </FormItem>
+            )}
+          />
+
+          <FormField
+            control={form.control}
+            name="tripType"
+            render={({ field }) => (
+              <FormItem>
+                <FormLabel>Trip Type</FormLabel>
+                <FormControl>
+                  <Input placeholder="Enter trip type" {...field} />
+                </FormControl>
+                <FormMessage />
+              </FormItem>
+            )}
+          />
+        </div>
+
+        {/* Detailed Information */}
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+          <FormField
+            control={form.control}
+            name="included"
+            render={({ field }) => (
+              <FormItem>
+                <FormLabel>Included (one per line)</FormLabel>
+                <FormControl>
+                  <Textarea 
+                    placeholder="Enter included items, one per line" 
+                    className="min-h-[100px]"
+                    {...field} 
+                  />
+                </FormControl>
+                <FormMessage />
+              </FormItem>
+            )}
+          />
+
+          <FormField
+            control={form.control}
+            name="excluded"
+            render={({ field }) => (
+              <FormItem>
+                <FormLabel>Excluded (one per line)</FormLabel>
+                <FormControl>
+                  <Textarea 
+                    placeholder="Enter excluded items, one per line" 
+                    className="min-h-[100px]"
+                    {...field} 
+                  />
+                </FormControl>
+                <FormMessage />
+              </FormItem>
+            )}
+          />
+        </div>
+
+        <FormField
+          control={form.control}
+          name="itinerary"
+          render={({ field }) => (
+            <FormItem>
+              <FormLabel>Itinerary</FormLabel>
+              <FormControl>
+                <Textarea 
+                  placeholder="Enter tour itinerary" 
+                  className="min-h-[120px]"
+                  {...field} 
                 />
               </FormControl>
               <FormMessage />
@@ -1003,13 +977,12 @@ function ArabicVersionForm({ tour, onClose, onSuccess }: ArabicVersionFormProps)
           name="itineraryAr"
           render={({ field }) => (
             <FormItem>
-              <FormLabel>{t('admin.tours.itineraryAr', 'برنامج الرحلة (عربي)')}</FormLabel>
+              <FormLabel>Itinerary (Arabic)</FormLabel>
               <FormControl>
                 <Textarea 
+                  placeholder="أدخل برنامج الجولة بالعربية" 
+                  className="min-h-[120px]"
                   {...field} 
-                  dir="rtl" 
-                  placeholder="أدخل برنامج الرحلة بالعربية"
-                  rows={6}
                 />
               </FormControl>
               <FormMessage />
@@ -1017,57 +990,195 @@ function ArabicVersionForm({ tour, onClose, onSuccess }: ArabicVersionFormProps)
           )}
         />
 
-        <FormField
-          control={form.control}
-          name="includedAr"
-          render={({ field }) => (
-            <FormItem>
-              <FormLabel>{t('admin.tours.includedAr', 'المشمولات (عربي)')}</FormLabel>
-              <FormControl>
-                <Textarea 
-                  {...field} 
-                  dir="rtl" 
-                  placeholder='["عنصر 1", "عنصر 2", "عنصر 3"]'
-                  rows={3}
-                />
-              </FormControl>
-              <FormDescription>
-                {t('admin.tours.includedArDesc', 'أدخل المشمولات كقائمة JSON بالعربية')}
-              </FormDescription>
-              <FormMessage />
-            </FormItem>
-          )}
-        />
+        {/* Arabic Included/Excluded */}
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+          <FormField
+            control={form.control}
+            name="includedAr"
+            render={({ field }) => (
+              <FormItem>
+                <FormLabel>Included (Arabic)</FormLabel>
+                <FormControl>
+                  <Textarea 
+                    placeholder="أدخل العناصر المشمولة بالعربية" 
+                    className="min-h-[100px]"
+                    {...field} 
+                  />
+                </FormControl>
+                <FormMessage />
+              </FormItem>
+            )}
+          />
 
-        <FormField
-          control={form.control}
-          name="excludedAr"
-          render={({ field }) => (
-            <FormItem>
-              <FormLabel>{t('admin.tours.excludedAr', 'غير المشمولات (عربي)')}</FormLabel>
-              <FormControl>
-                <Textarea 
-                  {...field} 
-                  dir="rtl" 
-                  placeholder='["عنصر 1", "عنصر 2", "عنصر 3"]'
-                  rows={3}
-                />
-              </FormControl>
-              <FormDescription>
-                {t('admin.tours.excludedArDesc', 'أدخل غير المشمولات كقائمة JSON بالعربية')}
-              </FormDescription>
-              <FormMessage />
-            </FormItem>
-          )}
-        />
+          <FormField
+            control={form.control}
+            name="excludedAr"
+            render={({ field }) => (
+              <FormItem>
+                <FormLabel>Excluded (Arabic)</FormLabel>
+                <FormControl>
+                  <Textarea 
+                    placeholder="أدخل العناصر المستثناة بالعربية" 
+                    className="min-h-[100px]"
+                    {...field} 
+                  />
+                </FormControl>
+                <FormMessage />
+              </FormItem>
+            )}
+          />
+        </div>
+
+        {/* Rating and Reviews */}
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+          <FormField
+            control={form.control}
+            name="rating"
+            render={({ field }) => (
+              <FormItem>
+                <FormLabel>Rating</FormLabel>
+                <FormControl>
+                  <Input type="number" step="0.1" min="0" max="5" placeholder="Rating (0-5)" {...field} />
+                </FormControl>
+                <FormMessage />
+              </FormItem>
+            )}
+          />
+
+          <FormField
+            control={form.control}
+            name="reviewCount"
+            render={({ field }) => (
+              <FormItem>
+                <FormLabel>Review Count</FormLabel>
+                <FormControl>
+                  <Input type="number" placeholder="Number of reviews" {...field} />
+                </FormControl>
+                <FormMessage />
+              </FormItem>
+            )}
+          />
+        </div>
+
+        {/* Status and Settings */}
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+          <FormField
+            control={form.control}
+            name="status"
+            render={({ field }) => (
+              <FormItem>
+                <FormLabel>Status</FormLabel>
+                <Select onValueChange={field.onChange} value={field.value}>
+                  <FormControl>
+                    <SelectTrigger>
+                      <SelectValue placeholder="Select status" />
+                    </SelectTrigger>
+                  </FormControl>
+                  <SelectContent>
+                    <SelectItem value="active">Active</SelectItem>
+                    <SelectItem value="inactive">Inactive</SelectItem>
+                    <SelectItem value="draft">Draft</SelectItem>
+                  </SelectContent>
+                </Select>
+                <FormMessage />
+              </FormItem>
+            )}
+          />
+
+          <FormField
+            control={form.control}
+            name="currency"
+            render={({ field }) => (
+              <FormItem>
+                <FormLabel>Currency</FormLabel>
+                <Select onValueChange={field.onChange} value={field.value}>
+                  <FormControl>
+                    <SelectTrigger>
+                      <SelectValue placeholder="Select currency" />
+                    </SelectTrigger>
+                  </FormControl>
+                  <SelectContent>
+                    <SelectItem value="EGP">EGP</SelectItem>
+                    <SelectItem value="USD">USD</SelectItem>
+                    <SelectItem value="EUR">EUR</SelectItem>
+                  </SelectContent>
+                </Select>
+                <FormMessage />
+              </FormItem>
+            )}
+          />
+        </div>
+
+        {/* Toggles */}
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+          <FormField
+            control={form.control}
+            name="active"
+            render={({ field }) => (
+              <FormItem className="flex flex-row items-center justify-between rounded-lg border p-4">
+                <div className="space-y-0.5">
+                  <FormLabel className="text-base">Active</FormLabel>
+                  <FormDescription>
+                    Make this tour visible to customers
+                  </FormDescription>
+                </div>
+                <FormControl>
+                  <Switch
+                    checked={field.value}
+                    onCheckedChange={field.onChange}
+                  />
+                </FormControl>
+              </FormItem>
+            )}
+          />
+
+          <FormField
+            control={form.control}
+            name="featured"
+            render={({ field }) => (
+              <FormItem className="flex flex-row items-center justify-between rounded-lg border p-4">
+                <div className="space-y-0.5">
+                  <FormLabel className="text-base">Featured</FormLabel>
+                  <FormDescription>
+                    Highlight this tour on the homepage
+                  </FormDescription>
+                </div>
+                <FormControl>
+                  <Switch
+                    checked={field.value}
+                    onCheckedChange={field.onChange}
+                  />
+                </FormControl>
+              </FormItem>
+            )}
+          />
+
+          <FormField
+            control={form.control}
+            name="hasArabicVersion"
+            render={({ field }) => (
+              <FormItem className="flex flex-row items-center justify-between rounded-lg border p-4">
+                <div className="space-y-0.5">
+                  <FormLabel className="text-base">Has Arabic Version</FormLabel>
+                  <FormDescription>
+                    This tour has Arabic content
+                  </FormDescription>
+                </div>
+                <FormControl>
+                  <Switch
+                    checked={field.value}
+                    onCheckedChange={field.onChange}
+                  />
+                </FormControl>
+              </FormItem>
+            )}
+          />
+        </div>
 
         <DialogFooter>
-          <Button type="button" variant="outline" onClick={onClose}>
-            {t('admin.tours.cancel', 't("admin.cancel", "Cancel")')}
-          </Button>
-          <Button type="submit" disabled={updateArabicMutation.isPending}>
-            {updateArabicMutation.isPending && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
-            {t('admin.tours.saveArabicVersion', 'حفظ النسخة العربية')}
+          <Button type="submit" disabled={isSubmitting}>
+            {isSubmitting && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
+            {submitLabel}
           </Button>
         </DialogFooter>
       </form>

@@ -256,25 +256,28 @@ export const tours = pgTable("tours", {
   id: serial("id").primaryKey(),
   name: text("name").notNull(),
   description: text("description"),
-  imageUrl: text("image_url"),
-  galleryUrls: json("gallery_urls"), // Using native JSON in PostgreSQL
   destinationId: integer("destination_id").references(() => destinations.id),
-  tripType: text("trip_type"),
   duration: integer("duration").notNull(),
-  durationType: text("duration_type").default("days").notNull(),
-  date: timestamp("date"),
+  price: integer("price").notNull(),
+  maxCapacity: integer("max_capacity"),
+  imageUrl: text("image_url"),
+  active: boolean("active").default(true),
+  featured: boolean("featured").default(false),
+  createdAt: timestamp("created_at").notNull().defaultNow(),
+  updatedAt: timestamp("updated_at").defaultNow(),
+  createdBy: integer("created_by").references(() => users.id),
+  updatedBy: integer("updated_by").references(() => users.id),
+  currency: text("currency").default("EGP").notNull(),
+  galleryUrls: json("gallery_urls"), // Using native JSON in PostgreSQL
   startDate: timestamp("start_date"),
   endDate: timestamp("end_date"),
+  tripType: text("trip_type"),
   numPassengers: integer("num_passengers"),
-  price: integer("price").notNull(),
   discountedPrice: integer("discounted_price"),
-  currency: text("currency").default("EGP").notNull(),
   included: json("included"), // Using native JSON in PostgreSQL
   excluded: json("excluded"), // Using native JSON in PostgreSQL
   itinerary: text("itinerary"),
   maxGroupSize: integer("max_group_size"),
-  featured: boolean("featured").default(false),
-  active: boolean("active").default(true),
   rating: doublePrecision("rating"),
   reviewCount: integer("review_count").default(0),
   status: text("status").default("active"),
@@ -285,11 +288,9 @@ export const tours = pgTable("tours", {
   includedAr: json("included_ar"), // Arabic version of included items
   excludedAr: json("excluded_ar"), // Arabic version of excluded items
   hasArabicVersion: boolean("has_arabic_version").default(false),
-  createdAt: timestamp("created_at").notNull().defaultNow(),
-  updatedAt: timestamp("updated_at").defaultNow(),
-  createdBy: integer("created_by").references(() => users.id),
-  updatedBy: integer("updated_by").references(() => users.id),
   categoryId: integer("category_id").references(() => tourCategories.id),
+  durationType: text("duration_type").default("days").notNull(),
+  date: timestamp("date"),
 });
 
 // Hotels table
@@ -1116,36 +1117,70 @@ export const insertTourSchema = createInsertSchema(tours)
   .pick({
     name: true,
     description: true,
-    imageUrl: true,
-    galleryUrls: true,
     destinationId: true,
-    tripType: true,
     duration: true,
-    date: true,
-    numPassengers: true,
     price: true,
+    maxCapacity: true,
+    imageUrl: true,
+    active: true,
+    featured: true,
+    currency: true,
+    galleryUrls: true,
+    startDate: true,
+    endDate: true,
+    tripType: true,
+    numPassengers: true,
     discountedPrice: true,
     included: true,
     excluded: true,
     itinerary: true,
     maxGroupSize: true,
-    featured: true,
     rating: true,
+    reviewCount: true,
     status: true,
+    nameAr: true,
+    descriptionAr: true,
+    itineraryAr: true,
+    includedAr: true,
+    excludedAr: true,
+    hasArabicVersion: true,
+    categoryId: true,
+    durationType: true,
+    date: true,
   })
   .extend({
-    // تعديل حقل التاريخ للسماح بنص ISO أو تاريخ وتحويله إلى تاريخ صالح
     date: z.preprocess(
       (val) => {
         if (!val) return null;
         if (val instanceof Date) return val;
-        
-        // إذا كان النص بتنسيق ISO
         if (typeof val === 'string') {
           const date = new Date(val);
           return isNaN(date.getTime()) ? null : date;
         }
-        
+        return null;
+      },
+      z.date().nullable().optional()
+    ),
+    startDate: z.preprocess(
+      (val) => {
+        if (!val) return null;
+        if (val instanceof Date) return val;
+        if (typeof val === 'string') {
+          const date = new Date(val);
+          return isNaN(date.getTime()) ? null : date;
+        }
+        return null;
+      },
+      z.date().nullable().optional()
+    ),
+    endDate: z.preprocess(
+      (val) => {
+        if (!val) return null;
+        if (val instanceof Date) return val;
+        if (typeof val === 'string') {
+          const date = new Date(val);
+          return isNaN(date.getTime()) ? null : date;
+        }
         return null;
       },
       z.date().nullable().optional()
