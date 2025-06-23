@@ -112,7 +112,7 @@ export default function ToursManagement() {
 
   // Fetch tours data
   const { data: tours = [], isLoading } = useQuery({
-    queryKey: ["/api/tours"],
+    queryKey: ["/api/admin/tours"],
   });
 
   // Fetch categories
@@ -163,9 +163,21 @@ export default function ToursManagement() {
 
   // Helper function to prepare form data for API
   const prepareFormData = (data: TourFormValues) => {
-    const formData = { ...data };
+    const formData = {
+      ...data,
+      destinationId: parseInt(data.destinationId),
+      duration: parseInt(data.duration),
+      price: Math.round(parseFloat(data.price) * 100), // Convert to cents
+      maxCapacity: data.maxCapacity ? parseInt(data.maxCapacity) : null,
+      numPassengers: data.numPassengers ? parseInt(data.numPassengers) : null,
+      discountedPrice: data.discountedPrice ? Math.round(parseFloat(data.discountedPrice) * 100) : null,
+      maxGroupSize: data.maxGroupSize ? parseInt(data.maxGroupSize) : null,
+      rating: data.rating ? parseFloat(data.rating) : null,
+      reviewCount: data.reviewCount ? parseInt(data.reviewCount) : null,
+      categoryId: data.categoryId ? parseInt(data.categoryId) : null,
+    };
     
-    // Parse JSON fields
+    // Parse JSON fields for included/excluded items
     if (formData.included) {
       try {
         formData.included = JSON.parse(formData.included);
@@ -197,7 +209,7 @@ export default function ToursManagement() {
         formData.excludedAr = formData.excludedAr.split('\n').filter(item => item.trim());
       }
     }
-
+    
     return formData;
   };
 
@@ -205,7 +217,7 @@ export default function ToursManagement() {
   const createTourMutation = useMutation({
     mutationFn: async (data: TourFormValues) => {
       const preparedData = prepareFormData(data);
-      return await apiRequest("/api/tours", {
+      return await apiRequest("/api/admin/tours", {
         method: "POST",
         body: JSON.stringify(preparedData),
         headers: { "Content-Type": "application/json" },
@@ -217,6 +229,7 @@ export default function ToursManagement() {
         description: "Tour created successfully",
       });
       queryClient.invalidateQueries({ queryKey: ["/api/tours"] });
+      queryClient.invalidateQueries({ queryKey: ["/api/admin/tours"] });
       setIsCreateDialogOpen(false);
       form.reset();
     },
@@ -233,7 +246,7 @@ export default function ToursManagement() {
   const updateTourMutation = useMutation({
     mutationFn: async (data: TourFormValues) => {
       const preparedData = prepareFormData(data);
-      return await apiRequest(`/api/tours/${selectedTour.id}`, {
+      return await apiRequest(`/api/admin/tours/${selectedTour.id}`, {
         method: "PUT",
         body: JSON.stringify(preparedData),
         headers: { "Content-Type": "application/json" },
@@ -245,6 +258,7 @@ export default function ToursManagement() {
         description: "Tour updated successfully",
       });
       queryClient.invalidateQueries({ queryKey: ["/api/tours"] });
+      queryClient.invalidateQueries({ queryKey: ["/api/admin/tours"] });
       setIsEditDialogOpen(false);
       setSelectedTour(null);
     },
@@ -260,7 +274,7 @@ export default function ToursManagement() {
   // Delete tour mutation
   const deleteTourMutation = useMutation({
     mutationFn: async (id: number) => {
-      return await apiRequest(`/api/tours/${id}`, { method: "DELETE" });
+      return await apiRequest(`/api/admin/tours/${id}`, { method: "DELETE" });
     },
     onSuccess: () => {
       toast({
@@ -268,6 +282,7 @@ export default function ToursManagement() {
         description: "Tour deleted successfully",
       });
       queryClient.invalidateQueries({ queryKey: ["/api/tours"] });
+      queryClient.invalidateQueries({ queryKey: ["/api/admin/tours"] });
       setIsDeleteDialogOpen(false);
       setDeletingTour(null);
     },
@@ -358,7 +373,7 @@ export default function ToursManagement() {
             Manage your tour offerings with complete CRUD operations
           </p>
         </div>
-        <Button onClick={() => setIsCreateDialogOpen(true)}>
+        <Button onClick={() => setLocation("/admin/tours/create")}>
           <Plus className="mr-2 h-4 w-4" />
           Add Tour
         </Button>

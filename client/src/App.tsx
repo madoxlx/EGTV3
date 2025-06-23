@@ -42,6 +42,7 @@ import CreateManualPackage from "@/pages/admin/CreateManualPackage";
 import UsersManagement from "@/pages/admin/UsersManagement";
 import ToursManagement from "@/pages/admin/ToursManagement";
 import TourCreatorPage from "@/pages/admin/TourCreatorPage";
+import CreateTour from "@/pages/admin/tours/create";
 import HotelsManagement from "@/pages/admin/HotelsManagement";
 import AdvancedHotelsManagement from "@/pages/admin/AdvancedHotelsManagement";
 import HotelCreatePage from "@/pages/admin/HotelCreatePage";
@@ -109,7 +110,8 @@ function Router() {
           <AdminRoute path="/admin/packages/categories" component={PackageCategoriesPage} />
           <AdminRoute path="/admin/packages" component={PackagesManagement} />
           <AdminRoute path="/admin/users" component={UsersManagement} />
-          <AdminRoute path="/admin/tours/create" component={TourCreatorPage} />
+          <AdminRoute path="/admin/tours/create" component={CreateTour} />
+          <AdminRoute path="/admin/tours/creator" component={TourCreatorPage} />
           <AdminRoute path="/admin/tours/edit/:id" component={TourCreatorPage} />
           <AdminRoute path="/admin/tours/categories" component={TourCategoriesPage} />
           <AdminRoute path="/admin/tours" component={ToursManagement} />
