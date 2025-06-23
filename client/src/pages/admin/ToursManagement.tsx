@@ -310,6 +310,7 @@ export default function ToursManagement() {
               <Table>
                 <TableHeader>
                   <TableRow>
+                    <TableHead>ID</TableHead>
                     <TableHead>Name</TableHead>
                     <TableHead>Category</TableHead>
                     <TableHead>Destination</TableHead>
@@ -321,18 +322,28 @@ export default function ToursManagement() {
                 </TableHeader>
                 <TableBody>
                   {tours.map((tour: any) => {
-                    const category = categories.find((cat: any) => cat.id === tour.category_id);
-                    const destination = destinations.find((dest: any) => dest.id === tour.destination_id);
+                    const category = categories.find((cat: any) => 
+                      cat.id === tour.category_id || cat.id === tour.categoryId
+                    );
+                    const destination = destinations.find((dest: any) => 
+                      dest.id === tour.destination_id || dest.id === tour.destinationId
+                    );
+                    
+                    // Determine duration display
+                    const durationType = tour.duration_type || tour.durationType || 'days';
+                    const durationValue = tour.duration || 0;
+                    const durationText = durationType === 'hours' ? 
+                      `${durationValue} Hour${durationValue !== 1 ? 's' : ''}` : 
+                      `${durationValue} Day${durationValue !== 1 ? 's' : ''}`;
                     
                     return (
                       <TableRow key={tour.id}>
+                        <TableCell className="font-mono text-sm">{tour.id}</TableCell>
                         <TableCell className="font-medium">{tour.name}</TableCell>
                         <TableCell>{category?.name || "No Category"}</TableCell>
                         <TableCell>{destination?.name || "No Destination"}</TableCell>
-                        <TableCell>${tour.price?.toLocaleString() || 0}</TableCell>
-                        <TableCell>
-                          {tour.duration} {tour.duration_type === 'hours' ? 'Hours' : 'Days'}
-                        </TableCell>
+                        <TableCell>{(tour.price || 0).toLocaleString('en-US')} EGP</TableCell>
+                        <TableCell>{durationText}</TableCell>
                         <TableCell>
                           <span className={`px-2 py-1 rounded-full text-xs ${
                             tour.active ? "bg-green-100 text-green-800" : "bg-red-100 text-red-800"
