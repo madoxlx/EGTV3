@@ -1,0 +1,1864 @@
+Attempting to connect with URL: postgresql://neondb_owner:****@ep-dawn-voice-a8bd2yi7-pooler.eastus2.azure.neon.tech/neondb?sslmode=require
+⏳ Waiting for database initialization...
+Database connection established successfully
+✅ Database initialized.
+🔐 Setting up admin users...
+✅ Main admin user already exists
+✅ Test admin user already exists
+✅ Admin setup completed
+✅ Unified auth setup completed
+✅ Hero slides routes setup completed
+✅ Routes registered successfully
+🔧 Initializing database...
+📋 Creating database schema...
+8:26:26 AM [express] serving on port 8080
+✅ Database schema created successfully
+🔄 Checking database setup...
+{
+  severity_local: 'NOTICE',
+  severity: 'NOTICE',
+  code: '42701',
+  message: 'column "slug" of relation "packages" already exists, skipping',
+  file: 'tablecmds.c',
+  line: '7471',
+  routine: 'check_for_column_name_collision'
+}
+✅ Ensured packages table has slug column
+{
+  severity_local: 'NOTICE',
+  severity: 'NOTICE',
+  code: '42P07',
+  message: 'relation "countries" already exists, skipping',
+  file: 'parse_utilcmd.c',
+  line: '207',
+  routine: 'transformCreateStmt'
+}
+✅ Ensured countries table exists
+{
+  severity_local: 'NOTICE',
+  severity: 'NOTICE',
+  code: '42P07',
+  message: 'relation "nationalities" already exists, skipping',
+  file: 'parse_utilcmd.c',
+  line: '207',
+  routine: 'transformCreateStmt'
+}
+✅ Ensured nationalities table exists
+{
+  severity_local: 'NOTICE',
+  severity: 'NOTICE',
+  code: '42P07',
+  message: 'relation "visas" already exists, skipping',
+  file: 'parse_utilcmd.c',
+  line: '207',
+  routine: 'transformCreateStmt'
+}
+✅ Ensured visas table exists
+{
+  severity_local: 'NOTICE',
+  severity: 'NOTICE',
+  code: '42P07',
+  message: 'relation "nationality_visa_requirements" already exists, skipping',
+  file: 'parse_utilcmd.c',
+  line: '207',
+  routine: 'transformCreateStmt'
+}
+✅ Ensured nationality_visa_requirements table exists
+✅ All necessary visa tables are created
+✅ Database setup complete!
+🔐 Setting up admin users...
+✅ Main admin user already exists
+Browserslist: browsers data (caniuse-lite) is 8 months old. Please run:
+  npx update-browserslist-db@latest
+  Why you should do it regularly: https://github.com/browserslist/update-db#readme
+✅ Test admin user already exists
+🏷️ Seeding package categories...
+🏷️ Seeding package categories...
+✅ Package categories already seeded
+✅ Package categories seeding complete
+✅ Package categories already seeded
+🌱 Seeding data...
+✅ Data already seeded
+✅ Database initialization complete!
+8:26:40 AM [express] GET /api/destinations 304 in 26ms :: [{"id":"1","name":"Cairo","country":"Egypt","countryId":1,"cityId":null,"description":"Explore the ancient pyr…
+8:26:40 AM [express] GET /api/tour-categories 304 in 31ms :: [{"id":1,"name":"Historical Tours","description":"Ancient sites and historical landmarks","active":true,"cr…
+Found active slides: 5
+8:26:41 AM [express] GET /api/hero-slides/active 304 in 250ms :: [{"id":1,"title":"Discover the Magic of the Middle East","subtitle":"Explore Ancient Wonders","descript…
+8:26:41 AM [express] GET /api/translations 304 in 36ms :: [{"id":1,"key":"home","enText":null,"arText":null,"context":"general","category":"navigation","createdAt":"202…
+8:26:41 AM [express] GET /api/countries 304 in 307ms :: [{"id":"2","name":"Jordan","code":"JO","description":null,"imageUrl":null,"active":true,"createdAt":"2025-06-15T…
+8:26:41 AM [express] GET /api/cities 304 in 305ms :: [{"id":7,"name":"Cairo","countryId":1,"description":null,"imageUrl":null,"active":true,"createdAt":"2025-06-16T10:1…
+8:26:41 AM [express] GET /api/packages 304 in 308ms :: [{"id":"1","title":"Classic Egypt Explorer","description":"Discover the wonders of ancient Egypt with our compreh…
+8:26:41 AM [express] GET /api/menus/location/footer 304 in 177ms :: {"menu":{"id":1,"name":"Footer Menu","location":"footer","description":null,"active":true,"createdAt…
+8:26:41 AM [express] GET /api/translations/settings 304 in 46ms :: {"id":1,"defaultLanguage":"en","availableLanguages":["en","ar"],"rtlLanguages":["ar"],"createdAt":"20…
+8:26:55 AM [express] GET /api/destinations 304 in 193ms :: [{"id":"1","name":"Cairo","country":"Egypt","countryId":1,"cityId":null,"description":"Explore the ancient py…
+8:26:55 AM [express] GET /api/packages 304 in 199ms :: [{"id":"1","title":"Classic Egypt Explorer","description":"Discover the wonders of ancient Egypt with our compreh…
+8:26:55 AM [express] GET /api/translations 304 in 194ms :: [{"id":1,"key":"home","enText":null,"arText":null,"context":"general","category":"navigation","createdAt":"20…
+8:26:55 AM [express] GET /api/translations/settings 304 in 216ms :: {"id":1,"defaultLanguage":"en","availableLanguages":["en","ar"],"rtlLanguages":["ar"],"createdAt":"2…
+8:26:55 AM [express] GET /api/menus/location/footer 304 in 266ms :: {"menu":{"id":1,"name":"Footer Menu","location":"footer","description":null,"active":true,"createdAt…
+8:29:18 AM [express] GET /api/admin/dashboard-stats 200 in 4ms
+8:29:21 AM [express] GET /api/destinations 304 in 180ms :: [{"id":"1","name":"Cairo","country":"Egypt","countryId":1,"cityId":null,"description":"Explore the ancient py…
+8:29:21 AM [express] GET /api/packages 304 in 187ms :: [{"id":"1","title":"Classic Egypt Explorer","description":"Discover the wonders of ancient Egypt with our compreh…
+8:29:21 AM [express] GET /api/translations 304 in 187ms :: [{"id":1,"key":"home","enText":null,"arText":null,"context":"general","category":"navigation","createdAt":"20…
+8:29:21 AM [express] GET /api/translations/settings 304 in 200ms :: {"id":1,"defaultLanguage":"en","availableLanguages":["en","ar"],"rtlLanguages":["ar"],"createdAt":"2…
+8:29:21 AM [express] GET /api/menus/location/footer 304 in 253ms :: {"menu":{"id":1,"name":"Footer Menu","location":"footer","description":null,"active":true,"createdAt…
+8:29:25 AM [vite] hmr update /src/pages/package-detail.tsx, /src/index.css?v=D9PGcw48LnzxXkIrU7Qzo
+8:29:31 AM [express] GET /api/maps-key 200 in 2ms :: {"key":""}
+⚠️ Using temporary admin access - session not found
+Error listing hotel facilities: PostgresError: relation "hotel_facilities" does not exist
+    at ErrorResponse (file:///home/runner/workspace/node_modules/postgres/src/connection.js:788:26)
+    at handle (file:///home/runner/workspace/node_modules/postgres/src/connection.js:474:6)
+    at TLSSocket.data (file:///home/runner/workspace/node_modules/postgres/src/connection.js:315:9)
+    at TLSSocket.emit (node:events:518:28)
+    at addChunk (node:internal/streams/readable:561:12)
+    at readableAddChunkPushByteMode (node:internal/streams/readable:512:3)
+    at Readable.push (node:internal/streams/readable:392:5)
+    at TLSWrap.onStreamRead (node:internal/stream_base_commons:191:23) {
+  severity_local: 'ERROR',
+  severity: 'ERROR',
+  code: '42P01',
+  position: '127',
+  file: 'parse_relation.c',
+  line: '1449',
+  routine: 'parserOpenTable'
+}
+8:29:31 AM [express] GET /api/admin/hotel-facilities 200 in 28ms :: []
+⚠️ Using temporary admin access - session not found
+Error listing hotel highlights: PostgresError: relation "hotel_highlights" does not exist
+    at ErrorResponse (file:///home/runner/workspace/node_modules/postgres/src/connection.js:788:26)
+    at handle (file:///home/runner/workspace/node_modules/postgres/src/connection.js:474:6)
+    at TLSSocket.data (file:///home/runner/workspace/node_modules/postgres/src/connection.js:315:9)
+    at TLSSocket.emit (node:events:518:28)
+    at addChunk (node:internal/streams/readable:561:12)
+    at readableAddChunkPushByteMode (node:internal/streams/readable:512:3)
+    at Readable.push (node:internal/streams/readable:392:5)
+    at TLSWrap.onStreamRead (node:internal/stream_base_commons:191:23) {
+  severity_local: 'ERROR',
+  severity: 'ERROR',
+  code: '42P01',
+  position: '115',
+  file: 'parse_relation.c',
+  line: '1449',
+  routine: 'parserOpenTable'
+}
+8:29:32 AM [express] GET /api/admin/hotel-highlights 200 in 23ms :: []
+⚠️ Using temporary admin access - session not found
+Error listing cleanliness features: PostgresError: relation "cleanliness_features" does not exist
+    at ErrorResponse (file:///home/runner/workspace/node_modules/postgres/src/connection.js:788:26)
+    at handle (file:///home/runner/workspace/node_modules/postgres/src/connection.js:474:6)
+    at TLSSocket.data (file:///home/runner/workspace/node_modules/postgres/src/connection.js:315:9)
+    at TLSSocket.emit (node:events:518:28)
+    at addChunk (node:internal/streams/readable:561:12)
+    at readableAddChunkPushByteMode (node:internal/streams/readable:512:3)
+    at Readable.push (node:internal/streams/readable:392:5)
+    at TLSWrap.onStreamRead (node:internal/stream_base_commons:191:23) {
+  severity_local: 'ERROR',
+  severity: 'ERROR',
+  code: '42P01',
+  position: '115',
+  file: 'parse_relation.c',
+  line: '1449',
+  routine: 'parserOpenTable'
+}
+8:29:32 AM [express] GET /api/admin/cleanliness-features 200 in 23ms :: []
+8:29:39 AM [express] GET /api/admin/dashboard-stats 200 in 4ms
+⚠️ Using temporary admin access - session not found
+⚠️ Using temporary admin access - session not found
+⚠️ Using temporary admin access - session not found
+Recent bookings error: TypeError: Cannot convert undefined or null to object
+    at Function.entries (<anonymous>)
+    at orderSelectedFields (/home/runner/workspace/node_modules/src/utils.ts:77:16)
+    at <anonymous> (/home/runner/workspace/node_modules/src/utils.ts:88:19)
+    at Array.reduce (<anonymous>)
+    at orderSelectedFields (/home/runner/workspace/node_modules/src/utils.ts:77:32)
+    at <anonymous> (/home/runner/workspace/node_modules/src/pg-core/query-builders/select.ts:979:23)
+    at Object.startActiveSpan (/home/runner/workspace/node_modules/src/tracing.ts:27:11)
+    at PgSelectBase._prepare (/home/runner/workspace/node_modules/src/pg-core/query-builders/select.ts:978:17)
+    at <anonymous> (/home/runner/workspace/node_modules/src/pg-core/query-builders/select.ts:1009:16)
+    at Object.startActiveSpan (/home/runner/workspace/node_modules/src/tracing.ts:27:11)
+    at PgSelectBase.execute (/home/runner/workspace/node_modules/src/pg-core/query-builders/select.ts:1008:17)
+    at PgSelectBase.then (/home/runner/workspace/node_modules/src/query-promise.ts:31:15)
+    at process.processTicksAndRejections (node:internal/process/task_queues:95:5)
+8:29:41 AM [express] GET /api/admin/bookings/recent 500 in 9ms :: {"message":"Failed to fetch recent bookings"}
+Dashboard stats error: TypeError [ERR_INVALID_ARG_TYPE]: The "string" argument must be of type string or an instance of Buffer or ArrayBuffer. Received an instance of Date
+    at Function.byteLength (node:buffer:774:11)
+    at Function.str (file:///home/runner/workspace/node_modules/postgres/src/bytes.js:22:27)
+    at file:///home/runner/workspace/node_modules/postgres/src/connection.js:938:16
+    at Array.forEach (<anonymous>)
+    at Bind (file:///home/runner/workspace/node_modules/postgres/src/connection.js:928:16)
+    at prepared (file:///home/runner/workspace/node_modules/postgres/src/connection.js:204:7)
+    at ParameterDescription (file:///home/runner/workspace/node_modules/postgres/src/connection.js:607:58)
+    at handle (file:///home/runner/workspace/node_modules/postgres/src/connection.js:474:6)
+    at TLSSocket.data (file:///home/runner/workspace/node_modules/postgres/src/connection.js:315:9)
+    at TLSSocket.emit (node:events:518:28)
+    at addChunk (node:internal/streams/readable:561:12)
+    at readableAddChunkPushByteMode (node:internal/streams/readable:512:3)
+    at Readable.push (node:internal/streams/readable:392:5)
+    at TLSWrap.onStreamRead (node:internal/stream_base_commons:191:23) {
+  code: 'ERR_INVALID_ARG_TYPE'
+}
+8:29:41 AM [express] GET /api/admin/dashboard/stats 500 in 35ms :: {"message":"Failed to fetch dashboard statistics"}
+8:29:41 AM [express] GET /api/admin/system/health 200 in 322ms :: {"status":"warning","database":{"status":"online","connectionCount":"1","responseTime":286},"server":{…
+8:29:45 AM [vite] hmr update /src/pages/package-detail.tsx, /src/index.css?v=D9PGcw48LnzxXkIrU7Qzo (x2)
+8:29:51 AM [express] GET /api/countries 304 in 22ms :: [{"id":"2","name":"Jordan","code":"JO","description":null,"imageUrl":null,"active":true,"createdAt":"2025-06-15T1…
+8:29:51 AM [express] GET /api/cities 304 in 22ms :: [{"id":7,"name":"Cairo","countryId":1,"description":null,"imageUrl":null,"active":true,"createdAt":"2025-06-16T10:18…
+8:29:51 AM [express] GET /api/tour-categories 304 in 22ms :: [{"id":1,"name":"Historical Tours","description":"Ancient sites and historical landmarks","active":true,"cr…
+Found active slides: 5
+8:29:51 AM [express] GET /api/hero-slides/active 304 in 232ms :: [{"id":1,"title":"Discover the Magic of the Middle East","subtitle":"Explore Ancient Wonders","descript…
+8:29:55 AM [express] GET /api/admin/dashboard-stats 200 in 3ms
+⚠️ Using temporary admin access - session not found
+⚠️ Using temporary admin access - session not found
+Recent bookings error: TypeError: Cannot convert undefined or null to object
+    at Function.entries (<anonymous>)
+    at orderSelectedFields (/home/runner/workspace/node_modules/src/utils.ts:77:16)
+    at <anonymous> (/home/runner/workspace/node_modules/src/utils.ts:88:19)
+    at Array.reduce (<anonymous>)
+    at orderSelectedFields (/home/runner/workspace/node_modules/src/utils.ts:77:32)
+    at <anonymous> (/home/runner/workspace/node_modules/src/pg-core/query-builders/select.ts:979:23)
+    at Object.startActiveSpan (/home/runner/workspace/node_modules/src/tracing.ts:27:11)
+    at PgSelectBase._prepare (/home/runner/workspace/node_modules/src/pg-core/query-builders/select.ts:978:17)
+    at <anonymous> (/home/runner/workspace/node_modules/src/pg-core/query-builders/select.ts:1009:16)
+    at Object.startActiveSpan (/home/runner/workspace/node_modules/src/tracing.ts:27:11)
+    at PgSelectBase.execute (/home/runner/workspace/node_modules/src/pg-core/query-builders/select.ts:1008:17)
+    at PgSelectBase.then (/home/runner/workspace/node_modules/src/query-promise.ts:31:15)
+    at process.processTicksAndRejections (node:internal/process/task_queues:95:5)
+8:29:58 AM [express] GET /api/admin/bookings/recent 500 in 2ms :: {"message":"Failed to fetch recent bookings"}
+⚠️ Using temporary admin access - session not found
+Dashboard stats error: TypeError [ERR_INVALID_ARG_TYPE]: The "string" argument must be of type string or an instance of Buffer or ArrayBuffer. Received an instance of Date
+    at Function.byteLength (node:buffer:774:11)
+    at Function.str (file:///home/runner/workspace/node_modules/postgres/src/bytes.js:22:27)
+    at file:///home/runner/workspace/node_modules/postgres/src/connection.js:938:16
+    at Array.forEach (<anonymous>)
+    at Bind (file:///home/runner/workspace/node_modules/postgres/src/connection.js:928:16)
+    at prepared (file:///home/runner/workspace/node_modules/postgres/src/connection.js:204:7)
+    at ParameterDescription (file:///home/runner/workspace/node_modules/postgres/src/connection.js:607:58)
+    at handle (file:///home/runner/workspace/node_modules/postgres/src/connection.js:474:6)
+    at TLSSocket.data (file:///home/runner/workspace/node_modules/postgres/src/connection.js:315:9)
+    at TLSSocket.emit (node:events:518:28)
+    at addChunk (node:internal/streams/readable:561:12)
+    at readableAddChunkPushByteMode (node:internal/streams/readable:512:3)
+    at Readable.push (node:internal/streams/readable:392:5)
+    at TLSWrap.onStreamRead (node:internal/stream_base_commons:191:23) {
+  code: 'ERR_INVALID_ARG_TYPE'
+}
+8:29:58 AM [express] GET /api/admin/dashboard/stats 500 in 23ms :: {"message":"Failed to fetch dashboard statistics"}
+8:29:58 AM [express] GET /api/admin/system/health 200 in 68ms :: {"status":"healthy","database":{"status":"online","connectionCount":"1","responseTime":45},"server":{"u…
+
+> rest-express@1.0.0 dev
+> cross-env NODE_ENV=development tsx server/index.ts
+
+Attempting to connect with URL: postgresql://neondb_owner:****@ep-dawn-voice-a8bd2yi7-pooler.eastus2.azure.neon.tech/neondb?sslmode=require
+⏳ Waiting for database initialization...
+Database connection established successfully
+✅ Database initialized.
+🔐 Setting up admin users...
+✅ Main admin user already exists
+✅ Test admin user already exists
+✅ Admin setup completed
+✅ Unified auth setup completed
+✅ Hero slides routes setup completed
+✅ Routes registered successfully
+🔧 Initializing database...
+📋 Creating database schema...
+8:26:26 AM [express] serving on port 8080
+✅ Database schema created successfully
+🔄 Checking database setup...
+{
+  severity_local: 'NOTICE',
+  severity: 'NOTICE',
+  code: '42701',
+  message: 'column "slug" of relation "packages" already exists, skipping',
+  file: 'tablecmds.c',
+  line: '7471',
+  routine: 'check_for_column_name_collision'
+}
+✅ Ensured packages table has slug column
+{
+  severity_local: 'NOTICE',
+  severity: 'NOTICE',
+  code: '42P07',
+  message: 'relation "countries" already exists, skipping',
+  file: 'parse_utilcmd.c',
+  line: '207',
+  routine: 'transformCreateStmt'
+}
+✅ Ensured countries table exists
+{
+  severity_local: 'NOTICE',
+  severity: 'NOTICE',
+  code: '42P07',
+  message: 'relation "nationalities" already exists, skipping',
+  file: 'parse_utilcmd.c',
+  line: '207',
+  routine: 'transformCreateStmt'
+}
+✅ Ensured nationalities table exists
+{
+  severity_local: 'NOTICE',
+  severity: 'NOTICE',
+  code: '42P07',
+  message: 'relation "visas" already exists, skipping',
+  file: 'parse_utilcmd.c',
+  line: '207',
+  routine: 'transformCreateStmt'
+}
+✅ Ensured visas table exists
+{
+  severity_local: 'NOTICE',
+  severity: 'NOTICE',
+  code: '42P07',
+  message: 'relation "nationality_visa_requirements" already exists, skipping',
+  file: 'parse_utilcmd.c',
+  line: '207',
+  routine: 'transformCreateStmt'
+}
+✅ Ensured nationality_visa_requirements table exists
+✅ All necessary visa tables are created
+✅ Database setup complete!
+🔐 Setting up admin users...
+✅ Main admin user already exists
+Browserslist: browsers data (caniuse-lite) is 8 months old. Please run:
+  npx update-browserslist-db@latest
+  Why you should do it regularly: https://github.com/browserslist/update-db#readme
+✅ Test admin user already exists
+🏷️ Seeding package categories...
+🏷️ Seeding package categories...
+✅ Package categories already seeded
+✅ Package categories seeding complete
+✅ Package categories already seeded
+🌱 Seeding data...
+✅ Data already seeded
+✅ Database initialization complete!
+8:26:40 AM [express] GET /api/destinations 304 in 26ms :: [{"id":"1","name":"Cairo","country":"Egypt","countryId":1,"cityId":null,"description":"Explore the ancient pyr…
+8:26:40 AM [express] GET /api/tour-categories 304 in 31ms :: [{"id":1,"name":"Historical Tours","description":"Ancient sites and historical landmarks","active":true,"cr…
+Found active slides: 5
+8:26:41 AM [express] GET /api/hero-slides/active 304 in 250ms :: [{"id":1,"title":"Discover the Magic of the Middle East","subtitle":"Explore Ancient Wonders","descript…
+8:26:41 AM [express] GET /api/translations 304 in 36ms :: [{"id":1,"key":"home","enText":null,"arText":null,"context":"general","category":"navigation","createdAt":"202…
+8:26:41 AM [express] GET /api/countries 304 in 307ms :: [{"id":"2","name":"Jordan","code":"JO","description":null,"imageUrl":null,"active":true,"createdAt":"2025-06-15T…
+8:26:41 AM [express] GET /api/cities 304 in 305ms :: [{"id":7,"name":"Cairo","countryId":1,"description":null,"imageUrl":null,"active":true,"createdAt":"2025-06-16T10:1…
+8:26:41 AM [express] GET /api/packages 304 in 308ms :: [{"id":"1","title":"Classic Egypt Explorer","description":"Discover the wonders of ancient Egypt with our compreh…
+8:26:41 AM [express] GET /api/menus/location/footer 304 in 177ms :: {"menu":{"id":1,"name":"Footer Menu","location":"footer","description":null,"active":true,"createdAt…
+8:26:41 AM [express] GET /api/translations/settings 304 in 46ms :: {"id":1,"defaultLanguage":"en","availableLanguages":["en","ar"],"rtlLanguages":["ar"],"createdAt":"20…
+8:26:55 AM [express] GET /api/destinations 304 in 193ms :: [{"id":"1","name":"Cairo","country":"Egypt","countryId":1,"cityId":null,"description":"Explore the ancient py…
+8:26:55 AM [express] GET /api/packages 304 in 199ms :: [{"id":"1","title":"Classic Egypt Explorer","description":"Discover the wonders of ancient Egypt with our compreh…
+8:26:55 AM [express] GET /api/translations 304 in 194ms :: [{"id":1,"key":"home","enText":null,"arText":null,"context":"general","category":"navigation","createdAt":"20…
+8:26:55 AM [express] GET /api/translations/settings 304 in 216ms :: {"id":1,"defaultLanguage":"en","availableLanguages":["en","ar"],"rtlLanguages":["ar"],"createdAt":"2…
+8:26:55 AM [express] GET /api/menus/location/footer 304 in 266ms :: {"menu":{"id":1,"name":"Footer Menu","location":"footer","description":null,"active":true,"createdAt…
+8:29:18 AM [express] GET /api/admin/dashboard-stats 200 in 4ms
+8:29:21 AM [express] GET /api/destinations 304 in 180ms :: [{"id":"1","name":"Cairo","country":"Egypt","countryId":1,"cityId":null,"description":"Explore the ancient py…
+8:29:21 AM [express] GET /api/packages 304 in 187ms :: [{"id":"1","title":"Classic Egypt Explorer","description":"Discover the wonders of ancient Egypt with our compreh…
+8:29:21 AM [express] GET /api/translations 304 in 187ms :: [{"id":1,"key":"home","enText":null,"arText":null,"context":"general","category":"navigation","createdAt":"20…
+8:29:21 AM [express] GET /api/translations/settings 304 in 200ms :: {"id":1,"defaultLanguage":"en","availableLanguages":["en","ar"],"rtlLanguages":["ar"],"createdAt":"2…
+8:29:21 AM [express] GET /api/menus/location/footer 304 in 253ms :: {"menu":{"id":1,"name":"Footer Menu","location":"footer","description":null,"active":true,"createdAt…
+8:29:25 AM [vite] hmr update /src/pages/package-detail.tsx, /src/index.css?v=D9PGcw48LnzxXkIrU7Qzo
+8:29:31 AM [express] GET /api/maps-key 200 in 2ms :: {"key":""}
+⚠️ Using temporary admin access - session not found
+Error listing hotel facilities: PostgresError: relation "hotel_facilities" does not exist
+    at ErrorResponse (file:///home/runner/workspace/node_modules/postgres/src/connection.js:788:26)
+    at handle (file:///home/runner/workspace/node_modules/postgres/src/connection.js:474:6)
+    at TLSSocket.data (file:///home/runner/workspace/node_modules/postgres/src/connection.js:315:9)
+    at TLSSocket.emit (node:events:518:28)
+    at addChunk (node:internal/streams/readable:561:12)
+    at readableAddChunkPushByteMode (node:internal/streams/readable:512:3)
+    at Readable.push (node:internal/streams/readable:392:5)
+    at TLSWrap.onStreamRead (node:internal/stream_base_commons:191:23) {
+  severity_local: 'ERROR',
+  severity: 'ERROR',
+  code: '42P01',
+  position: '127',
+  file: 'parse_relation.c',
+  line: '1449',
+  routine: 'parserOpenTable'
+}
+8:29:31 AM [express] GET /api/admin/hotel-facilities 200 in 28ms :: []
+⚠️ Using temporary admin access - session not found
+Error listing hotel highlights: PostgresError: relation "hotel_highlights" does not exist
+    at ErrorResponse (file:///home/runner/workspace/node_modules/postgres/src/connection.js:788:26)
+    at handle (file:///home/runner/workspace/node_modules/postgres/src/connection.js:474:6)
+    at TLSSocket.data (file:///home/runner/workspace/node_modules/postgres/src/connection.js:315:9)
+    at TLSSocket.emit (node:events:518:28)
+    at addChunk (node:internal/streams/readable:561:12)
+    at readableAddChunkPushByteMode (node:internal/streams/readable:512:3)
+    at Readable.push (node:internal/streams/readable:392:5)
+    at TLSWrap.onStreamRead (node:internal/stream_base_commons:191:23) {
+  severity_local: 'ERROR',
+  severity: 'ERROR',
+  code: '42P01',
+  position: '115',
+  file: 'parse_relation.c',
+  line: '1449',
+  routine: 'parserOpenTable'
+}
+8:29:32 AM [express] GET /api/admin/hotel-highlights 200 in 23ms :: []
+⚠️ Using temporary admin access - session not found
+Error listing cleanliness features: PostgresError: relation "cleanliness_features" does not exist
+    at ErrorResponse (file:///home/runner/workspace/node_modules/postgres/src/connection.js:788:26)
+    at handle (file:///home/runner/workspace/node_modules/postgres/src/connection.js:474:6)
+    at TLSSocket.data (file:///home/runner/workspace/node_modules/postgres/src/connection.js:315:9)
+    at TLSSocket.emit (node:events:518:28)
+    at addChunk (node:internal/streams/readable:561:12)
+    at readableAddChunkPushByteMode (node:internal/streams/readable:512:3)
+    at Readable.push (node:internal/streams/readable:392:5)
+    at TLSWrap.onStreamRead (node:internal/stream_base_commons:191:23) {
+  severity_local: 'ERROR',
+  severity: 'ERROR',
+  code: '42P01',
+  position: '115',
+  file: 'parse_relation.c',
+  line: '1449',
+  routine: 'parserOpenTable'
+}
+8:29:32 AM [express] GET /api/admin/cleanliness-features 200 in 23ms :: []
+8:29:39 AM [express] GET /api/admin/dashboard-stats 200 in 4ms
+⚠️ Using temporary admin access - session not found
+⚠️ Using temporary admin access - session not found
+⚠️ Using temporary admin access - session not found
+Recent bookings error: TypeError: Cannot convert undefined or null to object
+    at Function.entries (<anonymous>)
+    at orderSelectedFields (/home/runner/workspace/node_modules/src/utils.ts:77:16)
+    at <anonymous> (/home/runner/workspace/node_modules/src/utils.ts:88:19)
+    at Array.reduce (<anonymous>)
+    at orderSelectedFields (/home/runner/workspace/node_modules/src/utils.ts:77:32)
+    at <anonymous> (/home/runner/workspace/node_modules/src/pg-core/query-builders/select.ts:979:23)
+    at Object.startActiveSpan (/home/runner/workspace/node_modules/src/tracing.ts:27:11)
+    at PgSelectBase._prepare (/home/runner/workspace/node_modules/src/pg-core/query-builders/select.ts:978:17)
+    at <anonymous> (/home/runner/workspace/node_modules/src/pg-core/query-builders/select.ts:1009:16)
+    at Object.startActiveSpan (/home/runner/workspace/node_modules/src/tracing.ts:27:11)
+    at PgSelectBase.execute (/home/runner/workspace/node_modules/src/pg-core/query-builders/select.ts:1008:17)
+    at PgSelectBase.then (/home/runner/workspace/node_modules/src/query-promise.ts:31:15)
+    at process.processTicksAndRejections (node:internal/process/task_queues:95:5)
+8:29:41 AM [express] GET /api/admin/bookings/recent 500 in 9ms :: {"message":"Failed to fetch recent bookings"}
+Dashboard stats error: TypeError [ERR_INVALID_ARG_TYPE]: The "string" argument must be of type string or an instance of Buffer or ArrayBuffer. Received an instance of Date
+    at Function.byteLength (node:buffer:774:11)
+    at Function.str (file:///home/runner/workspace/node_modules/postgres/src/bytes.js:22:27)
+    at file:///home/runner/workspace/node_modules/postgres/src/connection.js:938:16
+    at Array.forEach (<anonymous>)
+    at Bind (file:///home/runner/workspace/node_modules/postgres/src/connection.js:928:16)
+    at prepared (file:///home/runner/workspace/node_modules/postgres/src/connection.js:204:7)
+    at ParameterDescription (file:///home/runner/workspace/node_modules/postgres/src/connection.js:607:58)
+    at handle (file:///home/runner/workspace/node_modules/postgres/src/connection.js:474:6)
+    at TLSSocket.data (file:///home/runner/workspace/node_modules/postgres/src/connection.js:315:9)
+    at TLSSocket.emit (node:events:518:28)
+    at addChunk (node:internal/streams/readable:561:12)
+    at readableAddChunkPushByteMode (node:internal/streams/readable:512:3)
+    at Readable.push (node:internal/streams/readable:392:5)
+    at TLSWrap.onStreamRead (node:internal/stream_base_commons:191:23) {
+  code: 'ERR_INVALID_ARG_TYPE'
+}
+8:29:41 AM [express] GET /api/admin/dashboard/stats 500 in 35ms :: {"message":"Failed to fetch dashboard statistics"}
+8:29:41 AM [express] GET /api/admin/system/health 200 in 322ms :: {"status":"warning","database":{"status":"online","connectionCount":"1","responseTime":286},"server":{…
+8:29:45 AM [vite] hmr update /src/pages/package-detail.tsx, /src/index.css?v=D9PGcw48LnzxXkIrU7Qzo (x2)
+8:29:51 AM [express] GET /api/countries 304 in 22ms :: [{"id":"2","name":"Jordan","code":"JO","description":null,"imageUrl":null,"active":true,"createdAt":"2025-06-15T1…
+8:29:51 AM [express] GET /api/cities 304 in 22ms :: [{"id":7,"name":"Cairo","countryId":1,"description":null,"imageUrl":null,"active":true,"createdAt":"2025-06-16T10:18…
+8:29:51 AM [express] GET /api/tour-categories 304 in 22ms :: [{"id":1,"name":"Historical Tours","description":"Ancient sites and historical landmarks","active":true,"cr…
+Found active slides: 5
+8:29:51 AM [express] GET /api/hero-slides/active 304 in 232ms :: [{"id":1,"title":"Discover the Magic of the Middle East","subtitle":"Explore Ancient Wonders","descript…
+8:29:55 AM [express] GET /api/admin/dashboard-stats 200 in 3ms
+⚠️ Using temporary admin access - session not found
+⚠️ Using temporary admin access - session not found
+Recent bookings error: TypeError: Cannot convert undefined or null to object
+    at Function.entries (<anonymous>)
+    at orderSelectedFields (/home/runner/workspace/node_modules/src/utils.ts:77:16)
+    at <anonymous> (/home/runner/workspace/node_modules/src/utils.ts:88:19)
+    at Array.reduce (<anonymous>)
+    at orderSelectedFields (/home/runner/workspace/node_modules/src/utils.ts:77:32)
+    at <anonymous> (/home/runner/workspace/node_modules/src/pg-core/query-builders/select.ts:979:23)
+    at Object.startActiveSpan (/home/runner/workspace/node_modules/src/tracing.ts:27:11)
+    at PgSelectBase._prepare (/home/runner/workspace/node_modules/src/pg-core/query-builders/select.ts:978:17)
+    at <anonymous> (/home/runner/workspace/node_modules/src/pg-core/query-builders/select.ts:1009:16)
+    at Object.startActiveSpan (/home/runner/workspace/node_modules/src/tracing.ts:27:11)
+    at PgSelectBase.execute (/home/runner/workspace/node_modules/src/pg-core/query-builders/select.ts:1008:17)
+    at PgSelectBase.then (/home/runner/workspace/node_modules/src/query-promise.ts:31:15)
+    at process.processTicksAndRejections (node:internal/process/task_queues:95:5)
+8:29:58 AM [express] GET /api/admin/bookings/recent 500 in 2ms :: {"message":"Failed to fetch recent bookings"}
+⚠️ Using temporary admin access - session not found
+Dashboard stats error: TypeError [ERR_INVALID_ARG_TYPE]: The "string" argument must be of type string or an instance of Buffer or ArrayBuffer. Received an instance of Date
+    at Function.byteLength (node:buffer:774:11)
+    at Function.str (file:///home/runner/workspace/node_modules/postgres/src/bytes.js:22:27)
+    at file:///home/runner/workspace/node_modules/postgres/src/connection.js:938:16
+    at Array.forEach (<anonymous>)
+    at Bind (file:///home/runner/workspace/node_modules/postgres/src/connection.js:928:16)
+    at prepared (file:///home/runner/workspace/node_modules/postgres/src/connection.js:204:7)
+    at ParameterDescription (file:///home/runner/workspace/node_modules/postgres/src/connection.js:607:58)
+    at handle (file:///home/runner/workspace/node_modules/postgres/src/connection.js:474:6)
+    at TLSSocket.data (file:///home/runner/workspace/node_modules/postgres/src/connection.js:315:9)
+    at TLSSocket.emit (node:events:518:28)
+    at addChunk (node:internal/streams/readable:561:12)
+    at readableAddChunkPushByteMode (node:internal/streams/readable:512:3)
+    at Readable.push (node:internal/streams/readable:392:5)
+    at TLSWrap.onStreamRead (node:internal/stream_base_commons:191:23) {
+  code: 'ERR_INVALID_ARG_TYPE'
+}
+8:29:58 AM [express] GET /api/admin/dashboard/stats 500 in 23ms :: {"message":"Failed to fetch dashboard statistics"}
+8:29:58 AM [express] GET /api/admin/system/health 200 in 68ms :: {"status":"healthy","database":{"status":"online","connectionCount":"1","responseTime":45},"server":{"u…
+⚠️ Using temporary admin access - session not found
+8:35:27 AM [express] GET /api/admin/users 200 in 751ms :: [{"id":"4","username":"testadmin","email":"testadmin@egyptexpress.com","displayName":"Test Admin","firstName":…
+⚠️ Using temporary admin access - session not found
+⚠️ Using temporary admin access - session not found
+8:35:29 AM [express] GET /api/admin/users/stats 400 in 1ms :: {"message":"Invalid user ID"}
+8:35:29 AM [express] GET /api/admin/users 304 in 21ms :: [{"id":"4","username":"testadmin","email":"testadmin@egyptexpress.com","displayName":"Test Admin","firstName":n…
+8:35:29 AM [express] GET /api/admin/roles 200 in 2ms
+⚠️ Using temporary admin access - session not found
+Bookings fetch error: TypeError: Cannot convert undefined or null to object
+    at Function.entries (<anonymous>)
+    at orderSelectedFields (/home/runner/workspace/node_modules/src/utils.ts:77:16)
+    at <anonymous> (/home/runner/workspace/node_modules/src/utils.ts:88:19)
+    at Array.reduce (<anonymous>)
+    at orderSelectedFields (/home/runner/workspace/node_modules/src/utils.ts:77:32)
+    at <anonymous> (/home/runner/workspace/node_modules/src/pg-core/query-builders/select.ts:979:23)
+    at Object.startActiveSpan (/home/runner/workspace/node_modules/src/tracing.ts:27:11)
+    at PgSelectBase._prepare (/home/runner/workspace/node_modules/src/pg-core/query-builders/select.ts:978:17)
+    at <anonymous> (/home/runner/workspace/node_modules/src/pg-core/query-builders/select.ts:1009:16)
+    at Object.startActiveSpan (/home/runner/workspace/node_modules/src/tracing.ts:27:11)
+    at PgSelectBase.execute (/home/runner/workspace/node_modules/src/pg-core/query-builders/select.ts:1008:17)
+    at PgSelectBase.then (/home/runner/workspace/node_modules/src/query-promise.ts:31:15)
+    at process.processTicksAndRejections (node:internal/process/task_queues:95:5)
+8:35:32 AM [express] GET /api/admin/bookings 500 in 2ms :: {"message":"Failed to fetch bookings"}
+⚠️ Using temporary admin access - session not found
+Booking stats error: PostgresError: function sum() does not exist
+    at ErrorResponse (file:///home/runner/workspace/node_modules/postgres/src/connection.js:788:26)
+    at handle (file:///home/runner/workspace/node_modules/postgres/src/connection.js:474:6)
+    at TLSSocket.data (file:///home/runner/workspace/node_modules/postgres/src/connection.js:315:9)
+    at TLSSocket.emit (node:events:518:28)
+    at addChunk (node:internal/streams/readable:561:12)
+    at readableAddChunkPushByteMode (node:internal/streams/readable:512:3)
+    at Readable.push (node:internal/streams/readable:392:5)
+    at TLSWrap.onStreamRead (node:internal/stream_base_commons:191:23) {
+  severity_local: 'ERROR',
+  severity: 'ERROR',
+  code: '42883',
+  hint: 'No function matches the given name and argument types. You might need to add explicit type casts.',
+  position: '184',
+  file: 'parse_func.c',
+  line: '629',
+  routine: 'ParseFuncOrColumn'
+}
+8:35:32 AM [express] GET /api/admin/bookings/stats 500 in 153ms :: {"message":"Failed to fetch booking statistics"}
+8:35:57 AM [express] GET /api/hero-slides 200 in 249ms :: [{"id":1,"title":"Discover the Magic of the Middle East","subtitle":"Explore Ancient Wonders","description":"J…
+⚠️ Using temporary admin access - session not found
+⚠️ Using temporary admin access - session not found
+8:36:03 AM [express] GET /api/admin/countries 200 in 213ms :: [{"id":"2","name":"Jordan","code":"JO","description":null,"imageUrl":null,"active":true,"createdAt":"2025-…
+8:36:03 AM [express] GET /api/admin/cities 200 in 223ms :: [{"id":7,"name":"Cairo","countryId":1,"description":null,"imageUrl":null,"active":true,"createdAt":"2025-06-1…
+⚠️ Using temporary admin access - session not found
+8:36:03 AM [express] GET /api/admin/airports 200 in 24ms :: []
+8:36:12 AM [express] GET /api/destinations 304 in 26ms :: [{"id":"1","name":"Cairo","country":"Egypt","countryId":1,"cityId":null,"description":"Explore the ancient pyr…
+8:36:21 AM [express] GET /api/translations 304 in 33ms :: [{"id":1,"key":"home","enText":null,"arText":null,"context":"general","category":"navigation","createdAt":"202…
+8:36:21 AM [express] GET /api/translations 304 in 22ms :: [{"id":1,"key":"home","enText":null,"arText":null,"context":"general","category":"navigation","createdAt":"202…
+Starting translation sync from codebase
+Found 29 existing translations
+Error scanning client/src/pages/Home.tsx: PostgresError: null value in column "language" of relation "translations" violates not-null constraint
+    at ErrorResponse (file:///home/runner/workspace/node_modules/postgres/src/connection.js:788:26)
+    at handle (file:///home/runner/workspace/node_modules/postgres/src/connection.js:474:6)
+    at TLSSocket.data (file:///home/runner/workspace/node_modules/postgres/src/connection.js:315:9)
+    at TLSSocket.emit (node:events:518:28)
+    at addChunk (node:internal/streams/readable:561:12)
+    at readableAddChunkPushByteMode (node:internal/streams/readable:512:3)
+    at Readable.push (node:internal/streams/readable:392:5)
+    at TLSWrap.onStreamRead (node:internal/stream_base_commons:191:23) {
+  severity_local: 'ERROR',
+  severity: 'ERROR',
+  code: '23502',
+  detail: 'Failing row contains (35, home.social.title, null, null, pages, 2025-06-18 08:36:25.58, 2025-06-18 08:36:25.58, null, null, Connect With Us, null, Auto-detected from client/src/pages/Home.tsx).',
+  schema_name: 'public',
+  table_name: 'translations',
+  column_name: 'language',
+  file: 'execMain.c',
+  line: '1982',
+  routine: 'ExecConstraints'
+}
+Error scanning client/src/pages/about-page.tsx: PostgresError: null value in column "language" of relation "translations" violates not-null constraint
+    at ErrorResponse (file:///home/runner/workspace/node_modules/postgres/src/connection.js:788:26)
+    at handle (file:///home/runner/workspace/node_modules/postgres/src/connection.js:474:6)
+    at TLSSocket.data (file:///home/runner/workspace/node_modules/postgres/src/connection.js:315:9)
+    at TLSSocket.emit (node:events:518:28)
+    at addChunk (node:internal/streams/readable:561:12)
+    at readableAddChunkPushByteMode (node:internal/streams/readable:512:3)
+    at Readable.push (node:internal/streams/readable:392:5)
+    at TLSWrap.onStreamRead (node:internal/stream_base_commons:191:23) {
+  severity_local: 'ERROR',
+  severity: 'ERROR',
+  code: '23502',
+  detail: 'Failing row contains (36, about.title, null, null, pages, 2025-06-18 08:36:25.635, 2025-06-18 08:36:25.635, null, null, About Sahara Travel, null, Auto-detected from client/src/pages/about-page.tsx).',
+  schema_name: 'public',
+  table_name: 'translations',
+  column_name: 'language',
+  file: 'execMain.c',
+  line: '1982',
+  routine: 'ExecConstraints'
+}
+Error scanning client/src/pages/admin/AdvancedBookingsManagement.tsx: PostgresError: null value in column "language" of relation "translations" violates not-null constraint
+    at ErrorResponse (file:///home/runner/workspace/node_modules/postgres/src/connection.js:788:26)
+    at handle (file:///home/runner/workspace/node_modules/postgres/src/connection.js:474:6)
+    at TLSSocket.data (file:///home/runner/workspace/node_modules/postgres/src/connection.js:315:9)
+    at TLSSocket.emit (node:events:518:28)
+    at addChunk (node:internal/streams/readable:561:12)
+    at readableAddChunkPushByteMode (node:internal/streams/readable:512:3)
+    at Readable.push (node:internal/streams/readable:392:5)
+    at TLSWrap.onStreamRead (node:internal/stream_base_commons:191:23) {
+  severity_local: 'ERROR',
+  severity: 'ERROR',
+  code: '23502',
+  detail: 'Failing row contains (37, a, null, null, admin, 2025-06-18 08:36:25.678, 2025-06-18 08:36:25.678, null, null, a, null, Auto-detected from client/src/pages/admin/AdvancedBookingsManage...).',
+  schema_name: 'public',
+  table_name: 'translations',
+  column_name: 'language',
+  file: 'execMain.c',
+  line: '1982',
+  routine: 'ExecConstraints'
+}
+Error scanning client/src/pages/admin/AdvancedDashboard.tsx: PostgresError: null value in column "language" of relation "translations" violates not-null constraint
+    at ErrorResponse (file:///home/runner/workspace/node_modules/postgres/src/connection.js:788:26)
+    at handle (file:///home/runner/workspace/node_modules/postgres/src/connection.js:474:6)
+    at TLSSocket.data (file:///home/runner/workspace/node_modules/postgres/src/connection.js:315:9)
+    at TLSSocket.emit (node:events:518:28)
+    at addChunk (node:internal/streams/readable:561:12)
+    at readableAddChunkPushByteMode (node:internal/streams/readable:512:3)
+    at Readable.push (node:internal/streams/readable:392:5)
+    at TLSWrap.onStreamRead (node:internal/stream_base_commons:191:23) {
+  severity_local: 'ERROR',
+  severity: 'ERROR',
+  code: '23502',
+  detail: 'Failing row contains (38, admin.system_warning, null, null, admin, 2025-06-18 08:36:25.721, 2025-06-18 08:36:25.721, null, null, System Warning, null, Auto-detected from client/src/pages/admin/AdvancedDashboard.tsx).',
+  schema_name: 'public',
+  table_name: 'translations',
+  column_name: 'language',
+  file: 'execMain.c',
+  line: '1982',
+  routine: 'ExecConstraints'
+}
+Error scanning client/src/pages/admin/AdvancedHotelsManagement.tsx: PostgresError: null value in column "language" of relation "translations" violates not-null constraint
+    at ErrorResponse (file:///home/runner/workspace/node_modules/postgres/src/connection.js:788:26)
+    at handle (file:///home/runner/workspace/node_modules/postgres/src/connection.js:474:6)
+    at TLSSocket.data (file:///home/runner/workspace/node_modules/postgres/src/connection.js:315:9)
+    at TLSSocket.emit (node:events:518:28)
+    at addChunk (node:internal/streams/readable:561:12)
+    at readableAddChunkPushByteMode (node:internal/streams/readable:512:3)
+    at Readable.push (node:internal/streams/readable:392:5)
+    at TLSWrap.onStreamRead (node:internal/stream_base_commons:191:23) {
+  severity_local: 'ERROR',
+  severity: 'ERROR',
+  code: '23502',
+  detail: 'Failing row contains (39, a, null, null, admin, 2025-06-18 08:36:25.763, 2025-06-18 08:36:25.763, null, null, a, null, Auto-detected from client/src/pages/admin/AdvancedHotelsManageme...).',
+  schema_name: 'public',
+  table_name: 'translations',
+  column_name: 'language',
+  file: 'execMain.c',
+  line: '1982',
+  routine: 'ExecConstraints'
+}
+Error scanning client/src/pages/admin/AdvancedSystemSettings.tsx: PostgresError: null value in column "language" of relation "translations" violates not-null constraint
+    at ErrorResponse (file:///home/runner/workspace/node_modules/postgres/src/connection.js:788:26)
+    at handle (file:///home/runner/workspace/node_modules/postgres/src/connection.js:474:6)
+    at TLSSocket.data (file:///home/runner/workspace/node_modules/postgres/src/connection.js:315:9)
+    at TLSSocket.emit (node:events:518:28)
+    at addChunk (node:internal/streams/readable:561:12)
+    at readableAddChunkPushByteMode (node:internal/streams/readable:512:3)
+    at Readable.push (node:internal/streams/readable:392:5)
+    at TLSWrap.onStreamRead (node:internal/stream_base_commons:191:23) {
+  severity_local: 'ERROR',
+  severity: 'ERROR',
+  code: '23502',
+  detail: 'Failing row contains (40, admin.email_verification_required, null, null, admin, 2025-06-18 08:36:25.805, 2025-06-18 08:36:25.805, null, null, Email verification required, null, Auto-detected from client/src/pages/admin/AdvancedSystemSettings...).',
+  schema_name: 'public',
+  table_name: 'translations',
+  column_name: 'language',
+  file: 'execMain.c',
+  line: '1982',
+  routine: 'ExecConstraints'
+}
+Error scanning client/src/pages/admin/AdvancedUserManagement.tsx: PostgresError: null value in column "language" of relation "translations" violates not-null constraint
+    at ErrorResponse (file:///home/runner/workspace/node_modules/postgres/src/connection.js:788:26)
+    at handle (file:///home/runner/workspace/node_modules/postgres/src/connection.js:474:6)
+    at TLSSocket.data (file:///home/runner/workspace/node_modules/postgres/src/connection.js:315:9)
+    at TLSSocket.emit (node:events:518:28)
+    at addChunk (node:internal/streams/readable:561:12)
+    at readableAddChunkPushByteMode (node:internal/streams/readable:512:3)
+    at Readable.push (node:internal/streams/readable:392:5)
+    at TLSWrap.onStreamRead (node:internal/stream_base_commons:191:23) {
+  severity_local: 'ERROR',
+  severity: 'ERROR',
+  code: '23502',
+  detail: 'Failing row contains (41, admin.total_bookings, null, null, admin, 2025-06-18 08:36:25.848, 2025-06-18 08:36:25.848, null, null, Total Bookings, null, Auto-detected from client/src/pages/admin/AdvancedUserManagement...).',
+  schema_name: 'public',
+  table_name: 'translations',
+  column_name: 'language',
+  file: 'execMain.c',
+  line: '1982',
+  routine: 'ExecConstraints'
+}
+Error scanning client/src/pages/admin/DestinationsManagement.tsx: PostgresError: null value in column "language" of relation "translations" violates not-null constraint
+    at ErrorResponse (file:///home/runner/workspace/node_modules/postgres/src/connection.js:788:26)
+    at handle (file:///home/runner/workspace/node_modules/postgres/src/connection.js:474:6)
+    at TLSSocket.data (file:///home/runner/workspace/node_modules/postgres/src/connection.js:315:9)
+    at TLSSocket.emit (node:events:518:28)
+    at addChunk (node:internal/streams/readable:561:12)
+    at readableAddChunkPushByteMode (node:internal/streams/readable:512:3)
+    at Readable.push (node:internal/streams/readable:392:5)
+    at TLSWrap.onStreamRead (node:internal/stream_base_commons:191:23) {
+  severity_local: 'ERROR',
+  severity: 'ERROR',
+  code: '23502',
+  detail: 'Failing row contains (42, admin.destinations.title, null, null, admin, 2025-06-18 08:36:25.892, 2025-06-18 08:36:25.892, null, null, Destinations Management, null, Auto-detected from client/src/pages/admin/DestinationsManagement...).',
+  schema_name: 'public',
+  table_name: 'translations',
+  column_name: 'language',
+  file: 'execMain.c',
+  line: '1982',
+  routine: 'ExecConstraints'
+}
+Error scanning client/src/pages/admin/EnhancedHotelCreatePage.tsx: PostgresError: null value in column "language" of relation "translations" violates not-null constraint
+    at ErrorResponse (file:///home/runner/workspace/node_modules/postgres/src/connection.js:788:26)
+    at handle (file:///home/runner/workspace/node_modules/postgres/src/connection.js:474:6)
+    at TLSSocket.data (file:///home/runner/workspace/node_modules/postgres/src/connection.js:315:9)
+    at TLSSocket.emit (node:events:518:28)
+    at addChunk (node:internal/streams/readable:561:12)
+    at readableAddChunkPushByteMode (node:internal/streams/readable:512:3)
+    at Readable.push (node:internal/streams/readable:392:5)
+    at TLSWrap.onStreamRead (node:internal/stream_base_commons:191:23) {
+  severity_local: 'ERROR',
+  severity: 'ERROR',
+  code: '23502',
+  detail: 'Failing row contains (43, active, null, null, admin, 2025-06-18 08:36:25.936, 2025-06-18 08:36:25.936, null, null, active, null, Auto-detected from client/src/pages/admin/EnhancedHotelCreatePag...).',
+  schema_name: 'public',
+  table_name: 'translations',
+  column_name: 'language',
+  file: 'execMain.c',
+  line: '1982',
+  routine: 'ExecConstraints'
+}
+Error scanning client/src/pages/admin/EnhancedHotelEditPage.tsx: PostgresError: null value in column "language" of relation "translations" violates not-null constraint
+    at ErrorResponse (file:///home/runner/workspace/node_modules/postgres/src/connection.js:788:26)
+    at handle (file:///home/runner/workspace/node_modules/postgres/src/connection.js:474:6)
+    at TLSSocket.data (file:///home/runner/workspace/node_modules/postgres/src/connection.js:315:9)
+    at TLSSocket.emit (node:events:518:28)
+    at addChunk (node:internal/streams/readable:561:12)
+    at readableAddChunkPushByteMode (node:internal/streams/readable:512:3)
+    at Readable.push (node:internal/streams/readable:392:5)
+    at TLSWrap.onStreamRead (node:internal/stream_base_commons:191:23) {
+  severity_local: 'ERROR',
+  severity: 'ERROR',
+  code: '23502',
+  detail: 'Failing row contains (44, ,, null, null, admin, 2025-06-18 08:36:25.977, 2025-06-18 08:36:25.977, null, null, ,, null, Auto-detected from client/src/pages/admin/EnhancedHotelEditPage....).',
+  schema_name: 'public',
+  table_name: 'translations',
+  column_name: 'language',
+  file: 'execMain.c',
+  line: '1982',
+  routine: 'ExecConstraints'
+}
+Error scanning client/src/pages/admin/HotelCreatePage.tsx: PostgresError: null value in column "language" of relation "translations" violates not-null constraint
+    at ErrorResponse (file:///home/runner/workspace/node_modules/postgres/src/connection.js:788:26)
+    at handle (file:///home/runner/workspace/node_modules/postgres/src/connection.js:474:6)
+    at TLSSocket.data (file:///home/runner/workspace/node_modules/postgres/src/connection.js:315:9)
+    at TLSSocket.emit (node:events:518:28)
+    at addChunk (node:internal/streams/readable:561:12)
+    at readableAddChunkPushByteMode (node:internal/streams/readable:512:3)
+    at Readable.push (node:internal/streams/readable:392:5)
+    at TLSWrap.onStreamRead (node:internal/stream_base_commons:191:23) {
+  severity_local: 'ERROR',
+  severity: 'ERROR',
+  code: '23502',
+  detail: 'Failing row contains (45, active, null, null, admin, 2025-06-18 08:36:26.019, 2025-06-18 08:36:26.019, null, null, active, null, Auto-detected from client/src/pages/admin/HotelCreatePage.tsx).',
+  schema_name: 'public',
+  table_name: 'translations',
+  column_name: 'language',
+  file: 'execMain.c',
+  line: '1982',
+  routine: 'ExecConstraints'
+}
+Error scanning client/src/pages/admin/HotelEditPage.tsx: PostgresError: null value in column "language" of relation "translations" violates not-null constraint
+    at ErrorResponse (file:///home/runner/workspace/node_modules/postgres/src/connection.js:788:26)
+    at handle (file:///home/runner/workspace/node_modules/postgres/src/connection.js:474:6)
+    at TLSSocket.data (file:///home/runner/workspace/node_modules/postgres/src/connection.js:315:9)
+    at TLSSocket.emit (node:events:518:28)
+    at addChunk (node:internal/streams/readable:561:12)
+    at readableAddChunkPushByteMode (node:internal/streams/readable:512:3)
+    at Readable.push (node:internal/streams/readable:392:5)
+    at TLSWrap.onStreamRead (node:internal/stream_base_commons:191:23) {
+  severity_local: 'ERROR',
+  severity: 'ERROR',
+  code: '23502',
+  detail: 'Failing row contains (46, active, null, null, admin, 2025-06-18 08:36:26.068, 2025-06-18 08:36:26.068, null, null, active, null, Auto-detected from client/src/pages/admin/HotelEditPage.tsx).',
+  schema_name: 'public',
+  table_name: 'translations',
+  column_name: 'language',
+  file: 'execMain.c',
+  line: '1982',
+  routine: 'ExecConstraints'
+}
+Error scanning client/src/pages/admin/HotelsManagement.tsx: PostgresError: null value in column "language" of relation "translations" violates not-null constraint
+    at ErrorResponse (file:///home/runner/workspace/node_modules/postgres/src/connection.js:788:26)
+    at handle (file:///home/runner/workspace/node_modules/postgres/src/connection.js:474:6)
+    at TLSSocket.data (file:///home/runner/workspace/node_modules/postgres/src/connection.js:315:9)
+    at TLSSocket.emit (node:events:518:28)
+    at addChunk (node:internal/streams/readable:561:12)
+    at readableAddChunkPushByteMode (node:internal/streams/readable:512:3)
+    at Readable.push (node:internal/streams/readable:392:5)
+    at TLSWrap.onStreamRead (node:internal/stream_base_commons:191:23) {
+  severity_local: 'ERROR',
+  severity: 'ERROR',
+  code: '23502',
+  detail: 'Failing row contains (47, admin.hotels.title, null, null, admin, 2025-06-18 08:36:26.11, 2025-06-18 08:36:26.11, null, null, Hotels Management, null, Auto-detected from client/src/pages/admin/HotelsManagement.tsx).',
+  schema_name: 'public',
+  table_name: 'translations',
+  column_name: 'language',
+  file: 'execMain.c',
+  line: '1982',
+  routine: 'ExecConstraints'
+}
+Error scanning client/src/pages/admin/PackageCreatorPage.tsx: PostgresError: null value in column "language" of relation "translations" violates not-null constraint
+    at ErrorResponse (file:///home/runner/workspace/node_modules/postgres/src/connection.js:788:26)
+    at handle (file:///home/runner/workspace/node_modules/postgres/src/connection.js:474:6)
+    at TLSSocket.data (file:///home/runner/workspace/node_modules/postgres/src/connection.js:315:9)
+    at TLSSocket.emit (node:events:518:28)
+    at addChunk (node:internal/streams/readable:561:12)
+    at readableAddChunkPushByteMode (node:internal/streams/readable:512:3)
+    at Readable.push (node:internal/streams/readable:392:5)
+    at TLSWrap.onStreamRead (node:internal/stream_base_commons:191:23) {
+  severity_local: 'ERROR',
+  severity: 'ERROR',
+  code: '23502',
+  detail: 'Failing row contains (48, admin.packages.editPackage, null, null, admin, 2025-06-18 08:36:26.153, 2025-06-18 08:36:26.153, null, null, Edit Package, null, Auto-detected from client/src/pages/admin/PackageCreatorPage.tsx).',
+  schema_name: 'public',
+  table_name: 'translations',
+  column_name: 'language',
+  file: 'execMain.c',
+  line: '1982',
+  routine: 'ExecConstraints'
+}
+Error scanning client/src/pages/admin/PackagesManagement.tsx: PostgresError: null value in column "language" of relation "translations" violates not-null constraint
+    at ErrorResponse (file:///home/runner/workspace/node_modules/postgres/src/connection.js:788:26)
+    at handle (file:///home/runner/workspace/node_modules/postgres/src/connection.js:474:6)
+    at TLSSocket.data (file:///home/runner/workspace/node_modules/postgres/src/connection.js:315:9)
+    at TLSSocket.emit (node:events:518:28)
+    at addChunk (node:internal/streams/readable:561:12)
+    at readableAddChunkPushByteMode (node:internal/streams/readable:512:3)
+    at Readable.push (node:internal/streams/readable:392:5)
+    at TLSWrap.onStreamRead (node:internal/stream_base_commons:191:23) {
+  severity_local: 'ERROR',
+  severity: 'ERROR',
+  code: '23502',
+  detail: 'Failing row contains (49, filter, null, null, admin, 2025-06-18 08:36:26.195, 2025-06-18 08:36:26.195, null, null, filter, null, Auto-detected from client/src/pages/admin/PackagesManagement.tsx).',
+  schema_name: 'public',
+  table_name: 'translations',
+  column_name: 'language',
+  file: 'execMain.c',
+  line: '1982',
+  routine: 'ExecConstraints'
+}
+Error scanning client/src/pages/admin/RoomCreatePage.tsx: PostgresError: null value in column "language" of relation "translations" violates not-null constraint
+    at ErrorResponse (file:///home/runner/workspace/node_modules/postgres/src/connection.js:788:26)
+    at handle (file:///home/runner/workspace/node_modules/postgres/src/connection.js:474:6)
+    at TLSSocket.data (file:///home/runner/workspace/node_modules/postgres/src/connection.js:315:9)
+    at TLSSocket.emit (node:events:518:28)
+    at addChunk (node:internal/streams/readable:561:12)
+    at readableAddChunkPushByteMode (node:internal/streams/readable:512:3)
+    at Readable.push (node:internal/streams/readable:392:5)
+    at TLSWrap.onStreamRead (node:internal/stream_base_commons:191:23) {
+  severity_local: 'ERROR',
+  severity: 'ERROR',
+  code: '23502',
+  detail: 'Failing row contains (50, ,, null, null, admin, 2025-06-18 08:36:26.237, 2025-06-18 08:36:26.237, null, null, ,, null, Auto-detected from client/src/pages/admin/RoomCreatePage.tsx).',
+  schema_name: 'public',
+  table_name: 'translations',
+  column_name: 'language',
+  file: 'execMain.c',
+  line: '1982',
+  routine: 'ExecConstraints'
+}
+Error scanning client/src/pages/admin/RoomsPage.tsx: PostgresError: null value in column "language" of relation "translations" violates not-null constraint
+    at ErrorResponse (file:///home/runner/workspace/node_modules/postgres/src/connection.js:788:26)
+    at handle (file:///home/runner/workspace/node_modules/postgres/src/connection.js:474:6)
+    at TLSSocket.data (file:///home/runner/workspace/node_modules/postgres/src/connection.js:315:9)
+    at TLSSocket.emit (node:events:518:28)
+    at addChunk (node:internal/streams/readable:561:12)
+    at readableAddChunkPushByteMode (node:internal/streams/readable:512:3)
+    at Readable.push (node:internal/streams/readable:392:5)
+    at TLSWrap.onStreamRead (node:internal/stream_base_commons:191:23) {
+  severity_local: 'ERROR',
+  severity: 'ERROR',
+  code: '23502',
+  detail: 'Failing row contains (51, ?, null, null, admin, 2025-06-18 08:36:26.279, 2025-06-18 08:36:26.279, null, null, ?, null, Auto-detected from client/src/pages/admin/RoomsPage.tsx).',
+  schema_name: 'public',
+  table_name: 'translations',
+  column_name: 'language',
+  file: 'execMain.c',
+  line: '1982',
+  routine: 'ExecConstraints'
+}
+Error scanning client/src/pages/admin/SettingsPage.tsx: PostgresError: null value in column "language" of relation "translations" violates not-null constraint
+    at ErrorResponse (file:///home/runner/workspace/node_modules/postgres/src/connection.js:788:26)
+    at handle (file:///home/runner/workspace/node_modules/postgres/src/connection.js:474:6)
+    at TLSSocket.data (file:///home/runner/workspace/node_modules/postgres/src/connection.js:315:9)
+    at TLSSocket.emit (node:events:518:28)
+    at addChunk (node:internal/streams/readable:561:12)
+    at readableAddChunkPushByteMode (node:internal/streams/readable:512:3)
+    at Readable.push (node:internal/streams/readable:392:5)
+    at TLSWrap.onStreamRead (node:internal/stream_base_commons:191:23) {
+  severity_local: 'ERROR',
+  severity: 'ERROR',
+  code: '23502',
+  detail: 'Failing row contains (52, light, null, null, admin, 2025-06-18 08:36:26.321, 2025-06-18 08:36:26.321, null, null, light, null, Auto-detected from client/src/pages/admin/SettingsPage.tsx).',
+  schema_name: 'public',
+  table_name: 'translations',
+  column_name: 'language',
+  file: 'execMain.c',
+  line: '1982',
+  routine: 'ExecConstraints'
+}
+Error scanning client/src/pages/admin/SliderManagement.tsx: PostgresError: null value in column "language" of relation "translations" violates not-null constraint
+    at ErrorResponse (file:///home/runner/workspace/node_modules/postgres/src/connection.js:788:26)
+    at handle (file:///home/runner/workspace/node_modules/postgres/src/connection.js:474:6)
+    at TLSSocket.data (file:///home/runner/workspace/node_modules/postgres/src/connection.js:315:9)
+    at TLSSocket.emit (node:events:518:28)
+    at addChunk (node:internal/streams/readable:561:12)
+    at readableAddChunkPushByteMode (node:internal/streams/readable:512:3)
+    at Readable.push (node:internal/streams/readable:392:5)
+    at TLSWrap.onStreamRead (node:internal/stream_base_commons:191:23) {
+  severity_local: 'ERROR',
+  severity: 'ERROR',
+  code: '23502',
+  detail: 'Failing row contains (53, /, null, null, admin, 2025-06-18 08:36:26.364, 2025-06-18 08:36:26.364, null, null, /, null, Auto-detected from client/src/pages/admin/SliderManagement.tsx).',
+  schema_name: 'public',
+  table_name: 'translations',
+  column_name: 'language',
+  file: 'execMain.c',
+  line: '1982',
+  routine: 'ExecConstraints'
+}
+Error scanning client/src/pages/admin/ToursManagement.tsx: PostgresError: null value in column "language" of relation "translations" violates not-null constraint
+    at ErrorResponse (file:///home/runner/workspace/node_modules/postgres/src/connection.js:788:26)
+    at handle (file:///home/runner/workspace/node_modules/postgres/src/connection.js:474:6)
+    at TLSSocket.data (file:///home/runner/workspace/node_modules/postgres/src/connection.js:315:9)
+    at TLSSocket.emit (node:events:518:28)
+    at addChunk (node:internal/streams/readable:561:12)
+    at readableAddChunkPushByteMode (node:internal/streams/readable:512:3)
+    at Readable.push (node:internal/streams/readable:392:5)
+    at TLSWrap.onStreamRead (node:internal/stream_base_commons:191:23) {
+  severity_local: 'ERROR',
+  severity: 'ERROR',
+  code: '23502',
+  detail: 'Failing row contains (54, admin.tours.title, null, null, admin, 2025-06-18 08:36:26.413, 2025-06-18 08:36:26.413, null, null, Tour Management, null, Auto-detected from client/src/pages/admin/ToursManagement.tsx).',
+  schema_name: 'public',
+  table_name: 'translations',
+  column_name: 'language',
+  file: 'execMain.c',
+  line: '1982',
+  routine: 'ExecConstraints'
+}
+Error scanning client/src/pages/admin/TranslationManagement.tsx: PostgresError: null value in column "language" of relation "translations" violates not-null constraint
+    at ErrorResponse (file:///home/runner/workspace/node_modules/postgres/src/connection.js:788:26)
+    at handle (file:///home/runner/workspace/node_modules/postgres/src/connection.js:474:6)
+    at TLSSocket.data (file:///home/runner/workspace/node_modules/postgres/src/connection.js:315:9)
+    at TLSSocket.emit (node:events:518:28)
+    at addChunk (node:internal/streams/readable:561:12)
+    at readableAddChunkPushByteMode (node:internal/streams/readable:512:3)
+    at Readable.push (node:internal/streams/readable:392:5)
+    at TLSWrap.onStreamRead (node:internal/stream_base_commons:191:23) {
+  severity_local: 'ERROR',
+  severity: 'ERROR',
+  code: '23502',
+  detail: 'Failing row contains (55, admin.translations.title, null, null, admin, 2025-06-18 08:36:26.456, 2025-06-18 08:36:26.456, null, null, Translation Management, null, Auto-detected from client/src/pages/admin/TranslationManagement....).',
+  schema_name: 'public',
+  table_name: 'translations',
+  column_name: 'language',
+  file: 'execMain.c',
+  line: '1982',
+  routine: 'ExecConstraints'
+}
+Error scanning client/src/pages/admin/TransportTypesManagement.tsx: PostgresError: null value in column "language" of relation "translations" violates not-null constraint
+    at ErrorResponse (file:///home/runner/workspace/node_modules/postgres/src/connection.js:788:26)
+    at handle (file:///home/runner/workspace/node_modules/postgres/src/connection.js:474:6)
+    at TLSSocket.data (file:///home/runner/workspace/node_modules/postgres/src/connection.js:315:9)
+    at TLSSocket.emit (node:events:518:28)
+    at addChunk (node:internal/streams/readable:561:12)
+    at readableAddChunkPushByteMode (node:internal/streams/readable:512:3)
+    at Readable.push (node:internal/streams/readable:392:5)
+    at TLSWrap.onStreamRead (node:internal/stream_base_commons:191:23) {
+  severity_local: 'ERROR',
+  severity: 'ERROR',
+  code: '23502',
+  detail: 'Failing row contains (56, ,, null, null, admin, 2025-06-18 08:36:26.498, 2025-06-18 08:36:26.498, null, null, ,, null, Auto-detected from client/src/pages/admin/TransportTypesManageme...).',
+  schema_name: 'public',
+  table_name: 'translations',
+  column_name: 'language',
+  file: 'execMain.c',
+  line: '1982',
+  routine: 'ExecConstraints'
+}
+Error scanning client/src/pages/admin/TransportationEdit.tsx: PostgresError: null value in column "language" of relation "translations" violates not-null constraint
+    at ErrorResponse (file:///home/runner/workspace/node_modules/postgres/src/connection.js:788:26)
+    at handle (file:///home/runner/workspace/node_modules/postgres/src/connection.js:474:6)
+    at TLSSocket.data (file:///home/runner/workspace/node_modules/postgres/src/connection.js:315:9)
+    at TLSSocket.emit (node:events:518:28)
+    at addChunk (node:internal/streams/readable:561:12)
+    at readableAddChunkPushByteMode (node:internal/streams/readable:512:3)
+    at Readable.push (node:internal/streams/readable:392:5)
+    at TLSWrap.onStreamRead (node:internal/stream_base_commons:191:23) {
+  severity_local: 'ERROR',
+  severity: 'ERROR',
+  code: '23502',
+  detail: 'Failing row contains (57, active, null, null, admin, 2025-06-18 08:36:26.541, 2025-06-18 08:36:26.541, null, null, active, null, Auto-detected from client/src/pages/admin/TransportationEdit.tsx).',
+  schema_name: 'public',
+  table_name: 'translations',
+  column_name: 'language',
+  file: 'execMain.c',
+  line: '1982',
+  routine: 'ExecConstraints'
+}
+Error scanning client/src/pages/admin/TransportationManagement.tsx: PostgresError: null value in column "language" of relation "translations" violates not-null constraint
+    at ErrorResponse (file:///home/runner/workspace/node_modules/postgres/src/connection.js:788:26)
+    at handle (file:///home/runner/workspace/node_modules/postgres/src/connection.js:474:6)
+    at TLSSocket.data (file:///home/runner/workspace/node_modules/postgres/src/connection.js:315:9)
+    at TLSSocket.emit (node:events:518:28)
+    at addChunk (node:internal/streams/readable:561:12)
+    at readableAddChunkPushByteMode (node:internal/streams/readable:512:3)
+    at Readable.push (node:internal/streams/readable:392:5)
+    at TLSWrap.onStreamRead (node:internal/stream_base_commons:191:23) {
+  severity_local: 'ERROR',
+  severity: 'ERROR',
+  code: '23502',
+  detail: 'Failing row contains (58, active, null, null, admin, 2025-06-18 08:36:26.666, 2025-06-18 08:36:26.666, null, null, active, null, Auto-detected from client/src/pages/admin/TransportationManageme...).',
+  schema_name: 'public',
+  table_name: 'translations',
+  column_name: 'language',
+  file: 'execMain.c',
+  line: '1982',
+  routine: 'ExecConstraints'
+}
+Error scanning client/src/pages/admin/UsersManagement.tsx: PostgresError: null value in column "language" of relation "translations" violates not-null constraint
+    at ErrorResponse (file:///home/runner/workspace/node_modules/postgres/src/connection.js:788:26)
+    at handle (file:///home/runner/workspace/node_modules/postgres/src/connection.js:474:6)
+    at TLSSocket.data (file:///home/runner/workspace/node_modules/postgres/src/connection.js:315:9)
+    at TLSSocket.emit (node:events:518:28)
+    at addChunk (node:internal/streams/readable:561:12)
+    at readableAddChunkPushByteMode (node:internal/streams/readable:512:3)
+    at Readable.push (node:internal/streams/readable:392:5)
+    at TLSWrap.onStreamRead (node:internal/stream_base_commons:191:23) {
+  severity_local: 'ERROR',
+  severity: 'ERROR',
+  code: '23502',
+  detail: 'Failing row contains (59, user, null, null, admin, 2025-06-18 08:36:26.707, 2025-06-18 08:36:26.707, null, null, user, null, Auto-detected from client/src/pages/admin/UsersManagement.tsx).',
+  schema_name: 'public',
+  table_name: 'translations',
+  column_name: 'language',
+  file: 'execMain.c',
+  line: '1982',
+  routine: 'ExecConstraints'
+}
+Error scanning client/src/pages/admin/VisasManagement.tsx: PostgresError: null value in column "language" of relation "translations" violates not-null constraint
+    at ErrorResponse (file:///home/runner/workspace/node_modules/postgres/src/connection.js:788:26)
+    at handle (file:///home/runner/workspace/node_modules/postgres/src/connection.js:474:6)
+    at TLSSocket.data (file:///home/runner/workspace/node_modules/postgres/src/connection.js:315:9)
+    at TLSSocket.emit (node:events:518:28)
+    at addChunk (node:internal/streams/readable:561:12)
+    at readableAddChunkPushByteMode (node:internal/streams/readable:512:3)
+    at Readable.push (node:internal/streams/readable:392:5)
+    at TLSWrap.onStreamRead (node:internal/stream_base_commons:191:23) {
+  severity_local: 'ERROR',
+  severity: 'ERROR',
+  code: '23502',
+  detail: 'Failing row contains (60, /api/visas, null, null, admin, 2025-06-18 08:36:26.748, 2025-06-18 08:36:26.748, null, null, /api/visas, null, Auto-detected from client/src/pages/admin/VisasManagement.tsx).',
+  schema_name: 'public',
+  table_name: 'translations',
+  column_name: 'language',
+  file: 'execMain.c',
+  line: '1982',
+  routine: 'ExecConstraints'
+}
+Error scanning client/src/pages/admin/hotels/CleanlinessPage.tsx: PostgresError: null value in column "language" of relation "translations" violates not-null constraint
+    at ErrorResponse (file:///home/runner/workspace/node_modules/postgres/src/connection.js:788:26)
+    at handle (file:///home/runner/workspace/node_modules/postgres/src/connection.js:474:6)
+    at TLSSocket.data (file:///home/runner/workspace/node_modules/postgres/src/connection.js:315:9)
+    at TLSSocket.emit (node:events:518:28)
+    at addChunk (node:internal/streams/readable:561:12)
+    at readableAddChunkPushByteMode (node:internal/streams/readable:512:3)
+    at Readable.push (node:internal/streams/readable:392:5)
+    at TLSWrap.onStreamRead (node:internal/stream_base_commons:191:23) {
+  severity_local: 'ERROR',
+  severity: 'ERROR',
+  code: '23502',
+  detail: 'Failing row contains (61, DELETE, null, null, admin, 2025-06-18 08:36:26.79, 2025-06-18 08:36:26.79, null, null, ${apiEndpoint}/${id}, null, Auto-detected from client/src/pages/admin/hotels/CleanlinessPage...).',
+  schema_name: 'public',
+  table_name: 'translations',
+  column_name: 'language',
+  file: 'execMain.c',
+  line: '1982',
+  routine: 'ExecConstraints'
+}
+Error scanning client/src/pages/admin/hotels/HotelFacilitiesPage.tsx: PostgresError: null value in column "language" of relation "translations" violates not-null constraint
+    at ErrorResponse (file:///home/runner/workspace/node_modules/postgres/src/connection.js:788:26)
+    at handle (file:///home/runner/workspace/node_modules/postgres/src/connection.js:474:6)
+    at TLSSocket.data (file:///home/runner/workspace/node_modules/postgres/src/connection.js:315:9)
+    at TLSSocket.emit (node:events:518:28)
+    at addChunk (node:internal/streams/readable:561:12)
+    at readableAddChunkPushByteMode (node:internal/streams/readable:512:3)
+    at Readable.push (node:internal/streams/readable:392:5)
+    at TLSWrap.onStreamRead (node:internal/stream_base_commons:191:23) {
+  severity_local: 'ERROR',
+  severity: 'ERROR',
+  code: '23502',
+  detail: 'Failing row contains (62, DELETE, null, null, admin, 2025-06-18 08:36:26.832, 2025-06-18 08:36:26.832, null, null, ${apiEndpoint}/${id}, null, Auto-detected from client/src/pages/admin/hotels/HotelFacilities...).',
+  schema_name: 'public',
+  table_name: 'translations',
+  column_name: 'language',
+  file: 'execMain.c',
+  line: '1982',
+  routine: 'ExecConstraints'
+}
+Error scanning client/src/pages/admin/rooms/RoomAmenitiesPage.tsx: PostgresError: null value in column "language" of relation "translations" violates not-null constraint
+    at ErrorResponse (file:///home/runner/workspace/node_modules/postgres/src/connection.js:788:26)
+    at handle (file:///home/runner/workspace/node_modules/postgres/src/connection.js:474:6)
+    at TLSSocket.data (file:///home/runner/workspace/node_modules/postgres/src/connection.js:315:9)
+    at TLSSocket.emit (node:events:518:28)
+    at addChunk (node:internal/streams/readable:561:12)
+    at readableAddChunkPushByteMode (node:internal/streams/readable:512:3)
+    at Readable.push (node:internal/streams/readable:392:5)
+    at TLSWrap.onStreamRead (node:internal/stream_base_commons:191:23) {
+  severity_local: 'ERROR',
+  severity: 'ERROR',
+  code: '23502',
+  detail: 'Failing row contains (63, fas, null, null, admin, 2025-06-18 08:36:26.88, 2025-06-18 08:36:26.88, null, null, fas, null, Auto-detected from client/src/pages/admin/rooms/RoomAmenitiesPag...).',
+  schema_name: 'public',
+  table_name: 'translations',
+  column_name: 'language',
+  file: 'execMain.c',
+  line: '1982',
+  routine: 'ExecConstraints'
+}
+Error scanning client/src/pages/hotel-details/HotelDetailsPage.tsx: PostgresError: null value in column "language" of relation "translations" violates not-null constraint
+    at ErrorResponse (file:///home/runner/workspace/node_modules/postgres/src/connection.js:788:26)
+    at handle (file:///home/runner/workspace/node_modules/postgres/src/connection.js:474:6)
+    at TLSSocket.data (file:///home/runner/workspace/node_modules/postgres/src/connection.js:315:9)
+    at TLSSocket.emit (node:events:518:28)
+    at addChunk (node:internal/streams/readable:561:12)
+    at readableAddChunkPushByteMode (node:internal/streams/readable:512:3)
+    at Readable.push (node:internal/streams/readable:392:5)
+    at TLSWrap.onStreamRead (node:internal/stream_base_commons:191:23) {
+  severity_local: 'ERROR',
+  severity: 'ERROR',
+  code: '23502',
+  detail: 'Failing row contains (64, ,, null, null, pages, 2025-06-18 08:36:26.926, 2025-06-18 08:36:26.926, null, null, ,, null, Auto-detected from client/src/pages/hotel-details/HotelDetailsPa...).',
+  schema_name: 'public',
+  table_name: 'translations',
+  column_name: 'language',
+  file: 'execMain.c',
+  line: '1982',
+  routine: 'ExecConstraints'
+}
+Error scanning client/src/pages/package-detail-improved.tsx: PostgresError: null value in column "language" of relation "translations" violates not-null constraint
+    at ErrorResponse (file:///home/runner/workspace/node_modules/postgres/src/connection.js:788:26)
+    at handle (file:///home/runner/workspace/node_modules/postgres/src/connection.js:474:6)
+    at TLSSocket.data (file:///home/runner/workspace/node_modules/postgres/src/connection.js:315:9)
+    at TLSSocket.emit (node:events:518:28)
+    at addChunk (node:internal/streams/readable:561:12)
+    at readableAddChunkPushByteMode (node:internal/streams/readable:512:3)
+    at Readable.push (node:internal/streams/readable:392:5)
+    at TLSWrap.onStreamRead (node:internal/stream_base_commons:191:23) {
+  severity_local: 'ERROR',
+  severity: 'ERROR',
+  code: '23502',
+  detail: 'Failing row contains (65, id, null, null, pages, 2025-06-18 08:36:26.972, 2025-06-18 08:36:26.972, null, null, id, null, Auto-detected from client/src/pages/package-detail-improved.tsx).',
+  schema_name: 'public',
+  table_name: 'translations',
+  column_name: 'language',
+  file: 'execMain.c',
+  line: '1982',
+  routine: 'ExecConstraints'
+}
+Error scanning client/src/pages/package-detail.tsx: PostgresError: null value in column "language" of relation "translations" violates not-null constraint
+    at ErrorResponse (file:///home/runner/workspace/node_modules/postgres/src/connection.js:788:26)
+    at handle (file:///home/runner/workspace/node_modules/postgres/src/connection.js:474:6)
+    at TLSSocket.data (file:///home/runner/workspace/node_modules/postgres/src/connection.js:315:9)
+    at TLSSocket.emit (node:events:518:28)
+    at addChunk (node:internal/streams/readable:561:12)
+    at readableAddChunkPushByteMode (node:internal/streams/readable:512:3)
+    at Readable.push (node:internal/streams/readable:392:5)
+    at TLSWrap.onStreamRead (node:internal/stream_base_commons:191:23) {
+  severity_local: 'ERROR',
+  severity: 'ERROR',
+  code: '23502',
+  detail: 'Failing row contains (66, T, null, null, pages, 2025-06-18 08:36:27.014, 2025-06-18 08:36:27.014, null, null, T, null, Auto-detected from client/src/pages/package-detail.tsx).',
+  schema_name: 'public',
+  table_name: 'translations',
+  column_name: 'language',
+  file: 'execMain.c',
+  line: '1982',
+  routine: 'ExecConstraints'
+}
+Error scanning client/src/pages/search-results/FlightsSearchResults.tsx: PostgresError: null value in column "language" of relation "translations" violates not-null constraint
+    at ErrorResponse (file:///home/runner/workspace/node_modules/postgres/src/connection.js:788:26)
+    at handle (file:///home/runner/workspace/node_modules/postgres/src/connection.js:474:6)
+    at TLSSocket.data (file:///home/runner/workspace/node_modules/postgres/src/connection.js:315:9)
+    at TLSSocket.emit (node:events:518:28)
+    at addChunk (node:internal/streams/readable:561:12)
+    at readableAddChunkPushByteMode (node:internal/streams/readable:512:3)
+    at Readable.push (node:internal/streams/readable:392:5)
+    at TLSWrap.onStreamRead (node:internal/stream_base_commons:191:23) {
+  severity_local: 'ERROR',
+  severity: 'ERROR',
+  code: '23502',
+  detail: 'Failing row contains (67, from, null, null, pages, 2025-06-18 08:36:27.057, 2025-06-18 08:36:27.057, null, null, from, null, Auto-detected from client/src/pages/search-results/FlightsSearch...).',
+  schema_name: 'public',
+  table_name: 'translations',
+  column_name: 'language',
+  file: 'execMain.c',
+  line: '1982',
+  routine: 'ExecConstraints'
+}
+Error scanning client/src/pages/search-results/PackagesListImproved.tsx: PostgresError: null value in column "language" of relation "translations" violates not-null constraint
+    at ErrorResponse (file:///home/runner/workspace/node_modules/postgres/src/connection.js:788:26)
+    at handle (file:///home/runner/workspace/node_modules/postgres/src/connection.js:474:6)
+    at TLSSocket.data (file:///home/runner/workspace/node_modules/postgres/src/connection.js:315:9)
+    at TLSSocket.emit (node:events:518:28)
+    at addChunk (node:internal/streams/readable:561:12)
+    at readableAddChunkPushByteMode (node:internal/streams/readable:512:3)
+    at Readable.push (node:internal/streams/readable:392:5)
+    at TLSWrap.onStreamRead (node:internal/stream_base_commons:191:23) {
+  severity_local: 'ERROR',
+  severity: 'ERROR',
+  code: '23502',
+  detail: 'Failing row contains (68, country, null, null, pages, 2025-06-18 08:36:27.099, 2025-06-18 08:36:27.099, null, null, country, null, Auto-detected from client/src/pages/search-results/PackagesListI...).',
+  schema_name: 'public',
+  table_name: 'translations',
+  column_name: 'language',
+  file: 'execMain.c',
+  line: '1982',
+  routine: 'ExecConstraints'
+}
+Error scanning client/src/pages/search-results/PackagesResponsiveList.tsx: PostgresError: null value in column "language" of relation "translations" violates not-null constraint
+    at ErrorResponse (file:///home/runner/workspace/node_modules/postgres/src/connection.js:788:26)
+    at handle (file:///home/runner/workspace/node_modules/postgres/src/connection.js:474:6)
+    at TLSSocket.data (file:///home/runner/workspace/node_modules/postgres/src/connection.js:315:9)
+    at TLSSocket.emit (node:events:518:28)
+    at addChunk (node:internal/streams/readable:561:12)
+    at readableAddChunkPushByteMode (node:internal/streams/readable:512:3)
+    at Readable.push (node:internal/streams/readable:392:5)
+    at TLSWrap.onStreamRead (node:internal/stream_base_commons:191:23) {
+  severity_local: 'ERROR',
+  severity: 'ERROR',
+  code: '23502',
+  detail: 'Failing row contains (69, country, null, null, pages, 2025-06-18 08:36:27.14, 2025-06-18 08:36:27.14, null, null, country, null, Auto-detected from client/src/pages/search-results/PackagesRespo...).',
+  schema_name: 'public',
+  table_name: 'translations',
+  column_name: 'language',
+  file: 'execMain.c',
+  line: '1982',
+  routine: 'ExecConstraints'
+}
+Error scanning client/src/pages/search-results/PackagesSearchResults.tsx: PostgresError: null value in column "language" of relation "translations" violates not-null constraint
+    at ErrorResponse (file:///home/runner/workspace/node_modules/postgres/src/connection.js:788:26)
+    at handle (file:///home/runner/workspace/node_modules/postgres/src/connection.js:474:6)
+    at TLSSocket.data (file:///home/runner/workspace/node_modules/postgres/src/connection.js:315:9)
+    at TLSSocket.emit (node:events:518:28)
+    at addChunk (node:internal/streams/readable:561:12)
+    at readableAddChunkPushByteMode (node:internal/streams/readable:512:3)
+    at Readable.push (node:internal/streams/readable:392:5)
+    at TLSWrap.onStreamRead (node:internal/stream_base_commons:191:23) {
+  severity_local: 'ERROR',
+  severity: 'ERROR',
+  code: '23502',
+  detail: 'Failing row contains (70, country, null, null, pages, 2025-06-18 08:36:27.183, 2025-06-18 08:36:27.183, null, null, country, null, Auto-detected from client/src/pages/search-results/PackagesSearc...).',
+  schema_name: 'public',
+  table_name: 'translations',
+  column_name: 'language',
+  file: 'execMain.c',
+  line: '1982',
+  routine: 'ExecConstraints'
+}
+Error scanning client/src/components/AirportSelector.tsx: PostgresError: null value in column "language" of relation "translations" violates not-null constraint
+    at ErrorResponse (file:///home/runner/workspace/node_modules/postgres/src/connection.js:788:26)
+    at handle (file:///home/runner/workspace/node_modules/postgres/src/connection.js:474:6)
+    at TLSSocket.data (file:///home/runner/workspace/node_modules/postgres/src/connection.js:315:9)
+    at TLSSocket.emit (node:events:518:28)
+    at addChunk (node:internal/streams/readable:561:12)
+    at readableAddChunkPushByteMode (node:internal/streams/readable:512:3)
+    at Readable.push (node:internal/streams/readable:392:5)
+    at TLSWrap.onStreamRead (node:internal/stream_base_commons:191:23) {
+  severity_local: 'ERROR',
+  severity: 'ERROR',
+  code: '23502',
+  detail: 'Failing row contains (71, search.cityOrAirport, null, null, components, 2025-06-18 08:36:27.227, 2025-06-18 08:36:27.227, null, null, Search city or airport..., null, Auto-detected from client/src/components/AirportSelector.tsx).',
+  schema_name: 'public',
+  table_name: 'translations',
+  column_name: 'language',
+  file: 'execMain.c',
+  line: '1982',
+  routine: 'ExecConstraints'
+}
+Error scanning client/src/components/BookingTabs.tsx: PostgresError: null value in column "language" of relation "translations" violates not-null constraint
+    at ErrorResponse (file:///home/runner/workspace/node_modules/postgres/src/connection.js:788:26)
+    at handle (file:///home/runner/workspace/node_modules/postgres/src/connection.js:474:6)
+    at TLSSocket.data (file:///home/runner/workspace/node_modules/postgres/src/connection.js:315:9)
+    at TLSSocket.emit (node:events:518:28)
+    at addChunk (node:internal/streams/readable:561:12)
+    at readableAddChunkPushByteMode (node:internal/streams/readable:512:3)
+    at Readable.push (node:internal/streams/readable:392:5)
+    at TLSWrap.onStreamRead (node:internal/stream_base_commons:191:23) {
+  severity_local: 'ERROR',
+  severity: 'ERROR',
+  code: '23502',
+  detail: 'Failing row contains (72, style, null, null, components, 2025-06-18 08:36:27.269, 2025-06-18 08:36:27.269, null, null, style, null, Auto-detected from client/src/components/BookingTabs.tsx).',
+  schema_name: 'public',
+  table_name: 'translations',
+  column_name: 'language',
+  file: 'execMain.c',
+  line: '1982',
+  routine: 'ExecConstraints'
+}
+Error scanning client/src/components/FeaturedOffers.tsx: PostgresError: null value in column "language" of relation "translations" violates not-null constraint
+    at ErrorResponse (file:///home/runner/workspace/node_modules/postgres/src/connection.js:788:26)
+    at handle (file:///home/runner/workspace/node_modules/postgres/src/connection.js:474:6)
+    at TLSSocket.data (file:///home/runner/workspace/node_modules/postgres/src/connection.js:315:9)
+    at TLSSocket.emit (node:events:518:28)
+    at addChunk (node:internal/streams/readable:561:12)
+    at readableAddChunkPushByteMode (node:internal/streams/readable:512:3)
+    at Readable.push (node:internal/streams/readable:392:5)
+    at TLSWrap.onStreamRead (node:internal/stream_base_commons:191:23) {
+  severity_local: 'ERROR',
+  severity: 'ERROR',
+  code: '23502',
+  detail: 'Failing row contains (73, offers.title, null, null, components, 2025-06-18 08:36:27.311, 2025-06-18 08:36:27.311, null, null, Special Upcoming Offers, null, Auto-detected from client/src/components/FeaturedOffers.tsx).',
+  schema_name: 'public',
+  table_name: 'translations',
+  column_name: 'language',
+  file: 'execMain.c',
+  line: '1982',
+  routine: 'ExecConstraints'
+}
+Error scanning client/src/components/Footer.tsx: PostgresError: null value in column "language" of relation "translations" violates not-null constraint
+    at ErrorResponse (file:///home/runner/workspace/node_modules/postgres/src/connection.js:788:26)
+    at handle (file:///home/runner/workspace/node_modules/postgres/src/connection.js:474:6)
+    at TLSSocket.data (file:///home/runner/workspace/node_modules/postgres/src/connection.js:315:9)
+    at TLSSocket.emit (node:events:518:28)
+    at addChunk (node:internal/streams/readable:561:12)
+    at readableAddChunkPushByteMode (node:internal/streams/readable:512:3)
+    at Readable.push (node:internal/streams/readable:392:5)
+    at TLSWrap.onStreamRead (node:internal/stream_base_commons:191:23) {
+  severity_local: 'ERROR',
+  severity: 'ERROR',
+  code: '23502',
+  detail: 'Failing row contains (74, footer.quicklinks, null, null, components, 2025-06-18 08:36:27.353, 2025-06-18 08:36:27.353, null, null, Quick Links, null, Auto-detected from client/src/components/Footer.tsx).',
+  schema_name: 'public',
+  table_name: 'translations',
+  column_name: 'language',
+  file: 'execMain.c',
+  line: '1982',
+  routine: 'ExecConstraints'
+}
+Error scanning client/src/components/Header.tsx: PostgresError: null value in column "language" of relation "translations" violates not-null constraint
+    at ErrorResponse (file:///home/runner/workspace/node_modules/postgres/src/connection.js:788:26)
+    at handle (file:///home/runner/workspace/node_modules/postgres/src/connection.js:474:6)
+    at TLSSocket.data (file:///home/runner/workspace/node_modules/postgres/src/connection.js:315:9)
+    at TLSSocket.emit (node:events:518:28)
+    at addChunk (node:internal/streams/readable:561:12)
+    at readableAddChunkPushByteMode (node:internal/streams/readable:512:3)
+    at Readable.push (node:internal/streams/readable:392:5)
+    at TLSWrap.onStreamRead (node:internal/stream_base_commons:191:23) {
+  severity_local: 'ERROR',
+  severity: 'ERROR',
+  code: '23502',
+  detail: 'Failing row contains (75, nav.profile, null, null, components, 2025-06-18 08:36:27.394, 2025-06-18 08:36:27.394, null, null, Profile, null, Auto-detected from client/src/components/Header.tsx).',
+  schema_name: 'public',
+  table_name: 'translations',
+  column_name: 'language',
+  file: 'execMain.c',
+  line: '1982',
+  routine: 'ExecConstraints'
+}
+Error scanning client/src/components/LanguageSwitcher.tsx: PostgresError: null value in column "language" of relation "translations" violates not-null constraint
+    at ErrorResponse (file:///home/runner/workspace/node_modules/postgres/src/connection.js:788:26)
+    at handle (file:///home/runner/workspace/node_modules/postgres/src/connection.js:474:6)
+    at TLSSocket.data (file:///home/runner/workspace/node_modules/postgres/src/connection.js:315:9)
+    at TLSSocket.emit (node:events:518:28)
+    at addChunk (node:internal/streams/readable:561:12)
+    at readableAddChunkPushByteMode (node:internal/streams/readable:512:3)
+    at Readable.push (node:internal/streams/readable:392:5)
+    at TLSWrap.onStreamRead (node:internal/stream_base_commons:191:23) {
+  severity_local: 'ERROR',
+  severity: 'ERROR',
+  code: '23502',
+  detail: 'Failing row contains (76, common.english, null, null, components, 2025-06-18 08:36:27.436, 2025-06-18 08:36:27.436, null, null, English, null, Auto-detected from client/src/components/LanguageSwitcher.tsx).',
+  schema_name: 'public',
+  table_name: 'translations',
+  column_name: 'language',
+  file: 'execMain.c',
+  line: '1982',
+  routine: 'ExecConstraints'
+}
+Error scanning client/src/components/SocialMediaBox.tsx: PostgresError: null value in column "language" of relation "translations" violates not-null constraint
+    at ErrorResponse (file:///home/runner/workspace/node_modules/postgres/src/connection.js:788:26)
+    at handle (file:///home/runner/workspace/node_modules/postgres/src/connection.js:474:6)
+    at TLSSocket.data (file:///home/runner/workspace/node_modules/postgres/src/connection.js:315:9)
+    at TLSSocket.emit (node:events:518:28)
+    at addChunk (node:internal/streams/readable:561:12)
+    at readableAddChunkPushByteMode (node:internal/streams/readable:512:3)
+    at Readable.push (node:internal/streams/readable:392:5)
+    at TLSWrap.onStreamRead (node:internal/stream_base_commons:191:23) {
+  severity_local: 'ERROR',
+  severity: 'ERROR',
+  code: '23502',
+  detail: 'Failing row contains (77, social.company, null, null, components, 2025-06-18 08:36:27.478, 2025-06-18 08:36:27.478, null, null, Sahara Journeys, null, Auto-detected from client/src/components/SocialMediaBox.tsx).',
+  schema_name: 'public',
+  table_name: 'translations',
+  column_name: 'language',
+  file: 'execMain.c',
+  line: '1982',
+  routine: 'ExecConstraints'
+}
+Error scanning client/src/components/admin/CategoryManager.tsx: PostgresError: null value in column "language" of relation "translations" violates not-null constraint
+    at ErrorResponse (file:///home/runner/workspace/node_modules/postgres/src/connection.js:788:26)
+    at handle (file:///home/runner/workspace/node_modules/postgres/src/connection.js:474:6)
+    at TLSSocket.data (file:///home/runner/workspace/node_modules/postgres/src/connection.js:315:9)
+    at TLSSocket.emit (node:events:518:28)
+    at addChunk (node:internal/streams/readable:561:12)
+    at readableAddChunkPushByteMode (node:internal/streams/readable:512:3)
+    at Readable.push (node:internal/streams/readable:392:5)
+    at TLSWrap.onStreamRead (node:internal/stream_base_commons:191:23) {
+  severity_local: 'ERROR',
+  severity: 'ERROR',
+  code: '23502',
+  detail: 'Failing row contains (78, a, null, null, admin, 2025-06-18 08:36:27.52, 2025-06-18 08:36:27.52, null, null, a, null, Auto-detected from client/src/components/admin/CategoryManager.t...).',
+  schema_name: 'public',
+  table_name: 'translations',
+  column_name: 'language',
+  file: 'execMain.c',
+  line: '1982',
+  routine: 'ExecConstraints'
+}
+Error scanning client/src/components/dashboard/DashboardLayout.tsx: PostgresError: null value in column "language" of relation "translations" violates not-null constraint
+    at ErrorResponse (file:///home/runner/workspace/node_modules/postgres/src/connection.js:788:26)
+    at handle (file:///home/runner/workspace/node_modules/postgres/src/connection.js:474:6)
+    at TLSSocket.data (file:///home/runner/workspace/node_modules/postgres/src/connection.js:315:9)
+    at TLSSocket.emit (node:events:518:28)
+    at addChunk (node:internal/streams/readable:561:12)
+    at readableAddChunkPushByteMode (node:internal/streams/readable:512:3)
+    at Readable.push (node:internal/streams/readable:392:5)
+    at TLSWrap.onStreamRead (node:internal/stream_base_commons:191:23) {
+  severity_local: 'ERROR',
+  severity: 'ERROR',
+  code: '23502',
+  detail: 'Failing row contains (79, admin.dashboard.title, null, null, components, 2025-06-18 08:36:27.563, 2025-06-18 08:36:27.563, null, null, Admin Dashboard, null, Auto-detected from client/src/components/dashboard/DashboardLayo...).',
+  schema_name: 'public',
+  table_name: 'translations',
+  column_name: 'language',
+  file: 'execMain.c',
+  line: '1982',
+  routine: 'ExecConstraints'
+}
+Error scanning client/src/components/dashboard/ManualPackageCreatorForm.tsx: PostgresError: null value in column "language" of relation "translations" violates not-null constraint
+    at ErrorResponse (file:///home/runner/workspace/node_modules/postgres/src/connection.js:788:26)
+    at handle (file:///home/runner/workspace/node_modules/postgres/src/connection.js:474:6)
+    at TLSSocket.data (file:///home/runner/workspace/node_modules/postgres/src/connection.js:315:9)
+    at TLSSocket.emit (node:events:518:28)
+    at addChunk (node:internal/streams/readable:561:12)
+    at readableAddChunkPushByteMode (node:internal/streams/readable:512:3)
+    at Readable.push (node:internal/streams/readable:392:5)
+    at TLSWrap.onStreamRead (node:internal/stream_base_commons:191:23) {
+  severity_local: 'ERROR',
+  severity: 'ERROR',
+  code: '23502',
+  detail: 'Failing row contains (80, .suggestion-dropdown, null, null, components, 2025-06-18 08:36:27.605, 2025-06-18 08:36:27.605, null, null, .suggestion-dropdown, null, Auto-detected from client/src/components/dashboard/ManualPackage...).',
+  schema_name: 'public',
+  table_name: 'translations',
+  column_name: 'language',
+  file: 'execMain.c',
+  line: '1982',
+  routine: 'ExecConstraints'
+}
+Error scanning client/src/components/dashboard/MultiHotelManualPackageForm.tsx: PostgresError: null value in column "language" of relation "translations" violates not-null constraint
+    at ErrorResponse (file:///home/runner/workspace/node_modules/postgres/src/connection.js:788:26)
+    at handle (file:///home/runner/workspace/node_modules/postgres/src/connection.js:474:6)
+    at TLSSocket.data (file:///home/runner/workspace/node_modules/postgres/src/connection.js:315:9)
+    at TLSSocket.emit (node:events:518:28)
+    at addChunk (node:internal/streams/readable:561:12)
+    at readableAddChunkPushByteMode (node:internal/streams/readable:512:3)
+    at Readable.push (node:internal/streams/readable:392:5)
+    at TLSWrap.onStreamRead (node:internal/stream_base_commons:191:23) {
+  severity_local: 'ERROR',
+  severity: 'ERROR',
+  code: '23502',
+  detail: 'Failing row contains (81, .suggestion-dropdown, null, null, components, 2025-06-18 08:36:27.65, 2025-06-18 08:36:27.65, null, null, .suggestion-dropdown, null, Auto-detected from client/src/components/dashboard/MultiHotelMan...).',
+  schema_name: 'public',
+  table_name: 'translations',
+  column_name: 'language',
+  file: 'execMain.c',
+  line: '1982',
+  routine: 'ExecConstraints'
+}
+Error scanning client/src/components/dashboard/ProfileEditForm.tsx: PostgresError: null value in column "language" of relation "translations" violates not-null constraint
+    at ErrorResponse (file:///home/runner/workspace/node_modules/postgres/src/connection.js:788:26)
+    at handle (file:///home/runner/workspace/node_modules/postgres/src/connection.js:474:6)
+    at TLSSocket.data (file:///home/runner/workspace/node_modules/postgres/src/connection.js:315:9)
+    at TLSSocket.emit (node:events:518:28)
+    at addChunk (node:internal/streams/readable:561:12)
+    at readableAddChunkPushByteMode (node:internal/streams/readable:512:3)
+    at Readable.push (node:internal/streams/readable:392:5)
+    at TLSWrap.onStreamRead (node:internal/stream_base_commons:191:23) {
+  severity_local: 'ERROR',
+  severity: 'ERROR',
+  code: '23502',
+  detail: 'Failing row contains (82, profile.updateSuccess, null, null, components, 2025-06-18 08:36:27.693, 2025-06-18 08:36:27.693, null, null, Profile updated, null, Auto-detected from client/src/components/dashboard/ProfileEditFo...).',
+  schema_name: 'public',
+  table_name: 'translations',
+  column_name: 'language',
+  file: 'execMain.c',
+  line: '1982',
+  routine: 'ExecConstraints'
+}
+Error scanning client/src/components/dashboard/ProfileMenu.tsx: PostgresError: null value in column "language" of relation "translations" violates not-null constraint
+    at ErrorResponse (file:///home/runner/workspace/node_modules/postgres/src/connection.js:788:26)
+    at handle (file:///home/runner/workspace/node_modules/postgres/src/connection.js:474:6)
+    at TLSSocket.data (file:///home/runner/workspace/node_modules/postgres/src/connection.js:315:9)
+    at TLSSocket.emit (node:events:518:28)
+    at addChunk (node:internal/streams/readable:561:12)
+    at readableAddChunkPushByteMode (node:internal/streams/readable:512:3)
+    at Readable.push (node:internal/streams/readable:392:5)
+    at TLSWrap.onStreamRead (node:internal/stream_base_commons:191:23) {
+  severity_local: 'ERROR',
+  severity: 'ERROR',
+  code: '23502',
+  detail: 'Failing row contains (83, profile.updateSuccess, null, null, components, 2025-06-18 08:36:27.735, 2025-06-18 08:36:27.735, null, null, Profile updated, null, Auto-detected from client/src/components/dashboard/ProfileMenu.t...).',
+  schema_name: 'public',
+  table_name: 'translations',
+  column_name: 'language',
+  file: 'execMain.c',
+  line: '1982',
+  routine: 'ExecConstraints'
+}
+Error scanning client/src/components/dashboard/Sidebar.tsx: PostgresError: null value in column "language" of relation "translations" violates not-null constraint
+    at ErrorResponse (file:///home/runner/workspace/node_modules/postgres/src/connection.js:788:26)
+    at handle (file:///home/runner/workspace/node_modules/postgres/src/connection.js:474:6)
+    at TLSSocket.data (file:///home/runner/workspace/node_modules/postgres/src/connection.js:315:9)
+    at TLSSocket.emit (node:events:518:28)
+    at addChunk (node:internal/streams/readable:561:12)
+    at readableAddChunkPushByteMode (node:internal/streams/readable:512:3)
+    at Readable.push (node:internal/streams/readable:392:5)
+    at TLSWrap.onStreamRead (node:internal/stream_base_commons:191:23) {
+  severity_local: 'ERROR',
+  severity: 'ERROR',
+  code: '23502',
+  detail: 'Failing row contains (84, admin.sidebar.dashboard, null, null, components, 2025-06-18 08:36:27.781, 2025-06-18 08:36:27.781, null, null, Dashboard, null, Auto-detected from client/src/components/dashboard/Sidebar.tsx).',
+  schema_name: 'public',
+  table_name: 'translations',
+  column_name: 'language',
+  file: 'execMain.c',
+  line: '1982',
+  routine: 'ExecConstraints'
+}
+Error scanning client/src/components/dashboard/SimplePackageForm.tsx: PostgresError: null value in column "language" of relation "translations" violates not-null constraint
+    at ErrorResponse (file:///home/runner/workspace/node_modules/postgres/src/connection.js:788:26)
+    at handle (file:///home/runner/workspace/node_modules/postgres/src/connection.js:474:6)
+    at TLSSocket.data (file:///home/runner/workspace/node_modules/postgres/src/connection.js:315:9)
+    at TLSSocket.emit (node:events:518:28)
+    at addChunk (node:internal/streams/readable:561:12)
+    at readableAddChunkPushByteMode (node:internal/streams/readable:512:3)
+    at Readable.push (node:internal/streams/readable:392:5)
+    at TLSWrap.onStreamRead (node:internal/stream_base_commons:191:23) {
+  severity_local: 'ERROR',
+  severity: 'ERROR',
+  code: '23502',
+  detail: 'Failing row contains (85, ., null, null, components, 2025-06-18 08:36:27.823, 2025-06-18 08:36:27.823, null, null, ., null, Auto-detected from client/src/components/dashboard/SimplePackage...).',
+  schema_name: 'public',
+  table_name: 'translations',
+  column_name: 'language',
+  file: 'execMain.c',
+  line: '1982',
+  routine: 'ExecConstraints'
+}
+Scan complete: 171 files, 51 keys found, 0 new translations added
+8:36:27 AM [express] POST /api/admin/translations/sync 200 in 2323ms :: {"success":true,"message":"Scan complete. Found 51 keys in 171 files. Added 0 new translations."…
+8:36:28 AM [express] GET /api/translations 304 in 22ms :: [{"id":1,"key":"home","enText":null,"arText":null,"context":"general","category":"navigation","createdAt":"202…
+8:36:28 AM [express] GET /api/translations 304 in 22ms :: [{"id":1,"key":"home","enText":null,"arText":null,"context":"general","category":"navigation","createdAt":"202…
+8:36:28 AM [express] GET /api/translations 304 in 22ms :: [{"id":1,"key":"home","enText":null,"arText":null,"context":"general","category":"navigation","createdAt":"202…
+⚠️ Using temporary admin access - session not found
+8:36:37 AM [express] POST /api/admin/translations/batch-translate 200 in 1313ms :: {"success":true,"message":"Successfully processed 28 translations","processed":28,"tr…
+8:36:38 AM [express] GET /api/translations 200 in 23ms :: [{"id":17,"key":"book_now","enText":null,"arText":"","context":"general","category":"ui","createdAt":"2025-06-…
+8:36:38 AM [express] GET /api/translations 304 in 22ms :: [{"id":17,"key":"book_now","enText":null,"arText":"","context":"general","category":"ui","createdAt":"2025-06-…
+⚠️ Using temporary admin access - session not found
+8:36:44 AM [express] POST /api/admin/translations/batch-translate 200 in 1200ms :: {"success":true,"message":"Successfully processed 28 translations","processed":28,"tr…
+8:36:44 AM [express] GET /api/translations 200 in 22ms :: [{"id":16,"key":"search","enText":null,"arText":"","context":"general","category":"ui","createdAt":"2025-06-16…
+8:36:44 AM [express] GET /api/translations 304 in 111ms :: [{"id":16,"key":"search","enText":null,"arText":"","context":"general","category":"ui","createdAt":"2025-06-1…
+⚠️ Using temporary admin access - session not found
+8:36:48 AM [express] POST /api/admin/translations/batch-translate 200 in 1201ms :: {"success":true,"message":"Successfully processed 28 translations","processed":28,"tr…
+8:36:49 AM [express] GET /api/translations 200 in 24ms :: [{"id":16,"key":"search","enText":null,"arText":"","context":"general","category":"ui","createdAt":"2025-06-16…
+8:36:49 AM [express] GET /api/translations 304 in 22ms :: [{"id":16,"key":"search","enText":null,"arText":"","context":"general","category":"ui","createdAt":"2025-06-16…
+⚠️ Using temporary admin access - session not found
+8:36:52 AM [express] POST /api/admin/translations/batch-translate 200 in 1291ms :: {"success":true,"message":"Successfully processed 28 translations","processed":28,"tr…
+8:36:52 AM [express] GET /api/translations 200 in 22ms :: [{"id":26,"key":"bookings","enText":null,"arText":"","context":"general","category":"admin","createdAt":"2025-…
+8:36:52 AM [express] GET /api/translations 304 in 21ms :: [{"id":26,"key":"bookings","enText":null,"arText":"","context":"general","category":"admin","createdAt":"2025-…
+⚠️ Using temporary admin access - session not found
+8:36:56 AM [express] POST /api/admin/translations/batch-translate 200 in 1274ms :: {"success":true,"message":"Successfully processed 28 translations","processed":28,"tr…
+8:36:56 AM [express] GET /api/translations 200 in 22ms :: [{"id":21,"key":"dashboard","enText":null,"arText":"","context":"general","category":"admin","createdAt":"2025…
+8:36:56 AM [express] GET /api/translations 304 in 22ms :: [{"id":21,"key":"dashboard","enText":null,"arText":"","context":"general","category":"admin","createdAt":"2025…
+⚠️ Using temporary admin access - session not found
+8:37:02 AM [express] POST /api/admin/translations/batch-translate 200 in 1276ms :: {"success":true,"message":"Successfully processed 28 translations","processed":28,"tr…
+8:37:02 AM [express] GET /api/translations 200 in 24ms :: [{"id":21,"key":"dashboard","enText":null,"arText":"","context":"general","category":"admin","createdAt":"2025…
+8:37:02 AM [express] GET /api/translations 304 in 22ms :: [{"id":21,"key":"dashboard","enText":null,"arText":"","context":"general","category":"admin","createdAt":"2025…
+8:37:11 AM [express] GET /api/translations 304 in 22ms :: [{"id":21,"key":"dashboard","enText":null,"arText":"","context":"general","category":"admin","createdAt":"2025…
+8:37:11 AM [express] GET /api/translations 304 in 22ms :: [{"id":21,"key":"dashboard","enText":null,"arText":"","context":"general","category":"admin","createdAt":"2025…
+8:37:11 AM [express] GET /api/translations/settings 304 in 212ms :: {"id":1,"defaultLanguage":"en","availableLanguages":["en","ar"],"rtlLanguages":["ar"],"createdAt":"2…
+8:37:11 AM [express] GET /api/translations 304 in 25ms :: [{"id":21,"key":"dashboard","enText":null,"arText":"","context":"general","category":"admin","createdAt":"2025…
+⚠️ Using temporary admin access - session not found
+Bookings fetch error: TypeError: Cannot convert undefined or null to object
+    at Function.entries (<anonymous>)
+    at orderSelectedFields (/home/runner/workspace/node_modules/src/utils.ts:77:16)
+    at <anonymous> (/home/runner/workspace/node_modules/src/utils.ts:88:19)
+    at Array.reduce (<anonymous>)
+    at orderSelectedFields (/home/runner/workspace/node_modules/src/utils.ts:77:32)
+    at <anonymous> (/home/runner/workspace/node_modules/src/pg-core/query-builders/select.ts:979:23)
+    at Object.startActiveSpan (/home/runner/workspace/node_modules/src/tracing.ts:27:11)
+    at PgSelectBase._prepare (/home/runner/workspace/node_modules/src/pg-core/query-builders/select.ts:978:17)
+    at <anonymous> (/home/runner/workspace/node_modules/src/pg-core/query-builders/select.ts:1009:16)
+    at Object.startActiveSpan (/home/runner/workspace/node_modules/src/tracing.ts:27:11)
+    at PgSelectBase.execute (/home/runner/workspace/node_modules/src/pg-core/query-builders/select.ts:1008:17)
+    at PgSelectBase.then (/home/runner/workspace/node_modules/src/query-promise.ts:31:15)
+    at process.processTicksAndRejections (node:internal/process/task_queues:95:5)
+8:37:18 AM [express] GET /api/admin/bookings 500 in 1ms :: {"message":"Failed to fetch bookings"}
+⚠️ Using temporary admin access - session not found
+Booking stats error: PostgresError: function sum() does not exist
+    at ErrorResponse (file:///home/runner/workspace/node_modules/postgres/src/connection.js:788:26)
+    at handle (file:///home/runner/workspace/node_modules/postgres/src/connection.js:474:6)
+    at TLSSocket.data (file:///home/runner/workspace/node_modules/postgres/src/connection.js:315:9)
+    at TLSSocket.emit (node:events:518:28)
+    at addChunk (node:internal/streams/readable:561:12)
+    at readableAddChunkPushByteMode (node:internal/streams/readable:512:3)
+    at Readable.push (node:internal/streams/readable:392:5)
+    at TLSWrap.onStreamRead (node:internal/stream_base_commons:191:23) {
+  severity_local: 'ERROR',
+  severity: 'ERROR',
+  code: '42883',
+  hint: 'No function matches the given name and argument types. You might need to add explicit type casts.',
+  position: '184',
+  file: 'parse_func.c',
+  line: '629',
+  routine: 'ParseFuncOrColumn'
+}
+8:37:18 AM [express] GET /api/admin/bookings/stats 500 in 21ms :: {"message":"Failed to fetch booking statistics"}
+8:37:19 AM [express] GET /api/hero-slides 304 in 205ms :: [{"id":1,"title":"Discover the Magic of the Middle East","subtitle":"Explore Ancient Wonders","description":"J…
+⚠️ Using temporary admin access - session not found
+⚠️ Using temporary admin access - session not found
+⚠️ Using temporary admin access - session not found
+8:37:21 AM [express] GET /api/admin/airports 304 in 20ms :: []
+8:37:21 AM [express] GET /api/admin/countries 304 in 22ms :: [{"id":"2","name":"Jordan","code":"JO","description":null,"imageUrl":null,"active":true,"createdAt":"2025-0…
+8:37:21 AM [express] GET /api/admin/cities 304 in 184ms :: [{"id":7,"name":"Cairo","countryId":1,"description":null,"imageUrl":null,"active":true,"createdAt":"2025-06-1…
+8:37:38 AM [express] GET /api/destinations 304 in 182ms :: [{"id":"1","name":"Cairo","country":"Egypt","countryId":1,"cityId":null,"description":"Explore the ancient py…
+8:37:41 AM [express] GET /api/locations 200 in 4ms
+8:37:41 AM [express] GET /api/tour-categories 304 in 30ms :: [{"id":1,"name":"Historical Tours","description":"Ancient sites and historical landmarks","active":true,"cr…
+Error fetching tours: PostgresError: column "gallery_urls" does not exist
+    at ErrorResponse (file:///home/runner/workspace/node_modules/postgres/src/connection.js:788:26)
+    at handle (file:///home/runner/workspace/node_modules/postgres/src/connection.js:474:6)
+    at TLSSocket.data (file:///home/runner/workspace/node_modules/postgres/src/connection.js:315:9)
+    at TLSSocket.emit (node:events:518:28)
+    at addChunk (node:internal/streams/readable:561:12)
+    at readableAddChunkPushByteMode (node:internal/streams/readable:512:3)
+    at Readable.push (node:internal/streams/readable:392:5)
+    at TLSWrap.onStreamRead (node:internal/stream_base_commons:191:23) {
+  severity_local: 'ERROR',
+  severity: 'ERROR',
+  code: '42703',
+  position: '50',
+  file: 'parse_relation.c',
+  line: '3716',
+  routine: 'errorMissingColumn'
+}
+8:37:42 AM [express] GET /api/tours 500 in 186ms :: {"message":"Failed to fetch tours"}
+8:37:46 AM [express] GET /api/locations 200 in 3ms
+Error fetching tours: PostgresError: column "gallery_urls" does not exist
+    at ErrorResponse (file:///home/runner/workspace/node_modules/postgres/src/connection.js:788:26)
+    at handle (file:///home/runner/workspace/node_modules/postgres/src/connection.js:474:6)
+    at TLSSocket.data (file:///home/runner/workspace/node_modules/postgres/src/connection.js:315:9)
+    at TLSSocket.emit (node:events:518:28)
+    at addChunk (node:internal/streams/readable:561:12)
+    at readableAddChunkPushByteMode (node:internal/streams/readable:512:3)
+    at Readable.push (node:internal/streams/readable:392:5)
+    at TLSWrap.onStreamRead (node:internal/stream_base_commons:191:23) {
+  severity_local: 'ERROR',
+  severity: 'ERROR',
+  code: '42703',
+  position: '50',
+  file: 'parse_relation.c',
+  line: '3716',
+  routine: 'errorMissingColumn'
+}
+8:37:46 AM [express] GET /api/tours 500 in 22ms :: {"message":"Failed to fetch tours"}
+⚠️ Using temporary admin access - session not found
+⚠️ Using temporary admin access - session not found
+8:38:08 AM [express] GET /api/destinations 304 in 186ms :: [{"id":"1","name":"Cairo","country":"Egypt","countryId":1,"cityId":null,"description":"Explore the ancient py…
+8:38:08 AM [express] GET /api/admin/countries 304 in 184ms :: [{"id":"2","name":"Jordan","code":"JO","description":null,"imageUrl":null,"active":true,"createdAt":"2025-…
+8:38:08 AM [express] GET /api/translations 304 in 187ms :: [{"id":21,"key":"dashboard","enText":null,"arText":"","context":"general","category":"admin","createdAt":"202…
+8:38:08 AM [express] GET /api/admin/cities 304 in 195ms :: [{"id":7,"name":"Cairo","countryId":1,"description":null,"imageUrl":null,"active":true,"createdAt":"2025-06-1…
+8:38:08 AM [express] GET /api/translations/settings 304 in 205ms :: {"id":1,"defaultLanguage":"en","availableLanguages":["en","ar"],"rtlLanguages":["ar"],"createdAt":"2…
+9:52:51 AM [express] GET /api/admin/dashboard-stats 200 in 18ms
+⚠️ Using temporary admin access - session not found
+Error fetching tours: PostgresError: column "gallery_urls" does not exist
+    at ErrorResponse (file:///home/runner/workspace/node_modules/postgres/src/connection.js:788:26)
+    at handle (file:///home/runner/workspace/node_modules/postgres/src/connection.js:474:6)
+    at TLSSocket.data (file:///home/runner/workspace/node_modules/postgres/src/connection.js:315:9)
+    at TLSSocket.emit (node:events:518:28)
+    at addChunk (node:internal/streams/readable:561:12)
+    at readableAddChunkPushByteMode (node:internal/streams/readable:512:3)
+    at Readable.push (node:internal/streams/readable:392:5)
+    at TLSWrap.onStreamRead (node:internal/stream_base_commons:191:23) {
+  severity_local: 'ERROR',
+  severity: 'ERROR',
+  code: '42703',
+  position: '50',
+  file: 'parse_relation.c',
+  line: '3716',
+  routine: 'errorMissingColumn'
+}
+9:53:00 AM [express] GET /api/admin/tours 500 in 275ms :: {"message":"Failed to fetch tours"}
+9:53:00 AM [express] GET /api/package-categories 200 in 769ms :: [{"id":1,"name":"Adventure Tours","description":"Exciting adventure and outdoor activities","active":tr…
+9:53:00 AM [express] GET /api/countries 304 in 210ms :: [{"id":"2","name":"Jordan","code":"JO","description":null,"imageUrl":null,"active":true,"createdAt":"2025-06-15T…
+9:53:00 AM [express] GET /api/cities 304 in 208ms :: [{"id":7,"name":"Cairo","countryId":1,"description":null,"imageUrl":null,"active":true,"createdAt":"2025-06-16T10:1…
+9:53:18 AM [vite] hmr update /src/components/PopularPackages.tsx, /src/index.css?v=D9PGcw48LnzxXkIrU7Qzo
+Error fetching rooms: PostgresError: relation "rooms" does not exist
+    at ErrorResponse (file:///home/runner/workspace/node_modules/postgres/src/connection.js:788:26)
+    at handle (file:///home/runner/workspace/node_modules/postgres/src/connection.js:474:6)
+    at TLSSocket.data (file:///home/runner/workspace/node_modules/postgres/src/connection.js:315:9)
+    at TLSSocket.emit (node:events:518:28)
+    at addChunk (node:internal/streams/readable:561:12)
+    at readableAddChunkPushByteMode (node:internal/streams/readable:512:3)
+    at Readable.push (node:internal/streams/readable:392:5)
+    at TLSWrap.onStreamRead (node:internal/stream_base_commons:191:23) {
+  severity_local: 'ERROR',
+  severity: 'ERROR',
+  code: '42P01',
+  position: '297',
+  file: 'parse_relation.c',
+  line: '1449',
+  routine: 'parserOpenTable'
+}
+9:53:25 AM [express] GET /api/rooms 500 in 189ms :: {"message":"Failed to fetch rooms"}
+Error fetching hotels: PostgresError: column "short_description" does not exist
+    at ErrorResponse (file:///home/runner/workspace/node_modules/postgres/src/connection.js:788:26)
+    at handle (file:///home/runner/workspace/node_modules/postgres/src/connection.js:474:6)
+    at TLSSocket.data (file:///home/runner/workspace/node_modules/postgres/src/connection.js:315:9)
+    at TLSSocket.emit (node:events:518:28)
+    at addChunk (node:internal/streams/readable:561:12)
+    at readableAddChunkPushByteMode (node:internal/streams/readable:512:3)
+    at Readable.push (node:internal/streams/readable:392:5)
+    at TLSWrap.onStreamRead (node:internal/stream_base_commons:191:23) {
+  severity_local: 'ERROR',
+  severity: 'ERROR',
+  code: '42703',
+  position: '37',
+  file: 'parse_relation.c',
+  line: '3716',
+  routine: 'errorMissingColumn'
+}
+9:53:25 AM [express] GET /api/hotels 500 in 191ms :: {"message":"Failed to fetch hotels"}
+Error fetching rooms: PostgresError: relation "rooms" does not exist
+    at ErrorResponse (file:///home/runner/workspace/node_modules/postgres/src/connection.js:788:26)
+    at handle (file:///home/runner/workspace/node_modules/postgres/src/connection.js:474:6)
+    at TLSSocket.data (file:///home/runner/workspace/node_modules/postgres/src/connection.js:315:9)
+    at TLSSocket.emit (node:events:518:28)
+    at addChunk (node:internal/streams/readable:561:12)
+    at readableAddChunkPushByteMode (node:internal/streams/readable:512:3)
+    at Readable.push (node:internal/streams/readable:392:5)
+    at TLSWrap.onStreamRead (node:internal/stream_base_commons:191:23) {
+  severity_local: 'ERROR',
+  severity: 'ERROR',
+  code: '42P01',
+  position: '297',
+  file: 'parse_relation.c',
+  line: '1449',
+  routine: 'parserOpenTable'
+}
+9:53:32 AM [express] GET /api/rooms 500 in 22ms :: {"message":"Failed to fetch rooms"}
+Error fetching hotels: PostgresError: column "short_description" does not exist
+    at ErrorResponse (file:///home/runner/workspace/node_modules/postgres/src/connection.js:788:26)
+    at handle (file:///home/runner/workspace/node_modules/postgres/src/connection.js:474:6)
+    at TLSSocket.data (file:///home/runner/workspace/node_modules/postgres/src/connection.js:315:9)
+    at TLSSocket.emit (node:events:518:28)
+    at addChunk (node:internal/streams/readable:561:12)
+    at readableAddChunkPushByteMode (node:internal/streams/readable:512:3)
+    at Readable.push (node:internal/streams/readable:392:5)
+    at TLSWrap.onStreamRead (node:internal/stream_base_commons:191:23) {
+  severity_local: 'ERROR',
+  severity: 'ERROR',
+  code: '42703',
+  position: '37',
+  file: 'parse_relation.c',
+  line: '3716',
+  routine: 'errorMissingColumn'
+}
+9:53:32 AM [express] GET /api/hotels 500 in 31ms :: {"message":"Failed to fetch hotels"}
+Error fetching rooms: PostgresError: relation "rooms" does not exist
+    at ErrorResponse (file:///home/runner/workspace/node_modules/postgres/src/connection.js:788:26)
+    at handle (file:///home/runner/workspace/node_modules/postgres/src/connection.js:474:6)
+    at TLSSocket.data (file:///home/runner/workspace/node_modules/postgres/src/connection.js:315:9)
+    at TLSSocket.emit (node:events:518:28)
+    at addChunk (node:internal/streams/readable:561:12)
+    at readableAddChunkPushByteMode (node:internal/streams/readable:512:3)
+    at Readable.push (node:internal/streams/readable:392:5)
+    at TLSWrap.onStreamRead (node:internal/stream_base_commons:191:23) {
+  severity_local: 'ERROR',
+  severity: 'ERROR',
+  code: '42P01',
+  position: '297',
+  file: 'parse_relation.c',
+  line: '1449',
+  routine: 'parserOpenTable'
+}
+9:53:45 AM [express] GET /api/rooms 500 in 188ms :: {"message":"Failed to fetch rooms"}
+Error fetching hotels: PostgresError: column "short_description" does not exist
+    at ErrorResponse (file:///home/runner/workspace/node_modules/postgres/src/connection.js:788:26)
+    at handle (file:///home/runner/workspace/node_modules/postgres/src/connection.js:474:6)
+    at TLSSocket.data (file:///home/runner/workspace/node_modules/postgres/src/connection.js:315:9)
+    at TLSSocket.emit (node:events:518:28)
+    at addChunk (node:internal/streams/readable:561:12)
+    at readableAddChunkPushByteMode (node:internal/streams/readable:512:3)
+    at Readable.push (node:internal/streams/readable:392:5)
+    at TLSWrap.onStreamRead (node:internal/stream_base_commons:191:23) {
+  severity_local: 'ERROR',
+  severity: 'ERROR',
+  code: '42703',
+  position: '37',
+  file: 'parse_relation.c',
+  line: '3716',
+  routine: 'errorMissingColumn'
+}
+9:53:45 AM [express] GET /api/hotels 500 in 187ms :: {"message":"Failed to fetch hotels"}
+9:53:48 AM [vite] hmr update /src/components/FeaturedOffers.tsx, /src/index.css?v=D9PGcw48LnzxXkIrU7Qzo
+9:53:56 AM [vite] hmr update /src/components/FeaturedOffers.tsx, /src/index.css?v=D9PGcw48LnzxXkIrU7Qzo (x2)
+9:53:59 AM [express] GET /api/menus/location/footer 304 in 269ms :: {"menu":{"id":1,"name":"Footer Menu","location":"footer","description":null,"active":true,"createdAt…
+⚠️ Using temporary admin access - session not found
+Error fetching tours: PostgresError: column "gallery_urls" does not exist
+    at ErrorResponse (file:///home/runner/workspace/node_modules/postgres/src/connection.js:788:26)
+    at handle (file:///home/runner/workspace/node_modules/postgres/src/connection.js:474:6)
+    at TLSSocket.data (file:///home/runner/workspace/node_modules/postgres/src/connection.js:315:9)
+    at TLSSocket.emit (node:events:518:28)
+    at addChunk (node:internal/streams/readable:561:12)
+    at readableAddChunkPushByteMode (node:internal/streams/readable:512:3)
+    at Readable.push (node:internal/streams/readable:392:5)
+    at TLSWrap.onStreamRead (node:internal/stream_base_commons:191:23) {
+  severity_local: 'ERROR',
+  severity: 'ERROR',
+  code: '42703',
+  position: '50',
+  file: 'parse_relation.c',
+  line: '3716',
+  routine: 'errorMissingColumn'
+}
+9:54:18 AM [express] GET /api/admin/tours 500 in 192ms :: {"message":"Failed to fetch tours"}
+⚠️ Using temporary admin access - session not found
+Error fetching tours: PostgresError: column "gallery_urls" does not exist
+    at ErrorResponse (file:///home/runner/workspace/node_modules/postgres/src/connection.js:788:26)
+    at handle (file:///home/runner/workspace/node_modules/postgres/src/connection.js:474:6)
+    at TLSSocket.data (file:///home/runner/workspace/node_modules/postgres/src/connection.js:315:9)
+    at TLSSocket.emit (node:events:518:28)
+    at addChunk (node:internal/streams/readable:561:12)
+    at readableAddChunkPushByteMode (node:internal/streams/readable:512:3)
+    at Readable.push (node:internal/streams/readable:392:5)
+    at TLSWrap.onStreamRead (node:internal/stream_base_commons:191:23) {
+  severity_local: 'ERROR',
+  severity: 'ERROR',
+  code: '42703',
+  position: '50',
+  file: 'parse_relation.c',
+  line: '3716',
+  routine: 'errorMissingColumn'
+}
+9:55:22 AM [express] GET /api/admin/tours 500 in 185ms :: {"message":"Failed to fetch tours"}
+^A

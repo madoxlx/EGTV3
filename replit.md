@@ -1,0 +1,255 @@
+# Sahara Journeys - Travel Booking Platform
+
+## Overview
+
+Sahara Journeys is a comprehensive travel booking platform specializing in Middle Eastern and North African destinations. The application provides a full-stack solution for managing travel packages, tours, hotels, bookings, and customer interactions with both customer-facing and administrative interfaces.
+
+## System Architecture
+
+### Frontend Architecture
+- **Framework**: React 18 with TypeScript
+- **Build Tool**: Vite for fast development and optimized builds
+- **UI Library**: Radix UI components with shadcn/ui design system
+- **Styling**: Tailwind CSS with custom theme configuration
+- **Form Management**: React Hook Form with Zod validation
+- **State Management**: React hooks and context API
+- **Icons**: FontAwesome icon library
+- **Maps Integration**: React Google Maps API
+
+### Backend Architecture
+- **Runtime**: Node.js with Express.js framework
+- **Language**: TypeScript for type safety
+- **Database ORM**: Drizzle ORM for PostgreSQL
+- **Authentication**: Session-based authentication with Passport.js
+- **Password Security**: Scrypt hashing algorithm
+- **File Uploads**: Multer middleware for handling file uploads
+- **API Design**: RESTful API endpoints with structured error handling
+
+## Key Components
+
+### Database Schema
+The application uses a comprehensive PostgreSQL schema with the following core entities:
+
+1. **User Management**: Users with role-based access (admin, manager, user)
+2. **Geographic Data**: Countries, cities, destinations, airports
+3. **Travel Services**: 
+   - Packages (travel bundles)
+   - Tours (guided experiences)
+   - Hotels (accommodations)
+   - Rooms (hotel room types)
+4. **Booking System**: Bookings, travelers, payments, coupons
+5. **Content Management**: Reviews, notifications, menu system
+6. **Transportation**: Types, locations, durations
+7. **Categorization**: Package, tour, hotel, and room categories
+
+### Authentication System
+- Session-based authentication with secure cookie management
+- Role-based access control (admin, manager, user)
+- Password hashing using scrypt algorithm with salt
+- Admin user setup and management capabilities
+
+### Administrative Interface
+- Comprehensive dashboard with analytics and metrics
+- Entity management for all travel-related data
+- Data export/import functionality
+- Menu management system
+- User and role management
+- System monitoring and settings
+
+### Data Management
+- Storage abstraction layer for database operations
+- Comprehensive seeding system for initial data
+- Export/import capabilities for data migration
+- File upload handling for images and documents
+
+## Data Flow
+
+1. **User Registration/Login**: Users authenticate through session-based system
+2. **Browse Services**: Customers browse packages, tours, and hotels
+3. **Booking Process**: Customers create bookings with traveler information
+4. **Payment Processing**: Integration-ready payment system
+5. **Content Management**: Admins manage all travel content through admin interface
+6. **Data Analytics**: Dashboard provides insights on bookings, revenue, and user activity
+
+## External Dependencies
+
+### Core Dependencies
+- **Database**: PostgreSQL with Neon serverless hosting
+- **UI Components**: Radix UI primitives
+- **Validation**: Zod schema validation
+- **Development**: TSX for TypeScript execution
+- **Build**: Vite with React plugin
+
+### Optional Integrations
+- **AI Content**: Google Generative AI for content enhancement
+- **Maps**: Google Maps API for location services
+- **Faker.js**: For generating test data during development
+
+## Deployment Strategy
+
+### Development Environment
+- Uses TSX for direct TypeScript execution
+- Hot reload with Vite development server
+- Session-based authentication for development
+- SQLite fallback for local development (PostgreSQL preferred)
+
+### Production Considerations
+- PostgreSQL database with SSL connections
+- Express.js server with proper error handling
+- Static file serving for built React application
+- Environment variable configuration for sensitive data
+
+### Database Migration
+- Drizzle ORM handles schema migrations
+- Seeding scripts for initial data population
+- Export/import functionality for data backup and migration
+
+## Recent Changes
+
+- **Visa Functionality Database Integration (June 18, 2025)**: Connected visa search to real database data
+  - Replaced mock visa data with actual API calls to /api/visas and /api/countries endpoints
+  - Updated VisasSearchResults.tsx to use React Query for proper data fetching
+  - Added loading states with skeleton components and comprehensive error handling
+  - Transformed database visa data to match component display requirements
+  - Maintained all existing search filters and user interface functionality
+  - Fixed TypeScript type annotations for proper type safety
+  - System now displays authentic visa information from PostgreSQL database
+
+- **Packages Page Implementation (June 18, 2025)**: Created comprehensive packages listing page
+  - Built responsive packages grid with search and filtering capabilities
+  - Added multiple filter options: category, duration, price range, and sorting
+  - Implemented favorites functionality with local storage persistence
+  - Added package cards with detailed information: pricing, duration, ratings, location
+  - Integrated shopping cart and favorites buttons on each package
+  - Created search functionality across package titles and descriptions
+  - Added proper routing and navigation integration
+  - Responsive design optimized for mobile, tablet, and desktop
+  - Connected to existing packages API for real data display
+
+- **Complete Checkout System Implementation (June 18, 2025)**: Built comprehensive e-commerce checkout functionality
+  - Created full checkout page with multi-step process (Details → Payment → Confirmation)
+  - Integrated Stripe payment processing with secure payment elements
+  - Added form validation using React Hook Form with Zod schemas
+  - Implemented cart management with quantity controls and item removal
+  - Added contact information, billing address, and travel information collection
+  - Created order summary sidebar with pricing breakdown including VAT
+  - Built payment confirmation and success flow
+  - Added proper error handling and toast notifications
+  - Updated navbar cart icon to navigate to checkout page
+  - Prepared backend API routes for payment intent creation and order processing
+  - System ready for Stripe API keys to enable live payment processing
+
+- **Shopping Cart Implementation in Navbar (June 18, 2025)**: Successfully replaced "Book Now" button with shopping cart icon
+  - Added ShoppingCart icon from lucide-react with interactive functionality
+  - Implemented cart state management using React useState hook
+  - Created cart item count badge with red notification indicator showing current items (demo: 3 items)
+  - Added onClick handler for future cart modal or navigation functionality
+  - Responsive design with proper hover states and visual feedback
+  - Badge displays "99+" for counts over 99 items for optimal UI space management
+
+- **Complete Arabic-Indic Digit Elimination (June 18, 2025)**: Successfully eliminated ALL Arabic-Indic digits from the entire platform
+  - Fixed package detail page pricing calculations to use Latin digits (60,000 instead of ٦٠,٠٠٠)
+  - Updated all admin panel currency displays: AdvancedBookingsManagement, AdminDashboard, AdvancedUserManagement, AdvancedDashboard
+  - Replaced all instances of toLocaleString('ar-EG') with toLocaleString('en-US') for consistent Latin digit formatting
+  - Maintained proper EGP currency formatting while ensuring all numbers display as readable Latin digits
+  - Fixed pricing displays in PopularPackages, FeaturedOffers, PackagesManagement, PackagesSearchFixed, PackagesResponsiveList components
+  - Ensured complete platform-wide consistency: all prices now show as "60,000 EGP" format with Latin digits
+  - No more Arabic-Indic digit display issues anywhere in the application
+
+- **Database Schema Fixes and API Resolution (June 18, 2025)**: Fixed critical database and API issues for full functionality
+  - Created missing database tables: hotel_facilities, hotel_highlights, cleanliness_features
+  - Added relationship tables: hotel_to_facilities, hotel_to_highlights, hotel_to_cleanliness
+  - Seeded basic hotel facility and cleanliness feature data (WiFi, pool, spa, enhanced cleaning, etc.)
+  - Fixed dashboard statistics API date handling errors by converting Date objects to ISO strings
+  - Resolved recent bookings API query structure issues causing 500 errors
+  - Fixed PostgreSQL SSL connection issues for proper database connectivity
+  - All admin panel API endpoints now functional with proper error handling
+
+- **Final Dollar Sign Elimination Completion (June 18, 2025)**: Successfully eliminated ALL remaining dollar sign references from the entire platform
+  - Fixed PopularPackages component: converted ${pkg.price} to proper EGP formatting with Arabic locale
+  - Updated FeaturedOffers component: converted all pricing data from USD to EGP (34,950 EGP, 29,950 EGP, etc.)
+  - Fixed replit_agent sailing cruise pricing displays: converted all $1,299, $649, $100, $200, $500 references to EGP
+  - Updated pricing calculation function to use EGP amounts with proper Arabic locale formatting
+  - Ensured complete platform-wide currency consistency with no remaining USD traces anywhere
+  - All pricing components now display Egyptian Pounds with proper .toLocaleString('ar-EG') formatting
+
+- **Complete Favorites Functionality Implementation (June 18, 2025)**: Added comprehensive "Add to Favourites" feature across the platform
+  - Implemented interactive heart buttons with toggle functionality for both packages and destinations
+  - Added visual feedback with filled hearts and rose-tinted background colors for favorited items
+  - Integrated localStorage persistence for favorites across browser sessions
+  - Added toast notifications for add/remove confirmation messages
+  - Responsive design ensures functionality works on both desktop and mobile views
+  - State management uses React hooks with Set data structure for optimal performance
+  - Fixed React setState during render warnings by moving toast notifications outside state updates
+  - Extended functionality to destinations page with consistent localStorage-based approach
+
+- **Package Detail Calculation Fixes (June 18, 2025)**: Fixed all remaining pricing calculation issues and currency displays
+  - Corrected package detail page pricing calculations to use proper EGP formatting with Arabic locale
+  - Fixed base price calculations for standard and deluxe hotel packages with proper multiplication
+  - Updated single room supplement from $200 to 10,000 EGP in calculation breakdown
+  - Replaced DollarSign icon with Star icon in package info section for consistency
+  - Ensured all price displays use .toLocaleString('ar-EG') formatting throughout calculations
+  - Fixed discount calculations to properly display EGP amounts
+  - Total price calculations now correctly show EGP with proper Arabic number formatting
+
+- **Final Currency Conversion Completion (June 18, 2025)**: Eliminated ALL remaining dollar sign references from the platform
+  - Fixed sailing cruise page pricing displays: converted $1,299 to 64,950 EGP, $649 to 32,450 EGP, $100 to 5,000 EGP
+  - Updated hotel package upgrades: $200 to 10,000 EGP, $500 to 25,000 EGP
+  - Applied proper Arabic locale formatting (ar-EG) for all price calculations
+  - Ensured complete EGP currency consistency across entire platform
+  - No USD traces remain anywhere in the application
+
+- **Complete Currency Conversion to EGP (June 18, 2025)**: Successfully converted entire platform from USD to Egyptian Pounds (EGP)
+  - Applied 50:1 exchange rate conversion throughout all pricing data
+  - Updated all frontend components to display EGP currency with proper Arabic formatting
+  - Modified transportation data: converted all rental car, bus, and transfer prices to EGP
+  - Updated visa data: converted all visa processing fees and charges to EGP
+  - Fixed package detail pages: converted all pricing displays from $ symbols to EGP formatting
+  - Updated admin forms: changed all currency labels from USD to EGP in package creation, room management, and hotel forms
+  - Modified analytics dashboard: updated currency formatting function to use EGP with Arabic locale
+  - Converted Stripe payment integration to support EGP currency in admin settings
+  - Updated all price calculation logic to use EGP amounts with proper localization
+  - Fixed all user-facing pricing displays to show Egyptian Pounds consistently
+  - Maintained pricing integrity with 10,000 EGP conversion for single room supplements
+
+- **Complete Database Schema Resolution (June 16, 2025)**: Fully resolved all database schema errors across the platform
+  - Fixed packages table: Added missing columns (discounted_price, rating, review_count, type, itinerary, what_to_pack, travel_route, accommodation_highlights, transportation_details)
+  - Fixed countries table: Added missing created_by and updated_by audit columns
+  - Fixed cities table: Corrected column type mismatches and added missing active column
+  - Fixed hero_slides table: Added missing secondary_button_text and secondary_button_link columns
+  - Created missing menu_items table with proper relationships and columns (icon_type, item_type)
+  - Fixed user profile columns (passport_number, emergency_contact, dietary_requirements, medical_conditions)
+  - Created missing airports table with proper schema structure
+  - Fixed database initialization timing issues in storage layer
+  - Fixed translation rendering issues in admin components (useLanguage import and JSX syntax)
+  - Resolved mixed language display issue where Arabic text appeared even when interface was set to English
+  - Converted all hardcoded Arabic text in AdvancedUserManagement and Sidebar components to use translation system
+  - Now interface properly respects language selection (English/Arabic) throughout admin panel
+  - Fixed authentication middleware causing 403 errors in admin API endpoints
+  - Resolved user statistics API endpoint returning 400 errors
+  - All admin panel functionality now working correctly with proper language support
+  - Fixed admin users endpoint causing "Failed to load users" error by simplifying SQL queries
+  - Secured user data responses by removing passwords from API responses
+  - All API endpoints now functional: /api/packages, /api/countries, /api/cities, /api/hero-slides/active, /api/menus
+  - Complete PostgreSQL integration with proper EGP pricing throughout
+
+- **Currency Migration (June 16, 2025)**: Converted all pricing throughout the platform from USD to Egyptian Pounds (EGP)
+  - Applied 50:1 exchange rate conversion (1 USD = 50 EGP)
+  - Updated packages, tours, hotels, visas, and flights pricing data
+  - Modified all frontend components to display EGP currency
+  - Updated database schema with EGP defaults
+
+- **Database Migration (June 16, 2025)**: Completed migration from SQLite to PostgreSQL
+  - Removed all SQLite dependencies (better-sqlite3)
+  - Updated all schema references to use PostgreSQL
+  - Added currency columns to pricing tables with EGP defaults
+  - Maintained data integrity during conversion
+
+## Changelog
+
+- June 16, 2025. Initial setup
+- June 16, 2025. Currency conversion to EGP and PostgreSQL migration completed
+
+## User Preferences
+
+Preferred communication style: Simple, everyday language.
