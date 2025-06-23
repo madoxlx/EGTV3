@@ -19,7 +19,7 @@ const storage = multer.diskStorage({
     // Generate unique filename with timestamp
     const uniqueSuffix = Date.now() + '-' + Math.round(Math.random() * 1E9);
     const ext = path.extname(file.originalname);
-    cb(null, 'hero-slide-' + uniqueSuffix + ext);
+    cb(null, file.fieldname + '-' + uniqueSuffix + ext);
   }
 });
 
@@ -41,7 +41,51 @@ const upload = multer({
 });
 
 export function setupUploadRoutes(app: Express) {
-  // Image upload endpoint
+  // Single file upload endpoint for tours
+  app.post('/api/upload', upload.single('file'), (req: Request, res: Response) => {
+    try {
+      if (!req.file) {
+        return res.status(400).json({ error: 'No file uploaded' });
+      }
+
+      // Return the public URL for the uploaded file
+      const fileUrl = `/uploads/${req.file.filename}`;
+      
+      res.json({
+        url: fileUrl,
+        filename: req.file.filename,
+        originalName: req.file.originalname,
+        size: req.file.size
+      });
+    } catch (error) {
+      console.error('Upload error:', error);
+      res.status(500).json({ error: 'Upload failed' });
+    }
+  });
+
+  // Multiple files upload endpoint
+  app.post('/api/upload/multiple', upload.array('files', 10), (req: Request, res: Response) => {
+    try {
+      if (!req.files || !Array.isArray(req.files) || req.files.length === 0) {
+        return res.status(400).json({ error: 'No files uploaded' });
+      }
+
+      // Return the public URLs for all uploaded files
+      const files = req.files.map(file => ({
+        url: `/uploads/${file.filename}`,
+        filename: file.filename,
+        originalName: file.originalname,
+        size: file.size
+      }));
+      
+      res.json({ files });
+    } catch (error) {
+      console.error('Upload error:', error);
+      res.status(500).json({ error: 'Upload failed' });
+    }
+  });
+
+  // Image upload endpoint for hero slides
   app.post('/api/upload/image', upload.single('image'), (req: Request, res: Response) => {
     try {
       if (!req.file) {

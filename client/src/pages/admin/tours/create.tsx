@@ -28,7 +28,7 @@ import { DashboardLayout } from "@/components/dashboard/DashboardLayout";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Breadcrumb, BreadcrumbItem, BreadcrumbLink } from "@/components/ui/breadcrumb";
 import { FormRequiredFieldsNote, FormValidationAlert } from "@/components/dashboard/FormValidationAlert";
-import { Home, Map, ArrowLeft, Loader2, Clock, Calendar, Plus, X, Languages, MapPin } from "lucide-react";
+import { Home, Map, ArrowLeft, Loader2, Clock, Calendar, Plus, X, Languages, MapPin, Upload, Image as ImageIcon } from "lucide-react";
 
 const formSchema = z.object({
   // Basic Information
@@ -88,6 +88,11 @@ export default function CreateTour() {
   const [excludedItems, setExcludedItems] = useState<string[]>([]);
   const [includedItemsAr, setIncludedItemsAr] = useState<string[]>([]);
   const [excludedItemsAr, setExcludedItemsAr] = useState<string[]>([]);
+  const [galleryImages, setGalleryImages] = useState<string[]>([]);
+  const [mainImageFile, setMainImageFile] = useState<File | null>(null);
+  const [galleryFiles, setGalleryFiles] = useState<File[]>([]);
+  const [uploadingMain, setUploadingMain] = useState(false);
+  const [uploadingGallery, setUploadingGallery] = useState(false);
 
   const form = useForm<TourFormValues>({
     resolver: zodResolver(formSchema),
@@ -131,8 +136,16 @@ export default function CreateTour() {
 
   // Fetch tour categories
   const tourCategoriesQuery = useQuery({
-    queryKey: ["/api/admin/tour-categories"],
-    queryFn: () => fetch("/api/admin/tour-categories").then((res) => res.json()),
+    queryKey: ["/api/tour-categories"],
+    queryFn: async () => {
+      const response = await fetch("/api/tour-categories");
+      if (!response.ok) {
+        throw new Error('Failed to fetch tour categories');
+      }
+      const data = await response.json();
+      console.log('Tour categories fetched:', data);
+      return data;
+    },
   });
 
   // Create tour mutation
@@ -155,6 +168,7 @@ export default function CreateTour() {
         excluded: excludedItems,
         includedAr: includedItemsAr,
         excludedAr: excludedItemsAr,
+        galleryUrls: galleryImages,
       };
 
       const response = await fetch("/api/admin/tours", {
@@ -236,6 +250,94 @@ export default function CreateTour() {
     setExcludedItemsAr(excludedItemsAr.filter((_, i) => i !== index));
   };
 
+  // Gallery image management
+  const addGalleryImage = (url: string) => {
+    if (url.trim() && !galleryImages.includes(url.trim())) {
+      setGalleryImages([...galleryImages, url.trim()]);
+    }
+  };
+
+  const removeGalleryImage = (index: number) => {
+    setGalleryImages(galleryImages.filter((_, i) => i !== index));
+  };
+
+  // File upload handlers
+  const uploadFile = async (file: File): Promise<string> => {
+    const formData = new FormData();
+    formData.append('file', file);
+    
+    const response = await fetch('/api/upload', {
+      method: 'POST',
+      body: formData,
+    });
+    
+    if (!response.ok) {
+      throw new Error('Failed to upload file');
+    }
+    
+    const data = await response.json();
+    return data.url;
+  };
+
+  const handleMainImageUpload = async (file: File) => {
+    if (!file) return;
+    
+    setUploadingMain(true);
+    try {
+      const url = await uploadFile(file);
+      form.setValue('imageUrl', url);
+      setMainImageFile(file);
+      toast({
+        title: "Success",
+        description: "Main image uploaded successfully",
+      });
+    } catch (error) {
+      toast({
+        title: "Error",
+        description: "Failed to upload main image",
+        variant: "destructive",
+      });
+    } finally {
+      setUploadingMain(false);
+    }
+  };
+
+  const handleGalleryUpload = async (files: FileList) => {
+    if (!files || files.length === 0) return;
+    
+    setUploadingGallery(true);
+    try {
+      const uploadPromises = Array.from(files).map(file => uploadFile(file));
+      const urls = await Promise.all(uploadPromises);
+      
+      setGalleryImages([...galleryImages, ...urls]);
+      setGalleryFiles([...galleryFiles, ...Array.from(files)]);
+      
+      toast({
+        title: "Success",
+        description: `${urls.length} image(s) uploaded successfully`,
+      });
+    } catch (error) {
+      toast({
+        title: "Error",
+        description: "Failed to upload gallery images",
+        variant: "destructive",
+      });
+    } finally {
+      setUploadingGallery(false);
+    }
+  };
+
+  const removeGalleryFile = (index: number) => {
+    setGalleryImages(galleryImages.filter((_, i) => i !== index));
+    setGalleryFiles(galleryFiles.filter((_, i) => i !== index));
+  };
+
+  const clearMainImage = () => {
+    setMainImageFile(null);
+    form.setValue('imageUrl', '');
+  };
+
   const onSubmit = (data: TourFormValues) => {
     createTourMutation.mutate(data);
   };
@@ -295,10 +397,11 @@ export default function CreateTour() {
             )}
 
             <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
-              <TabsList className="grid w-full grid-cols-5">
+              <TabsList className="grid w-full grid-cols-6">
                 <TabsTrigger value="basic">Basic Info</TabsTrigger>
                 <TabsTrigger value="pricing">Pricing</TabsTrigger>
                 <TabsTrigger value="details">Details</TabsTrigger>
+                <TabsTrigger value="images">Images</TabsTrigger>
                 <TabsTrigger value="content">Content</TabsTrigger>
                 <TabsTrigger value="arabic">Arabic Version</TabsTrigger>
               </TabsList>
@@ -358,7 +461,7 @@ export default function CreateTour() {
                         render={({ field }) => (
                           <FormItem>
                             <FormLabel>Category</FormLabel>
-                            <Select onValueChange={field.onChange} defaultValue={field.value}>
+                            <Select onValueChange={field.onChange} value={field.value}>
                               <FormControl>
                                 <SelectTrigger>
                                   <SelectValue placeholder="Select category" />
@@ -410,58 +513,42 @@ export default function CreateTour() {
                       )}
                     />
 
-                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div className="flex items-center space-x-6">
                       <FormField
                         control={form.control}
-                        name="imageUrl"
+                        name="active"
                         render={({ field }) => (
-                          <FormItem>
-                            <FormLabel>Main Image URL</FormLabel>
+                          <FormItem className="flex flex-row items-center space-x-3 space-y-0">
                             <FormControl>
-                              <Input placeholder="Enter main image URL" {...field} />
+                              <Switch
+                                checked={field.value}
+                                onCheckedChange={field.onChange}
+                              />
                             </FormControl>
-                            <FormMessage />
+                            <div className="space-y-1 leading-none">
+                              <FormLabel>Active</FormLabel>
+                            </div>
                           </FormItem>
                         )}
                       />
 
-                      <div className="flex items-center space-x-6">
-                        <FormField
-                          control={form.control}
-                          name="active"
-                          render={({ field }) => (
-                            <FormItem className="flex flex-row items-center space-x-3 space-y-0">
-                              <FormControl>
-                                <Switch
-                                  checked={field.value}
-                                  onCheckedChange={field.onChange}
-                                />
-                              </FormControl>
-                              <div className="space-y-1 leading-none">
-                                <FormLabel>Active</FormLabel>
-                              </div>
-                            </FormItem>
-                          )}
-                        />
-
-                        <FormField
-                          control={form.control}
-                          name="featured"
-                          render={({ field }) => (
-                            <FormItem className="flex flex-row items-center space-x-3 space-y-0">
-                              <FormControl>
-                                <Switch
-                                  checked={field.value}
-                                  onCheckedChange={field.onChange}
-                                />
-                              </FormControl>
-                              <div className="space-y-1 leading-none">
-                                <FormLabel>Featured</FormLabel>
-                              </div>
-                            </FormItem>
-                          )}
-                        />
-                      </div>
+                      <FormField
+                        control={form.control}
+                        name="featured"
+                        render={({ field }) => (
+                          <FormItem className="flex flex-row items-center space-x-3 space-y-0">
+                            <FormControl>
+                              <Switch
+                                checked={field.value}
+                                onCheckedChange={field.onChange}
+                              />
+                            </FormControl>
+                            <div className="space-y-1 leading-none">
+                              <FormLabel>Featured</FormLabel>
+                            </div>
+                          </FormItem>
+                        )}
+                      />
                     </div>
                   </CardContent>
                 </Card>
@@ -565,6 +652,174 @@ export default function CreateTour() {
                           </FormItem>
                         )}
                       />
+                    </div>
+                  </CardContent>
+                </Card>
+              </TabsContent>
+
+              <TabsContent value="images" className="space-y-6">
+                <Card>
+                  <CardHeader>
+                    <CardTitle className="flex items-center gap-2">
+                      <Plus className="h-5 w-5" />
+                      Images & Media
+                    </CardTitle>
+                  </CardHeader>
+                  <CardContent className="space-y-6">
+                    <div>
+                      <Label className="text-sm font-medium">Main Image</Label>
+                      <FormDescription className="mb-4">
+                        Upload the primary image for your tour
+                      </FormDescription>
+                      
+                      {!mainImageFile && !form.watch('imageUrl') ? (
+                        <div 
+                          className="border-2 border-dashed border-gray-300 rounded-lg p-8 text-center hover:border-gray-400 transition-colors cursor-pointer"
+                          onDrop={(e) => {
+                            e.preventDefault();
+                            const files = e.dataTransfer.files;
+                            if (files.length > 0) {
+                              handleMainImageUpload(files[0]);
+                            }
+                          }}
+                          onDragOver={(e) => e.preventDefault()}
+                          onClick={() => {
+                            const input = document.createElement('input');
+                            input.type = 'file';
+                            input.accept = 'image/*';
+                            input.onchange = (e) => {
+                              const file = (e.target as HTMLInputElement).files?.[0];
+                              if (file) handleMainImageUpload(file);
+                            };
+                            input.click();
+                          }}
+                        >
+                          {uploadingMain ? (
+                            <Loader2 className="h-8 w-8 mx-auto mb-2 animate-spin" />
+                          ) : (
+                            <Upload className="h-8 w-8 mx-auto mb-2 text-gray-400" />
+                          )}
+                          <p className="text-gray-600">
+                            {uploadingMain ? 'Uploading...' : 'Click to upload or drag and drop'}
+                          </p>
+                          <p className="text-sm text-gray-400">PNG, JPG, JPEG up to 10MB</p>
+                        </div>
+                      ) : (
+                        <div className="relative border rounded-lg p-4 bg-gray-50">
+                          <div className="flex items-center justify-between mb-2">
+                            <div className="flex items-center gap-2">
+                              <ImageIcon className="h-4 w-4 text-gray-500" />
+                              <span className="text-sm font-medium">Main Image</span>
+                            </div>
+                            <Button
+                              type="button"
+                              variant="ghost"
+                              size="sm"
+                              onClick={clearMainImage}
+                              className="text-red-500 hover:text-red-700"
+                            >
+                              <X className="h-4 w-4" />
+                            </Button>
+                          </div>
+                          {form.watch('imageUrl') && (
+                            <div className="mt-2">
+                              <img 
+                                src={form.watch('imageUrl')} 
+                                alt="Main image preview"
+                                className="w-full h-48 object-cover rounded border"
+                                onError={(e) => {
+                                  (e.target as HTMLImageElement).style.display = 'none';
+                                }}
+                              />
+                            </div>
+                          )}
+                        </div>
+                      )}
+                    </div>
+
+                    <Separator />
+
+                    <div>
+                      <Label className="text-sm font-medium">Gallery Images</Label>
+                      <FormDescription className="mb-4">
+                        Upload additional images to showcase your tour
+                      </FormDescription>
+                      
+                      <div 
+                        className="border-2 border-dashed border-gray-300 rounded-lg p-6 text-center hover:border-gray-400 transition-colors cursor-pointer mb-4"
+                        onDrop={(e) => {
+                          e.preventDefault();
+                          const files = e.dataTransfer.files;
+                          if (files.length > 0) {
+                            handleGalleryUpload(files);
+                          }
+                        }}
+                        onDragOver={(e) => e.preventDefault()}
+                        onClick={() => {
+                          const input = document.createElement('input');
+                          input.type = 'file';
+                          input.accept = 'image/*';
+                          input.multiple = true;
+                          input.onchange = (e) => {
+                            const files = (e.target as HTMLInputElement).files;
+                            if (files) handleGalleryUpload(files);
+                          };
+                          input.click();
+                        }}
+                      >
+                        {uploadingGallery ? (
+                          <Loader2 className="h-6 w-6 mx-auto mb-2 animate-spin" />
+                        ) : (
+                          <Plus className="h-6 w-6 mx-auto mb-2 text-gray-400" />
+                        )}
+                        <p className="text-gray-600">
+                          {uploadingGallery ? 'Uploading...' : 'Click to upload or drag and drop multiple images'}
+                        </p>
+                        <p className="text-sm text-gray-400">PNG, JPG, JPEG up to 10MB each</p>
+                      </div>
+                      
+                      {galleryImages.length > 0 && (
+                        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                          {galleryImages.map((imageUrl, index) => (
+                            <div key={index} className="relative group border rounded-lg overflow-hidden bg-gray-50">
+                              <div className="aspect-video relative">
+                                <img 
+                                  src={imageUrl} 
+                                  alt={`Gallery image ${index + 1}`}
+                                  className="w-full h-full object-cover"
+                                  onError={(e) => {
+                                    (e.target as HTMLImageElement).style.display = 'none';
+                                  }}
+                                />
+                                <div className="absolute inset-0 bg-black bg-opacity-0 group-hover:bg-opacity-30 transition-all duration-200 flex items-center justify-center">
+                                  <Button
+                                    type="button"
+                                    variant="destructive"
+                                    size="sm"
+                                    onClick={() => removeGalleryFile(index)}
+                                    className="opacity-0 group-hover:opacity-100 transition-opacity"
+                                  >
+                                    <X className="h-4 w-4" />
+                                  </Button>
+                                </div>
+                              </div>
+                              <div className="p-2">
+                                <p className="text-xs text-gray-500 truncate">
+                                  Image {index + 1}
+                                </p>
+                              </div>
+                            </div>
+                          ))}
+                        </div>
+                      )}
+                      
+                      {galleryImages.length === 0 && (
+                        <div className="text-center py-8 text-gray-500">
+                          <ImageIcon className="h-12 w-12 mx-auto mb-2 opacity-50" />
+                          <p>No gallery images uploaded yet</p>
+                          <p className="text-sm">Upload images to create a gallery</p>
+                        </div>
+                      )}
                     </div>
                   </CardContent>
                 </Card>
