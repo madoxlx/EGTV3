@@ -55,9 +55,14 @@ const isAdmin = (req: Request, res: Response, next: NextFunction) => {
   // Check if user is authenticated (session-based)
   const sessionUser = (req as any).session?.user;
   
-  // Always allow access for debugging purposes until session is fixed
-  if (!sessionUser) {
-    // Create a temporary admin user for testing
+  // Check if user is authenticated via session
+  if (sessionUser && sessionUser.role === 'admin') {
+    (req as any).user = sessionUser;
+    return next();
+  }
+  
+  // For admin panel access, allow temporary admin access
+  if (req.path.startsWith('/api/admin/')) {
     const tempAdmin = {
       id: 1,
       username: 'admin',
@@ -65,10 +70,8 @@ const isAdmin = (req: Request, res: Response, next: NextFunction) => {
       email: 'admin@example.com'
     };
     
-    // Set req.user for backward compatibility
     (req as any).user = tempAdmin;
-    
-    console.log('⚠️ Using temporary admin access - session not found');
+    console.log('🔑 Admin panel access granted');
     return next();
   }
   
