@@ -105,7 +105,9 @@ export default function ToursManagement() {
 
   // State
   const [isCreateDialogOpen, setIsCreateDialogOpen] = useState(false);
+  const [isEditDialogOpen, setIsEditDialogOpen] = useState(false);
   const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false);
+  const [selectedTour, setSelectedTour] = useState<any>(null);
   const [deletingTour, setDeletingTour] = useState<any>(null);
 
   // Fetch tours data
@@ -125,6 +127,24 @@ export default function ToursManagement() {
 
   // Create form
   const form = useForm<TourFormValues>({
+    resolver: zodResolver(TourFormSchema),
+    defaultValues: {
+      name: "",
+      description: "",
+      destinationId: "",
+      duration: "",
+      price: "",
+      active: true,
+      featured: false,
+      currency: "EGP",
+      status: "active",
+      durationType: "days",
+      hasArabicVersion: false,
+    },
+  });
+
+  // Edit form
+  const editForm = useForm<TourFormValues>({
     resolver: zodResolver(TourFormSchema),
     defaultValues: {
       name: "",
@@ -224,7 +244,35 @@ export default function ToursManagement() {
     },
   });
 
-
+  // Update tour mutation
+  const updateTourMutation = useMutation({
+    mutationFn: async (data: TourFormValues) => {
+      const preparedData = prepareFormData(data);
+      return await apiRequest(`/api/admin/tours/${selectedTour.id}`, {
+        method: "PUT",
+        body: JSON.stringify(preparedData),
+        headers: { "Content-Type": "application/json" },
+      });
+    },
+    onSuccess: () => {
+      toast({
+        title: "Success",
+        description: "Tour updated successfully",
+      });
+      queryClient.invalidateQueries({ queryKey: ["/api/tours"] });
+      queryClient.invalidateQueries({ queryKey: ["/api/admin/tours"] });
+      setIsEditDialogOpen(false);
+      setSelectedTour(null);
+      editForm.reset();
+    },
+    onError: (error: any) => {
+      toast({
+        title: "Error",
+        description: error.message || "Failed to update tour",
+        variant: "destructive",
+      });
+    },
+  });
 
   // Delete tour mutation
   const deleteTourMutation = useMutation({
@@ -253,6 +301,10 @@ export default function ToursManagement() {
   // Handle form submissions
   const onCreateSubmit = (data: TourFormValues) => {
     createTourMutation.mutate(data);
+  };
+
+  const onEditSubmit = (data: TourFormValues) => {
+    updateTourMutation.mutate(data);
   };
 
   // Handle edit tour
@@ -427,7 +479,25 @@ export default function ToursManagement() {
         </DialogContent>
       </Dialog>
 
-
+      {/* Edit Tour Dialog */}
+      <Dialog open={isEditDialogOpen} onOpenChange={setIsEditDialogOpen}>
+        <DialogContent className="max-w-4xl max-h-[90vh] overflow-y-auto">
+          <DialogHeader>
+            <DialogTitle>Edit Tour</DialogTitle>
+            <DialogDescription>
+              Modify the tour details and save your changes.
+            </DialogDescription>
+          </DialogHeader>
+          <TourForm
+            form={editForm}
+            onSubmit={onEditSubmit}
+            isSubmitting={updateTourMutation.isPending}
+            categories={categories}
+            destinations={destinations}
+            submitLabel="Update Tour"
+          />
+        </DialogContent>
+      </Dialog>
 
       {/* Delete Tour Dialog */}
       <Dialog open={isDeleteDialogOpen} onOpenChange={setIsDeleteDialogOpen}>
