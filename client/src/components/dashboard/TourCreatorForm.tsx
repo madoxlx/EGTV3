@@ -177,6 +177,18 @@ export function TourCreatorForm({ tourId }: TourCreatorFormProps) {
           
           const uploadResult = JSON.parse(responseText);
           imageUrl = uploadResult.url;
+          console.log('Main image upload successful:', { uploadResult, imageUrl });
+          
+          // Immediately update the preview with the new uploaded image
+          setImages(prev => {
+            const filtered = prev.filter(img => !img.isMain);
+            return [...filtered, {
+              id: `uploaded-main-${Date.now()}`,
+              preview: formatImageUrl(imageUrl),
+              isMain: true,
+              file: null
+            }];
+          });
         } catch (error) {
           throw new Error('Failed to upload image');
         }
@@ -219,6 +231,13 @@ export function TourCreatorForm({ tourId }: TourCreatorFormProps) {
       // Get existing URLs only if they're proper server URLs (not blob URLs)
       const getCleanUrl = (url: string) => {
         if (!url || url.includes('blob:')) return '';
+        // Fix double /uploads paths
+        if (url.includes('/uploads/public/uploads/')) {
+          return url.replace('/uploads/public/uploads/', '/uploads/');
+        }
+        if (url.includes('/public/uploads/')) {
+          return url.replace('/public/uploads/', '/uploads/');
+        }
         return url.startsWith('/uploads') ? url : '';
       };
 
@@ -228,10 +247,21 @@ export function TourCreatorForm({ tourId }: TourCreatorFormProps) {
         .map((url: string) => getCleanUrl(url))
         .filter(Boolean);
 
+      // Ensure clean URLs in final data
+      const cleanImageUrl = imageUrl || existingImageUrl;
+      const cleanGalleryUrls = galleryUrls.length > 0 ? galleryUrls : existingGalleryUrls;
+      
+      console.log('Final image data:', { 
+        newImageUrl: imageUrl, 
+        existingImageUrl, 
+        finalImageUrl: cleanImageUrl,
+        galleryCount: cleanGalleryUrls.length 
+      });
+
       const finalData = {
         ...data,
-        imageUrl: imageUrl || existingImageUrl,
-        galleryUrls: galleryUrls.length > 0 ? galleryUrls : existingGalleryUrls,
+        imageUrl: cleanImageUrl,
+        galleryUrls: cleanGalleryUrls,
         date: data.startDate.toISOString(),
         endDate: data.endDate.toISOString(),
       };
@@ -263,13 +293,18 @@ export function TourCreatorForm({ tourId }: TourCreatorFormProps) {
       
       return await response.json();
     },
-    onSuccess: () => {
+    onSuccess: (response) => {
       queryClient.invalidateQueries({ queryKey: ['/api/admin/tours'] });
+      queryClient.invalidateQueries({ queryKey: [`/api/admin/tours/${tourId}`] });
+      
       toast({
         title: t(isEditMode ? 'tour_updated' : 'tour_created'),
         description: t(isEditMode ? 'tour_updated_successfully' : 'tour_created_successfully'),
       });
-      setLocation('/admin/tours');
+      
+      if (!isEditMode) {
+        setLocation('/admin/tours');
+      }
     },
     onError: (error: Error) => {
       toast({
@@ -382,11 +417,11 @@ export function TourCreatorForm({ tourId }: TourCreatorFormProps) {
       const id = `main-${Date.now()}`;
       const preview = URL.createObjectURL(file);
       
-      // Remove any existing main images (including existing ones from server)
-      setImages(prev => prev.filter(img => !img.isMain));
-      
-      // Add the new main image
-      setImages(prev => [...prev, { id, file, preview, isMain: true }]);
+      // Clear any existing main images and add the new one
+      setImages(prev => [
+        ...prev.filter(img => !img.isMain),
+        { id, file, preview, isMain: true }
+      ]);
       
       console.log('New main image uploaded:', { id, preview, fileName: file.name });
     }
