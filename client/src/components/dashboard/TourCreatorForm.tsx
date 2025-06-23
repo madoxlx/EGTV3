@@ -1156,6 +1156,7 @@ export function TourCreatorForm({ tourId }: TourCreatorFormProps) {
                           </Button>
                         </div>
                       ))}
+                    </div>
                   </div>
                 )}
               </div>
