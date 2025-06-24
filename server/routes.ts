@@ -154,15 +154,20 @@ export async function registerRoutes(app: Express): Promise<Server> {
       const userId = req.user?.id;
       const sessionId = req.query.sessionId as string;
       
+      console.log('Cart GET request - userId:', userId, 'sessionId:', sessionId);
+      
       if (!userId && !sessionId) {
+        console.log('No userId or sessionId provided, returning empty array');
         return res.json([]);
       }
       
       let cartItemsList;
       if (userId) {
         cartItemsList = await db.select().from(cartItems).where(eq(cartItems.userId, userId));
+        console.log('Found cart items for user:', cartItemsList.length);
       } else {
         cartItemsList = await db.select().from(cartItems).where(eq(cartItems.sessionId, sessionId));
+        console.log('Found cart items for session:', cartItemsList.length);
       }
       
       // Enrich cart items with item details
@@ -275,7 +280,10 @@ export async function registerRoutes(app: Express): Promise<Server> {
       if (userId) {
         whereCondition = and(eq(cartItems.id, itemId), eq(cartItems.userId, userId));
       } else {
-        const sessionId = req.body.sessionId;
+        const sessionId = req.query.sessionId as string || req.body.sessionId;
+        if (!sessionId) {
+          return res.status(400).json({ message: 'Session ID required for guest users' });
+        }
         whereCondition = and(eq(cartItems.id, itemId), eq(cartItems.sessionId, sessionId));
       }
       
@@ -291,12 +299,14 @@ export async function registerRoutes(app: Express): Promise<Server> {
   app.delete('/api/cart/clear', async (req, res) => {
     try {
       const userId = req.user?.id;
-      const sessionId = req.body.sessionId;
+      const sessionId = req.query.sessionId as string || req.body.sessionId;
       
       if (userId) {
         await db.delete(cartItems).where(eq(cartItems.userId, userId));
       } else if (sessionId) {
         await db.delete(cartItems).where(eq(cartItems.sessionId, sessionId));
+      } else {
+        return res.status(400).json({ message: 'Session ID required for guest users' });
       }
       
       res.json({ success: true });

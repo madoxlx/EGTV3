@@ -26,18 +26,43 @@ export function useCart() {
   const { toast } = useToast();
   const [sessionId, setSessionId] = useState<string>('');
 
-  // Generate session ID for guest users
+  // Generate and persist session ID for guest users
   useEffect(() => {
     if (!sessionId) {
-      const newSessionId = `guest_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
-      setSessionId(newSessionId);
+      // Try to get existing sessionId from localStorage
+      const existingSessionId = localStorage.getItem('cart_session_id');
+      if (existingSessionId) {
+        setSessionId(existingSessionId);
+      } else {
+        // Generate new sessionId and store it
+        const newSessionId = `guest_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
+        localStorage.setItem('cart_session_id', newSessionId);
+        setSessionId(newSessionId);
+      }
     }
   }, [sessionId]);
 
-  // Fetch cart items
+  // Fetch cart items with sessionId as query parameter
   const { data: cartItems = [], isLoading } = useQuery({
     queryKey: ['/api/cart', sessionId],
+    queryFn: async () => {
+      if (!sessionId) return [];
+      console.log('Fetching cart with sessionId:', sessionId);
+      const response = await fetch(`/api/cart?sessionId=${sessionId}`, {
+        credentials: 'include',
+        headers: { 'Content-Type': 'application/json' }
+      });
+      if (!response.ok) {
+        throw new Error('Failed to fetch cart items');
+      }
+      const result = await response.json();
+      console.log('Cart fetch result:', result);
+      return result;
+    },
     enabled: !!sessionId,
+    refetchOnWindowFocus: true,
+    refetchInterval: false,
+    staleTime: 0,
   });
 
   // Add item to cart
@@ -52,7 +77,7 @@ export function useCart() {
       return response;
     },
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['/api/cart'] });
+      queryClient.invalidateQueries({ queryKey: ['/api/cart', sessionId] });
       toast({
         title: "Added to Cart",
         description: "Item has been added to your cart successfully!",
@@ -70,10 +95,10 @@ export function useCart() {
   // Update cart item
   const updateCartMutation = useMutation({
     mutationFn: async ({ id, updates }: { id: number; updates: Partial<CartItemData> }) => {
-      return apiRequest('PATCH', `/api/cart/${id}`, updates);
+      return apiRequest('PATCH', `/api/cart/${id}`, { ...updates, sessionId });
     },
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['/api/cart'] });
+      queryClient.invalidateQueries({ queryKey: ['/api/cart', sessionId] });
     },
     onError: (error: any) => {
       toast({
@@ -87,10 +112,17 @@ export function useCart() {
   // Remove item from cart
   const removeFromCartMutation = useMutation({
     mutationFn: async (id: number) => {
-      return apiRequest('DELETE', `/api/cart/${id}`);
+      const response = await fetch(`/api/cart/${id}?sessionId=${sessionId}`, {
+        method: 'DELETE',
+        headers: { 'Content-Type': 'application/json' },
+      });
+      if (!response.ok) {
+        throw new Error('Failed to remove item from cart');
+      }
+      return response.json();
     },
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['/api/cart'] });
+      queryClient.invalidateQueries({ queryKey: ['/api/cart', sessionId] });
       toast({
         title: "Removed from Cart",
         description: "Item has been removed from your cart",
@@ -108,10 +140,17 @@ export function useCart() {
   // Clear cart
   const clearCartMutation = useMutation({
     mutationFn: async () => {
-      return apiRequest('DELETE', '/api/cart/clear', { sessionId });
+      const response = await fetch(`/api/cart/clear?sessionId=${sessionId}`, {
+        method: 'DELETE',
+        headers: { 'Content-Type': 'application/json' },
+      });
+      if (!response.ok) {
+        throw new Error('Failed to clear cart');
+      }
+      return response.json();
     },
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['/api/cart'] });
+      queryClient.invalidateQueries({ queryKey: ['/api/cart', sessionId] });
       toast({
         title: "Cart Cleared",
         description: "All items have been removed from your cart",
