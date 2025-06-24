@@ -3,6 +3,7 @@ import { useQuery } from "@tanstack/react-query";
 import { useParams, useLocation } from "wouter";
 import PackageLayout from "@/components/PackageLayout";
 import { Button } from "@/components/ui/button";
+import BookPackageButton from "@/components/BookPackageButton";
 import { Separator } from "@/components/ui/separator";
 import { Badge } from "@/components/ui/badge";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
@@ -869,7 +870,10 @@ export default function PackageDetail() {
                           </div>
                         </div>
                         
-                        <Button className="w-full">Book Now</Button>
+                        <BookPackageButton 
+                          package={packageData}
+                          className="w-full bg-primary hover:bg-primary/90 text-white"
+                        />
                         
                         <p className="text-xs text-center text-muted-foreground">
                           No payment required to book. You'll only pay when finalizing your reservation.

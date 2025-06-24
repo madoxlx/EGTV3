@@ -56,7 +56,7 @@ const BookPackageButton: React.FC<BookPackageButtonProps> = ({
     try {
       const cartItem = {
         itemType: 'package',
-        itemId: pkg.id,
+        itemId: parseInt(pkg.id.toString(), 10),
         itemName: pkg.title,
         priceAtAdd: pkg.discountedPrice || pkg.price,
         discountedPriceAtAdd: pkg.discountedPrice || pkg.price,

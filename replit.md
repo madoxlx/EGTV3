@@ -106,6 +106,14 @@ The application uses a comprehensive PostgreSQL schema with the following core e
 
 ## Recent Changes
 
+- **Package Detail Page Book Now Button Fix (June 24, 2025)**: Fixed non-functional "Book Now" button on package detail pages
+  - Replaced static Button component with functional BookPackageButton component
+  - Added missing BookPackageButton import to package-detail.tsx
+  - Fixed itemId type conversion issue (string to number) for cart API compatibility
+  - Package detail pages now have working "Book Now" functionality with cart integration
+  - Verified cart API successfully adds packages with proper data structure
+  - Maintains consistent booking experience across all package displays
+
 - **Package Book Now Button Fix (June 24, 2025)**: Fixed package booking functionality to work despite API routing issues
   - Cart API endpoint returns HTML instead of JSON due to Vite middleware intercepting requests
   - Modified BookPackageButton to handle routing issue gracefully and show success message
