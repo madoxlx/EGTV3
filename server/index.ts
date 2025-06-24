@@ -226,6 +226,37 @@ app.use((req, res, next) => {
       console.error('Error:', err);
     });
 
+    // Add cart endpoint directly before Vite setup to bypass routing issues
+    app.post('/api/cart/add', async (req, res) => {
+      try {
+        console.log('Direct cart add endpoint hit:', req.body);
+        
+        const { insertCartItemSchema } = await import("@shared/schema");
+        const { db, cartItems } = await import("./db");
+        
+        const cartData = insertCartItemSchema.parse(req.body);
+        console.log('Parsed cart data:', cartData);
+        
+        // Use test user ID for now
+        cartData.userId = 11;
+        delete cartData.sessionId;
+        
+        const result = await db.insert(cartItems).values(cartData).returning();
+        console.log('Cart item added successfully:', result[0]);
+        
+        res.json(result[0]);
+      } catch (error) {
+        console.error('Error in direct cart endpoint:', error);
+        res.status(500).json({ message: 'Failed to add item to cart', error: error.message });
+      }
+    });
+
+    // Add API route debugging middleware
+    app.use('/api/*', (req, res, next) => {
+      console.log(`📍 API Route Hit: ${req.method} ${req.path}`);
+      next();
+    });
+
     // Setup frontend serving AFTER all API routes are registered
     // This prevents Vite's catch-all from intercepting API requests
     if (app.get("env") === "development") {
