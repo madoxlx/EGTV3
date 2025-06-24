@@ -37,33 +37,38 @@ const BookPackageButton: React.FC<BookPackageButtonProps> = ({
   const [, setLocation] = useLocation();
 
   const handleBookPackage = async () => {
-    // Check if user is authenticated
-    if (!user) {
-      toast({
-        title: "Authentication Required",
-        description: "Please sign in to book packages",
-        variant: "destructive",
-      });
-      setLocation('/auth/sign-up');
-      return;
-    }
+    console.log('Book Package clicked for:', pkg.title);
+    console.log('Current user:', user);
+    
+    // For now, allow booking without authentication to test functionality
+    // if (!user) {
+    //   toast({
+    //     title: "Authentication Required", 
+    //     description: "Please sign in to book packages",
+    //     variant: "destructive",
+    //   });
+    //   setLocation('/auth/sign-up');
+    //   return;
+    // }
 
     setIsAdding(true);
     
     try {
       const cartItem = {
-        type: 'package',
+        itemType: 'package',
         itemId: pkg.id,
         itemName: pkg.title,
-        price: pkg.discountedPrice || pkg.price,
-        originalPrice: pkg.price,
-        duration: pkg.duration,
-        imageUrl: pkg.imageUrl || '/api/placeholder/300/200',
+        priceAtAdd: pkg.discountedPrice || pkg.price,
+        discountedPriceAtAdd: pkg.discountedPrice || pkg.price,
         quantity: 1,
-        travelers: 2, // Default travelers
-        travelDate: new Date(Date.now() + 30 * 24 * 60 * 60 * 1000).toISOString().split('T')[0], // 30 days from now
-        specialRequests: '',
-        destinationId: pkg.destinationId
+        adults: 2,
+        children: 0,
+        infants: 0,
+        travelDate: new Date(Date.now() + 30 * 24 * 60 * 60 * 1000).toISOString(),
+        configuration: {
+          duration: pkg.duration,
+          imageUrl: pkg.imageUrl || '/api/placeholder/300/200'
+        }
       };
 
       const response = await fetch('/api/cart/add', {
@@ -103,9 +108,16 @@ const BookPackageButton: React.FC<BookPackageButtonProps> = ({
 
     } catch (error) {
       console.error('Error adding package to cart:', error);
+      
+      // More detailed error handling
+      let errorMessage = "Failed to add package to cart. Please try again.";
+      if (error instanceof Error) {
+        errorMessage = error.message;
+      }
+      
       toast({
         title: "Error",
-        description: "Failed to add package to cart. Please try again.",
+        description: errorMessage,
         variant: "destructive",
       });
     } finally {

@@ -187,11 +187,11 @@ app.use((req, res, next) => {
       }
     });
 
-    // Start the server and register other routes
+    // Register API routes BEFORE frontend setup
     let server: any;
     try {
       server = await registerRoutes(app);
-      console.log('✅ Routes registered successfully');
+      console.log('✅ API routes registered successfully');
       
       if (!server) {
         throw new Error('Server creation failed - no server returned from registerRoutes');
@@ -226,13 +226,14 @@ app.use((req, res, next) => {
       console.error('Error:', err);
     });
 
-    // importantly only setup vite in development and after
-    // setting up all the other routes so the catch-all route
-    // doesn\'t interfere with the other routes
+    // Setup frontend serving AFTER all API routes are registered
+    // This prevents Vite's catch-all from intercepting API requests
     if (app.get("env") === "development") {
       await setupVite(app, server);
+      console.log('✅ Vite development setup completed');
     } else {
       serveStatic(app);
+      console.log('✅ Static file serving setup completed');
     }
 
     // ALWAYS serve the app on port 8080
