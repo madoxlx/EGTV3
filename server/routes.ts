@@ -211,7 +211,10 @@ export async function registerRoutes(app: Express): Promise<Server> {
   app.post('/api/cart', async (req, res) => {
     try {
       const userId = req.user?.id;
+      console.log('Cart POST request body:', req.body);
+      
       const cartData = insertCartItemSchema.parse(req.body);
+      console.log('Parsed cart data:', cartData);
       
       if (userId) {
         cartData.userId = userId;
@@ -219,10 +222,15 @@ export async function registerRoutes(app: Express): Promise<Server> {
       }
       
       const result = await db.insert(cartItems).values(cartData).returning();
+      console.log('Cart insert result:', result[0]);
       res.json(result[0]);
     } catch (error) {
       console.error('Error adding to cart:', error);
-      res.status(500).json({ message: 'Failed to add item to cart' });
+      console.error('Error details:', error.message);
+      if (error.errors) {
+        console.error('Validation errors:', error.errors);
+      }
+      res.status(500).json({ message: 'Failed to add item to cart', error: error.message });
     }
   });
   

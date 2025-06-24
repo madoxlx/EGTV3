@@ -83,7 +83,7 @@ export function TourCreatorForm({ tourId }: TourCreatorFormProps) {
     queryKey: ['/api/tour-categories'],
     queryFn: async () => {
       try {
-        const response = await apiRequest('/api/tour-categories');
+        const response = await apiRequest('GET', '/api/tour-categories');
         console.log('Raw tour categories response:', response);
         return response;
       } catch (error) {
@@ -113,13 +113,13 @@ export function TourCreatorForm({ tourId }: TourCreatorFormProps) {
       if (!tourId) return null;
       try {
         // Try admin endpoint first
-        const adminResult = await apiRequest(`/api/admin/tours/${tourId}`);
+        const adminResult = await apiRequest('GET', `/api/admin/tours/${tourId}`);
         console.log('Admin tour data loaded:', adminResult);
         return adminResult;
       } catch (error) {
         console.log('Admin endpoint failed, trying public endpoint:', error);
         // Fallback to public endpoint
-        const publicResult = await apiRequest(`/api/tours/${tourId}`);
+        const publicResult = await apiRequest('GET', `/api/tours/${tourId}`);
         console.log('Public tour data loaded:', publicResult);
         return publicResult;
       }

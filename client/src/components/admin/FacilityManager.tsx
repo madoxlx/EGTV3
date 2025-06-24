@@ -130,7 +130,7 @@ export function FacilityManager({
   } = useQuery({
     queryKey: [apiEndpoint],
     queryFn: async () => {
-      const response = await apiRequest(apiEndpoint);
+      const response = await apiRequest('GET', apiEndpoint);
       return response || [];
     },
   });

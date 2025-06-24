@@ -113,6 +113,9 @@ The application uses a comprehensive PostgreSQL schema with the following core e
   - Added cart functionality to: ToursPackageStyle, TourDetail, ToursSearchResults, TourDetailsPage
   - Cart icon shows live count that updates automatically when tours are added
   - Fixed cart API endpoints routing issues causing JSON parse errors
+  - Resolved schema validation error for date fields (travelDate string-to-date conversion)
+  - Updated insertCartItemSchema with proper date preprocessing for all date fields
+  - Fixed apiRequest function signature across all components for consistency
   - Integrated with existing cart API endpoints for seamless session management
   - All tour booking buttons now add tours to cart with proper pricing and configuration
   - Cart system supports both guest users (session-based) and authenticated users

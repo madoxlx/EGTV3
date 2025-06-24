@@ -134,19 +134,19 @@ export default function VisasManagement() {
   // Fetch all visas
   const visasQuery = useQuery({ 
     queryKey: ['/api/visas'], 
-    queryFn: () => apiRequest('/api/visas'),
+    queryFn: () => apiRequest('GET', '/api/visas'),
   });
 
   // Fetch all nationalities
   const nationalitiesQuery = useQuery({ 
     queryKey: ['/api/nationalities'], 
-    queryFn: () => apiRequest('/api/nationalities'),
+    queryFn: () => apiRequest('GET', '/api/nationalities'),
   });
 
   // Fetch all countries
   const countriesQuery = useQuery({ 
     queryKey: ['/api/countries'], 
-    queryFn: () => apiRequest('/api/countries'),
+    queryFn: () => apiRequest('GET', '/api/countries'),
   });
 
   // Fetch visa requirements
@@ -185,10 +185,7 @@ export default function VisasManagement() {
   // Handle visa creation
   const onCreateVisa = async (data: z.infer<typeof createVisaSchema>) => {
     try {
-      await apiRequest('/api/visas', {
-        method: 'POST',
-        body: JSON.stringify(data),
-      });
+      await apiRequest('POST', '/api/visas', data);
       toast({
         title: "Success",
         description: "Visa created successfully",

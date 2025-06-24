@@ -685,6 +685,43 @@ export const insertCartItemSchema = createInsertSchema(cartItems).omit({
   id: true,
   createdAt: true,
   updatedAt: true,
+}).extend({
+  travelDate: z.preprocess(
+    (val) => {
+      if (!val) return null;
+      if (val instanceof Date) return val;
+      if (typeof val === 'string') {
+        const date = new Date(val);
+        return isNaN(date.getTime()) ? null : date;
+      }
+      return null;
+    },
+    z.date().nullable().optional()
+  ),
+  checkInDate: z.preprocess(
+    (val) => {
+      if (!val) return null;
+      if (val instanceof Date) return val;
+      if (typeof val === 'string') {
+        const date = new Date(val);
+        return isNaN(date.getTime()) ? null : date;
+      }
+      return null;
+    },
+    z.date().nullable().optional()
+  ),
+  checkOutDate: z.preprocess(
+    (val) => {
+      if (!val) return null;
+      if (val instanceof Date) return val;
+      if (typeof val === 'string') {
+        const date = new Date(val);
+        return isNaN(date.getTime()) ? null : date;
+      }
+      return null;
+    },
+    z.date().nullable().optional()
+  ),
 });
 
 export const insertOrderSchema = createInsertSchema(orders).omit({

@@ -208,7 +208,7 @@ export function ProfileMenu() {
 
   // Logout mutation
   const logoutMutation = useMutation({
-    mutationFn: () => apiRequest("/api/logout", { method: "POST" }),
+    mutationFn: () => apiRequest("POST", "/api/logout"),
     onSuccess: () => {
       toast({
         title: t('auth.logout.success', 'Logged out successfully'),
