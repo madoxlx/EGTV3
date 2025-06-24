@@ -1605,19 +1605,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
   
-  // Tour routes
-  
-  // Get all tours
-  app.get('/api/tours', async (req, res) => {
-    try {
-      const featured = req.query.featured === 'true';
-      const tours = await storage.listTours(featured);
-      res.json(tours);
-    } catch (error) {
-      console.error('Error fetching tours:', error);
-      res.status(500).json({ message: 'Failed to fetch tours' });
-    }
-  });
+  // Tour routes - Note: Main tours endpoint is defined earlier in the file
   
   // Get tour by ID
   app.get('/api/tours/:id', async (req, res) => {
