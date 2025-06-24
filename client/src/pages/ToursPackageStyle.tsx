@@ -42,6 +42,7 @@ interface Tour {
   itinerary?: string[];
   difficulty?: string;
   bestTime?: string;
+  slug?: string;
   destination?: {
     id: number;
     name: string;
@@ -316,7 +317,7 @@ const ToursPackageStyle: React.FC = () => {
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
             {filteredTours.map((tour: Tour) => (
               <Card key={`tour-card-${tour.id}`} className="overflow-hidden hover:shadow-lg transition-shadow duration-300 group cursor-pointer">
-                <Link href={`/tours/${tour.id}`} className="block">
+                <Link href={`/tours/${tour.slug || tour.id}`} className="block">
                   <div className="relative">
                     <img
                       src={tour.imageUrl || 'https://images.unsplash.com/photo-1506905925346-21bda4d32df4?w=400&q=80'}

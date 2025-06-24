@@ -188,7 +188,7 @@ function Router() {
         <Route path="/packages/:id" component={PackageDetail} />
         
         {/* Tours pages */}
-        <Route path="/tours/:id" component={TourDetail} />
+        <Route path="/tours/:slug" component={TourDetail} />
         <Route path="/tours" component={ToursPackageStyle} />
         
         {/* Hotel detail page */}

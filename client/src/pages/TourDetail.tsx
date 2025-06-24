@@ -48,6 +48,7 @@ interface Tour {
   reviewCount?: number;
   included?: string[];
   excluded?: string[];
+  slug?: string;
   itinerary?: string[] | string;
   destination?: {
     id: number;
@@ -73,22 +74,33 @@ interface Tour {
 }
 
 const TourDetail: React.FC = () => {
-  const { id } = useParams<{ id: string }>();
+  const { slug } = useParams<{ slug: string }>();
   const { t } = useLanguage();
   const { toast } = useToast();
 
   const { data: tour, isLoading, error } = useQuery<Tour>({
-    queryKey: ['/api/tours', id],
+    queryKey: ['/api/tours', slug],
     queryFn: async () => {
-      const response = await fetch(`/api/tours/${id}`);
+      // Try individual tour endpoint first
+      const response = await fetch(`/api/tours/${slug}`);
       if (!response.ok) {
         // If individual tour endpoint doesn't exist, fetch from tours list
         const allToursResponse = await fetch('/api/tours');
         if (!allToursResponse.ok) {
-          throw new Error('Failed to fetch tour');
+          throw new Error('Failed to fetch tours');
         }
         const allTours = await allToursResponse.json();
-        const foundTour = allTours.find((t: Tour) => t.id === parseInt(id!));
+        
+        // Try to find tour by slug first, then by ID
+        let foundTour = allTours.find((t: Tour) => t.slug === slug);
+        if (!foundTour) {
+          // If slug not found, try parsing as ID
+          const numericId = parseInt(slug!);
+          if (!isNaN(numericId)) {
+            foundTour = allTours.find((t: Tour) => t.id === numericId);
+          }
+        }
+        
         if (!foundTour) {
           throw new Error('Tour not found');
         }
@@ -96,7 +108,7 @@ const TourDetail: React.FC = () => {
       }
       return response.json();
     },
-    enabled: !!id,
+    enabled: !!slug,
   });
 
   const formatPrice = (price: number) => {
