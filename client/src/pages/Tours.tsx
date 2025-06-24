@@ -94,17 +94,23 @@ const Tours: React.FC = () => {
   const [favorites, setFavorites] = useState<Set<number>>(new Set());
   const [isFiltersOpen, setIsFiltersOpen] = useState(false);
 
-  // Fetch data
-  const { data: tours = [], isLoading: toursLoading } = useQuery({
+  // Fetch data with proper error handling
+  const { data: tours = [], isLoading: toursLoading, error: toursError } = useQuery({
     queryKey: ['/api/tours'],
+    retry: 3,
+    refetchOnWindowFocus: false,
   });
 
-  const { data: destinations = [] } = useQuery({
+  const { data: destinations = [], isLoading: destinationsLoading } = useQuery({
     queryKey: ['/api/destinations'],
+    retry: 3,
+    refetchOnWindowFocus: false,
   });
 
-  const { data: tourCategories = [] } = useQuery({
+  const { data: tourCategories = [], isLoading: categoriesLoading } = useQuery({
     queryKey: ['/api/tour-categories'],
+    retry: 3,
+    refetchOnWindowFocus: false,
   });
 
   // Load favorites from localStorage
@@ -467,18 +473,24 @@ const Tours: React.FC = () => {
     </Card>
   );
 
-  if (toursLoading) {
+  if (toursLoading || destinationsLoading || categoriesLoading) {
     return (
       <div className="container mx-auto px-4 py-8">
         <div className="flex justify-center items-center h-64">
           <div className="text-center">
             <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary mx-auto"></div>
-            <p className="mt-2 text-muted-foreground">{t('common.loading', 'Loading...')}</p>
+            <p className="mt-2 text-muted-foreground">{t('common.loading', 'Loading tours...')}</p>
           </div>
         </div>
       </div>
     );
   }
+
+  // Debug information
+  console.log('Tours data:', tours);
+  console.log('Destinations data:', destinations);
+  console.log('Categories data:', tourCategories);
+  console.log('Tours error:', toursError);
 
   return (
     <div className="container mx-auto px-4 py-8">
@@ -582,6 +594,11 @@ const Tours: React.FC = () => {
             <p className="text-muted-foreground">
               {t('tours.showingResults', 'Showing {{count}} tours', { count: filteredTours.length })}
             </p>
+            {toursError && (
+              <p className="text-red-500 text-sm">
+                Error loading tours: {toursError.message}
+              </p>
+            )}
           </div>
 
           {filteredTours.length === 0 ? (
