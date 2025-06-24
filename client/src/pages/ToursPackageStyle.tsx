@@ -8,6 +8,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Badge } from "@/components/ui/badge";
 import { Skeleton } from "@/components/ui/skeleton";
 import { useLanguage } from "@/hooks/use-language";
+import BookTourButton from "@/components/BookTourButton";
 import { 
   Search, 
   MapPin, 
@@ -441,16 +442,10 @@ const ToursPackageStyle: React.FC = () => {
                     <Button variant="outline" className="flex-1">
                       View Details
                     </Button>
-                    <Button 
+                    <BookTourButton 
+                      tour={tour}
                       className="flex-1"
-                      onClick={(e) => {
-                        e.preventDefault();
-                        e.stopPropagation();
-                        // Handle booking logic here
-                      }}
-                    >
-                      Book Tour
-                    </Button>
+                    />
                   </div>
                 </CardContent>
                 </Link>

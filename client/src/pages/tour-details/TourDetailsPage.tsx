@@ -510,7 +510,7 @@ const TourDetailsPage: React.FC = () => {
               </CardContent>
               
               <CardFooter className="flex-col space-y-3">
-                <Button className="w-full">Book Now</Button>
+                <BookTourButton tour={tour} className="w-full" />
                 <Button variant="outline" className="w-full">
                   <Heart size={16} className="mr-2" /> Add to Wishlist
                 </Button>

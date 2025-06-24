@@ -15,7 +15,9 @@ import {
 } from "lucide-react";
 import { useAuth } from "@/hooks/use-auth";
 import { useLanguage } from "@/hooks/use-language";
+import { useCart } from "@/hooks/useCart";
 import { LanguageSwitcher } from "@/components/LanguageSwitcher";
+import { Badge } from "@/components/ui/badge";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -42,8 +44,8 @@ const Header: React.FC = () => {
     hotels: false,
     rooms: false
   });
-  const [cartItems, setCartItems] = React.useState(3); // Demo: showing 3 items in cart
   const [location] = useLocation();
+  const { cartItems } = useCart();
   
   // Add safety check for auth context
   let authData;
@@ -243,10 +245,13 @@ const Header: React.FC = () => {
               className="relative hover:bg-gray-100 text-gray-700"
             >
               <ShoppingCart className="h-5 w-5" />
-              {cartItems > 0 && (
-                <span className="absolute -top-1 -right-1 bg-primary text-white text-xs rounded-full h-5 w-5 flex items-center justify-center min-w-[20px]">
-                  {cartItems > 99 ? '99+' : cartItems}
-                </span>
+              {cartItems.length > 0 && (
+                <Badge 
+                  variant="destructive" 
+                  className="absolute -top-1 -right-1 h-5 w-5 flex items-center justify-center p-0 text-xs"
+                >
+                  {cartItems.length > 99 ? '99+' : cartItems.length}
+                </Badge>
               )}
             </Button>
           </Link>

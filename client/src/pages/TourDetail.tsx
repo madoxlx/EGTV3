@@ -2,6 +2,7 @@ import React from "react";
 import { useParams } from "wouter";
 import { useQuery } from "@tanstack/react-query";
 import { Button } from "@/components/ui/button";
+import BookTourButton from "@/components/BookTourButton";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Separator } from "@/components/ui/separator";
@@ -341,9 +342,12 @@ const TourDetail: React.FC = () => {
               </div>
 
               <div className="space-y-4">
-                <Button className="w-full bg-gradient-to-r from-blue-600 to-blue-700 hover:from-blue-700 hover:to-blue-800 text-white">
+                <BookTourButton 
+                  tour={tour}
+                  className="w-full bg-gradient-to-r from-blue-600 to-blue-700 hover:from-blue-700 hover:to-blue-800 text-white"
+                >
                   Book Now
-                </Button>
+                </BookTourButton>
                 <Button variant="outline" className="w-full">
                   <Heart className="w-4 h-4 mr-2" />
                   Add to Favorites

@@ -458,7 +458,7 @@ const ToursSearchResults: React.FC = () => {
                         <Button variant="outline" onClick={() => window.location.href = `/tour/${tour.id}`}>
                           View Details
                         </Button>
-                        <Button>Book Now</Button>
+                        <BookTourButton tour={tour} />
                       </div>
                     </CardFooter>
                   </div>
