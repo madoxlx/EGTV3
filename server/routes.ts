@@ -151,7 +151,8 @@ export async function registerRoutes(app: Express): Promise<Server> {
   // Get cart items (authentication required)
   app.get('/api/cart', async (req, res) => {
     try {
-      const userId = req.user?.id;
+      const user = (req.session as any)?.user;
+      const userId = user?.id;
       
       console.log('Cart GET request - userId:', userId);
       
@@ -208,7 +209,8 @@ export async function registerRoutes(app: Express): Promise<Server> {
   // Add item to cart (authentication required)
   app.post('/api/cart', async (req, res) => {
     try {
-      const userId = req.user?.id;
+      const user = (req.session as any)?.user;
+      const userId = user?.id;
       
       // Require authentication for cart operations
       if (!userId) {
@@ -241,7 +243,8 @@ export async function registerRoutes(app: Express): Promise<Server> {
   app.patch('/api/cart/:id', async (req, res) => {
     try {
       const itemId = parseInt(req.params.id);
-      const userId = req.user?.id;
+      const user = (req.session as any)?.user;
+      const userId = user?.id;
       const updates = req.body;
       
       // Require authentication
@@ -271,7 +274,8 @@ export async function registerRoutes(app: Express): Promise<Server> {
   app.delete('/api/cart/:id', async (req, res) => {
     try {
       const itemId = parseInt(req.params.id);
-      const userId = req.user?.id;
+      const user = (req.session as any)?.user;
+      const userId = user?.id;
       
       // Require authentication
       if (!userId) {
@@ -291,7 +295,8 @@ export async function registerRoutes(app: Express): Promise<Server> {
   // Clear cart (authentication required)
   app.delete('/api/cart/clear', async (req, res) => {
     try {
-      const userId = req.user?.id;
+      const user = (req.session as any)?.user;
+      const userId = user?.id;
       
       // Require authentication
       if (!userId) {
@@ -611,26 +616,114 @@ export async function registerRoutes(app: Express): Promise<Server> {
   });
 
   // User registration
-  app.post('/api/users/register', async (req, res) => {
+  app.post('/api/register', async (req, res) => {
     try {
-      const userData = insertUserSchema.parse(req.body);
+      const { username, email, password, fullName } = req.body;
+      
+      if (!username || !email || !password) {
+        return res.status(400).json({ message: 'Username, email, and password are required' });
+      }
       
       // Check if username already exists
-      const existingUser = await storage.getUserByUsername(userData.username);
+      const existingUser = await storage.getUserByUsername(username);
       if (existingUser) {
         return res.status(409).json({ message: 'Username already exists' });
       }
       
+      // Hash password using crypto module
+      const { scrypt, randomBytes } = await import('crypto');
+      const { promisify } = await import('util');
+      const scryptAsync = promisify(scrypt);
+      
+      const salt = randomBytes(16).toString('hex');
+      const buf = await scryptAsync(password, salt, 64) as Buffer;
+      const hashedPassword = `${buf.toString('hex')}.${salt}`;
+      
+      const userData = {
+        username,
+        email,
+        password: hashedPassword,
+        fullName: fullName || '',
+        role: 'user',
+        createdAt: new Date(),
+        updatedAt: new Date()
+      };
+      
       const user = await storage.createUser(userData);
       
       // Remove password from response
-      const { password, ...userWithoutPassword } = user;
+      const { password: _, ...userWithoutPassword } = user;
       res.status(201).json(userWithoutPassword);
     } catch (error) {
-      if (error instanceof z.ZodError) {
-        return res.status(400).json({ message: 'Invalid user data', errors: error.errors });
-      }
+      console.error('Registration error:', error);
       res.status(500).json({ message: 'Failed to create user' });
+    }
+  });
+
+  // User login
+  app.post('/api/login', async (req, res) => {
+    try {
+      const { username, password } = req.body;
+      
+      if (!username || !password) {
+        return res.status(400).json({ message: 'Username and password are required' });
+      }
+      
+      // Find user by username
+      const user = await storage.getUserByUsername(username);
+      if (!user) {
+        return res.status(400).json({ message: 'Invalid username or password' });
+      }
+      
+      // Verify password
+      const isValid = await storage.verifyPassword(password, user.password);
+      if (!isValid) {
+        return res.status(400).json({ message: 'Invalid username or password' });
+      }
+      
+      // Store user in session
+      (req.session as any).user = user;
+      
+      // Remove password from response
+      const { password: _, ...userWithoutPassword } = user;
+      res.json(userWithoutPassword);
+    } catch (error) {
+      console.error('Login error:', error);
+      res.status(500).json({ message: 'Login failed. Please try again.' });
+    }
+  });
+
+  // Get current user
+  app.get('/api/user', async (req, res) => {
+    try {
+      const user = (req.session as any)?.user;
+      if (!user) {
+        return res.status(401).json({ message: 'Not authenticated' });
+      }
+      
+      // Remove password from response
+      const { password, ...userWithoutPassword } = user;
+      res.json(userWithoutPassword);
+    } catch (error) {
+      console.error('Get user error:', error);
+      res.status(500).json({ message: 'Failed to get user' });
+    }
+  });
+
+  // User logout
+  app.post('/api/logout', async (req, res) => {
+    try {
+      (req.session as any).user = null;
+      req.session.destroy((err: any) => {
+        if (err) {
+          console.error('Session destroy error:', err);
+          return res.status(500).json({ message: 'Logout failed' });
+        }
+        res.json({ message: 'Logout successful' });
+      });
+    } catch (error) {
+      console.error('Logout error:', error);
+      res.status(500).json({ message: 'Logout failed' });
     }
   });
 

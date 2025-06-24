@@ -4,7 +4,7 @@ import { queryClient } from "./lib/queryClient";
 import { QueryClientProvider } from "@tanstack/react-query";
 import { Toaster } from "@/components/ui/toaster";
 import { TooltipProvider } from "@/components/ui/tooltip";
-import { AuthProvider } from "@/hooks/use-auth";
+import { AuthProvider, useAuth } from "@/hooks/use-auth";
 import { LanguageProvider } from "@/hooks/use-language";
 import { ProtectedRoute } from "@/lib/protected-route";
 import { AdminRoute } from "@/lib/admin-route";
@@ -103,9 +103,6 @@ function Router() {
 
   // Don't wrap admin routes with the regular Layout
   if (isAdminRoute) {
-    // Log location before passing to DashboardLayout
-    console.log("App.tsx location type:", typeof location);
-    console.log("App.tsx location value:", location);
     return (
       <DashboardLayout location={location}>
         <Switch>
@@ -208,30 +205,36 @@ function Router() {
   );
 }
 
-function AppWithPreloader() {
+function InnerApp() {
   const { isLoading } = useNavigation();
+  const { user, isLoading: authLoading } = useAuth();
   
+  if (authLoading || isLoading) {
+    return <Preloader isVisible={true} />;
+  }
+  
+  return <Router />;
+}
+
+function AppWithPreloader() {
   return (
-    <>
-      <Preloader isVisible={isLoading} />
-      <Router />
-    </>
+    <AuthProvider>
+      <InnerApp />
+    </AuthProvider>
   );
 }
 
 function App() {
   return (
     <QueryClientProvider client={queryClient}>
-      <AuthProvider>
+      <TooltipProvider>
         <LanguageProvider>
-          <TooltipProvider>
-            <NavigationProvider>
-              <Toaster />
-              <AppWithPreloader />
-            </NavigationProvider>
-          </TooltipProvider>
+          <NavigationProvider>
+            <AppWithPreloader />
+          </NavigationProvider>
         </LanguageProvider>
-      </AuthProvider>
+        <Toaster />
+      </TooltipProvider>
     </QueryClientProvider>
   );
 }

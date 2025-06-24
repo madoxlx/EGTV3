@@ -1,8 +1,8 @@
-import { useState, useEffect } from 'react';
-import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
+import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { apiRequest } from '@/lib/queryClient';
-import { useToast } from '@/hooks/use-toast';
+import { toast } from '@/hooks/use-toast';
 import { useAuth } from '@/hooks/use-auth';
+import { useLocation } from 'wouter';
 
 export interface CartItemData {
   id?: number;
@@ -24,218 +24,196 @@ export interface CartItemData {
 
 export function useCart() {
   const queryClient = useQueryClient();
-  const { toast } = useToast();
-  const { user, isLoading: authLoading } = useAuth();
-  const [sessionId, setSessionId] = useState<string>('');
+  const { user } = useAuth();
+  const [, setLocation] = useLocation();
 
-  // Check authentication and redirect if not logged in
-  const checkAuthAndRedirect = () => {
-    if (!authLoading && !user) {
+  // Check authentication before cart operations
+  const checkAuth = () => {
+    if (!user) {
       toast({
         title: "Sign In Required",
-        description: "Please sign in to access your cart",
+        description: "Please sign in to use cart functionality",
         variant: "destructive",
       });
-      // Redirect to sign up page
-      window.location.href = '/auth';
+      setTimeout(() => {
+        setLocation('/auth');
+      }, 1000);
       return false;
     }
     return true;
   };
 
-  // Generate and persist session ID for guest users (legacy support)
-  useEffect(() => {
-    if (!sessionId && user) {
-      // For authenticated users, use user ID as session identifier
-      setSessionId(`user_${user.id}`);
-    } else if (!sessionId) {
-      // For guest users (legacy support during transition)
-      const existingSessionId = localStorage.getItem('cart_session_id');
-      if (existingSessionId) {
-        setSessionId(existingSessionId);
-      } else {
-        const newSessionId = `guest_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
-        localStorage.setItem('cart_session_id', newSessionId);
-        setSessionId(newSessionId);
-      }
-    }
-  }, [sessionId, user]);
-
-  // Fetch cart items with authentication check
+  // Fetch cart items (only if authenticated)
   const { data: cartItems = [], isLoading } = useQuery({
-    queryKey: ['/api/cart', user?.id || sessionId],
+    queryKey: ['cart'],
     queryFn: async () => {
       if (!user) {
-        return []; // Return empty cart for unauthenticated users
+        return [];
       }
       
-      console.log('Fetching cart for authenticated user:', user.id);
-      const response = await fetch('/api/cart', {
-        credentials: 'include',
-        headers: { 'Content-Type': 'application/json' }
-      });
-      if (!response.ok) {
-        if (response.status === 401) {
-          throw new Error('Authentication required');
+      try {
+        const response = await apiRequest('GET', '/api/cart');
+        console.log('Cart fetch response:', response);
+        return response;
+      } catch (error) {
+        console.error('Error fetching cart:', error);
+        if (error.message?.includes('401')) {
+          // User not authenticated, redirect to login
+          checkAuth();
         }
-        throw new Error('Failed to fetch cart items');
+        return [];
       }
-      const result = await response.json();
-      console.log('Cart fetch result:', result);
-      return result;
     },
-    enabled: !!user && !authLoading,
-    refetchOnWindowFocus: true,
-    refetchInterval: false,
-    staleTime: 0,
+    enabled: !!user, // Only run query if user is authenticated
   });
 
-  // Add item to cart
+  // Add to cart mutation
   const addToCartMutation = useMutation({
-    mutationFn: async (item: CartItemData) => {
-      if (!checkAuthAndRedirect()) {
-        throw new Error('Authentication required');
-      }
+    mutationFn: async (item: any) => {
+      if (!checkAuth()) return;
       
-      console.log('Adding to cart for user:', user?.id);
-      const response = await apiRequest('POST', '/api/cart', item);
-      console.log('Cart response:', response);
-      return response;
+      console.log('Adding cart item:', item);
+      return await apiRequest('POST', '/api/cart', item);
     },
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['/api/cart', user?.id || sessionId] });
+      queryClient.invalidateQueries({ queryKey: ['cart'] });
       toast({
-        title: "Added to Cart",
-        description: "Item has been added to your cart successfully!",
+        title: "Added to cart",
+        description: "Item has been added to your cart",
       });
     },
     onError: (error: any) => {
-      if (error.message !== 'Authentication required') {
+      console.error('Error adding to cart:', error);
+      if (error.message?.includes('401')) {
+        checkAuth();
+      } else {
         toast({
           title: "Error",
-          description: error.message || "Failed to add item to cart",
+          description: "Failed to add item to cart",
           variant: "destructive",
         });
       }
     },
   });
 
-  // Update cart item
+  // Update cart item mutation
   const updateCartMutation = useMutation({
-    mutationFn: async ({ id, updates }: { id: number; updates: Partial<CartItemData> }) => {
-      if (!checkAuthAndRedirect()) {
-        throw new Error('Authentication required');
-      }
-      return apiRequest('PATCH', `/api/cart/${id}`, updates);
+    mutationFn: async ({ id, updates }: { id: number; updates: any }) => {
+      if (!checkAuth()) return;
+      return await apiRequest('PATCH', `/api/cart/${id}`, updates);
     },
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['/api/cart', user?.id || sessionId] });
+      queryClient.invalidateQueries({ queryKey: ['cart'] });
     },
     onError: (error: any) => {
-      if (error.message !== 'Authentication required') {
+      console.error('Error updating cart:', error);
+      if (error.message?.includes('401')) {
+        checkAuth();
+      } else {
         toast({
           title: "Error",
-          description: error.message || "Failed to update cart item",
+          description: "Failed to update cart item",
           variant: "destructive",
         });
       }
     },
   });
 
-  // Remove item from cart
+  // Remove from cart mutation
   const removeFromCartMutation = useMutation({
     mutationFn: async (id: number) => {
-      if (!checkAuthAndRedirect()) {
-        throw new Error('Authentication required');
-      }
-      
-      const response = await fetch(`/api/cart/${id}`, {
-        method: 'DELETE',
-        headers: { 'Content-Type': 'application/json' },
-        credentials: 'include',
-      });
-      if (!response.ok) {
-        throw new Error('Failed to remove item from cart');
-      }
-      return response.json();
+      if (!checkAuth()) return;
+      return await apiRequest('DELETE', `/api/cart/${id}`);
     },
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['/api/cart', user?.id || sessionId] });
+      queryClient.invalidateQueries({ queryKey: ['cart'] });
       toast({
-        title: "Removed from Cart",
+        title: "Removed from cart",
         description: "Item has been removed from your cart",
       });
     },
     onError: (error: any) => {
-      if (error.message !== 'Authentication required') {
+      console.error('Error removing from cart:', error);
+      if (error.message?.includes('401')) {
+        checkAuth();
+      } else {
         toast({
           title: "Error",
-          description: error.message || "Failed to remove item from cart",
+          description: "Failed to remove item from cart",
           variant: "destructive",
         });
       }
     },
   });
 
-  // Clear cart
+  // Clear cart mutation
   const clearCartMutation = useMutation({
     mutationFn: async () => {
-      if (!checkAuthAndRedirect()) {
-        throw new Error('Authentication required');
-      }
-      
-      const response = await fetch('/api/cart/clear', {
-        method: 'DELETE',
-        headers: { 'Content-Type': 'application/json' },
-        credentials: 'include',
-      });
-      if (!response.ok) {
-        throw new Error('Failed to clear cart');
-      }
-      return response.json();
+      if (!checkAuth()) return;
+      return await apiRequest('DELETE', '/api/cart');
     },
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['/api/cart', user?.id || sessionId] });
+      queryClient.invalidateQueries({ queryKey: ['cart'] });
       toast({
-        title: "Cart Cleared",
+        title: "Cart cleared",
         description: "All items have been removed from your cart",
       });
     },
+    onError: (error: any) => {
+      console.error('Error clearing cart:', error);
+      if (error.message?.includes('401')) {
+        checkAuth();
+      } else {
+        toast({
+          title: "Error",
+          description: "Failed to clear cart",
+          variant: "destructive",
+        });
+      }
+    },
   });
 
-  // Calculate totals
+  // Helper functions
+  const addToCart = (item: CartItemData) => {
+    if (!checkAuth()) return;
+    addToCartMutation.mutate(item);
+  };
+
+  const updateCartItem = (id: number, updates: any) => {
+    if (!checkAuth()) return;
+    updateCartMutation.mutate({ id, updates });
+  };
+
+  const removeFromCart = (id: number) => {
+    if (!checkAuth()) return;
+    removeFromCartMutation.mutate(id);
+  };
+
+  const clearCart = () => {
+    if (!checkAuth()) return;
+    clearCartMutation.mutate();
+  };
+
   const calculateTotals = () => {
     const subtotal = cartItems.reduce((total: number, item: any) => {
       const price = item.discountedPriceAtAdd || item.priceAtAdd;
       return total + (price * item.quantity);
     }, 0);
-
-    const tax = Math.round(subtotal * 0.1); // 10% tax
+    
+    const tax = subtotal * 0.1; // 10% tax
     const total = subtotal + tax;
-
+    
     return { subtotal, tax, total };
   };
 
-  const addToCart = (item: CartItemData) => addToCartMutation.mutate(item);
-  const updateCartItem = (id: number, updates: Partial<CartItemData>) => 
-    updateCartMutation.mutate({ id, updates });
-  const removeFromCart = (id: number) => removeFromCartMutation.mutate(id);
-  const clearCart = () => clearCartMutation.mutate();
-
   return {
-    cartItems: user ? cartItems : [], // Only show cart items for authenticated users
-    isLoading: authLoading || isLoading,
+    cartItems,
+    isLoading,
     addToCart,
     updateCartItem,
     removeFromCart,
     clearCart,
     calculateTotals,
-    sessionId,
-    isAuthenticated: !!user,
-    user,
-    isAdding: addToCartMutation.isPending,
-    isUpdating: updateCartMutation.isPending,
-    isRemoving: removeFromCartMutation.isPending,
-    isClearing: clearCartMutation.isPending,
+    cartCount: cartItems.length,
   };
 }

@@ -11,6 +11,10 @@ import {
 } from "@shared/schema";
 import { db, pool } from "./db";
 import { eq, and, desc, asc, sql } from "drizzle-orm";
+import { scrypt, randomBytes, timingSafeEqual } from "crypto";
+import { promisify } from "util";
+
+const scryptAsync = promisify(scrypt);
 
 export interface IStorage {
   // Users
@@ -19,6 +23,7 @@ export interface IStorage {
   createUser(user: InsertUser): Promise<User>;
   updateUser(id: number, user: Partial<InsertUser>): Promise<User | undefined>;
   listUsers(): Promise<User[]>;
+  verifyPassword(password: string, hashedPassword: string): Promise<boolean>;
 
   // Countries
   getCountry(id: number): Promise<Country | undefined>;
@@ -123,6 +128,21 @@ export class DatabaseStorage implements IStorage {
     } catch (error) {
       console.error('Error listing users:', error);
       return [];
+    }
+  }
+
+  async verifyPassword(password: string, hashedPassword: string): Promise<boolean> {
+    try {
+      const [storedHash, salt] = hashedPassword.split('.');
+      if (!salt) return false;
+      
+      const buf = await scryptAsync(password, salt, 64) as Buffer;
+      const derivedKey = buf.toString('hex');
+      
+      return timingSafeEqual(Buffer.from(storedHash, 'hex'), Buffer.from(derivedKey, 'hex'));
+    } catch (error) {
+      console.error('Error verifying password:', error);
+      return false;
     }
   }
 

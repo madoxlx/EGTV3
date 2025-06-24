@@ -30,20 +30,7 @@ app.use(cors({
 app.use(express.json({ limit: '25mb' }));
 app.use(express.urlencoded({ extended: false, limit: '25mb' }));
 
-// Session setup with proper configuration
-app.use(session({
-  secret: process.env.SESSION_SECRET || 'sahara-journeys-session-secret',
-  resave: false,
-  saveUninitialized: false,
-  cookie: { 
-    secure: process.env.NODE_ENV === 'production', // Set to true in production
-    httpOnly: true,
-    maxAge: 24 * 60 * 60 * 1000, // 24 hours
-    sameSite: 'lax' // Protect against CSRF
-  },
-  name: 'sahara.sid', // Custom session name
-  rolling: true, // Extend session on each request
-}));
+// Remove duplicate session setup - already exists below
 
 // Initialize passport
 app.use(passport.initialize());

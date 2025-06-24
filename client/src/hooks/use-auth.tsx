@@ -58,7 +58,18 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     isLoading,
   } = useQuery<User | null>({
     queryKey: ["/api/user"],
-    queryFn: getQueryFn({ on401: "returnNull" }),
+    queryFn: async () => {
+      try {
+        return await apiRequest('GET', '/api/user');
+      } catch (error: any) {
+        if (error.message?.includes('401')) {
+          localStorage.removeItem('user');
+          return null;
+        }
+        throw error;
+      }
+    },
+    retry: false,
     initialData: getStoredUser(),
   });
 
@@ -66,10 +77,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const loginMutation = useMutation({
     mutationFn: async (credentials: LoginData) => {
       try {
-        return await apiRequest<User>('/api/login', {
-          method: 'POST',
-          body: JSON.stringify(credentials)
-        });
+        return await apiRequest<User>('POST', '/api/login', credentials);
       } catch (error) {
         if (error instanceof Error) {
           throw error;
@@ -99,10 +107,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const registerMutation = useMutation({
     mutationFn: async (userData: RegisterData) => {
       try {
-        return await apiRequest<User>('/api/register', {
-          method: 'POST',
-          body: JSON.stringify(userData)
-        });
+        return await apiRequest<User>('POST', '/api/register', userData);
       } catch (error) {
         if (error instanceof Error) {
           throw error;
@@ -173,10 +178,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const updateProfileMutation = useMutation({
     mutationFn: async (profileData: UpdateProfileData) => {
       try {
-        return await apiRequest<User>('/api/user', {
-          method: 'PATCH',
-          body: JSON.stringify(profileData)
-        });
+        return await apiRequest<User>('PATCH', '/api/user', profileData);
       } catch (error) {
         if (error instanceof Error) {
           throw error;
