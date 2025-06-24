@@ -165,23 +165,7 @@ app.use((req, res, next) => {
       }
     });
 
-    // Menu by location API
-    app.get('/api/menus/location/:location', async (req, res) => {
-      try {
-        const location = req.params.location;
-        if (!location) {
-          return res.status(400).json({ message: 'Location parameter is required' });
-        }
-        const menu = await storage.getMenuByLocation(location);
-        if (!menu) {
-          return res.status(404).json({ message: 'Menu not found for location' });
-        }
-        res.json(menu);
-      } catch (error) {
-        console.error('Error fetching menu by location:', error);
-        res.status(500).json({ message: 'Failed to fetch menu by location' });
-      }
-    });
+
 
     // Site language settings API  
     app.get('/api/translations/settings', async (req, res) => {
