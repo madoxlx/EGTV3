@@ -355,7 +355,7 @@ export class DatabaseStorage implements IStorage {
   // Package Categories
   async listPackageCategories(active?: boolean): Promise<any[]> {
     try {
-      const client = await storagePool.connect();
+      const client = await pool.connect();
       const result = await client.query('SELECT * FROM package_categories ORDER BY name');
       client.release();
       return result.rows || [];
@@ -367,7 +367,7 @@ export class DatabaseStorage implements IStorage {
 
   async createPackageCategory(category: any): Promise<any> {
     try {
-      const client = await storagePool.connect();
+      const client = await pool.connect();
       const result = await client.query(
         'INSERT INTO package_categories (name, description, active) VALUES ($1, $2, $3) RETURNING *',
         [category.name, category.description || null, category.active !== false]
@@ -383,7 +383,7 @@ export class DatabaseStorage implements IStorage {
   // Menu Items
   async listMenuItems(menuId?: number): Promise<any[]> {
     try {
-      const client = await storagePool.connect();
+      const client = await pool.connect();
       let result;
       if (menuId !== undefined) {
         result = await client.query('SELECT * FROM menu_items WHERE menu_id = $1 ORDER BY "order"', [menuId]);
@@ -400,7 +400,7 @@ export class DatabaseStorage implements IStorage {
 
   async createMenuItem(item: any): Promise<any> {
     try {
-      const client = await storagePool.connect();
+      const client = await pool.connect();
       const result = await client.query(
         'INSERT INTO menu_items (menu_id, title, url, icon, "order", active) VALUES ($1, $2, $3, $4, $5, $6) RETURNING *',
         [item.menuId, item.title, item.url || null, item.icon || null, item.order || 0, item.active !== false]
@@ -416,7 +416,7 @@ export class DatabaseStorage implements IStorage {
   // Tour Categories
   async listTourCategories(active?: boolean): Promise<any[]> {
     try {
-      const client = await storagePool.connect();
+      const client = await pool.connect();
       let result;
       if (active !== undefined) {
         result = await client.query('SELECT * FROM tour_categories WHERE active = $1 ORDER BY name', [active]);
@@ -433,7 +433,7 @@ export class DatabaseStorage implements IStorage {
 
   async createTourCategory(category: any): Promise<any> {
     try {
-      const client = await storagePool.connect();
+      const client = await pool.connect();
       const result = await client.query(
         'INSERT INTO tour_categories (name, description, active) VALUES ($1, $2, $3) RETURNING *',
         [category.name, category.description || null, category.active !== false]
@@ -449,7 +449,7 @@ export class DatabaseStorage implements IStorage {
   // Translations  
   async listTranslations(language?: string): Promise<any[]> {
     try {
-      const client = await storagePool.connect();
+      const client = await pool.connect();
       let result;
       if (language !== undefined) {
         result = await client.query('SELECT * FROM translations WHERE language = $1 ORDER BY "key"', [language]);
@@ -466,7 +466,7 @@ export class DatabaseStorage implements IStorage {
 
   async createTranslation(translation: any): Promise<any> {
     try {
-      const client = await storagePool.connect();
+      const client = await pool.connect();
       const result = await client.query(
         'INSERT INTO translations ("key", language, value, en_text, ar_text, context, category) VALUES ($1, $2, $3, $4, $5, $6, $7) RETURNING *',
         [translation.key, translation.language || 'en', translation.value, translation.enText || translation.value, translation.arText, translation.context, translation.category]
@@ -482,7 +482,7 @@ export class DatabaseStorage implements IStorage {
   // Language Settings
   async getSiteLanguageSettings(): Promise<any[]> {
     try {
-      const client = await storagePool.connect();
+      const client = await pool.connect();
       const result = await client.query('SELECT * FROM site_language_settings');
       client.release();
       return result.rows || [];
@@ -494,7 +494,7 @@ export class DatabaseStorage implements IStorage {
 
   async updateSiteLanguageSettings(settings: any): Promise<any> {
     try {
-      const client = await storagePool.connect();
+      const client = await pool.connect();
       const result = await client.query(
         'UPDATE site_language_settings SET default_language = $1 WHERE id = 1 RETURNING *',
         [settings.defaultLanguage || 'en']
