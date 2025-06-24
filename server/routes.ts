@@ -1,7 +1,7 @@
 import type { Express, Request, Response, NextFunction } from "express";
 import { createServer, type Server } from "http";
 import { storage } from "./storage";
-import { db, client, dbPromise } from "./db";
+import { db, pool, dbPromise } from "./db";
 import * as fs from 'fs';
 import * as fsPromises from 'fs/promises';
 import * as path from 'path';

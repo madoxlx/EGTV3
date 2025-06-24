@@ -1,17 +1,16 @@
 import express, { type Request, Response, NextFunction } from "express";
-import dotenv from 'dotenv'; // استيراد dotenv
-import cors from 'cors'; // استيراد cors
+import dotenv from 'dotenv';
+import cors from 'cors';
 import { registerRoutes } from "./routes";
 import { setupVite, serveStatic, log } from "./vite";
 import path from "path";
-import { dbPromise } from './db'; // استيراد dbPromise
-import session from 'express-session'; // استيراد session
-import passport from 'passport'; // استيراد passport
-import { setupAdmin } from './admin-setup'; // استيراد setupAdmin
+import { dbPromise } from './db';
+import session from 'express-session';
+import passport from 'passport';
+import { setupAdmin } from './admin-setup';
 import { setupUnifiedAuth } from './unified-auth';
 import { setupHeroSlidesRoutes } from './hero-slides-routes';
 import { setupUploadRoutes } from './upload-routes';
-import express from 'express';
 
 // Load environment variables first
 dotenv.config();
@@ -89,7 +88,7 @@ app.use((req, res, next) => {
     try {
       dbInitialized = await dbPromise;
     } catch (error: any) {
-      console.warn('⚠️ Database connection failed, continuing with fallback storage:', error?.message || 'Unknown error');
+      console.warn('⚠️ Database connection failed, continuing with basic functionality:', error?.message || 'Unknown error');
       dbInitialized = false;
     }
 

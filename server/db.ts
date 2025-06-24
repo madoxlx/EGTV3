@@ -1,47 +1,29 @@
-import { drizzle } from 'drizzle-orm/postgres-js';
-import postgres from 'postgres';
+import { Pool, neonConfig } from '@neondatabase/serverless';
+import { drizzle } from 'drizzle-orm/neon-serverless';
+import ws from "ws";
+import { sql } from "drizzle-orm";
 import * as schema from "@shared/schema";
 
-// Use environment variable for database configuration
-const DATABASE_URL = process.env.DATABASE_URL || 'postgresql://neondb_owner:npg_ZN9Ylt3AoQRJ@ep-dawn-voice-a8bd2yi7-pooler.eastus2.azure.neon.tech/neondb?sslmode=require';
+// Configure WebSocket for Neon serverless
+neonConfig.webSocketConstructor = ws;
 
-console.log('Database URL configured:', DATABASE_URL.replace(/:[^:@]*@/, ':****@'));
+if (!process.env.DATABASE_URL) {
+  throw new Error(
+    "DATABASE_URL must be set. Did you forget to provision a database?",
+  );
+}
 
-// Create a postgres client connection with better error handling
-let client: postgres.Sql;
-let db: ReturnType<typeof drizzle>;
+// Create connection pool
+export const pool = new Pool({ connectionString: process.env.DATABASE_URL });
+export const db = drizzle({ client: pool, schema });
 
-// Initialize database connection with fallback handling
+// Initialize database connection with proper error handling
 async function initializeDatabase() {
   try {
-    console.log('Attempting to connect with URL:', DATABASE_URL.replace(/:[^:@]*@/, ':****@'));
+    console.log('Testing database connection...');
     
-    // Validate DATABASE_URL format
-    if (!DATABASE_URL || DATABASE_URL === 'postgresql://postgres:a@localhost:5432/postgres') {
-      console.warn('⚠️ Using default DATABASE_URL - connection may fail');
-    }
-    
-    // Create a postgres client connection with connection pool
-    client = postgres(DATABASE_URL, {
-      ssl: DATABASE_URL.includes('localhost') ? false : 'require',
-      max: 5, // Limit connection pool size
-      idle_timeout: 10, // Lower idle timeout
-      connect_timeout: 5, // 5 second connection timeout
-      connection: {
-        application_name: 'travel-app'
-      }
-    });
-    
-    // Test the connection with timeout
-    await Promise.race([
-      client`SELECT 1`,
-      new Promise((_, reject) => 
-        setTimeout(() => reject(new Error('Connection timeout')), 5000)
-      )
-    ]);
-    
-    // Create a drizzle instance with PostgreSQL
-    db = drizzle(client, { schema });
+    // Test the connection with a simple query
+    await db.execute(sql`SELECT 1`);
     
     console.log('Database connection established successfully');
     return true;
@@ -51,19 +33,5 @@ async function initializeDatabase() {
   }
 }
 
-// Initialize the database connection and export a promise
-const dbPromise = initializeDatabase();
-
-// Export the database connection with proper initialization check
-export { client, dbPromise };
-
-// Export db with initialization check
-export function getDb() {
-  if (!db) {
-    throw new Error('Database not initialized. Call initializeDatabase() first.');
-  }
-  return db;
-}
-
-// Export db directly for backward compatibility, but ensure it's initialized
-export { db };
+// Export database promise for initialization check
+export const dbPromise = initializeDatabase();
