@@ -118,6 +118,7 @@ The application uses a comprehensive PostgreSQL schema with the following core e
   - AuthProvider properly wraps application components to provide authentication context
   - Enhanced security with proper password verification and session destruction on logout
   - Fixed authentication context errors and provider placement in React component hierarchy
+  - Fixed logout API fetch method and tours page duplicate key warnings for better stability
 
 - **Complete Tour Cart Integration (June 24, 2025)**: Implemented comprehensive cart functionality for all tour bookings
   - Created BookTourButton component with proper cart data structure for tours
