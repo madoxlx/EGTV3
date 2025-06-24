@@ -18,6 +18,7 @@ dotenv.config();
 // Set DATABASE_URL if not present in environment
 if (!process.env.DATABASE_URL) {
   process.env.DATABASE_URL = "postgresql://neondb_owner:npg_ZN9Ylt3AoQRJ@ep-dawn-voice-a8bd2yi7-pooler.eastus2.azure.neon.tech/neondb?sslmode=require";
+  console.log('🔗 Using fallback DATABASE_URL');
 }
 
 const app = express();
@@ -78,7 +79,11 @@ app.use((req, res, next) => {
     let dbInitialized = false;
     
     try {
-      dbInitialized = await dbPromise;
+      const dbResult = await Promise.race([
+        dbPromise,
+        new Promise((_, reject) => setTimeout(() => reject(new Error('Database connection timeout')), 10000))
+      ]);
+      dbInitialized = !!dbResult;
     } catch (error: any) {
       console.warn('⚠️ Database connection failed, continuing with basic functionality:', error?.message || 'Unknown error');
       dbInitialized = false;
@@ -177,6 +182,10 @@ app.use((req, res, next) => {
     try {
       server = await registerRoutes(app);
       console.log('✅ Routes registered successfully');
+      
+      if (!server) {
+        throw new Error('Server creation failed - no server returned from registerRoutes');
+      }
     } catch (error) {
       console.error('❌ Route registration failed:', error);
       throw error;
@@ -220,8 +229,18 @@ app.use((req, res, next) => {
     // this serves both the API and the client.
     // Using port 8080 as discussed previously
     const port = parseInt(process.env.PORT || "8080"); // Use PORT environment variable, fallback to 8080
-    server.listen(port, "0.0.0.0", () => {
-      log(`serving on port ${port}`);
+    
+    await new Promise<void>((resolve, reject) => {
+      server.listen(port, "0.0.0.0", (err?: Error) => {
+        if (err) {
+          console.error(`❌ Failed to start server on port ${port}:`, err);
+          reject(err);
+        } else {
+          log(`✅ Server serving on port ${port}`);
+          console.log(`🌍 Application available at http://localhost:${port}`);
+          resolve();
+        }
+      });
     });
   } catch (error) {
     console.error('Failed to initialize application:', error);
