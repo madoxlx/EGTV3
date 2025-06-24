@@ -332,28 +332,33 @@ const Tours: React.FC = () => {
       <div>
         <h3 className="font-semibold mb-3">{t('tours.categories', 'Categories')}</h3>
         <div className="space-y-2">
-          {tourCategories
-            .filter((category, index, self) => 
-              index === self.findIndex(c => c.name === category.name)
-            )
-            .map((category: TourCategory, index: number) => {
-              const uniqueKey = `category-unique-${category.id}-${index}-${category.name.replace(/\s+/g, '-')}`;
-              return (
-                <div key={uniqueKey} className="flex items-center space-x-2">
-                  <Checkbox
-                    id={uniqueKey}
-                    checked={selectedCategories.includes(category.id)}
-                    onCheckedChange={() => handleCategoryToggle(category.id)}
-                  />
-                  <label 
-                    htmlFor={uniqueKey} 
-                    className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70"
-                  >
-                    {category.name}
-                  </label>
-                </div>
-              );
-            })}
+          {React.useMemo(() => {
+            // Create a map to track unique category names and their first occurrence
+            const uniqueCategories = new Map();
+            tourCategories.forEach(category => {
+              if (!uniqueCategories.has(category.name)) {
+                uniqueCategories.set(category.name, category);
+              }
+            });
+            return Array.from(uniqueCategories.values());
+          }, [tourCategories]).map((category: TourCategory) => {
+            const uniqueKey = `category-${category.id}-${category.name.replace(/\s+/g, '-').toLowerCase()}`;
+            return (
+              <div key={uniqueKey} className="flex items-center space-x-2">
+                <Checkbox
+                  id={uniqueKey}
+                  checked={selectedCategories.includes(category.id)}
+                  onCheckedChange={() => handleCategoryToggle(category.id)}
+                />
+                <label 
+                  htmlFor={uniqueKey} 
+                  className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70"
+                >
+                  {category.name}
+                </label>
+              </div>
+            );
+          })}
         </div>
       </div>
 

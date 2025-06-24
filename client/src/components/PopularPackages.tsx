@@ -4,6 +4,7 @@ import { Button } from '@/components/ui/button';
 import { StarIcon, StarHalfIcon, MapPinIcon, UsersIcon, UtensilsIcon, Loader2 } from 'lucide-react';
 import { handleImageError } from '@/lib/image-utils';
 import { useQuery } from "@tanstack/react-query";
+import BookPackageButton from '@/components/BookPackageButton';
 
 // Package interface matching the database schema
 interface Package {
