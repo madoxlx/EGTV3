@@ -924,7 +924,16 @@ export function CategoryManager({ title, description, categoryType, apiEndpoint 
                                 {category.active ? "Active" : "Inactive"}
                               </Badge>
                             </TableCell>
-                            <TableCell>{format(new Date(category.createdAt), 'MMM d, yyyy')}</TableCell>
+                            <TableCell>
+                              {(() => {
+                                try {
+                                  const dateStr = category.createdAt || category.created_at;
+                                  return dateStr ? format(new Date(dateStr), 'MMM d, yyyy') : 'N/A';
+                                } catch {
+                                  return 'Invalid date';
+                                }
+                              })()}
+                            </TableCell>
                             <TableCell className="text-right">
                               <div className="flex justify-end space-x-1">
                                 <Button
@@ -1002,7 +1011,14 @@ export function CategoryManager({ title, description, categoryType, apiEndpoint 
                           </Badge>
                         </div>
                         <CardDescription className="text-xs">
-                          Created on {format(new Date(category.createdAt), 'MMM d, yyyy')}
+                          Created on {(() => {
+                            try {
+                              const dateStr = category.createdAt || category.created_at;
+                              return dateStr ? format(new Date(dateStr), 'MMM d, yyyy') : 'N/A';
+                            } catch {
+                              return 'Invalid date';
+                            }
+                          })()}
                         </CardDescription>
                       </CardHeader>
                       <CardContent className="pb-2">
