@@ -7,7 +7,8 @@ import {
   tours, Tour, InsertTour,
   hotels, Hotel, InsertHotel,
   heroSlides, HeroSlide, InsertHeroSlide,
-  menus, Menu, InsertMenu
+  menus, Menu, InsertMenu,
+  packageCategories, PackageCategory, InsertPackageCategory
 } from "@shared/schema";
 import { db } from "./db";
 import { eq, and, desc, asc } from "drizzle-orm";
@@ -59,6 +60,10 @@ export interface IStorage {
   getMenuByLocation(location: string): Promise<Menu | undefined>;
   listMenus(): Promise<Menu[]>;
   createMenu(menu: InsertMenu): Promise<Menu>;
+
+  // Package Categories
+  listPackageCategories(active?: boolean): Promise<PackageCategory[]>;
+  createPackageCategory(category: InsertPackageCategory): Promise<PackageCategory>;
 }
 
 export class DatabaseStorage implements IStorage {
@@ -329,6 +334,24 @@ export class DatabaseStorage implements IStorage {
 
   async createMenu(menu: InsertMenu): Promise<Menu> {
     const [created] = await db.insert(menus).values(menu).returning();
+    return created;
+  }
+
+  // Package Categories
+  async listPackageCategories(active?: boolean): Promise<PackageCategory[]> {
+    try {
+      if (active !== undefined) {
+        return await db.select().from(packageCategories).where(eq(packageCategories.active, active)).orderBy(asc(packageCategories.name));
+      }
+      return await db.select().from(packageCategories).orderBy(asc(packageCategories.name));
+    } catch (error) {
+      console.error('Error listing package categories:', error);
+      return [];
+    }
+  }
+
+  async createPackageCategory(category: InsertPackageCategory): Promise<PackageCategory> {
+    const [created] = await db.insert(packageCategories).values(category).returning();
     return created;
   }
 }

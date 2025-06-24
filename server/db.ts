@@ -33,5 +33,10 @@ async function initializeDatabase() {
   }
 }
 
+// Export database getter function
+export function getDb() {
+  return db;
+}
+
 // Export database promise for initialization check
 export const dbPromise = initializeDatabase();
