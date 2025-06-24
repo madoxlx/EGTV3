@@ -336,15 +336,15 @@ const Tours: React.FC = () => {
             .filter((category, index, self) => 
               index === self.findIndex(c => c.name === category.name)
             )
-            .map((category: TourCategory) => (
-            <div key={`category-${category.id}-${category.name}`} className="flex items-center space-x-2">
+            .map((category: TourCategory, index: number) => (
+            <div key={`category-${category.id}-${category.name}-${index}`} className="flex items-center space-x-2">
               <Checkbox
-                id={`cat-${category.id}-${category.name}`}
+                id={`cat-${category.id}-${category.name}-${index}`}
                 checked={selectedCategories.includes(category.id)}
                 onCheckedChange={() => handleCategoryToggle(category.id)}
               />
               <label 
-                htmlFor={`cat-${category.id}-${category.name}`} 
+                htmlFor={`cat-${category.id}-${category.name}-${index}`} 
                 className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70"
               >
                 {category.name}

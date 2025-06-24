@@ -15,6 +15,7 @@ import Home from "@/pages/Home";
 import AuthPage from "@/pages/auth-page";
 import DestinationsPage from "@/pages/destinations-page";
 import Tours from "@/pages/Tours";
+import ToursPackageStyle from "@/pages/ToursPackageStyle";
 import TourDetail from "@/pages/TourDetail";
 import PackagesPage from "@/pages/packages";
 import AboutPage from "@/pages/about-page";
@@ -186,8 +187,9 @@ function Router() {
         {/* Package detail page */}
         <Route path="/packages/:id" component={PackageDetail} />
         
-        {/* Tour detail page */}
-        {/* <Route path="/tours/:id" component={TourDetail} /> */}
+        {/* Tours pages */}
+        <Route path="/tours/:id" component={TourDetail} />
+        <Route path="/tours" component={ToursPackageStyle} />
         
         {/* Hotel detail page */}
         <Route path="/hotel/:id" component={() => {
