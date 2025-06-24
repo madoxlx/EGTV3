@@ -91,13 +91,33 @@ const TourDetail: React.FC = () => {
         }
         const allTours = await allToursResponse.json();
         
-        // Try to find tour by slug first, then by ID
-        let foundTour = allTours.find((t: Tour) => t.slug === slug);
+        // Try multiple strategies to find the tour
+        let foundTour = null;
+        
+        // 1. Try exact slug match
+        foundTour = allTours.find((t: Tour) => t.slug === slug);
+        
+        // 2. Try generated slug from name
         if (!foundTour) {
-          // If slug not found, try parsing as ID
+          foundTour = allTours.find((t: Tour) => {
+            const generatedSlug = t.name.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-+|-+$/g, '');
+            return generatedSlug === slug;
+          });
+        }
+        
+        // 3. Try parsing as numeric ID
+        if (!foundTour) {
           const numericId = parseInt(slug!);
           if (!isNaN(numericId)) {
             foundTour = allTours.find((t: Tour) => t.id === numericId);
+          }
+        }
+        
+        // 4. Try slug patterns like "tour-123"
+        if (!foundTour && slug!.startsWith('tour-')) {
+          const idFromSlug = parseInt(slug!.replace('tour-', ''));
+          if (!isNaN(idFromSlug)) {
+            foundTour = allTours.find((t: Tour) => t.id === idFromSlug);
           }
         }
         
