@@ -1,0 +1,31 @@
+Response status: 200
+API Response: 
+(29) [{…}, {…}, {…}, {…}, {…}, {…}, {…}, {…}, {…}, {…}, {…}, {…}, {…}, {…}, {…}, {…}, {…}, {…}, {…}, {…}, {…}, {…}, {…}, {…}, {…}, {…}, {…}, {…}, {…}]
+Response status: 200
+API Response: 
+Object {id: 1, default_language: "en", available_languages: Array(2), rtl_languages: Array(1), auto_translate: false, …}
+BookPackageButton is not defined
+BookPackageButton is not defined
+The above error occurred in the <PopularPackages> component:
+
+    at PopularPackages (https://23f216e2-9ffd-4a1f-bc2b-e1997313614b-00-1s4eshsfn2ay9.worf.replit.dev:8080/src/components/PopularPackages.tsx:24:46)
+    at Home (https://23f216e2-9ffd-4a1f-bc2b-e1997313614b-00-1s4eshsfn2ay9.worf.replit.dev:8080/src/pages/Home.tsx:27:17)
+    at Route (https://23f216e2-9ffd-4a1f-bc2b-e1997313614b-00-1s4eshsfn2ay9.worf.replit.dev:8080/@fs/home/runner/workspace/node_modules/.vite/deps/wouter.js?v=e150c17f:338:16)
+    at Switch (https://23f216e2-9ffd-4a1f-bc2b-e1997313614b-00-1s4eshsfn2ay9.worf.replit.dev:8080/@fs/home/runner/workspace/node_modules/.vite/deps/wouter.js?v=e150c17f:394:17)
+    at main
+    at div
+    at Layout (https://23f216e2-9ffd-4a1f-bc2b-e1997313614b-00-1s4eshsfn2ay9.worf.replit.dev:8080/src/components/Layout.tsx:21:26)
+    at Router (https://23f216e2-9ffd-4a1f-bc2b-e1997313614b-00-1s4eshsfn2ay9.worf.replit.dev:8080/src/App.tsx?v=uSyDpmCnUOAXVrk6yV6Q8:103:22)
+    at InnerApp (https://23f216e2-9ffd-4a1f-bc2b-e1997313614b-00-1s4eshsfn2ay9.worf.replit.dev:8080/src/App.tsx?v=uSyDpmCnUOAXVrk6yV6Q8:504:25)
+    at AuthProvider (https://23f216e2-9ffd-4a1f-bc2b-e1997313614b-00-1s4eshsfn2ay9.worf.replit.dev:8080/src/hooks/use-auth.tsx:26:32)
+    at AppWithPreloader
+    at NavigationProvider (https://23f216e2-9ffd-4a1f-bc2b-e1997313614b-00-1s4eshsfn2ay9.worf.replit.dev:8080/src/contexts/NavigationContext.tsx:30:38)
+    at LanguageProvider (https://23f216e2-9ffd-4a1f-bc2b-e1997313614b-00-1s4eshsfn2ay9.worf.replit.dev:8080/src/hooks/use-language.tsx:31:36)
+    at Provider (https://23f216e2-9ffd-4a1f-bc2b-e1997313614b-00-1s4eshsfn2ay9.worf.replit.dev:8080/@fs/home/runner/workspace/node_modules/.vite/deps/chunk-OXZDJRWN.js?v=e150c17f:38:15)
+    at TooltipProvider (https://23f216e2-9ffd-4a1f-bc2b-e1997313614b-00-1s4eshsfn2ay9.worf.replit.dev:8080/@fs/home/runner/workspace/node_modules/.vite/deps/@radix-ui_react-tooltip.js?v=e150c17f:64:5)
+    at QueryClientProvider (https://23f216e2-9ffd-4a1f-bc2b-e1997313614b-00-1s4eshsfn2ay9.worf.replit.dev:8080/@fs/home/runner/workspace/node_modules/.vite/deps/@tanstack_react-query.js?v=e150c17f:2875:3)
+    at App
+
+Consider adding an error boundary to your tree to customize error handling behavior.
+Visit https://reactjs.org/link/error-boundaries to learn more about error boundaries.
+BookPackageButton is not defined
