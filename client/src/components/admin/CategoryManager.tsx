@@ -118,8 +118,10 @@ interface Category {
   name: string;
   description?: string | null;
   active: boolean;
-  createdAt: string;
-  updatedAt: string | null;
+  createdAt?: string;
+  updatedAt?: string | null;
+  created_at?: string;
+  updated_at?: string | null;
 }
 
 export function CategoryManager({ title, description, categoryType, apiEndpoint }: CategoryManagerProps) {
@@ -544,8 +546,8 @@ export function CategoryManager({ title, description, categoryType, apiEndpoint 
           ? a.name.localeCompare(b.name)
           : b.name.localeCompare(a.name);
       } else {
-        const dateA = new Date(a.createdAt).getTime();
-        const dateB = new Date(b.createdAt).getTime();
+        const dateA = new Date(a.createdAt || a.created_at).getTime();
+        const dateB = new Date(b.createdAt || b.created_at).getTime();
         return sortDirection === "asc" ? dateA - dateB : dateB - dateA;
       }
     });
@@ -576,7 +578,10 @@ export function CategoryManager({ title, description, categoryType, apiEndpoint 
     
     // Get latest created category
     const latest = [...categories].sort((a, b) => {
-      return new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime();
+      const dateA = a.createdAt || a.created_at;
+      const dateB = b.createdAt || b.created_at;
+      if (!dateA || !dateB) return 0;
+      return new Date(dateB).getTime() - new Date(dateA).getTime();
     })[0];
     
     return { total, active, inactive, latest };
@@ -731,7 +736,14 @@ export function CategoryManager({ title, description, categoryType, apiEndpoint 
         <StatsCard 
           title="Latest Category" 
           value={stats.latest ? stats.latest.name : "None"} 
-          description={stats.latest ? `Added ${format(new Date(stats.latest.createdAt), 'MMM d, yyyy')}` : ""}
+          description={stats.latest && (stats.latest.createdAt || stats.latest.created_at) ? (() => {
+            try {
+              const dateStr = stats.latest.createdAt || stats.latest.created_at;
+              return `Added ${format(new Date(dateStr), 'MMM d, yyyy')}`;
+            } catch {
+              return 'Recently added';
+            }
+          })() : ""}
           icon={<Sparkles className="h-6 w-6" />} 
         />
       </div>

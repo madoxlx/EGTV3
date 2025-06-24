@@ -132,6 +132,13 @@ The application uses a comprehensive PostgreSQL schema with the following core e
   - DATABASE_URL environment variable properly configured with fallback
   - Application fully operational with restored database connectivity
 
+- **CategoryManager Date Formatting Fix (June 24, 2025)**: Resolved Invalid time value error in admin panel
+  - Fixed CategoryManager component to handle both createdAt and created_at field formats
+  - Updated Category interface to support API response field naming (snake_case)
+  - Added error handling for date formatting with try-catch blocks
+  - Stats calculation now properly sorts categories by creation date regardless of field format
+  - Tour categories admin page now fully functional without date formatting errors
+
 - **Complete Tour Image Management System Fix (June 23, 2025)**: Fixed comprehensive image management in tour edit functionality
   - Fixed image retrieval issue where existing images weren't displayed when editing tours
   - Enhanced API endpoint handling to properly load tour data using admin endpoints
