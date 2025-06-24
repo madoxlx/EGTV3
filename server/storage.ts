@@ -7,11 +7,10 @@ import {
   tours, Tour, InsertTour,
   hotels, Hotel, InsertHotel,
   heroSlides, HeroSlide, InsertHeroSlide,
-  menus, Menu, InsertMenu,
-  packageCategories, PackageCategory, InsertPackageCategory
+  menus, Menu, InsertMenu
 } from "@shared/schema";
-import { db } from "./db";
-import { eq, and, desc, asc } from "drizzle-orm";
+import { db, pool } from "./db";
+import { eq, and, desc, asc, sql } from "drizzle-orm";
 
 export interface IStorage {
   // Users
@@ -62,8 +61,24 @@ export interface IStorage {
   createMenu(menu: InsertMenu): Promise<Menu>;
 
   // Package Categories
-  listPackageCategories(active?: boolean): Promise<PackageCategory[]>;
-  createPackageCategory(category: InsertPackageCategory): Promise<PackageCategory>;
+  listPackageCategories(active?: boolean): Promise<any[]>;
+  createPackageCategory(category: any): Promise<any>;
+
+  // Menu Items
+  listMenuItems(menuId?: number): Promise<any[]>;
+  createMenuItem(item: any): Promise<any>;
+
+  // Tour Categories
+  listTourCategories(active?: boolean): Promise<any[]>;
+  createTourCategory(category: any): Promise<any>;
+
+  // Translations
+  listTranslations(language?: string): Promise<any[]>;
+  createTranslation(translation: any): Promise<any>;
+
+  // Language Settings
+  getSiteLanguageSettings(): Promise<any[]>;
+  updateSiteLanguageSettings(settings: any): Promise<any>;
 }
 
 export class DatabaseStorage implements IStorage {
@@ -338,21 +353,158 @@ export class DatabaseStorage implements IStorage {
   }
 
   // Package Categories
-  async listPackageCategories(active?: boolean): Promise<PackageCategory[]> {
+  async listPackageCategories(active?: boolean): Promise<any[]> {
     try {
-      if (active !== undefined) {
-        return await db.select().from(packageCategories).where(eq(packageCategories.active, active)).orderBy(asc(packageCategories.name));
-      }
-      return await db.select().from(packageCategories).orderBy(asc(packageCategories.name));
+      const client = await storagePool.connect();
+      const result = await client.query('SELECT * FROM package_categories ORDER BY name');
+      client.release();
+      return result.rows || [];
     } catch (error) {
       console.error('Error listing package categories:', error);
       return [];
     }
   }
 
-  async createPackageCategory(category: InsertPackageCategory): Promise<PackageCategory> {
-    const [created] = await db.insert(packageCategories).values(category).returning();
-    return created;
+  async createPackageCategory(category: any): Promise<any> {
+    try {
+      const client = await storagePool.connect();
+      const result = await client.query(
+        'INSERT INTO package_categories (name, description, active) VALUES ($1, $2, $3) RETURNING *',
+        [category.name, category.description || null, category.active !== false]
+      );
+      client.release();
+      return result.rows[0] || null;
+    } catch (error) {
+      console.error('Error creating package category:', error);
+      throw error;
+    }
+  }
+
+  // Menu Items
+  async listMenuItems(menuId?: number): Promise<any[]> {
+    try {
+      const client = await storagePool.connect();
+      let result;
+      if (menuId !== undefined) {
+        result = await client.query('SELECT * FROM menu_items WHERE menu_id = $1 ORDER BY "order"', [menuId]);
+      } else {
+        result = await client.query('SELECT * FROM menu_items ORDER BY "order"');
+      }
+      client.release();
+      return result.rows || [];
+    } catch (error) {
+      console.error('Error listing menu items:', error);
+      return [];
+    }
+  }
+
+  async createMenuItem(item: any): Promise<any> {
+    try {
+      const client = await storagePool.connect();
+      const result = await client.query(
+        'INSERT INTO menu_items (menu_id, title, url, icon, "order", active) VALUES ($1, $2, $3, $4, $5, $6) RETURNING *',
+        [item.menuId, item.title, item.url || null, item.icon || null, item.order || 0, item.active !== false]
+      );
+      client.release();
+      return result.rows[0] || null;
+    } catch (error) {
+      console.error('Error creating menu item:', error);
+      throw error;
+    }
+  }
+
+  // Tour Categories
+  async listTourCategories(active?: boolean): Promise<any[]> {
+    try {
+      const client = await storagePool.connect();
+      let result;
+      if (active !== undefined) {
+        result = await client.query('SELECT * FROM tour_categories WHERE active = $1 ORDER BY name', [active]);
+      } else {
+        result = await client.query('SELECT * FROM tour_categories ORDER BY name');
+      }
+      client.release();
+      return result.rows || [];
+    } catch (error) {
+      console.error('Error listing tour categories:', error);
+      return [];
+    }
+  }
+
+  async createTourCategory(category: any): Promise<any> {
+    try {
+      const client = await storagePool.connect();
+      const result = await client.query(
+        'INSERT INTO tour_categories (name, description, active) VALUES ($1, $2, $3) RETURNING *',
+        [category.name, category.description || null, category.active !== false]
+      );
+      client.release();
+      return result.rows[0] || null;
+    } catch (error) {
+      console.error('Error creating tour category:', error);
+      throw error;
+    }
+  }
+
+  // Translations  
+  async listTranslations(language?: string): Promise<any[]> {
+    try {
+      const client = await storagePool.connect();
+      let result;
+      if (language !== undefined) {
+        result = await client.query('SELECT * FROM translations WHERE language = $1 ORDER BY "key"', [language]);
+      } else {
+        result = await client.query('SELECT * FROM translations ORDER BY "key"');
+      }
+      client.release();
+      return result.rows || [];
+    } catch (error) {
+      console.error('Error listing translations:', error);
+      return [];
+    }
+  }
+
+  async createTranslation(translation: any): Promise<any> {
+    try {
+      const client = await storagePool.connect();
+      const result = await client.query(
+        'INSERT INTO translations ("key", language, value, en_text, ar_text, context, category) VALUES ($1, $2, $3, $4, $5, $6, $7) RETURNING *',
+        [translation.key, translation.language || 'en', translation.value, translation.enText || translation.value, translation.arText, translation.context, translation.category]
+      );
+      client.release();
+      return result.rows[0] || null;
+    } catch (error) {
+      console.error('Error creating translation:', error);
+      throw error;
+    }
+  }
+
+  // Language Settings
+  async getSiteLanguageSettings(): Promise<any[]> {
+    try {
+      const client = await storagePool.connect();
+      const result = await client.query('SELECT * FROM site_language_settings');
+      client.release();
+      return result.rows || [];
+    } catch (error) {
+      console.error('Error getting site language settings:', error);
+      return [];
+    }
+  }
+
+  async updateSiteLanguageSettings(settings: any): Promise<any> {
+    try {
+      const client = await storagePool.connect();
+      const result = await client.query(
+        'UPDATE site_language_settings SET default_language = $1 WHERE id = 1 RETURNING *',
+        [settings.defaultLanguage || 'en']
+      );
+      client.release();
+      return result.rows[0] || null;
+    } catch (error) {
+      console.error('Error updating site language settings:', error);
+      return undefined;
+    }
   }
 }
 

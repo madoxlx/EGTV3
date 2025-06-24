@@ -138,6 +138,69 @@ app.use((req, res, next) => {
       console.error('❌ Upload routes setup failed:', error);
     }
 
+    // Add missing API endpoints before route registration
+    const { storage } = await import("./storage");
+
+    // Translations API
+    app.get('/api/translations', async (req, res) => {
+      try {
+        const language = req.query.language as string;
+        const translations = await storage.listTranslations(language);
+        res.json(translations);
+      } catch (error) {
+        console.error('Error fetching translations:', error);
+        res.status(500).json({ message: 'Failed to fetch translations' });
+      }
+    });
+
+    // Tour Categories API
+    app.get('/api/tour-categories', async (req, res) => {
+      try {
+        const active = req.query.active === 'true' ? true : undefined;
+        const categories = await storage.listTourCategories(active);
+        res.json(categories);
+      } catch (error) {
+        console.error('Error fetching tour categories:', error);
+        res.status(500).json({ message: 'Failed to fetch tour categories' });
+      }
+    });
+
+    // Menu by location API
+    app.get('/api/menus/location/:location', async (req, res) => {
+      try {
+        const location = req.params.location;
+        if (!location) {
+          return res.status(400).json({ message: 'Location parameter is required' });
+        }
+        const menu = await storage.getMenuByLocation(location);
+        if (!menu) {
+          return res.status(404).json({ message: 'Menu not found for location' });
+        }
+        res.json(menu);
+      } catch (error) {
+        console.error('Error fetching menu by location:', error);
+        res.status(500).json({ message: 'Failed to fetch menu by location' });
+      }
+    });
+
+    // Site language settings API  
+    app.get('/api/translations/settings', async (req, res) => {
+      try {
+        const settings = await storage.getSiteLanguageSettings();
+        if (!settings || settings.length === 0) {
+          return res.json({
+            defaultLanguage: 'en',
+            availableLanguages: ['en', 'ar'],
+            rtlLanguages: ['ar'],
+          });
+        }
+        res.json(settings[0]);
+      } catch (error) {
+        console.error('Error fetching language settings:', error);
+        res.status(500).json({ message: 'Failed to fetch language settings' });
+      }
+    });
+
     // Start the server and register other routes
     let server: any;
     try {
