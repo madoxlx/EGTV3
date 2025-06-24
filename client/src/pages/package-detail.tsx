@@ -99,8 +99,10 @@ export default function PackageDetail() {
     retry: 1,
   });
   
-  // Find the package matching the slug
-  const packageData = allPackages.find(p => p.slug === packageSlug);
+  // Find the package matching either slug or ID
+  const packageData = allPackages.find(p => 
+    p.slug === packageSlug || p.id.toString() === packageSlug
+  );
 
   // Fetch destinations to get destination info
   const { data: destinations = [], isLoading: isLoadingDestinations } = useQuery<Destination[]>({
