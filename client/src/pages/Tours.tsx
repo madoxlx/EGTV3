@@ -305,15 +305,15 @@ const Tours: React.FC = () => {
       <div>
         <h3 className="font-semibold mb-3">{t('tours.categories', 'Categories')}</h3>
         <div className="space-y-2">
-          {tourCategories.map((category: TourCategory) => (
-            <div key={category.id} className="flex items-center space-x-2">
+          {tourCategories.map((category: TourCategory, index: number) => (
+            <div key={`category-${category.id}-${index}`} className="flex items-center space-x-2">
               <Checkbox
-                id={`cat-${category.id}`}
+                id={`cat-${category.id}-${index}`}
                 checked={selectedCategories.includes(category.id)}
                 onCheckedChange={() => handleCategoryToggle(category.id)}
               />
               <label 
-                htmlFor={`cat-${category.id}`} 
+                htmlFor={`cat-${category.id}-${index}`} 
                 className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70"
               >
                 {category.name}

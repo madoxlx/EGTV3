@@ -1,3 +1,4 @@
+import React from "react";
 import { Switch, Route, useLocation } from "wouter";
 import { queryClient } from "./lib/queryClient";
 import { QueryClientProvider } from "@tanstack/react-query";
@@ -14,6 +15,7 @@ import Home from "@/pages/Home";
 import AuthPage from "@/pages/auth-page";
 import DestinationsPage from "@/pages/destinations-page";
 import Tours from "@/pages/Tours";
+import TourDetail from "@/pages/TourDetail";
 import PackagesPage from "@/pages/packages";
 import AboutPage from "@/pages/about-page";
 import ContactPage from "@/pages/contact-page";
@@ -185,15 +187,12 @@ function Router() {
         <Route path="/packages/:id" component={PackageDetail} />
         
         {/* Tour detail page */}
-        <Route path="/tours/:id" component={() => {
-          const TourDetail = require("@/pages/TourDetail").default;
-          return <TourDetail />;
-        }} />
+        <Route path="/tours/:id" component={TourDetail} />
         
         {/* Hotel detail page */}
         <Route path="/hotel/:id" component={() => {
-          const HotelDetailsPage = require("@/pages/hotel-details/HotelDetailsPage").default;
-          return <HotelDetailsPage />;
+          const HotelDetailsPage = React.lazy(() => import("@/pages/hotel-details/HotelDetailsPage"));
+          return <React.Suspense fallback={<div>Loading...</div>}><HotelDetailsPage /></React.Suspense>;
         }} />
         
         {/* Cart and Checkout pages */}
