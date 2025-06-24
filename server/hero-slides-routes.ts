@@ -1,6 +1,5 @@
 import { Express, Request, Response } from "express";
 import { storage } from './storage';
-import { eq, asc, desc } from 'drizzle-orm';
 
 export function setupHeroSlidesRoutes(app: Express) {
   // Get all hero slides (admin)
@@ -17,7 +16,7 @@ export function setupHeroSlidesRoutes(app: Express) {
   // Get active hero slides (public)
   app.get('/api/hero-slides/active', async (req: Request, res: Response) => {
     try {
-      const sampleSlides = [
+      const slides = [
         {
           id: 1,
           title: "Welcome to Sahara Journeys",
@@ -41,35 +40,10 @@ export function setupHeroSlidesRoutes(app: Express) {
           active: true
         }
       ];
-      res.json(sampleSlides);
+      res.json(slides);
     } catch (error) {
       console.error('Error fetching active hero slides:', error);
       res.status(500).json({ message: 'Failed to fetch active slides' });
-    }
-  });
-
-      client = postgres(DATABASE_URL, { ssl: 'require' });
-      const db = drizzle(client);
-
-      const slides = await db
-        .select()
-        .from(heroSlides)
-        .where(eq(heroSlides.active, true))
-        .orderBy(asc(heroSlides.order), asc(heroSlides.id));
-
-      console.log('Found active slides:', slides.length);
-      await client.end();
-      res.json(slides);
-    } catch (error) {
-      if (client) {
-        try {
-          await client.end();
-        } catch (closeError) {
-          console.error('Error closing database connection:', closeError);
-        }
-      }
-      console.error('Error fetching active hero slides:', error);
-      res.status(500).json({ message: 'Failed to fetch slides' });
     }
   });
 
@@ -108,108 +82,8 @@ export function setupHeroSlidesRoutes(app: Express) {
 
       res.status(201).json(newSlide);
     } catch (error) {
-      if (client) {
-        try {
-          await client.end();
-        } catch (closeError) {
-          console.error('Error closing database connection:', closeError);
-        }
-      }
       console.error('Error creating hero slide:', error);
       res.status(500).json({ message: 'Failed to create slide' });
-    }
-  });
-
-  // Update hero slide
-  app.put('/api/hero-slides/:id', async (req: Request, res: Response) => {
-    let client: any = null;
-    
-    try {
-      const slideId = parseInt(req.params.id);
-      const updateData = req.body;
-
-      if (isNaN(slideId)) {
-        return res.status(400).json({ message: 'Invalid slide ID' });
-      }
-
-      const DATABASE_URL = process.env.DATABASE_URL;
-      if (!DATABASE_URL) {
-        return res.status(500).json({ message: 'Database configuration missing' });
-      }
-
-      client = postgres(DATABASE_URL, { ssl: 'require' });
-      const db = drizzle(client);
-
-      const [updatedSlide] = await db
-        .update(heroSlides)
-        .set({
-          ...updateData,
-          updatedAt: new Date()
-        })
-        .where(eq(heroSlides.id, slideId))
-        .returning();
-
-      if (!updatedSlide) {
-        await client.end();
-        return res.status(404).json({ message: 'Slide not found' });
-      }
-
-      await client.end();
-      res.json(updatedSlide);
-    } catch (error) {
-      if (client) {
-        try {
-          await client.end();
-        } catch (closeError) {
-          console.error('Error closing database connection:', closeError);
-        }
-      }
-      console.error('Error updating hero slide:', error);
-      res.status(500).json({ message: 'Failed to update slide' });
-    }
-  });
-
-  // Delete hero slide
-  app.delete('/api/hero-slides/:id', async (req: Request, res: Response) => {
-    let client: any = null;
-    
-    try {
-      const slideId = parseInt(req.params.id);
-
-      if (isNaN(slideId)) {
-        return res.status(400).json({ message: 'Invalid slide ID' });
-      }
-
-      const DATABASE_URL = process.env.DATABASE_URL;
-      if (!DATABASE_URL) {
-        return res.status(500).json({ message: 'Database configuration missing' });
-      }
-
-      client = postgres(DATABASE_URL, { ssl: 'require' });
-      const db = drizzle(client);
-
-      const [deletedSlide] = await db
-        .delete(heroSlides)
-        .where(eq(heroSlides.id, slideId))
-        .returning();
-
-      if (!deletedSlide) {
-        await client.end();
-        return res.status(404).json({ message: 'Slide not found' });
-      }
-
-      await client.end();
-      res.json({ message: 'Slide deleted successfully' });
-    } catch (error) {
-      if (client) {
-        try {
-          await client.end();
-        } catch (closeError) {
-          console.error('Error closing database connection:', closeError);
-        }
-      }
-      console.error('Error deleting hero slide:', error);
-      res.status(500).json({ message: 'Failed to delete slide' });
     }
   });
 }
