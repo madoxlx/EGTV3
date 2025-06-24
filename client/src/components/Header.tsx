@@ -116,6 +116,14 @@ const Header: React.FC = () => {
             </li>
             <li>
               <Link
+                href="/tours"
+                className={`font-medium hover:text-primary transition-colors ${location.startsWith("/tours") ? "text-primary" : ""}`}
+              >
+                {t('nav.tours', 'Tours')}
+              </Link>
+            </li>
+            <li>
+              <Link
                 href="/packages"
                 className={`font-medium hover:text-primary transition-colors ${location.startsWith("/packages") ? "text-primary" : ""}`}
               >
@@ -275,6 +283,16 @@ const Header: React.FC = () => {
                 onClick={() => setIsMenuOpen(false)}
               >
                 {t('nav.destinations', 'Destinations')}
+              </Link>
+            </li>
+            
+            <li>
+              <Link
+                href="/tours"
+                className={`block font-medium hover:text-primary transition-colors ${location.startsWith("/tours") ? "text-primary" : ""}`}
+                onClick={() => setIsMenuOpen(false)}
+              >
+                {t('nav.tours', 'Tours')}
               </Link>
             </li>
             

@@ -13,6 +13,7 @@ import NotFound from "@/pages/not-found";
 import Home from "@/pages/Home";
 import AuthPage from "@/pages/auth-page";
 import DestinationsPage from "@/pages/destinations-page";
+import Tours from "@/pages/Tours";
 import PackagesPage from "@/pages/packages";
 import AboutPage from "@/pages/about-page";
 import ContactPage from "@/pages/contact-page";
@@ -163,6 +164,7 @@ function Router() {
         <Route path="/" component={Home} />
         <Route path="/auth" component={AuthPage} />
         <Route path="/destinations" component={DestinationsPage} />
+        <Route path="/tours" component={Tours} />
         <Route path="/packages" component={PackagesPage} />
         <Route path="/about" component={AboutPage} />
         <Route path="/contact" component={ContactPage} />
@@ -183,9 +185,9 @@ function Router() {
         <Route path="/packages/:id" component={PackageDetail} />
         
         {/* Tour detail page */}
-        <Route path="/tour/:id" component={() => {
-          const TourDetailsPage = require("@/pages/tour-details/TourDetailsPage").default;
-          return <TourDetailsPage />;
+        <Route path="/tours/:id" component={() => {
+          const TourDetail = require("@/pages/TourDetail").default;
+          return <TourDetail />;
         }} />
         
         {/* Hotel detail page */}
