@@ -15,6 +15,11 @@ import { setupUploadRoutes } from './upload-routes';
 // Load environment variables first
 dotenv.config();
 
+// Set DATABASE_URL if not present in environment
+if (!process.env.DATABASE_URL) {
+  process.env.DATABASE_URL = "postgresql://neondb_owner:npg_ZN9Ylt3AoQRJ@ep-dawn-voice-a8bd2yi7-pooler.eastus2.azure.neon.tech/neondb?sslmode=require";
+}
+
 const app = express();
 
 // Middleware
