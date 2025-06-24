@@ -106,6 +106,13 @@ The application uses a comprehensive PostgreSQL schema with the following core e
 
 ## Recent Changes
 
+- **Tour Update Storage Method Fix (June 24, 2025)**: Resolved critical tour editing functionality issue
+  - Fixed missing updateTour method in storage layer causing "storage.updateTour is not a function" error
+  - Added updateTour method to IStorage interface and DatabaseStorage implementation
+  - Method includes proper error handling and updatedAt timestamp management
+  - Tour editing in admin panel now fully functional with database persistence
+  - Fixed duplicate key warnings in tour categories and destinations filters for cleaner console output
+
 - **Admin Tours "View on Site" Button Addition (June 24, 2025)**: Enhanced tours management with direct preview functionality
   - Added "View on Site" button to tours management table in admin panel
   - Button opens tour detail page in new tab for easy preview

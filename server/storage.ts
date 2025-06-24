@@ -50,6 +50,7 @@ export interface IStorage {
   getTour(id: number): Promise<Tour | undefined>;
   listTours(active?: boolean): Promise<Tour[]>;
   createTour(tour: InsertTour): Promise<Tour>;
+  updateTour(id: number, tour: Partial<InsertTour>): Promise<Tour | undefined>;
 
   // Hero Slides
   getActiveHeroSlides(): Promise<HeroSlide[]>;
@@ -307,6 +308,23 @@ export class DatabaseStorage implements IStorage {
   async createTour(tour: InsertTour): Promise<Tour> {
     const [created] = await db.insert(tours).values(tour).returning();
     return created;
+  }
+
+  async updateTour(id: number, tour: Partial<InsertTour>): Promise<Tour | undefined> {
+    try {
+      const [updatedTour] = await db
+        .update(tours)
+        .set({
+          ...tour,
+          updatedAt: new Date()
+        })
+        .where(eq(tours.id, id))
+        .returning();
+      return updatedTour || undefined;
+    } catch (error) {
+      console.error('Error updating tour:', error);
+      return undefined;
+    }
   }
 
   // Hero Slides

@@ -283,15 +283,15 @@ const Tours: React.FC = () => {
       <div>
         <h3 className="font-semibold mb-3">{t('tours.destinations', 'Destinations')}</h3>
         <div className="space-y-2 max-h-48 overflow-y-auto">
-          {destinations.map((destination: Destination) => (
-            <div key={destination.id} className="flex items-center space-x-2">
+          {destinations.map((destination: Destination, index: number) => (
+            <div key={`dest-${destination.id}-${index}`} className="flex items-center space-x-2">
               <Checkbox
-                id={`dest-${destination.id}`}
+                id={`dest-${destination.id}-${index}`}
                 checked={selectedDestinations.includes(destination.id)}
                 onCheckedChange={() => handleDestinationToggle(destination.id)}
               />
               <label 
-                htmlFor={`dest-${destination.id}`} 
+                htmlFor={`dest-${destination.id}-${index}`} 
                 className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70"
               >
                 {destination.name}
