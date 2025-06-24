@@ -229,7 +229,7 @@ const ToursPackageStyle: React.FC = () => {
               <SelectContent>
                 <SelectItem value="all">All Categories</SelectItem>
                 {categories.map((category, index) => (
-                  <SelectItem key={`${category}-${index}`} value={category as string}>
+                  <SelectItem key={`category-filter-${index}-${category}`} value={category as string}>
                     {category as string}
                   </SelectItem>
                 ))}
@@ -315,17 +315,18 @@ const ToursPackageStyle: React.FC = () => {
         ) : (
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
             {filteredTours.map((tour: Tour) => (
-              <Card key={tour.id} className="overflow-hidden hover:shadow-lg transition-shadow duration-300 group">
-                <div className="relative">
-                  <img
-                    src={tour.imageUrl || 'https://images.unsplash.com/photo-1506905925346-21bda4d32df4?w=400&q=80'}
-                    alt={tour.name}
-                    className="h-48 w-full object-cover group-hover:scale-105 transition-transform duration-300"
-                    onError={(e) => {
-                      const target = e.target as HTMLImageElement;
-                      target.src = 'https://images.unsplash.com/photo-1506905925346-21bda4d32df4?w=400&q=80';
-                    }}
-                  />
+              <Card key={`tour-card-${tour.id}`} className="overflow-hidden hover:shadow-lg transition-shadow duration-300 group cursor-pointer">
+                <Link href={`/tours/${tour.id}`} className="block">
+                  <div className="relative">
+                    <img
+                      src={tour.imageUrl || 'https://images.unsplash.com/photo-1506905925346-21bda4d32df4?w=400&q=80'}
+                      alt={tour.name}
+                      className="h-48 w-full object-cover group-hover:scale-105 transition-transform duration-300"
+                      onError={(e) => {
+                        const target = e.target as HTMLImageElement;
+                        target.src = 'https://images.unsplash.com/photo-1506905925346-21bda4d32df4?w=400&q=80';
+                      }}
+                    />
                   
                   {/* Featured Badge */}
                   {tour.featured && (
@@ -396,7 +397,7 @@ const ToursPackageStyle: React.FC = () => {
                       <div className="flex items-center">
                         {[...Array(5)].map((_, i) => (
                           <Star
-                            key={i}
+                            key={`star-${tour.id}-${i}`}
                             className={`h-4 w-4 ${
                               i < Math.floor(tour.rating!) 
                                 ? 'text-yellow-400 fill-current' 
@@ -436,14 +437,22 @@ const ToursPackageStyle: React.FC = () => {
 
                   {/* Actions */}
                   <div className="flex space-x-2">
-                    <Link href={`/tours/${tour.id}`} className="flex-1">
-                      <Button variant="outline" className="w-full">
-                        View Details
-                      </Button>
-                    </Link>
-                    <Button className="flex-1">Book Tour</Button>
+                    <Button variant="outline" className="flex-1">
+                      View Details
+                    </Button>
+                    <Button 
+                      className="flex-1"
+                      onClick={(e) => {
+                        e.preventDefault();
+                        e.stopPropagation();
+                        // Handle booking logic here
+                      }}
+                    >
+                      Book Tour
+                    </Button>
                   </div>
                 </CardContent>
+                </Link>
               </Card>
             ))}
           </div>

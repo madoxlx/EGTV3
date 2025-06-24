@@ -79,6 +79,23 @@ const TourDetail: React.FC = () => {
 
   const { data: tour, isLoading, error } = useQuery<Tour>({
     queryKey: ['/api/tours', id],
+    queryFn: async () => {
+      const response = await fetch(`/api/tours/${id}`);
+      if (!response.ok) {
+        // If individual tour endpoint doesn't exist, fetch from tours list
+        const allToursResponse = await fetch('/api/tours');
+        if (!allToursResponse.ok) {
+          throw new Error('Failed to fetch tour');
+        }
+        const allTours = await allToursResponse.json();
+        const foundTour = allTours.find((t: Tour) => t.id === parseInt(id!));
+        if (!foundTour) {
+          throw new Error('Tour not found');
+        }
+        return foundTour;
+      }
+      return response.json();
+    },
     enabled: !!id,
   });
 
