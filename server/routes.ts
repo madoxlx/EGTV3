@@ -148,27 +148,20 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
   // Cart and Checkout API Routes
   
-  // Get cart items
+  // Get cart items (authentication required)
   app.get('/api/cart', async (req, res) => {
     try {
       const userId = req.user?.id;
-      const sessionId = req.query.sessionId as string;
       
-      console.log('Cart GET request - userId:', userId, 'sessionId:', sessionId);
+      console.log('Cart GET request - userId:', userId);
       
-      if (!userId && !sessionId) {
-        console.log('No userId or sessionId provided, returning empty array');
-        return res.json([]);
+      // Require authentication for cart access
+      if (!userId) {
+        return res.status(401).json({ message: 'Authentication required to access cart' });
       }
       
-      let cartItemsList;
-      if (userId) {
-        cartItemsList = await db.select().from(cartItems).where(eq(cartItems.userId, userId));
-        console.log('Found cart items for user:', cartItemsList.length);
-      } else {
-        cartItemsList = await db.select().from(cartItems).where(eq(cartItems.sessionId, sessionId));
-        console.log('Found cart items for session:', cartItemsList.length);
-      }
+      const cartItemsList = await db.select().from(cartItems).where(eq(cartItems.userId, userId));
+      console.log('Found cart items for user:', cartItemsList.length);
       
       // Enrich cart items with item details
       const enrichedItems = await Promise.all(cartItemsList.map(async (item) => {
@@ -212,19 +205,24 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
   
-  // Add item to cart
+  // Add item to cart (authentication required)
   app.post('/api/cart', async (req, res) => {
     try {
       const userId = req.user?.id;
+      
+      // Require authentication for cart operations
+      if (!userId) {
+        return res.status(401).json({ message: 'Authentication required to add items to cart' });
+      }
+      
       console.log('Cart POST request body:', req.body);
       
       const cartData = insertCartItemSchema.parse(req.body);
       console.log('Parsed cart data:', cartData);
       
-      if (userId) {
-        cartData.userId = userId;
-        delete cartData.sessionId;
-      }
+      // Set user ID and remove any session ID
+      cartData.userId = userId;
+      delete cartData.sessionId;
       
       const result = await db.insert(cartItems).values(cartData).returning();
       console.log('Cart insert result:', result[0]);
@@ -239,20 +237,19 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
   
-  // Update cart item
+  // Update cart item (authentication required)
   app.patch('/api/cart/:id', async (req, res) => {
     try {
       const itemId = parseInt(req.params.id);
       const userId = req.user?.id;
       const updates = req.body;
       
-      let whereCondition;
-      if (userId) {
-        whereCondition = and(eq(cartItems.id, itemId), eq(cartItems.userId, userId));
-      } else {
-        const sessionId = req.body.sessionId;
-        whereCondition = and(eq(cartItems.id, itemId), eq(cartItems.sessionId, sessionId));
+      // Require authentication
+      if (!userId) {
+        return res.status(401).json({ message: 'Authentication required to update cart items' });
       }
+      
+      const whereCondition = and(eq(cartItems.id, itemId), eq(cartItems.userId, userId));
       
       const result = await db.update(cartItems)
         .set({ ...updates, updatedAt: new Date() })
@@ -270,22 +267,18 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
   
-  // Remove item from cart
+  // Remove item from cart (authentication required)
   app.delete('/api/cart/:id', async (req, res) => {
     try {
       const itemId = parseInt(req.params.id);
       const userId = req.user?.id;
       
-      let whereCondition;
-      if (userId) {
-        whereCondition = and(eq(cartItems.id, itemId), eq(cartItems.userId, userId));
-      } else {
-        const sessionId = req.query.sessionId as string || req.body.sessionId;
-        if (!sessionId) {
-          return res.status(400).json({ message: 'Session ID required for guest users' });
-        }
-        whereCondition = and(eq(cartItems.id, itemId), eq(cartItems.sessionId, sessionId));
+      // Require authentication
+      if (!userId) {
+        return res.status(401).json({ message: 'Authentication required to remove cart items' });
       }
+      
+      const whereCondition = and(eq(cartItems.id, itemId), eq(cartItems.userId, userId));
       
       await db.delete(cartItems).where(whereCondition);
       res.json({ success: true });
@@ -295,20 +288,17 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
   
-  // Clear cart
+  // Clear cart (authentication required)
   app.delete('/api/cart/clear', async (req, res) => {
     try {
       const userId = req.user?.id;
-      const sessionId = req.query.sessionId as string || req.body.sessionId;
       
-      if (userId) {
-        await db.delete(cartItems).where(eq(cartItems.userId, userId));
-      } else if (sessionId) {
-        await db.delete(cartItems).where(eq(cartItems.sessionId, sessionId));
-      } else {
-        return res.status(400).json({ message: 'Session ID required for guest users' });
+      // Require authentication
+      if (!userId) {
+        return res.status(401).json({ message: 'Authentication required to clear cart' });
       }
       
+      await db.delete(cartItems).where(eq(cartItems.userId, userId));
       res.json({ success: true });
     } catch (error) {
       console.error('Error clearing cart:', error);
