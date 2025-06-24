@@ -123,26 +123,38 @@ const Tours: React.FC = () => {
 
   // Filter and sort tours
   const filteredTours = React.useMemo(() => {
+    console.log('Raw tours data:', tours);
+    console.log('Tours length:', tours.length);
+    
+    if (!tours || tours.length === 0) {
+      console.log('No tours data available');
+      return [];
+    }
+
     let filtered = tours.filter((tour: Tour) => {
+      console.log('Filtering tour:', tour.name, 'active:', tour.active);
+      
       // Search filter
-      const matchesSearch = tour.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
+      const matchesSearch = !searchQuery || 
+                           tour.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
                            tour.description.toLowerCase().includes(searchQuery.toLowerCase()) ||
-                           tour.destination?.name.toLowerCase().includes(searchQuery.toLowerCase());
+                           (tour.destination && tour.destination.name.toLowerCase().includes(searchQuery.toLowerCase()));
       
       // Destination filter
       const matchesDestination = selectedDestinations.length === 0 || 
-                                selectedDestinations.includes(tour.destinationId);
+                                (tour.destinationId && selectedDestinations.includes(tour.destinationId));
       
       // Category filter
       const matchesCategory = selectedCategories.length === 0 || 
                              (tour.categoryId && selectedCategories.includes(tour.categoryId));
       
-      // Price filter
-      const currentPrice = tour.discountedPrice || tour.price;
+      // Price filter - ensure we have valid prices
+      const currentPrice = tour.discountedPrice || tour.price || 0;
       const matchesPrice = currentPrice >= priceRange[0] && currentPrice <= priceRange[1];
       
-      // Duration filter
-      const matchesDuration = tour.duration >= durationRange[0] && tour.duration <= durationRange[1];
+      // Duration filter - handle both number and string duration
+      const tourDuration = typeof tour.duration === 'string' ? parseInt(tour.duration) : tour.duration || 1;
+      const matchesDuration = tourDuration >= durationRange[0] && tourDuration <= durationRange[1];
       
       // Difficulty filter
       const matchesDifficulty = selectedDifficulty.length === 0 || 
@@ -151,12 +163,26 @@ const Tours: React.FC = () => {
       // Featured filter
       const matchesFeatured = !featuredOnly || tour.featured;
       
-      // Status filter (only show active tours)
-      const isActive = tour.active === true;
+      // Status filter (only show active tours) - be more flexible with active check
+      const isActive = tour.active === true || tour.active === 1 || tour.status === 'active';
       
-      return matchesSearch && matchesDestination && matchesCategory && 
-             matchesPrice && matchesDuration && matchesDifficulty && 
-             matchesFeatured && isActive;
+      const result = matchesSearch && matchesDestination && matchesCategory && 
+                    matchesPrice && matchesDuration && matchesDifficulty && 
+                    matchesFeatured && isActive;
+      
+      console.log('Tour filter result:', tour.name, {
+        matchesSearch,
+        matchesDestination, 
+        matchesCategory,
+        matchesPrice,
+        matchesDuration,
+        matchesDifficulty,
+        matchesFeatured,
+        isActive,
+        finalResult: result
+      });
+      
+      return result;
     });
 
     // Sort tours
@@ -236,6 +262,7 @@ const Tours: React.FC = () => {
   };
 
   const formatPrice = (price: number) => {
+    if (!price || price === 0) return '0 EGP';
     return new Intl.NumberFormat('en-US', {
       style: 'currency',
       currency: 'EGP',
@@ -437,7 +464,7 @@ const Tours: React.FC = () => {
             <div className="flex items-center bg-green-50 rounded-full px-3 py-1">
               <Clock className="w-4 h-4 mr-2 text-green-500" />
               <span className="text-sm font-medium text-gray-700">
-                {tour.duration} {tour.duration === 1 ? 'day' : 'days'}
+                {typeof tour.duration === 'string' ? tour.duration : `${tour.duration || 1} ${(tour.duration || 1) === 1 ? 'day' : 'days'}`}
               </span>
             </div>
             <div className="flex items-center bg-purple-50 rounded-full px-3 py-1">
