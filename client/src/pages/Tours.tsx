@@ -152,7 +152,7 @@ const Tours: React.FC = () => {
       const matchesFeatured = !featuredOnly || tour.featured;
       
       // Status filter (only show active tours)
-      const isActive = tour.status === 'active';
+      const isActive = tour.active === true;
       
       return matchesSearch && matchesDestination && matchesCategory && 
              matchesPrice && matchesDuration && matchesDifficulty && 
@@ -305,15 +305,19 @@ const Tours: React.FC = () => {
       <div>
         <h3 className="font-semibold mb-3">{t('tours.categories', 'Categories')}</h3>
         <div className="space-y-2">
-          {tourCategories.map((category: TourCategory, index: number) => (
-            <div key={`category-${category.id}-${index}`} className="flex items-center space-x-2">
+          {tourCategories
+            .filter((category, index, self) => 
+              index === self.findIndex(c => c.name === category.name)
+            )
+            .map((category: TourCategory) => (
+            <div key={`category-${category.id}-${category.name}`} className="flex items-center space-x-2">
               <Checkbox
-                id={`cat-${category.id}-${index}`}
+                id={`cat-${category.id}-${category.name}`}
                 checked={selectedCategories.includes(category.id)}
                 onCheckedChange={() => handleCategoryToggle(category.id)}
               />
               <label 
-                htmlFor={`cat-${category.id}-${index}`} 
+                htmlFor={`cat-${category.id}-${category.name}`} 
                 className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70"
               >
                 {category.name}
