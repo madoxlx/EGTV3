@@ -106,6 +106,12 @@ The application uses a comprehensive PostgreSQL schema with the following core e
 
 ## Recent Changes
 
+- **Tours Page Temporarily Disabled (June 24, 2025)**: Temporarily disabled tours functionality per user request
+  - Commented out /tours and /tours/:id routes in App.tsx
+  - Removed Tours navigation links from both desktop and mobile header menus
+  - Tours API and backend functionality remain intact for future re-enabling
+  - All tour data and admin management still functional
+
 - **Complete Tours Display Fix (June 24, 2025)**: Successfully resolved all tours page display issues
   - Fixed filtering logic that was preventing tours from displaying properly on /tours page
   - Enhanced filter function to handle different data formats and edge cases

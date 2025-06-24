@@ -166,7 +166,7 @@ function Router() {
         <Route path="/" component={Home} />
         <Route path="/auth" component={AuthPage} />
         <Route path="/destinations" component={DestinationsPage} />
-        <Route path="/tours" component={Tours} />
+        {/* <Route path="/tours" component={Tours} /> */}
         <Route path="/packages" component={PackagesPage} />
         <Route path="/about" component={AboutPage} />
         <Route path="/contact" component={ContactPage} />
@@ -187,7 +187,7 @@ function Router() {
         <Route path="/packages/:id" component={PackageDetail} />
         
         {/* Tour detail page */}
-        <Route path="/tours/:id" component={TourDetail} />
+        {/* <Route path="/tours/:id" component={TourDetail} /> */}
         
         {/* Hotel detail page */}
         <Route path="/hotel/:id" component={() => {
