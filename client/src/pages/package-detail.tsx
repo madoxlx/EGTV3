@@ -85,8 +85,14 @@ export default function PackageDetail() {
   const [adults, setAdults] = useState(2);
   const [children, setChildren] = useState(0);
   const [infants, setInfants] = useState(0);
-  const [roomDistribution, setRoomDistribution] = useState("double");
+  const [selectedDate, setSelectedDate] = useState("");
+  const [roomDistribution, setRoomDistribution] = useState<string>("");
   const [hotelPackage, setHotelPackage] = useState("standard");
+  const [validationErrors, setValidationErrors] = useState<{
+    date?: string;
+    adults?: string;
+    room?: string;
+  }>({});
   
   // Check if user is authenticated and is an admin
   const { data: userData } = useQuery<User | null>({
@@ -116,6 +122,35 @@ export default function PackageDetail() {
     ? destinations.find(d => d.id === packageData.destinationId) 
     : null;
     
+  // Validation function
+  const validateBookingForm = () => {
+    const errors: { date?: string; adults?: string; room?: string } = {};
+    
+    if (!selectedDate) {
+      errors.date = "Please select a travel date";
+    }
+    
+    if (adults === 0) {
+      errors.adults = "At least 1 adult is required";
+    }
+    
+    if (!roomDistribution) {
+      errors.room = "Please select a room distribution";
+    }
+    
+    setValidationErrors(errors);
+    return Object.keys(errors).length === 0;
+  };
+
+  // Clear validation errors when user interacts with form
+  const clearValidationError = (field: keyof typeof validationErrors) => {
+    setValidationErrors(prev => {
+      const updated = { ...prev };
+      delete updated[field];
+      return updated;
+    });
+  };
+
   // Handler functions for traveler counts
   const handleIncrement = (
     setter: React.Dispatch<React.SetStateAction<number>>,
@@ -686,34 +721,55 @@ export default function PackageDetail() {
                       
                       <div className="space-y-4">
                         <div>
-                          <label className="text-sm font-medium mb-1 block">Select Date</label>
+                          <label className="text-sm font-medium mb-1 block">Select Date *</label>
                           <div className="relative">
                             <input
                               type="date"
-                              className="w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background"
+                              value={selectedDate}
+                              onChange={(e) => {
+                                setSelectedDate(e.target.value);
+                                clearValidationError('date');
+                              }}
+                              className={`w-full rounded-md border px-3 py-2 text-sm ring-offset-background ${
+                                validationErrors.date ? "border-red-500" : "border-input"
+                              }`}
                               min={new Date().toISOString().split('T')[0]}
                             />
+                            {validationErrors.date && (
+                              <p className="text-red-500 text-xs mt-1">{validationErrors.date}</p>
+                            )}
                           </div>
                         </div>
                         
                         {/* Travelers */}
                         <div className="space-y-3">
-                          <label className="text-sm font-medium block">Travelers</label>
+                          <label className="text-sm font-medium block">Travelers *</label>
+                          {validationErrors.adults && (
+                            <p className="text-red-500 text-xs">{validationErrors.adults}</p>
+                          )}
                           
                           {/* Adults */}
                           <div className="flex items-center justify-between">
-                            <span className="text-sm">Adults</span>
+                            <span className={`text-sm ${adults === 0 && validationErrors.adults ? "text-red-500" : ""}`}>
+                              Adults (required)
+                            </span>
                             <div className="flex items-center">
                               <button
-                                className="w-8 h-8 rounded-full border border-input flex items-center justify-center hover:bg-muted"
+                                className="w-8 h-8 rounded-full border border-input flex items-center justify-center hover:bg-muted disabled:opacity-50"
                                 onClick={() => handleDecrement(setAdults, adults)}
+                                disabled={adults <= 0}
                               >
                                 -
                               </button>
-                              <span className="w-8 text-center">{adults}</span>
+                              <span className={`w-8 text-center ${adults === 0 && validationErrors.adults ? "text-red-500 font-bold" : ""}`}>
+                                {adults}
+                              </span>
                               <button
                                 className="w-8 h-8 rounded-full border border-input flex items-center justify-center hover:bg-muted"
-                                onClick={() => handleIncrement(setAdults, adults)}
+                                onClick={() => {
+                                  handleIncrement(setAdults, adults);
+                                  clearValidationError('adults');
+                                }}
                               >
                                 +
                               </button>
@@ -763,15 +819,20 @@ export default function PackageDetail() {
                         
                         {/* Room Distribution */}
                         <div>
-                          <label className="text-sm font-medium mb-1 block">Room Distribution</label>
+                          <label className="text-sm font-medium mb-1 block">Room Distribution *</label>
                           <div className="grid grid-cols-2 gap-2">
                             <div
                               className={`border rounded-md p-2 cursor-pointer transition-colors ${
                                 roomDistribution === "single"
                                   ? "border-primary bg-primary/10"
+                                  : validationErrors.room
+                                  ? "border-red-300 hover:border-red-400"
                                   : "hover:bg-muted"
                               }`}
-                              onClick={() => setRoomDistribution("single")}
+                              onClick={() => {
+                                setRoomDistribution("single");
+                                clearValidationError('room');
+                              }}
                             >
                               <p className="text-sm font-medium">Single Room</p>
                               <p className="text-xs text-muted-foreground">1 person per room</p>
@@ -780,14 +841,22 @@ export default function PackageDetail() {
                               className={`border rounded-md p-2 cursor-pointer transition-colors ${
                                 roomDistribution === "double"
                                   ? "border-primary bg-primary/10"
+                                  : validationErrors.room
+                                  ? "border-red-300 hover:border-red-400"
                                   : "hover:bg-muted"
                               }`}
-                              onClick={() => setRoomDistribution("double")}
+                              onClick={() => {
+                                setRoomDistribution("double");
+                                clearValidationError('room');
+                              }}
                             >
                               <p className="text-sm font-medium">Double Room</p>
                               <p className="text-xs text-muted-foreground">2 people per room</p>
                             </div>
                           </div>
+                          {validationErrors.room && (
+                            <p className="text-red-500 text-xs mt-1">{validationErrors.room}</p>
+                          )}
                         </div>
                         
                         {/* Hotel Package */}
@@ -870,10 +939,47 @@ export default function PackageDetail() {
                           </div>
                         </div>
                         
-                        <BookPackageButton 
-                          package={packageData}
+                        <Button 
                           className="w-full bg-primary hover:bg-primary/90 text-white"
-                        />
+                          onClick={() => {
+                            if (validateBookingForm()) {
+                              // If validation passes, create a validated package object and trigger booking
+                              const validatedPackage = {
+                                ...packageData,
+                                formData: {
+                                  selectedDate,
+                                  adults,
+                                  children,
+                                  infants,
+                                  roomDistribution,
+                                  hotelPackage
+                                }
+                              };
+                              
+                              // Use the existing BookPackageButton logic
+                              const bookButton = document.querySelector('[data-book-package]') as HTMLButtonElement;
+                              if (bookButton) {
+                                bookButton.click();
+                              } else {
+                                // Fallback: trigger booking directly
+                                window.dispatchEvent(new CustomEvent('bookPackage', { 
+                                  detail: validatedPackage 
+                                }));
+                              }
+                            }
+                          }}
+                        >
+                          Book Now
+                        </Button>
+                        
+                        {/* Hidden BookPackageButton for actual booking logic */}
+                        <div style={{ display: 'none' }}>
+                          <BookPackageButton 
+                            package={packageData}
+                            className="hidden"
+                            data-book-package="true"
+                          />
+                        </div>
                         
                         <p className="text-xs text-center text-muted-foreground">
                           No payment required to book. You'll only pay when finalizing your reservation.
