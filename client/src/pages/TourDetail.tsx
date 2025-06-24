@@ -5,6 +5,7 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Separator } from "@/components/ui/separator";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { 
   MapPin, 
   Clock, 
@@ -14,7 +15,18 @@ import {
   Calendar,
   ArrowLeft,
   CheckCircle,
-  XCircle
+  XCircle,
+  Globe,
+  Camera,
+  Route,
+  Info,
+  Banknote,
+  Shield,
+  Award,
+  MapPinIcon,
+  PhoneCall,
+  Mail,
+  Share2
 } from "lucide-react";
 import { Link } from "wouter";
 import { useLanguage } from "@/hooks/use-language";
@@ -36,11 +48,28 @@ interface Tour {
   reviewCount?: number;
   included?: string[];
   excluded?: string[];
-  itinerary?: string[];
+  itinerary?: string[] | string;
   destination?: {
     id: number;
     name: string;
   };
+  currency?: string;
+  tripType?: string;
+  startDate?: string;
+  endDate?: string;
+  categoryId?: number;
+  durationType?: string;
+  status?: string;
+  nameAr?: string;
+  descriptionAr?: string;
+  itineraryAr?: string;
+  includedAr?: string[];
+  excludedAr?: string[];
+  hasArabicVersion?: boolean;
+  createdAt?: string;
+  updatedAt?: string;
+  active?: boolean;
+  maxGroupSize?: number;
 }
 
 const TourDetail: React.FC = () => {
@@ -59,6 +88,25 @@ const TourDetail: React.FC = () => {
       currency: 'EGP',
       minimumFractionDigits: 0,
     }).format(price).replace('EGP', '') + ' EGP';
+  };
+
+  const parseItinerary = (itinerary: string[] | string | undefined): string[] => {
+    if (!itinerary) return [];
+    if (Array.isArray(itinerary)) return itinerary;
+    try {
+      return JSON.parse(itinerary);
+    } catch {
+      return [itinerary];
+    }
+  };
+
+  const formatDate = (dateString?: string) => {
+    if (!dateString) return 'Not specified';
+    return new Date(dateString).toLocaleDateString('en-US', {
+      year: 'numeric',
+      month: 'long',
+      day: 'numeric'
+    });
   };
 
   if (isLoading) {

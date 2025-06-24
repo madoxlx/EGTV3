@@ -44,7 +44,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
 import * as z from "zod";
-import { ArrowDownUp, ArrowUpDown, ClockIcon, Loader2, Pencil, Plus, Search, Trash2, Calendar } from "lucide-react";
+import { ArrowDownUp, ArrowUpDown, ClockIcon, Loader2, Pencil, Plus, Search, Trash2, Calendar, ExternalLink } from "lucide-react";
 import { Switch } from "@/components/ui/switch";
 import { Label } from "@/components/ui/label";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
@@ -270,6 +270,12 @@ export default function ToursManagement() {
     setIsDeleteDialogOpen(true);
   };
 
+  // Handle view on site
+  const handleViewOnSite = (tour: any) => {
+    const url = `/tours/${tour.id}`;
+    window.open(url, '_blank');
+  };
+
   const confirmDelete = () => {
     if (deletingTour) {
       deleteTourMutation.mutate(deletingTour.id);
@@ -356,7 +362,16 @@ export default function ToursManagement() {
                             <Button
                               variant="outline"
                               size="sm"
+                              onClick={() => handleViewOnSite(tour)}
+                              title="View on Site"
+                            >
+                              <ExternalLink className="h-4 w-4" />
+                            </Button>
+                            <Button
+                              variant="outline"
+                              size="sm"
                               onClick={() => handleEdit(tour)}
+                              title="Edit Tour"
                             >
                               <Pencil className="h-4 w-4" />
                             </Button>
@@ -364,6 +379,7 @@ export default function ToursManagement() {
                               variant="outline"
                               size="sm"
                               onClick={() => handleDelete(tour)}
+                              title="Delete Tour"
                             >
                               <Trash2 className="h-4 w-4" />
                             </Button>

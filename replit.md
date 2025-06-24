@@ -106,6 +106,13 @@ The application uses a comprehensive PostgreSQL schema with the following core e
 
 ## Recent Changes
 
+- **Admin Tours "View on Site" Button Addition (June 24, 2025)**: Enhanced tours management with direct preview functionality
+  - Added "View on Site" button to tours management table in admin panel
+  - Button opens tour detail page in new tab for easy preview
+  - Uses ExternalLink icon with tooltip for clear user indication
+  - Positioned before edit and delete buttons for logical workflow
+  - Allows admins to quickly preview how tours appear to customers
+
 - **Tours Page JavaScript Error Fix (June 24, 2025)**: Successfully resolved critical JavaScript error preventing tours page from loading
   - Fixed CommonJS require() calls causing "require is not defined" error in ES modules
   - Replaced dynamic require() imports with proper ES module imports and React.lazy loading
