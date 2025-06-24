@@ -109,12 +109,10 @@ const PopularPackages: React.FC = () => {
 
                   <div className="pt-3 border-t border-neutral-200 flex justify-between items-center">
                     <a href={`/packages/${pkg.slug || pkg.id}`} className="text-primary hover:text-primary/90 font-medium text-sm">View Details</a>
-                    <Button 
+                    <BookPackageButton 
+                      package={pkg}
                       className="bg-primary hover:bg-primary/90 text-white px-4 py-2 rounded-lg text-sm font-medium transition-colors"
-                      onClick={() => window.location.href = `/packages/${pkg.slug || pkg.id}`}
-                    >
-                      Book Now
-                    </Button>
+                    />
                   </div>
                 </div>
               </Card>

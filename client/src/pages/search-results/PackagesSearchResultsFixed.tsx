@@ -3,6 +3,7 @@ import { Card, CardContent, CardHeader, CardTitle, CardFooter } from '@/componen
 import { Button } from '@/components/ui/button';
 import { Separator } from '@/components/ui/separator';
 import { Badge } from '@/components/ui/badge';
+import BookPackageButton from '@/components/BookPackageButton';
 import { useLocation } from 'wouter';
 import { useQuery } from '@tanstack/react-query';
 import { 
@@ -395,7 +396,7 @@ const PackagesSearchResults: React.FC = () => {
                         >
                           View Details
                         </Button>
-                        <Button>Book Package</Button>
+                        <BookPackageButton package={pkg} />
                       </div>
                     </CardFooter>
                   </div>

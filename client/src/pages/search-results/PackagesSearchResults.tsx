@@ -5,6 +5,7 @@ import { Separator } from '@/components/ui/separator';
 import { Badge } from '@/components/ui/badge';
 import { useLocation } from 'wouter';
 import { useQuery } from '@tanstack/react-query';
+import BookPackageButton from '@/components/BookPackageButton';
 import { 
   Package as PackageIcon,
   MapPin as MapPinIcon, 
@@ -610,7 +611,7 @@ const PackagesSearchResults: React.FC = () => {
                           >
                             View Details
                           </Button>
-                          <Button>Book Package</Button>
+                          <BookPackageButton package={pkg} />
                         </div>
                       </CardFooter>
                     </div>

@@ -168,7 +168,7 @@ const ToursPackageStyle: React.FC = () => {
       }
     });
 
-  // Get unique categories for filter
+  // Get unique categories for filter with deduplication
   const categories = Array.from(new Set(tours.map((tour: Tour) => tour.category?.name).filter(Boolean)));
 
   if (error) {
@@ -230,11 +230,14 @@ const ToursPackageStyle: React.FC = () => {
               </SelectTrigger>
               <SelectContent>
                 <SelectItem value="all">All Categories</SelectItem>
-                {categories.map((category, index) => (
-                  <SelectItem key={`category-filter-${index}-${category}`} value={category as string}>
-                    {category as string}
-                  </SelectItem>
-                ))}
+                {categories.map((category, index) => {
+                  const uniqueKey = `category-filter-${category?.toString().replace(/\s+/g, '-').toLowerCase()}-${index}`;
+                  return (
+                    <SelectItem key={uniqueKey} value={category as string}>
+                      {category as string}
+                    </SelectItem>
+                  );
+                })}
               </SelectContent>
             </Select>
 

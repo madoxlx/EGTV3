@@ -14,6 +14,7 @@ import {
   BedDouble,
   Loader2
 } from 'lucide-react';
+import BookPackageButton from '@/components/BookPackageButton';
 
 // Define API package type (matches database schema)
 interface ApiPackage {
@@ -407,7 +408,7 @@ const PackagesSearchResults: React.FC = () => {
                         >
                           View Details
                         </Button>
-                        <Button>Book Package</Button>
+                        <BookPackageButton package={pkg} />
                       </div>
                     </div>
                   </div>
