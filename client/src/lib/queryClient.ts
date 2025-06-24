@@ -8,6 +8,39 @@ async function throwIfResNotOk(res: Response) {
 }
 
 export async function apiRequest<T = any>(
+  method: string,
+  url: string, 
+  data?: any
+): Promise<T> {
+  const options: RequestInit = {
+    method,
+    headers: { "Content-Type": "application/json" },
+    credentials: "include",
+  };
+
+  if (data && (method === 'POST' || method === 'PATCH' || method === 'PUT')) {
+    options.body = JSON.stringify(data);
+  }
+
+  console.log(`API ${method} ${url}:`, data);
+  
+  const res = await fetch(url, options);
+  
+  console.log(`Response status: ${res.status}`);
+  
+  if (!res.ok) {
+    const text = await res.text();
+    console.error(`API Error ${res.status}:`, text);
+    throw new Error(`${res.status}: ${text}`);
+  }
+  
+  const result = await res.json();
+  console.log(`API Response:`, result);
+  return result;
+}
+
+// Legacy apiRequest function for backwards compatibility
+export async function legacyApiRequest<T = any>(
   url: string, 
   options?: RequestInit
 ): Promise<T> {

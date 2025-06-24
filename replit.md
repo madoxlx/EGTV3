@@ -112,9 +112,11 @@ The application uses a comprehensive PostgreSQL schema with the following core e
   - Replaced all "Book Tour" buttons across entire site with functional BookTourButton
   - Added cart functionality to: ToursPackageStyle, TourDetail, ToursSearchResults, TourDetailsPage
   - Cart icon shows live count that updates automatically when tours are added
+  - Fixed cart API endpoints routing issues causing JSON parse errors
   - Integrated with existing cart API endpoints for seamless session management
   - All tour booking buttons now add tours to cart with proper pricing and configuration
   - Cart system supports both guest users (session-based) and authenticated users
+  - Tested and verified cart functionality working correctly with real database storage
 
 - **Complete Tours Display Fix (June 24, 2025)**: Successfully resolved all tours page display issues
   - Fixed filtering logic that was preventing tours from displaying properly on /tours page

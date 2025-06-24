@@ -37,6 +37,8 @@ export function BookTourButton({
     e.preventDefault();
     e.stopPropagation();
 
+    console.log('BookTourButton clicked for tour:', tour);
+
     const cartItem: CartItemData = {
       itemType: 'tour',
       itemId: tour.id,
@@ -54,6 +56,7 @@ export function BookTourButton({
       }
     };
 
+    console.log('Adding cart item:', cartItem);
     addToCart(cartItem);
   };
 

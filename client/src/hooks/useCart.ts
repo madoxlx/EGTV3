@@ -43,10 +43,13 @@ export function useCart() {
   // Add item to cart
   const addToCartMutation = useMutation({
     mutationFn: async (item: CartItemData) => {
-      return apiRequest('POST', '/api/cart', {
+      console.log('Adding to cart:', { ...item, sessionId });
+      const response = await apiRequest('POST', '/api/cart', {
         ...item,
         sessionId,
       });
+      console.log('Cart response:', response);
+      return response;
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['/api/cart'] });
