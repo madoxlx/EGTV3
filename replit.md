@@ -106,14 +106,17 @@ The application uses a comprehensive PostgreSQL schema with the following core e
 
 ## Recent Changes
 
-- **Complete Room Creation Form Rewrite (June 25, 2025)**: Completely rewrote room creation form with comprehensive database schema alignment
+- **Complete Room Creation Form Rewrite with API Integration Fix (June 25, 2025)**: Completely rewrote room creation form with comprehensive database schema alignment and fixed all API integration issues
   - Enhanced form schema to match database fields: type, maxOccupancy, size, bedType, view, available
   - Added professional dropdown options for room types, bed types, and views with proper validation
   - Organized form into logical sections: Basic Information, Capacity, Pricing, Amenities
   - Implemented proper data transformation for database storage including price conversion (cents)
   - Enhanced form validation with business logic checks for occupancy and pricing
   - Updated form initialization and draft functionality to match new schema structure
+  - Fixed React controlled/uncontrolled input warnings and data transformation errors
+  - Resolved API validation errors with proper field mapping and type conversion
   - Added comprehensive error handling and success notifications for better user experience
+  - Verified API endpoint functionality with proper hotel validation and error responses
 
 - **Complete Rooms API Implementation Fix (June 25, 2025)**: Fixed all rooms management functionality with comprehensive API and storage layer fixes
   - Added missing GET endpoint for /api/admin/rooms with admin authentication

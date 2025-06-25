@@ -49,7 +49,7 @@ const roomFormSchema = z.object({
   maxChildren: z.number().min(0, "Must be a positive number"),
   maxInfants: z.number().min(0, "Must be a positive number"),
   price: z.number().min(0, "Price must be a positive number"),
-  discountedPrice: z.number().min(0, "Discounted price must be positive").optional(),
+  discountedPrice: z.number().min(0, "Discounted price must be positive").nullable().optional(),
   size: z.string().optional(),
   bedType: z.string().optional(),
   view: z.string().optional(),
@@ -203,7 +203,7 @@ export default function RoomCreatePage() {
       maxChildren: 0,
       maxInfants: 0,
       price: 0,
-      discountedPrice: undefined,
+      discountedPrice: 0,
       size: "",
       bedType: "",
       view: "",
@@ -282,27 +282,40 @@ export default function RoomCreatePage() {
   // Create room mutation with proper data transformation
   const createRoomMutation = useMutation({
     mutationFn: async (data: RoomFormValues) => {
-      // Transform form data to match database schema
+      // Validate required fields first
+      if (!data.name?.trim()) {
+        throw new Error("Room name is required");
+      }
+      if (!data.hotelId) {
+        throw new Error("Hotel selection is required");
+      }
+      if (!data.type) {
+        throw new Error("Room type is required");
+      }
+
+      // Transform form data to match database schema exactly
       const roomData = {
         name: data.name.trim(),
-        description: data.description?.trim() || null,
+        description: data.description?.trim(),
         hotelId: parseInt(data.hotelId),
         type: data.type,
-        maxOccupancy: data.maxOccupancy,
-        maxAdults: data.maxAdults,
-        maxChildren: data.maxChildren,
-        maxInfants: data.maxInfants,
-        price: Math.round(data.price * 100), // Convert to cents for database
-        discountedPrice: data.discountedPrice ? Math.round(data.discountedPrice * 100) : null,
+        maxOccupancy: Number(data.maxOccupancy),
+        maxAdults: Number(data.maxAdults),
+        maxChildren: Number(data.maxChildren),
+        maxInfants: Number(data.maxInfants),
+        price: Math.round(Number(data.price) * 100), // Convert to cents
+        discountedPrice: data.discountedPrice && data.discountedPrice > 0 ? Math.round(Number(data.discountedPrice) * 100) : undefined,
         currency: "EGP",
-        imageUrl: images.length > 0 ? images[0] : null,
-        size: data.size?.trim() || null,
-        bedType: data.bedType || null,
-        amenities: data.amenities && data.amenities.length > 0 ? data.amenities : null,
-        view: data.view || null,
-        available: data.available,
+        imageUrl: images.length > 0 ? images[0] : undefined,
+        size: data.size?.trim(),
+        bedType: data.bedType,
+        amenities: data.amenities?.length > 0 ? data.amenities : undefined,
+        view: data.view,
+        available: Boolean(data.available),
         status: data.available ? "active" : "inactive",
       };
+
+      console.log("Sending room data:", roomData);
 
       return await apiRequest("/api/admin/rooms", {
         method: isEditMode ? "PUT" : "POST",
@@ -790,7 +803,7 @@ export default function RoomCreatePage() {
                               step="0.01"
                               placeholder="1200.00" 
                               {...field}
-                              onChange={e => field.onChange(e.target.value ? parseFloat(e.target.value) : undefined)}
+                              onChange={e => field.onChange(e.target.value ? parseFloat(e.target.value) : 0)}
                               value={field.value || ""}
                             />
                           </FormControl>
