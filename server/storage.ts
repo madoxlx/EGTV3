@@ -8,7 +8,7 @@ import {
   hotels, Hotel, InsertHotel,
   heroSlides, HeroSlide, InsertHeroSlide,
   menus, Menu, InsertMenu,
-  hotelFacilities, hotelHighlights, cleanlinessFeatures
+  hotelFacilities, hotelHighlights, cleanlinessFeatures, hotelCategories
 } from "@shared/schema";
 import { db, pool } from "./db";
 import { eq, and, desc, asc, sql } from "drizzle-orm";
@@ -86,6 +86,13 @@ export interface IStorage {
   // Language Settings
   getSiteLanguageSettings(): Promise<any[]>;
   updateSiteLanguageSettings(settings: any): Promise<any>;
+
+  // Hotel Categories
+  listHotelCategories(active?: boolean): Promise<any[]>;
+  getHotelCategory(id: number): Promise<any | undefined>;
+  createHotelCategory(category: any): Promise<any>;
+  updateHotelCategory(id: number, category: any): Promise<any | undefined>;
+  deleteHotelCategory(id: number): Promise<boolean>;
 
   // Hotel Features
   listHotelFacilities(): Promise<any[]>;
@@ -859,6 +866,74 @@ export class DatabaseStorage implements IStorage {
       return true;
     } catch (error) {
       console.error(`Error deleting cleanliness feature with ID ${id}:`, error);
+      return false;
+    }
+  }
+
+  // Hotel Categories methods
+  async listHotelCategories(active?: boolean): Promise<any[]> {
+    try {
+      let query = db.select().from(hotelCategories);
+      if (active !== undefined) {
+        query = query.where(eq(hotelCategories.active, active));
+      }
+      return await query.orderBy(hotelCategories.name);
+    } catch (error) {
+      console.error('Error listing hotel categories:', error);
+      return [];
+    }
+  }
+
+  async getHotelCategory(id: number): Promise<any | undefined> {
+    try {
+      const [category] = await db.select().from(hotelCategories).where(eq(hotelCategories.id, id));
+      return category;
+    } catch (error) {
+      console.error('Error getting hotel category:', error);
+      return undefined;
+    }
+  }
+
+  async createHotelCategory(category: any): Promise<any> {
+    try {
+      const [newCategory] = await db.insert(hotelCategories).values({
+        name: category.name,
+        description: category.description,
+        active: category.active !== undefined ? category.active : true,
+        createdAt: new Date(),
+        updatedAt: new Date()
+      }).returning();
+      return newCategory;
+    } catch (error) {
+      console.error('Error creating hotel category:', error);
+      throw error;
+    }
+  }
+
+  async updateHotelCategory(id: number, category: any): Promise<any | undefined> {
+    try {
+      const [updatedCategory] = await db.update(hotelCategories)
+        .set({
+          name: category.name,
+          description: category.description,
+          active: category.active,
+          updatedAt: new Date()
+        })
+        .where(eq(hotelCategories.id, id))
+        .returning();
+      return updatedCategory;
+    } catch (error) {
+      console.error('Error updating hotel category:', error);
+      throw error;
+    }
+  }
+
+  async deleteHotelCategory(id: number): Promise<boolean> {
+    try {
+      await db.delete(hotelCategories).where(eq(hotelCategories.id, id));
+      return true;
+    } catch (error) {
+      console.error(`Error deleting hotel category with ID ${id}:`, error);
       return false;
     }
   }
