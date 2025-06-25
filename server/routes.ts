@@ -2825,8 +2825,51 @@ export async function registerRoutes(app: Express): Promise<Server> {
     try {
       console.log('Hotel creation request body:', req.body);
       
+      // Transform the form data to match database schema
+      const formData = req.body;
+      const transformedData = {
+        name: formData.name,
+        description: formData.description,
+        shortDescription: formData.shortDescription,
+        destinationId: formData.destinationId,
+        countryId: formData.countryId || null,
+        cityId: formData.cityId || null,
+        categoryId: formData.categoryId || null,
+        address: formData.address,
+        city: formData.city,
+        country: formData.country,
+        postalCode: formData.postalCode,
+        phone: formData.phone,
+        email: formData.email,
+        website: formData.website,
+        imageUrl: formData.imageUrl,
+        galleryUrls: formData.galleryUrls,
+        stars: formData.stars ? parseInt(formData.stars) : null,
+        amenities: formData.amenities,
+        checkInTime: formData.checkInTime || "15:00",
+        checkOutTime: formData.checkOutTime || "11:00",
+        longitude: formData.longitude ? parseFloat(formData.longitude) : null,
+        latitude: formData.latitude ? parseFloat(formData.latitude) : null,
+        featured: formData.featured || false,
+        rating: formData.rating ? parseFloat(formData.rating) : null,
+        guestRating: formData.guestRating ? parseFloat(formData.guestRating) : null,
+        basePrice: formData.basePrice ? parseInt(formData.basePrice) : null,
+        currency: formData.currency || "EGP",
+        parkingAvailable: formData.parkingAvailable || false,
+        airportTransferAvailable: formData.airportTransferAvailable || false,
+        carRentalAvailable: formData.carRentalAvailable || false,
+        shuttleAvailable: formData.shuttleAvailable || false,
+        wifiAvailable: formData.wifiAvailable !== false,
+        petFriendly: formData.petFriendly || false,
+        accessibleFacilities: formData.accessibleFacilities || false,
+        status: formData.status || "active",
+        verificationStatus: formData.verificationStatus || "pending"
+      };
+      
+      console.log('Transformed hotel data:', transformedData);
+      
       // For regular hotel creation, proceed with validation
-      const validatedHotelData = insertHotelSchema.parse(req.body);
+      const validatedHotelData = insertHotelSchema.parse(transformedData);
       console.log('Validated hotel data:', validatedHotelData);
       
       // Check if destination exists if destinationId is provided
