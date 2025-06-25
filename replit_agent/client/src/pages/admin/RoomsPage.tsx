@@ -125,7 +125,7 @@ export default function RoomsPage() {
   
   // Query to get hotels for filtering
   const { data: hotels = [] } = useQuery({
-    queryKey: ["/api/admin/hotels"],
+    queryKey: ["hotels-admin"],
     queryFn: async () => {
       const response = await fetch("/api/admin/hotels", {
         method: "GET",
