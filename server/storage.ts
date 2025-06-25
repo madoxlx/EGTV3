@@ -889,8 +889,7 @@ export class DatabaseStorage implements IStorage {
       const [category] = await db.select().from(hotelCategories).where(eq(hotelCategories.id, id));
       return category;
     } catch (error) {
-      console.error```text
-('Error getting hotel category:', error);
+      console.error('Error getting hotel category:', error);
       return undefined;
     }
   }
