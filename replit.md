@@ -106,6 +106,15 @@ The application uses a comprehensive PostgreSQL schema with the following core e
 
 ## Recent Changes
 
+- **Country and City Cascading Select Enhancement (June 25, 2025)**: Enhanced Country and City selection with proper database integration and cascading functionality
+  - Added multiple countries to database: Egypt, Jordan, Morocco, UAE with proper data structure
+  - Added cities for each country with correct countryId relationships (9 cities total)
+  - Country select box displays all available countries from database
+  - City select box automatically filters to show only cities from selected country
+  - City dropdown disabled until country is selected with helpful placeholder text
+  - Form properly handles country/city changes with automatic city reset when country changes
+  - Database contains authentic geographic data: Egypt (Cairo, Alexandria, Luxor), Jordan (Amman, Petra), Morocco (Marrakech, Casablanca), UAE (Dubai, Abu Dhabi)
+
 - **Tour Selection Dropdown Display Fix (June 25, 2025)**: Fixed tour selection dropdown to properly display all available tours
   - Enhanced tour filtering function with comprehensive error handling and data validation
   - Fixed dropdown display to show accurate count of available tours (8 tours from database)
