@@ -44,7 +44,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
 import * as z from "zod";
-import { Loader2, Pencil, Plus, Search, Trash2 } from "lucide-react";
+import { Loader2, Pencil, Plus, Search, Trash2, Star } from "lucide-react";
 import { Switch } from "@/components/ui/switch";
 import { Label } from "@/components/ui/label";
 
@@ -533,8 +533,65 @@ export default function HotelsManagement() {
                 <TableBody>
                   {filteredHotels.map((hotel: any) => (
                     <TableRow key={hotel.id}>
-                      <TableCell className="font-medium">{hotel.name}</TableCell>
-                      <TableCell>{hotel.destination?.name || "-"}</TableCell>
+                      <TableCell>
+              <div className="flex items-center gap-2">
+                {hotel.imageUrl ? (
+                  <img 
+                    src={hotel.imageUrl} 
+                    alt={hotel.name}
+                    className="w-12 h-12 object-cover rounded"
+                  />
+                ) : (
+                  <div className="w-12 h-12 bg-gray-200 rounded flex items-center justify-center text-xs">
+                    No img
+                  </div>
+                )}
+                <div>
+                  <div className="font-medium">{hotel.name}</div>
+                  <div className="text-sm text-gray-500">{hotel.description}</div>
+                  <div className="flex items-center mt-1">
+                    {[...Array(5)].map((_, i) => (
+                      <Star
+                        key={i}
+                        className={`h-4 w-4 ${
+                          i < (hotel.stars || 0) 
+                            ? 'text-yellow-400 fill-current' 
+                            : 'text-gray-300'
+                        }`}
+                      />
+                    ))}
+                  </div>
+                </div>
+              </div>
+            </TableCell>
+            <TableCell>
+              {(hotel as any).destinationName ? (
+                `${(hotel as any).destinationName}, ${(hotel as any).destinationCountry || ''}`
+              ) : (
+                hotel.destinationId ? (
+                  destinations.find(d => d.id === hotel.destinationId)?.name || 'Unknown'
+                ) : (
+                  'Unknown'
+                )
+              )}
+            </TableCell>
+            <TableCell>
+              <div className="flex items-center">
+                {[...Array(5)].map((_, i) => (
+                  <Star
+                    key={i}
+                    className={`h-4 w-4 ${
+                      i < (hotel.stars || 0) 
+                        ? 'text-yellow-400 fill-current' 
+                        : 'text-gray-300'
+                    }`}
+                  />
+                ))}
+                <span className="ml-1 text-sm text-gray-600">
+                  {hotel.stars ? `${hotel.stars} star${hotel.stars !== 1 ? 's' : ''}` : 'Not rated'}
+                </span>
+              </div>
+            </TableCell>
                       <TableCell>
                         {hotel.featured ? (
                           <span className="px-2 py-1 rounded-full bg-green-100 text-green-800 text-xs font-semibold">

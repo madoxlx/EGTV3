@@ -164,10 +164,10 @@ export class DatabaseStorage implements IStorage {
     try {
       const [storedHash, salt] = hashedPassword.split('.');
       if (!salt) return false;
-      
+
       const buf = await scryptAsync(password, salt, 64) as Buffer;
       const derivedKey = buf.toString('hex');
-      
+
       return timingSafeEqual(Buffer.from(storedHash, 'hex'), Buffer.from(derivedKey, 'hex'));
     } catch (error) {
       console.error('Error verifying password:', error);
@@ -223,7 +223,7 @@ export class DatabaseStorage implements IStorage {
       if (active !== undefined) {
         conditions.push(eq(cities.active, active));
       }
-      
+
       if (conditions.length > 0) {
         return await db.select().from(cities).where(and(...conditions)).orderBy(asc(cities.name));
       }
@@ -327,7 +327,7 @@ export class DatabaseStorage implements IStorage {
         console.log('Country ID column may already exist or table structure issue:', alterError.message);
       }
       client.release();
-      
+
       if (active !== undefined) {
         return await db.select().from(hotels).where(eq(hotels.status, active ? 'active' : 'inactive')).orderBy(desc(hotels.createdAt));
       }
@@ -592,12 +592,12 @@ export class DatabaseStorage implements IStorage {
       const client = await pool.connect();
       let query = 'SELECT * FROM rooms WHERE status = $1 ORDER BY created_at DESC';
       let params = ['active'];
-      
+
       if (hotelId) {
         query = 'SELECT * FROM rooms WHERE hotel_id = $1 AND status = $2 ORDER BY created_at DESC';
         params = [hotelId.toString(), 'active'];
       }
-      
+
       const result = await client.query(query, params);
       client.release();
       return result.rows || [];
@@ -889,7 +889,8 @@ export class DatabaseStorage implements IStorage {
       const [category] = await db.select().from(hotelCategories).where(eq(hotelCategories.id, id));
       return category;
     } catch (error) {
-      console.error('Error getting hotel category:', error);
+      console.error```text
+('Error getting hotel category:', error);
       return undefined;
     }
   }
