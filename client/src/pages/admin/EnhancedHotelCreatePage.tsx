@@ -135,8 +135,8 @@ const hotelFormSchema = z.object({
   description: z.string().optional().nullable(),
   destinationId: z.coerce.number().positive({ message: "Please select a destination" }),
   address: z.string().min(1, { message: "Address is required" }),
-  city: z.string().min(1, { message: "City is required" }),
-  country: z.string().min(1, { message: "Country is required" }),
+  cityId: z.coerce.number().positive({ message: "Please select a city" }).optional().nullable(),
+  countryId: z.coerce.number().positive({ message: "Please select a country" }).optional().nullable(),
   postalCode: z.string().optional().nullable(),
   phone: z.string().optional().nullable(),
   email: z.string().email({ message: "Please enter a valid email" }).optional().nullable(),
@@ -249,6 +249,7 @@ export default function EnhancedHotelCreatePage() {
   const [selectedFacilities, setSelectedFacilities] = useState<number[]>([]);
   const [selectedHighlights, setSelectedHighlights] = useState<number[]>([]);
   const [selectedCleanlinessFeatures, setSelectedCleanlinessFeatures] = useState<number[]>([]);
+  const [selectedCountryId, setSelectedCountryId] = useState<number | null>(null);
   const [locationSearchQuery, setLocationSearchQuery] = useState("");
   const [isSearchingLandmarks, setIsSearchingLandmarks] = useState(false);
   const [suggestedLandmarks, setSuggestedLandmarks] = useState<any[]>([]);
@@ -287,8 +288,8 @@ export default function EnhancedHotelCreatePage() {
       description: "",
       destinationId: undefined,
       address: "",
-      city: "",
-      country: "",
+      cityId: undefined,
+      countryId: undefined,
       postalCode: "",
       phone: "",
       email: "",
@@ -341,6 +342,18 @@ export default function EnhancedHotelCreatePage() {
   const { data: destinations = [], isLoading: isLoadingDestinations } = useQuery({
     queryKey: ["/api/destinations"],
     queryFn: getQueryFn(),
+  });
+
+  // Fetch countries data for the dropdown
+  const { data: countries = [] } = useQuery({
+    queryKey: ["/api/countries"],
+    staleTime: 1000 * 60 * 5, // 5 minutes
+  });
+
+  // Fetch cities data for the dropdown
+  const { data: cities = [] } = useQuery({
+    queryKey: ["/api/cities"],
+    staleTime: 1000 * 60 * 5, // 5 minutes
   });
   
   // Fetch facilities
@@ -598,37 +611,71 @@ export default function EnhancedHotelCreatePage() {
                         )}
                       />
 
-                      {/* City */}
+                      {/* Country Selection */}
                       <FormField
                         control={form.control}
-                        name="city"
+                        name="countryId"
                         render={({ field }) => (
                           <FormItem>
-                            <FormLabel>City*</FormLabel>
-                            <FormControl>
-                              <Input
-                                placeholder="City Name"
-                                {...field}
-                              />
-                            </FormControl>
+                            <FormLabel>Country*</FormLabel>
+                            <Select 
+                              onValueChange={(value) => {
+                                const countryId = parseInt(value);
+                                field.onChange(countryId);
+                                setSelectedCountryId(countryId);
+                                // Reset cityId when country changes
+                                form.setValue("cityId", null as any);
+                              }} 
+                              value={field.value?.toString()}
+                            >
+                              <FormControl>
+                                <SelectTrigger>
+                                  <SelectValue placeholder="Select a country" />
+                                </SelectTrigger>
+                              </FormControl>
+                              <SelectContent>
+                                {countries.map((country: any) => (
+                                  <SelectItem key={country.id} value={country.id.toString()}>
+                                    {country.name}
+                                  </SelectItem>
+                                ))}
+                              </SelectContent>
+                            </Select>
                             <FormMessage />
                           </FormItem>
                         )}
                       />
 
-                      {/* Country */}
+                      {/* City Selection */}
                       <FormField
                         control={form.control}
-                        name="country"
+                        name="cityId"
                         render={({ field }) => (
                           <FormItem>
-                            <FormLabel>Country*</FormLabel>
-                            <FormControl>
-                              <Input
-                                placeholder="Country Name"
-                                {...field}
-                              />
-                            </FormControl>
+                            <FormLabel>City*</FormLabel>
+                            <Select 
+                              onValueChange={(value) => {
+                                field.onChange(parseInt(value));
+                              }} 
+                              value={field.value?.toString()}
+                              disabled={!selectedCountryId}
+                            >
+                              <FormControl>
+                                <SelectTrigger>
+                                  <SelectValue placeholder={selectedCountryId ? "Select a city" : "Select a country first"} />
+                                </SelectTrigger>
+                              </FormControl>
+                              <SelectContent>
+                                {Array.isArray(cities) && cities
+                                  .filter((city: any) => city.countryId === selectedCountryId)
+                                  .map((city: any) => (
+                                    <SelectItem key={city.id} value={city.id.toString()}>
+                                      {city.name}
+                                    </SelectItem>
+                                  ))
+                                }
+                              </SelectContent>
+                            </Select>
                             <FormMessage />
                           </FormItem>
                         )}

@@ -106,6 +106,17 @@ The application uses a comprehensive PostgreSQL schema with the following core e
 
 ## Recent Changes
 
+- **Enhanced Hotel Creation Form Country and City Selectboxes Implementation (June 25, 2025)**: Updated both hotel creation forms to use proper selectboxes for Country and City fields
+  - Updated EnhancedHotelCreatePage.tsx to replace City and Country text inputs with Select components
+  - Updated HotelCreatePage.tsx to replace City and Country text inputs with Select components
+  - Both forms now use cascading functionality where City dropdown filters based on selected Country
+  - Updated hotel form schemas to use countryId and cityId numeric fields instead of string fields
+  - Added state management with selectedCountryId tracking for proper cascading behavior
+  - Integrated with existing /api/countries and /api/cities endpoints for data fetching
+  - City selection is disabled until country is selected with proper placeholder text feedback
+  - Forms automatically reset city selection when country changes to maintain data consistency
+  - Both hotel creation forms now match the same user experience as package creation form
+
 - **Hotel Creation Form Country and City Selectboxes Implementation (June 25, 2025)**: Updated hotel creation form to use proper selectboxes for Country and City fields
   - Replaced text input fields with Select components matching package creation form functionality
   - Added cascading functionality where City dropdown filters based on selected Country
