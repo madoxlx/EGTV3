@@ -7,7 +7,8 @@ import {
   tours, Tour, InsertTour,
   hotels, Hotel, InsertHotel,
   heroSlides, HeroSlide, InsertHeroSlide,
-  menus, Menu, InsertMenu
+  menus, Menu, InsertMenu,
+  hotelFacilities, hotelHighlights, cleanlinessFeatures
 } from "@shared/schema";
 import { db, pool } from "./db";
 import { eq, and, desc, asc, sql } from "drizzle-orm";
@@ -85,6 +86,27 @@ export interface IStorage {
   // Language Settings
   getSiteLanguageSettings(): Promise<any[]>;
   updateSiteLanguageSettings(settings: any): Promise<any>;
+
+  // Hotel Features
+  listHotelFacilities(): Promise<any[]>;
+  getHotelFacility(id: number): Promise<any | undefined>;
+  createHotelFacility(facility: any): Promise<any>;
+  updateHotelFacility(id: number, facility: any): Promise<any | undefined>;
+  deleteHotelFacility(id: number): Promise<boolean>;
+
+  // Hotel Highlights
+  listHotelHighlights(): Promise<any[]>;
+  getHotelHighlight(id: number): Promise<any | undefined>;
+  createHotelHighlight(highlight: any): Promise<any>;
+  updateHotelHighlight(id: number, highlight: any): Promise<any | undefined>;
+  deleteHotelHighlight(id: number): Promise<boolean>;
+
+  // Cleanliness Features
+  listCleanlinessFeatures(): Promise<any[]>;
+  getCleanlinessFeature(id: number): Promise<any | undefined>;
+  createCleanlinessFeature(feature: any): Promise<any>;
+  updateCleanlinessFeature(id: number, feature: any): Promise<any | undefined>;
+  deleteCleanlinessFeature(id: number): Promise<boolean>;
 }
 
 export class DatabaseStorage implements IStorage {
@@ -637,6 +659,206 @@ export class DatabaseStorage implements IStorage {
       return result.rowCount > 0;
     } catch (error) {
       console.error('Error deleting room:', error);
+      return false;
+    }
+  }
+
+  // Hotel Facilities methods
+  async listHotelFacilities(): Promise<any[]> {
+    try {
+      return await db.select().from(hotelFacilities).orderBy(hotelFacilities.name);
+    } catch (error) {
+      console.error('Error listing hotel facilities:', error);
+      return [];
+    }
+  }
+
+  async getHotelFacility(id: number): Promise<any | undefined> {
+    try {
+      const [facility] = await db.select().from(hotelFacilities).where(eq(hotelFacilities.id, id));
+      return facility;
+    } catch (error) {
+      console.error('Error getting hotel facility:', error);
+      return undefined;
+    }
+  }
+
+  async createHotelFacility(facility: any): Promise<any> {
+    try {
+      const [newFacility] = await db.insert(hotelFacilities).values({
+        name: facility.name,
+        description: facility.description,
+        icon: facility.icon,
+        category: facility.category,
+        active: facility.active !== undefined ? facility.active : true,
+        createdAt: new Date(),
+        updatedAt: new Date()
+      }).returning();
+      return newFacility;
+    } catch (error) {
+      console.error('Error creating hotel facility:', error);
+      throw error;
+    }
+  }
+
+  async updateHotelFacility(id: number, facility: any): Promise<any | undefined> {
+    try {
+      const [updatedFacility] = await db.update(hotelFacilities)
+        .set({
+          name: facility.name,
+          description: facility.description,
+          icon: facility.icon,
+          category: facility.category,
+          active: facility.active,
+          updatedAt: new Date()
+        })
+        .where(eq(hotelFacilities.id, id))
+        .returning();
+      return updatedFacility;
+    } catch (error) {
+      console.error(`Error updating hotel facility with ID ${id}:`, error);
+      return undefined;
+    }
+  }
+
+  async deleteHotelFacility(id: number): Promise<boolean> {
+    try {
+      await db.delete(hotelFacilities).where(eq(hotelFacilities.id, id));
+      return true;
+    } catch (error) {
+      console.error(`Error deleting hotel facility with ID ${id}:`, error);
+      return false;
+    }
+  }
+
+  // Hotel Highlights methods
+  async listHotelHighlights(): Promise<any[]> {
+    try {
+      return await db.select().from(hotelHighlights).orderBy(hotelHighlights.name);
+    } catch (error) {
+      console.error('Error listing hotel highlights:', error);
+      return [];
+    }
+  }
+
+  async getHotelHighlight(id: number): Promise<any | undefined> {
+    try {
+      const [highlight] = await db.select().from(hotelHighlights).where(eq(hotelHighlights.id, id));
+      return highlight;
+    } catch (error) {
+      console.error('Error getting hotel highlight:', error);
+      return undefined;
+    }
+  }
+
+  async createHotelHighlight(highlight: any): Promise<any> {
+    try {
+      const [newHighlight] = await db.insert(hotelHighlights).values({
+        name: highlight.name,
+        description: highlight.description,
+        icon: highlight.icon,
+        active: highlight.active !== undefined ? highlight.active : true,
+        createdAt: new Date(),
+        updatedAt: new Date()
+      }).returning();
+      return newHighlight;
+    } catch (error) {
+      console.error('Error creating hotel highlight:', error);
+      throw error;
+    }
+  }
+
+  async updateHotelHighlight(id: number, highlight: any): Promise<any | undefined> {
+    try {
+      const [updatedHighlight] = await db.update(hotelHighlights)
+        .set({
+          name: highlight.name,
+          description: highlight.description,
+          icon: highlight.icon,
+          active: highlight.active,
+          updatedAt: new Date()
+        })
+        .where(eq(hotelHighlights.id, id))
+        .returning();
+      return updatedHighlight;
+    } catch (error) {
+      console.error(`Error updating hotel highlight with ID ${id}:`, error);
+      return undefined;
+    }
+  }
+
+  async deleteHotelHighlight(id: number): Promise<boolean> {
+    try {
+      await db.delete(hotelHighlights).where(eq(hotelHighlights.id, id));
+      return true;
+    } catch (error) {
+      console.error(`Error deleting hotel highlight with ID ${id}:`, error);
+      return false;
+    }
+  }
+
+  // Cleanliness Features methods
+  async listCleanlinessFeatures(): Promise<any[]> {
+    try {
+      return await db.select().from(cleanlinessFeatures).orderBy(cleanlinessFeatures.name);
+    } catch (error) {
+      console.error('Error listing cleanliness features:', error);
+      return [];
+    }
+  }
+
+  async getCleanlinessFeature(id: number): Promise<any | undefined> {
+    try {
+      const [feature] = await db.select().from(cleanlinessFeatures).where(eq(cleanlinessFeatures.id, id));
+      return feature;
+    } catch (error) {
+      console.error('Error getting cleanliness feature:', error);
+      return undefined;
+    }
+  }
+
+  async createCleanlinessFeature(feature: any): Promise<any> {
+    try {
+      const [newFeature] = await db.insert(cleanlinessFeatures).values({
+        name: feature.name,
+        description: feature.description,
+        icon: feature.icon,
+        active: feature.active !== undefined ? feature.active : true,
+        createdAt: new Date(),
+        updatedAt: new Date()
+      }).returning();
+      return newFeature;
+    } catch (error) {
+      console.error('Error creating cleanliness feature:', error);
+      throw error;
+    }
+  }
+
+  async updateCleanlinessFeature(id: number, feature: any): Promise<any | undefined> {
+    try {
+      const [updatedFeature] = await db.update(cleanlinessFeatures)
+        .set({
+          name: feature.name,
+          description: feature.description,
+          icon: feature.icon,
+          active: feature.active,
+          updatedAt: new Date()
+        })
+        .where(eq(cleanlinessFeatures.id, id))
+        .returning();
+      return updatedFeature;
+    } catch (error) {
+      console.error(`Error updating cleanliness feature with ID ${id}:`, error);
+      return undefined;
+    }
+  }
+
+  async deleteCleanlinessFeature(id: number): Promise<boolean> {
+    try {
+      await db.delete(cleanlinessFeatures).where(eq(cleanlinessFeatures.id, id));
+      return true;
+    } catch (error) {
+      console.error(`Error deleting cleanliness feature with ID ${id}:`, error);
       return false;
     }
   }
