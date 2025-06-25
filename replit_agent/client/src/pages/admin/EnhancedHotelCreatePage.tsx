@@ -1104,7 +1104,7 @@ export default function EnhancedHotelCreatePage() {
                               <div className="flex items-center gap-2">
                                 <Checkbox 
                                   checked={selectedHighlights.includes(highlight.id)}
-                                  onCheckedChange={() => {}}
+                                  onCheckedChange={() => toggleHighlight(highlight.id)}
                                 />
                                 <div>
                                   <p className="font-medium">{highlight.name}</p>
@@ -1161,7 +1161,7 @@ export default function EnhancedHotelCreatePage() {
                               <div className="flex items-center gap-2">
                                 <Checkbox 
                                   checked={selectedFacilities.includes(facility.id)}
-                                  onCheckedChange={() => {}}
+                                  onCheckedChange={() => toggleFacility(facility.id)}
                                 />
                                 <div>
                                   <p className="font-medium">{facility.name}</p>
@@ -1218,7 +1218,7 @@ export default function EnhancedHotelCreatePage() {
                               <div className="flex items-center gap-2">
                                 <Checkbox 
                                   checked={selectedCleanlinessFeatures.includes(feature.id)}
-                                  onCheckedChange={() => {}}
+                                  onCheckedChange={() => toggleCleanlinessFeature(feature.id)}
                                 />
                                 <div>
                                   <p className="font-medium">{feature.name}</p>
