@@ -1218,7 +1218,7 @@ export function PackageCreatorForm({ packageId, onNavigateRequest }: PackageCrea
     if (!formData.name || formData.name.trim().length < 3) {
       basicErrors.push("Package Name");
     }
-    if (!formData.shortDescription || formData.shortDescription.trim().length < 10) {
+    if (!formData.shortDescription || formData.shortDescription.trim().length < 5) {
       basicErrors.push("Short Description");
     }
     if (!formData.countryId || formData.countryId === null || formData.countryId === 0) {
@@ -1385,7 +1385,7 @@ export function PackageCreatorForm({ packageId, onNavigateRequest }: PackageCrea
                       />
                     </FormControl>
                     <FormDescription>
-                      A short summary that will appear in package listings (max 200 characters).
+                      A short summary that will appear in package listings (min 5 characters, max 200 characters).
                     </FormDescription>
                     <FormMessage />
                   </FormItem>
@@ -1551,7 +1551,7 @@ export function PackageCreatorForm({ packageId, onNavigateRequest }: PackageCrea
                     <Textarea 
                       id="package-short-description"
                       className="min-h-[80px] package-short-description-input admin-textarea"
-                      placeholder="Enter a brief description (max 200 characters)" 
+                      placeholder="Enter a brief description (min 5 characters, max 200 characters)" 
                       maxLength={200}
                       {...field} 
                     />
