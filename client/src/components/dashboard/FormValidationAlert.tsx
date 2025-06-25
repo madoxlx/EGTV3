@@ -86,6 +86,80 @@ export function FormValidationSummary({
   );
 }
 
+export function FormRequirementsAlert({
+  missingFields,
+  requirements,
+  className
+}: {
+  missingFields?: { [tabName: string]: string[] };
+  requirements?: { [field: string]: string };
+  className?: string;
+}) {
+  const hasErrors = missingFields && Object.keys(missingFields).length > 0;
+  
+  if (!hasErrors && !requirements) return null;
+
+  const fieldRequirements = {
+    "Package Name": "Must be at least 3 characters long",
+    "Short Description": "Must be at least 5 characters long (brief summary for listings)",
+    "Overview": "Must be at least 10 characters long (detailed description)",
+    "Country": "Please select a valid country",
+    "City": "Please select a valid city", 
+    "Package Category": "Please select a package category",
+    "Base Price": "Must be a positive number (price in EGP)",
+    "Start Date": "Please select a valid start date",
+    "End Date": "Please select a valid end date (must be after start date)",
+    ...requirements
+  };
+
+  return (
+    <Alert className={`bg-destructive/15 text-destructive border-destructive/20 ${className || ''}`}>
+      <div className="flex items-start gap-2">
+        <AlertCircle className="h-4 w-4 mt-0.5" />
+        <div>
+          <AlertTitle>You are missing info in:</AlertTitle>
+          <AlertDescription>
+            {hasErrors && (
+              <div className="mt-2">
+                {Object.entries(missingFields!).map(([tabName, fields]) => (
+                  <div key={tabName} className="mb-3">
+                    <div className="font-medium text-sm mb-1">• {tabName}:</div>
+                    <ul className="list-none pl-4 space-y-1">
+                      {fields.map((field, index) => (
+                        <li key={index} className="text-sm">
+                          <span className="font-medium">- {field}</span>
+                          {fieldRequirements[field] && (
+                            <div className="text-xs text-muted-foreground mt-0.5 pl-2">
+                              {fieldRequirements[field]}
+                            </div>
+                          )}
+                        </li>
+                      ))}
+                    </ul>
+                  </div>
+                ))}
+              </div>
+            )}
+            
+            {requirements && !hasErrors && (
+              <div className="mt-2">
+                <div className="text-sm font-medium mb-2">Field Requirements:</div>
+                <ul className="list-none space-y-1">
+                  {Object.entries(fieldRequirements).map(([field, requirement]) => (
+                    <li key={field} className="text-xs">
+                      <span className="font-medium">{field}:</span> {requirement}
+                    </li>
+                  ))}
+                </ul>
+              </div>
+            )}
+          </AlertDescription>
+        </div>
+      </div>
+    </Alert>
+  );
+}
+
 export function FormRequiredFieldsNote() {
   return (
     <div className="text-xs text-muted-foreground mt-2 flex items-center gap-1.5">

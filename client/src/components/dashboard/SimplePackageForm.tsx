@@ -80,7 +80,7 @@ import { cn } from "@/lib/utils";
 import { useToast } from "@/hooks/use-toast";
 import { queryClient } from "@/lib/queryClient";
 import { validateForm, validateRequiredFields, validateDateFields, validateNumericFields } from "@/lib/validateForm";
-import { FormRequiredFieldsNote, FormValidationAlert } from "@/components/dashboard/FormValidationAlert";
+import { FormRequiredFieldsNote, FormValidationAlert, FormRequirementsAlert } from "@/components/dashboard/FormValidationAlert";
 import { useLocation } from "wouter";
 import { IconSelector } from "@/components/ui/IconSelector";
 
@@ -1317,23 +1317,12 @@ export function PackageCreatorForm({ packageId, onNavigateRequest }: PackageCrea
             />
           )}
           
-          {/* Validation Hints Box */}
+          {/* Enhanced Validation Requirements */}
           {showValidationHints && Object.keys(validationErrors).length > 0 && (
-            <div className="mt-4 p-4 bg-red-50 border border-red-200 rounded-md">
-              <h4 className="text-sm font-medium text-red-800 mb-2">You are missing info in:</h4>
-              <div className="space-y-2">
-                {Object.entries(validationErrors).map(([tabName, errors]) => (
-                  <div key={tabName} className="text-sm">
-                    <div className="font-medium text-red-700">• {tabName}:</div>
-                    <div className="ml-4 space-y-1">
-                      {errors.map((error, index) => (
-                        <div key={index} className="text-red-600">- {error}</div>
-                      ))}
-                    </div>
-                  </div>
-                ))}
-              </div>
-            </div>
+            <FormRequirementsAlert 
+              missingFields={validationErrors}
+              className="mt-4"
+            />
           )}
         </div>
         <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">

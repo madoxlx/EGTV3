@@ -106,6 +106,14 @@ The application uses a comprehensive PostgreSQL schema with the following core e
 
 ## Recent Changes
 
+- **Enhanced Form Validation with User Requirements Display (June 25, 2025)**: Improved package form validation to show detailed user requirements
+  - Created FormRequirementsAlert component to display comprehensive field requirements in error messages
+  - Enhanced validation error display to show specific requirements for each field (character limits, format expectations)
+  - Fixed short description validation to require only 5 characters instead of 10 for better usability
+  - Added organized error display by form tabs (Basic Info, Pricing Rules, etc.) with clear field explanations
+  - Users now see exactly what's required for each field when validation fails
+  - Form validation system provides actionable guidance for completing required information
+
 - **Hotels and Rooms API Database Fix (June 25, 2025)**: Resolved critical database schema errors preventing hotels and rooms API functionality
   - Fixed missing country_id column in hotels table causing "column does not exist" errors
   - Added automatic database schema migration to add country_id column with proper foreign key reference
