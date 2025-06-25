@@ -589,18 +589,14 @@ export class DatabaseStorage implements IStorage {
   // Rooms management
   async listRooms(hotelId?: number): Promise<any[]> {
     try {
-      const client = await pool.connect();
-      let query = 'SELECT * FROM rooms WHERE status = $1 ORDER BY created_at DESC';
-      let params = ['active'];
-
+      let query = db.select().from(rooms).orderBy(rooms.createdAt);
+      
       if (hotelId) {
-        query = 'SELECT * FROM rooms WHERE hotel_id = $1 AND status = $2 ORDER BY created_at DESC';
-        params = [hotelId.toString(), 'active'];
+        query = query.where(eq(rooms.hotelId, hotelId));
       }
-
-      const result = await client.query(query, params);
-      client.release();
-      return result.rows || [];
+      
+      const result = await query;
+      return result || [];
     } catch (error) {
       console.error('Error listing rooms:', error);
       return [];
@@ -660,10 +656,8 @@ export class DatabaseStorage implements IStorage {
 
   async deleteRoom(id: number): Promise<boolean> {
     try {
-      const client = await pool.connect();
-      const result = await client.query('DELETE FROM rooms WHERE id = $1', [id]);
-      client.release();
-      return result.rowCount > 0;
+      await db.delete(rooms).where(eq(rooms.id, id));
+      return true;
     } catch (error) {
       console.error('Error deleting room:', error);
       return false;

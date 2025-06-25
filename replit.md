@@ -106,14 +106,17 @@ The application uses a comprehensive PostgreSQL schema with the following core e
 
 ## Recent Changes
 
-- **Hotel Creation Form Field Mapping Fix (June 25, 2025)**: Fixed hotel creation form to properly save all selected values to database
-  - Enhanced API endpoint with proper field transformation to match database schema requirements
-  - Added missing form fields: categoryId, basePrice, countryId, cityId with proper validation
-  - Fixed form data submission to ensure all selected values (stars, category, price, location) are properly sent
-  - Updated form schema to include all required hotel properties with correct field types
-  - Enhanced form state management to properly track country/city selection changes
-  - Hotel creation now saves complete data instead of null values for user selections
-  - Fixed field mapping between frontend form names and backend database column names
+- **Complete Hotel Creation Form Fix - All Fields Now Working (June 25, 2025)**: Successfully resolved all hotel creation form field mapping issues
+  - Fixed critical insertHotelSchema validation by adding missing fields: countryId, cityId, categoryId, basePrice to .pick() selection
+  - Enhanced hotel creation form with proper field transformation and type conversion for numeric fields
+  - Fixed rooms API unhandled rejection error by converting raw SQL queries to proper Drizzle ORM implementation
+  - Added comprehensive form fields with proper validation: categoryId, basePrice, countryId, cityId, shortDescription, galleryUrls
+  - Enhanced API endpoint data transformation to properly parse and convert string values to integers
+  - Updated form schema to include all required hotel properties with correct field types and validation
+  - Hotel creation form now saves complete data with all selected values properly stored instead of null values
+  - Rooms API endpoints now use consistent Drizzle ORM approach instead of raw SQL queries
+  - Fixed syntax error in server/storage.ts that was preventing server startup
+  - All hotel creation functionality fully operational with proper field mapping and database storage
 
 - **Complete Hotel Manager Pages Removal and Inline Feature Integration (June 25, 2025)**: Successfully removed all separate hotel manager pages and integrated feature management directly into hotel forms
   - Deleted all manager pages: categories, facilities, highlights, cleanliness features

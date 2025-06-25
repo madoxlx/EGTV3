@@ -2827,14 +2827,16 @@ export async function registerRoutes(app: Express): Promise<Server> {
       
       // Transform the form data to match database schema
       const formData = req.body;
+      console.log('Raw form data received:', JSON.stringify(formData, null, 2));
+      
       const transformedData = {
         name: formData.name,
         description: formData.description,
         shortDescription: formData.shortDescription,
         destinationId: formData.destinationId,
-        countryId: formData.countryId,
-        cityId: formData.cityId,
-        categoryId: formData.categoryId || null,
+        countryId: formData.countryId ? parseInt(formData.countryId.toString()) : null,
+        cityId: formData.cityId ? parseInt(formData.cityId.toString()) : null,
+        categoryId: formData.categoryId ? parseInt(formData.categoryId.toString()) : null,
         address: formData.address,
         city: formData.city,
         country: formData.country,
@@ -2844,7 +2846,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
         website: formData.website,
         imageUrl: formData.imageUrl,
         galleryUrls: formData.galleryUrls,
-        stars: formData.stars,
+        stars: formData.stars ? parseInt(formData.stars.toString()) : null,
         amenities: formData.amenities,
         checkInTime: formData.checkInTime || "15:00",
         checkOutTime: formData.checkOutTime || "11:00",
@@ -2853,7 +2855,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
         featured: formData.featured || false,
         rating: formData.rating ? parseFloat(formData.rating) : null,
         guestRating: formData.guestRating ? parseFloat(formData.guestRating) : null,
-        basePrice: formData.basePrice ? parseInt(formData.basePrice) : null,
+        basePrice: formData.basePrice ? parseInt(formData.basePrice.toString()) : null,
         currency: formData.currency || "EGP",
         parkingAvailable: formData.parkingAvailable || false,
         airportTransferAvailable: formData.airportTransferAvailable || false,
