@@ -939,47 +939,22 @@ export default function PackageDetail() {
                           </div>
                         </div>
                         
-                        <Button 
+                        <BookPackageButton 
+                          package={packageData}
                           className="w-full bg-primary hover:bg-primary/90 text-white"
                           onClick={() => {
-                            if (validateBookingForm()) {
-                              // If validation passes, create a validated package object and trigger booking
-                              const validatedPackage = {
-                                ...packageData,
-                                formData: {
-                                  selectedDate,
-                                  adults,
-                                  children,
-                                  infants,
-                                  roomDistribution,
-                                  hotelPackage
-                                }
-                              };
-                              
-                              // Use the existing BookPackageButton logic
-                              const bookButton = document.querySelector('[data-book-package]') as HTMLButtonElement;
-                              if (bookButton) {
-                                bookButton.click();
-                              } else {
-                                // Fallback: trigger booking directly
-                                window.dispatchEvent(new CustomEvent('bookPackage', { 
-                                  detail: validatedPackage 
-                                }));
-                              }
-                            }
+                            // Validate form before booking
+                            return validateBookingForm();
                           }}
-                        >
-                          Book Now
-                        </Button>
-                        
-                        {/* Hidden BookPackageButton for actual booking logic */}
-                        <div style={{ display: 'none' }}>
-                          <BookPackageButton 
-                            package={packageData}
-                            className="hidden"
-                            data-book-package="true"
-                          />
-                        </div>
+                          formData={{
+                            selectedDate,
+                            adults,
+                            children,
+                            infants,
+                            roomDistribution,
+                            hotelPackage
+                          }}
+                        />
                         
                         <p className="text-xs text-center text-muted-foreground">
                           No payment required to book. You'll only pay when finalizing your reservation.

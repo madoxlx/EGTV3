@@ -22,13 +22,24 @@ interface BookPackageButtonProps {
   className?: string;
   variant?: 'default' | 'outline' | 'secondary' | 'ghost' | 'link' | 'destructive';
   size?: 'default' | 'sm' | 'lg' | 'icon';
+  onClick?: () => boolean | void;
+  formData?: {
+    selectedDate: string;
+    adults: number;
+    children: number;
+    infants: number;
+    roomDistribution: string;
+    hotelPackage: string;
+  };
 }
 
 const BookPackageButton: React.FC<BookPackageButtonProps> = ({ 
   package: pkg, 
   className = '',
   variant = 'default',
-  size = 'default'
+  size = 'default',
+  onClick,
+  formData
 }) => {
   const [isAdding, setIsAdding] = useState(false);
   const [isAdded, setIsAdded] = useState(false);
@@ -39,6 +50,14 @@ const BookPackageButton: React.FC<BookPackageButtonProps> = ({
   const handleBookPackage = async () => {
     console.log('Book Package clicked for:', pkg.title);
     console.log('Current user:', user);
+    
+    // If there's a custom onClick handler (for validation), call it first
+    if (onClick) {
+      const result = onClick();
+      if (result === false) {
+        return; // Validation failed, don't proceed
+      }
+    }
     
     // For now, allow booking without authentication to test functionality
     // if (!user) {
@@ -61,13 +80,15 @@ const BookPackageButton: React.FC<BookPackageButtonProps> = ({
         priceAtAdd: pkg.discountedPrice || pkg.price,
         discountedPriceAtAdd: pkg.discountedPrice || pkg.price,
         quantity: 1,
-        adults: 2,
-        children: 0,
-        infants: 0,
-        travelDate: new Date(Date.now() + 30 * 24 * 60 * 60 * 1000).toISOString(),
+        adults: formData?.adults || 2,
+        children: formData?.children || 0,
+        infants: formData?.infants || 0,
+        travelDate: formData?.selectedDate || new Date(Date.now() + 30 * 24 * 60 * 60 * 1000).toISOString(),
         configuration: {
           duration: pkg.duration,
-          imageUrl: pkg.imageUrl || '/api/placeholder/300/200'
+          imageUrl: pkg.imageUrl || '/api/placeholder/300/200',
+          roomDistribution: formData?.roomDistribution,
+          hotelPackage: formData?.hotelPackage
         }
       };
 

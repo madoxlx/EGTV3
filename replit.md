@@ -106,12 +106,15 @@ The application uses a comprehensive PostgreSQL schema with the following core e
 
 ## Recent Changes
 
-- **Package Booking Form Validation (June 24, 2025)**: Added comprehensive form validation to package detail booking form
-  - Required field validation for travel date, adult count (minimum 1), and room distribution
+- **Package Booking Form Validation Fix (June 25, 2025)**: Fixed booking functionality on package detail pages with comprehensive form validation
+  - Enhanced BookPackageButton to accept validation callbacks and form data parameters
+  - Integrated form validation directly into booking flow to prevent invalid submissions
+  - Form data (date, adults, children, room distribution, hotel package) now properly passes to cart API
+  - Fixed booking button functionality on /packages/test-package-2 and all package detail pages
+  - Validation prevents booking when required fields missing: travel date, minimum 1 adult, room selection
   - Real-time error messaging with visual feedback (red borders, error text)
-  - Form prevents booking submission until all required fields are completed
-  - Clear validation errors when user corrects invalid inputs
-  - Enhanced user experience with proper form validation flow
+  - Automatic validation error clearing when user corrects invalid inputs
+  - Fixed React duplicate key warnings in tour category filters for cleaner console output
 
 - **Package Detail Page Book Now Button Fix (June 24, 2025)**: Fixed non-functional "Book Now" button on package detail pages
   - Replaced static Button component with functional BookPackageButton component

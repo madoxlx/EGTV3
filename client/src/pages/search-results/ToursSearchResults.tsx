@@ -223,14 +223,26 @@ const ToursSearchResults: React.FC = () => {
                   <h3 className="font-medium mb-2">Tour Type</h3>
                   <div className="space-y-2">
                     {tourCategories.length > 0 ? (
-                      tourCategories.map((category: any) => (
-                        <div key={category.id} className="flex items-center">
-                          <Checkbox id={`category-${category.id}`} className="mr-2" />
-                          <Label htmlFor={`category-${category.id}`} className="text-sm font-normal cursor-pointer">
-                            {category.name}
-                          </Label>
-                        </div>
-                      ))
+                      React.useMemo(() => {
+                        // Create unique categories to avoid duplicate keys
+                        const uniqueCategories = new Map();
+                        tourCategories.forEach(category => {
+                          if (!uniqueCategories.has(category.name)) {
+                            uniqueCategories.set(category.name, category);
+                          }
+                        });
+                        return Array.from(uniqueCategories.values());
+                      }, [tourCategories]).map((category: any, index) => {
+                        const uniqueKey = `tour-category-${category.id || index}-${category.name?.replace(/\s+/g, '-').toLowerCase() || 'unknown'}`;
+                        return (
+                          <div key={uniqueKey} className="flex items-center">
+                            <Checkbox id={uniqueKey} className="mr-2" />
+                            <Label htmlFor={uniqueKey} className="text-sm font-normal cursor-pointer">
+                              {category.name}
+                            </Label>
+                          </div>
+                        );
+                      })
                     ) : (
                       <div className="text-sm text-muted-foreground">Loading categories...</div>
                     )}
