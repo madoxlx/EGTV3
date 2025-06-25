@@ -106,6 +106,13 @@ The application uses a comprehensive PostgreSQL schema with the following core e
 
 ## Recent Changes
 
+- **Hotel Creation Form React Infinite Re-render Fix (June 25, 2025)**: Fixed critical React error preventing hotel creation form from loading
+  - Resolved "Maximum update depth exceeded" error caused by empty onCheckedChange handlers in checkbox components
+  - Fixed checkbox event handlers for hotel highlights, facilities, and cleanliness features to use proper toggle functions
+  - Eliminated React console warnings and infinite re-render loops in hotel creation form
+  - Hotel creation form now loads and functions correctly without JavaScript errors
+  - All checkbox interactions for selecting hotel features now work properly
+
 - **Fixed All Hotel API Fetch Problems and Added Sample Data (June 25, 2025)**: Resolved critical API endpoint failures for hotel management
   - Implemented missing storage methods for hotel facilities, highlights, and cleanliness features
   - Added comprehensive hotel facilities data (WiFi, Pool, Spa, Restaurant, etc.)
