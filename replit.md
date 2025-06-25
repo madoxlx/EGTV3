@@ -106,13 +106,14 @@ The application uses a comprehensive PostgreSQL schema with the following core e
 
 ## Recent Changes
 
-- **Hotel Edit Page Error Fix and Complete Hotel Management Resolution (June 25, 2025)**: Fixed hotel edit page JavaScript errors and confirmed full hotel management functionality
-  - Fixed missing useLanguage import in EnhancedHotelEditPage causing "useLanguage is not defined" React error
-  - Hotel edit page at /admin/hotels/edit/:id now loads properly without JavaScript crashes
-  - Verified hotel data retrieval works correctly for existing hotels (tested with hotel ID 4)
-  - Hotel editing functionality now fully operational with proper form data loading
-  - Confirmed hotel creation and editing APIs work correctly with proper authentication
-  - All hotel management features now functional: create, edit, view, and save operations
+- **Hotel Creation Form Field Mapping Fix (June 25, 2025)**: Fixed hotel creation form to properly save all selected values to database
+  - Enhanced API endpoint with proper field transformation to match database schema requirements
+  - Added missing form fields: categoryId, basePrice, countryId, cityId with proper validation
+  - Fixed form data submission to ensure all selected values (stars, category, price, location) are properly sent
+  - Updated form schema to include all required hotel properties with correct field types
+  - Enhanced form state management to properly track country/city selection changes
+  - Hotel creation now saves complete data instead of null values for user selections
+  - Fixed field mapping between frontend form names and backend database column names
 
 - **Complete Hotel Manager Pages Removal and Inline Feature Integration (June 25, 2025)**: Successfully removed all separate hotel manager pages and integrated feature management directly into hotel forms
   - Deleted all manager pages: categories, facilities, highlights, cleanliness features

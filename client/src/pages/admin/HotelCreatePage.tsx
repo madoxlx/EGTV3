@@ -71,7 +71,11 @@ const hotelFormSchema = z.object({
   email: z.string().email({ message: "Please enter a valid email" }).optional().nullable(),
   website: z.string().url({ message: "Please enter a valid URL" }).optional().nullable(),
   imageUrl: z.string().url({ message: "Please enter a valid URL" }).optional().nullable(),
-  stars: z.coerce.number().min(1).max(5).default(3), // Required
+  countryId: z.coerce.number().optional().nullable(),
+  cityId: z.coerce.number().optional().nullable(),
+  categoryId: z.coerce.number().optional().nullable(),
+  stars: z.coerce.number().min(1).max(5).optional().nullable(),
+  basePrice: z.coerce.number().optional().nullable(),
   amenities: z.array(z.string()).default([]),
   checkInTime: z
     .string()
@@ -294,11 +298,23 @@ export default function HotelCreatePage() {
   // Create hotel mutation
   const createHotelMutation = useMutation({
     mutationFn: async (data: HotelFormValues) => {
-      // Convert amenities array to expected format
+      // Convert amenities array to expected format and ensure all fields are included
+      console.log('Form data before processing:', data);
+      console.log('Selected amenities:', selectedAmenities);
+      console.log('Selected country ID:', selectedCountryId);
+      
       const formData = {
         ...data,
         amenities: selectedAmenities,
+        // Ensure countryId and cityId are from the form state, not separate state
+        countryId: data.countryId || selectedCountryId,
+        cityId: data.cityId,
+        categoryId: data.categoryId,
+        stars: data.stars,
+        basePrice: data.basePrice,
       };
+      
+      console.log('Final form data being sent:', formData);
       
       // Clear form data and draft from localStorage on successful submission
       localStorage.removeItem('hotelCreateFormData');
@@ -741,7 +757,7 @@ export default function HotelCreatePage() {
                           <div className="relative">
                             <Select
                               onValueChange={(value) => field.onChange(parseInt(value))}
-                              defaultValue={field.value?.toString() || "3"}
+                              value={field.value?.toString()}
                             >
                               <SelectTrigger 
                                 id="hotel-stars"
@@ -759,6 +775,60 @@ export default function HotelCreatePage() {
                             </Select>
                             <Star className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
                           </div>
+                        </FormControl>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+
+                  {/* Hotel Category */}
+                  <FormField
+                    control={form.control}
+                    name="categoryId"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel>Hotel Category</FormLabel>
+                        <Select 
+                          onValueChange={(value) => field.onChange(parseInt(value))} 
+                          value={field.value?.toString()}
+                        >
+                          <FormControl>
+                            <SelectTrigger 
+                              id="hotel-category"
+                              className="hotel-category-select admin-select"
+                            >
+                              <SelectValue placeholder="Select category" />
+                            </SelectTrigger>
+                          </FormControl>
+                          <SelectContent>
+                            <SelectItem value="1">Luxury</SelectItem>
+                            <SelectItem value="2">Boutique</SelectItem>
+                            <SelectItem value="3">Business</SelectItem>
+                            <SelectItem value="4">Resort</SelectItem>
+                            <SelectItem value="5">Budget</SelectItem>
+                          </SelectContent>
+                        </Select>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+
+                  {/* Base Price */}
+                  <FormField
+                    control={form.control}
+                    name="basePrice"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel>Base Price (EGP per night)</FormLabel>
+                        <FormControl>
+                          <Input
+                            id="hotel-base-price"
+                            type="number"
+                            placeholder="1500"
+                            {...field}
+                            value={field.value || ""}
+                            onChange={(e) => field.onChange(e.target.value ? parseInt(e.target.value) : "")}
+                          />
                         </FormControl>
                         <FormMessage />
                       </FormItem>
