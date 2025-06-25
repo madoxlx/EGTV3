@@ -105,12 +105,42 @@ export default function RoomsPage() {
   // Query to get rooms
   const { data: rawRooms = [], isLoading } = useQuery({
     queryKey: ["/api/admin/rooms"],
+    queryFn: async () => {
+      const response = await fetch("/api/admin/rooms", {
+        method: "GET",
+        credentials: "include",
+        headers: {
+          "Content-Type": "application/json",
+        },
+      });
+      
+      if (!response.ok) {
+        throw new Error(`Failed to fetch rooms: ${response.status}`);
+      }
+      
+      return response.json();
+    },
     staleTime: 1000 * 60 * 5, // 5 minutes
   });
   
   // Query to get hotels for filtering
   const { data: hotels = [] } = useQuery({
     queryKey: ["/api/admin/hotels"],
+    queryFn: async () => {
+      const response = await fetch("/api/admin/hotels", {
+        method: "GET",
+        credentials: "include",
+        headers: {
+          "Content-Type": "application/json",
+        },
+      });
+      
+      if (!response.ok) {
+        throw new Error(`Failed to fetch hotels: ${response.status}`);
+      }
+      
+      return response.json();
+    },
     staleTime: 1000 * 60 * 5, // 5 minutes
   });
 

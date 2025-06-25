@@ -109,6 +109,7 @@ The application uses a comprehensive PostgreSQL schema with the following core e
 - **Rooms API Endpoint Fix (June 25, 2025)**: Fixed critical rooms management page error by adding missing GET /api/admin/rooms endpoint
   - Added missing GET endpoint for /api/admin/rooms with admin authentication
   - Resolved "Invalid request method" fetch error preventing rooms page from loading
+  - Fixed useQuery configuration in RoomsPage components to use explicit queryFn with proper fetch method
   - RoomsPage component can now properly fetch and display rooms data
   - Server now handles rooms listing requests with proper error handling
   - Eliminated unhandled rejection errors in rooms API calls
