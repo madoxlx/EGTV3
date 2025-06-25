@@ -187,6 +187,37 @@ app.use((req, res, next) => {
       }
     });
 
+    // Hotel Features API endpoints
+    app.get('/api/admin/hotel-facilities', async (req, res) => {
+      try {
+        const facilities = await storage.listHotelFacilities();
+        res.json(facilities);
+      } catch (error) {
+        console.error('Error fetching hotel facilities:', error);
+        res.status(500).json({ message: 'Failed to fetch hotel facilities' });
+      }
+    });
+
+    app.get('/api/admin/hotel-highlights', async (req, res) => {
+      try {
+        const highlights = await storage.listHotelHighlights();
+        res.json(highlights);
+      } catch (error) {
+        console.error('Error fetching hotel highlights:', error);
+        res.status(500).json({ message: 'Failed to fetch hotel highlights' });
+      }
+    });
+
+    app.get('/api/admin/cleanliness-features', async (req, res) => {
+      try {
+        const features = await storage.listCleanlinessFeatures();
+        res.json(features);
+      } catch (error) {
+        console.error('Error fetching cleanliness features:', error);
+        res.status(500).json({ message: 'Failed to fetch cleanliness features' });
+      }
+    });
+
     // Register API routes BEFORE frontend setup
     let server: any;
     try {
