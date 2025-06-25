@@ -3011,7 +3011,9 @@ export async function registerRoutes(app: Express): Promise<Server> {
   // Get all rooms (admin only)
   app.get('/api/admin/rooms', isAdmin, async (req, res) => {
     try {
+      console.log('Admin rooms endpoint called');
       const rooms = await storage.listRooms();
+      console.log('Rooms returned from storage:', rooms.length, 'rooms');
       res.json(rooms);
     } catch (error) {
       console.error('Error fetching rooms:', error);
@@ -3036,17 +3038,6 @@ export async function registerRoutes(app: Express): Promise<Server> {
     } catch (error) {
       console.error('Error fetching room:', error);
       res.status(500).json({ message: 'Failed to fetch room' });
-    }
-  });
-  
-  // Get all rooms (admin only)
-  app.get('/api/admin/rooms', isAdmin, async (req, res) => {
-    try {
-      const rooms = await storage.listRooms();
-      res.json(rooms);
-    } catch (error) {
-      console.error('Error fetching rooms:', error);
-      res.status(500).json({ message: 'Failed to fetch rooms' });
     }
   });
   

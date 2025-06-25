@@ -106,53 +106,21 @@ export default function RoomsPage() {
   // Query to get rooms
   const { data: rawRooms = [], isLoading } = useQuery({
     queryKey: ["rooms-admin"],
-    queryFn: async () => {
-      const response = await fetch("/api/admin/rooms", {
-        method: "GET",
-        credentials: "include",
-        headers: {
-          "Content-Type": "application/json",
-        },
-      });
-      
-      if (!response.ok) {
-        throw new Error(`Failed to fetch rooms: ${response.status}`);
-      }
-      
-      return response.json();
-    },
+    queryFn: () => apiRequest("/api/admin/rooms"),
     staleTime: 1000 * 60 * 5, // 5 minutes
   });
   
   // Query to get hotels for filtering
   const { data: hotels = [] } = useQuery({
     queryKey: ["hotels-admin"],
-    queryFn: async () => {
-      const response = await fetch("/api/admin/hotels", {
-        method: "GET",
-        credentials: "include",
-        headers: {
-          "Content-Type": "application/json",
-        },
-      });
-      
-      if (!response.ok) {
-        throw new Error(`Failed to fetch hotels: ${response.status}`);
-      }
-      
-      return response.json();
-    },
+    queryFn: () => apiRequest("/api/admin/hotels"),
     staleTime: 1000 * 60 * 5, // 5 minutes
   });
 
   // Delete room mutation
   const deleteRoomMutation = useMutation({
-    mutationFn: async (roomId: number) => {
-      return await apiRequest(`/api/admin/rooms/${roomId}`, {
-        method: "DELETE",
-        credentials: "include"
-      });
-    },
+    mutationFn: (roomId: number) => 
+      apiRequest(`/api/admin/rooms/${roomId}`, { method: "DELETE" }),
     onSuccess: () => {
       toast({
         title: "Room Deleted",
@@ -165,7 +133,7 @@ export default function RoomsPage() {
       setRoomToDelete(null);
       
       // Invalidate the query to refresh the data
-      queryClient.invalidateQueries({ queryKey: ["/api/admin/rooms"] });
+      queryClient.invalidateQueries({ queryKey: ["rooms-admin"] });
     },
     onError: (error: Error) => {
       toast({
@@ -178,8 +146,20 @@ export default function RoomsPage() {
     },
   });
 
-  // Apply filters to the rooms data
-  const filteredRooms = (Array.isArray(rawRooms) ? rawRooms : []).filter((room: Room) => {
+  // Transform and apply filters to the rooms data
+  const transformedRooms = (Array.isArray(rawRooms) ? rawRooms : []).map((room: any) => ({
+    ...room,
+    hotelId: room.hotel_id || room.hotelId,
+    hotelName: room.hotel_name || `Hotel ${room.hotel_id || room.hotelId}`,
+    maxAdults: room.max_adults || room.maxAdults || 0,
+    maxChildren: room.max_children || room.maxChildren || 0,
+    maxInfants: room.max_infants || room.maxInfants || 0,
+    isActive: room.available !== undefined ? room.available : room.isActive,
+    category: room.type || room.category,
+    images: room.image_url ? [room.image_url] : (room.images || [])
+  }));
+
+  const filteredRooms = transformedRooms.filter((room: Room) => {
     // Search filter
     const matchesSearch = searchQuery === "" || 
       room.name.toLowerCase().includes(searchQuery.toLowerCase()) ||

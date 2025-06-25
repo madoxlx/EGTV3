@@ -590,16 +590,30 @@ export class DatabaseStorage implements IStorage {
   // Rooms management
   async listRooms(hotelId?: number): Promise<any[]> {
     try {
-      let query = db.select().from(rooms).orderBy(rooms.createdAt);
+      console.log('🔍 Listing rooms with hotelId:', hotelId);
       
-      if (hotelId) {
-        query = query.where(eq(rooms.hotelId, hotelId));
+      // Always use raw SQL for reliability
+      const client = await pool.connect();
+      const sqlQuery = hotelId 
+        ? 'SELECT * FROM rooms WHERE hotel_id = $1 ORDER BY created_at DESC'
+        : 'SELECT * FROM rooms ORDER BY created_at DESC';
+      
+      const params = hotelId ? [hotelId] : [];
+      const result = await client.query(sqlQuery, params);
+      client.release();
+      
+      console.log('✅ Rooms query result:', result.rows.length, 'rooms found');
+      if (result.rows.length > 0) {
+        console.log('📋 Sample room:', {
+          id: result.rows[0].id,
+          name: result.rows[0].name,
+          hotel_id: result.rows[0].hotel_id
+        });
       }
       
-      const result = await query;
-      return result || [];
+      return result.rows || [];
     } catch (error) {
-      console.error('Error listing rooms:', error);
+      console.error('❌ Error listing rooms:', error);
       return [];
     }
   }
