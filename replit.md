@@ -106,6 +106,13 @@ The application uses a comprehensive PostgreSQL schema with the following core e
 
 ## Recent Changes
 
+- **Hotel Saving Functionality Fix (June 25, 2025)**: Successfully resolved hotel creation API endpoint issues
+  - Fixed missing isAdmin middleware on /api/admin/hotels POST endpoint causing authentication failures
+  - Added proper null checking in isAdmin middleware to prevent crashes with undefined session users
+  - Enhanced error logging in hotel creation endpoint for better debugging
+  - Server now starts successfully with all database connections and admin panel functionality working
+  - Hotel creation form can now save hotels properly through the admin interface
+
 - **Complete Hotel Manager Pages Removal and Inline Feature Integration (June 25, 2025)**: Successfully removed all separate hotel manager pages and integrated feature management directly into hotel forms
   - Deleted all manager pages: categories, facilities, highlights, cleanliness features
   - Created InlineFeatureManager component for streamlined create/select functionality within hotel forms

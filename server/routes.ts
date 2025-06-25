@@ -75,7 +75,7 @@ const isAdmin = (req: Request, res: Response, next: NextFunction) => {
     return next();
   }
   
-  if (sessionUser.role !== 'admin') {
+  if (sessionUser && sessionUser.role !== 'admin') {
     console.log(`❌ Admin check failed: User role is '${sessionUser.role}', not 'admin'`);
     return res.status(403).json({ 
       message: 'You do not have permission to access this resource',
@@ -2821,10 +2821,13 @@ export async function registerRoutes(app: Express): Promise<Server> {
   });
   
   // Create a new hotel (admin only)
-  app.post('/api/admin/hotels', async (req, res) => {
+  app.post('/api/admin/hotels', isAdmin, async (req, res) => {
     try {
+      console.log('Hotel creation request body:', req.body);
+      
       // For regular hotel creation, proceed with validation
       const validatedHotelData = insertHotelSchema.parse(req.body);
+      console.log('Validated hotel data:', validatedHotelData);
       
       // Check if destination exists if destinationId is provided
       if (validatedHotelData.destinationId) {
@@ -2835,13 +2838,15 @@ export async function registerRoutes(app: Express): Promise<Server> {
       }
       
       const newHotel = await storage.createHotel(validatedHotelData);
+      console.log('Hotel created successfully:', newHotel);
       res.status(201).json(newHotel);
     } catch (error) {
       if (error instanceof z.ZodError) {
+        console.error('Zod validation errors:', error.errors);
         return res.status(400).json({ message: 'Invalid hotel data', errors: error.errors });
       }
       console.error('Error creating hotel:', error);
-      res.status(500).json({ message: 'Failed to create hotel' });
+      res.status(500).json({ message: 'Failed to create hotel', error: error.message });
     }
   });
   
