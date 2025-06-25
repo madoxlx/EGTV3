@@ -106,6 +106,13 @@ The application uses a comprehensive PostgreSQL schema with the following core e
 
 ## Recent Changes
 
+- **Hotel Creation Form Required Field Indicators (June 25, 2025)**: Added red asterisk indicators for all required fields in hotel creation form
+  - Added elegant red asterisks (*) next to all required field labels using text-red-500 class
+  - Required fields marked: Hotel Name, Destination, Address, and Star Rating
+  - Applied consistent styling across the entire form for professional appearance
+  - Updated form validation schema to properly reflect required vs optional fields
+  - Country and City fields remain optional (no asterisk) for flexibility
+
 - **Enhanced Hotel Creation Form Country and City Selectboxes Implementation (June 25, 2025)**: Updated both hotel creation forms to use proper selectboxes for Country and City fields
   - Updated EnhancedHotelCreatePage.tsx to replace City and Country text inputs with Select components
   - Updated HotelCreatePage.tsx to replace City and Country text inputs with Select components

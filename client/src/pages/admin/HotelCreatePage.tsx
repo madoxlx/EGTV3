@@ -57,20 +57,20 @@ import {
 import { Switch } from "@/components/ui/switch";
 import { Checkbox } from "@/components/ui/checkbox";
 
-// Define the schema for hotel form validation
+// Define the schema for hotel form validation  
 const hotelFormSchema = z.object({
-  name: z.string().min(3, { message: "Name must be at least 3 characters" }),
+  name: z.string().min(3, { message: "Name must be at least 3 characters" }), // Required
   description: z.string().optional().nullable(),
-  destinationId: z.coerce.number().positive({ message: "Please select a destination" }),
-  address: z.string().optional().nullable(),
-  cityId: z.coerce.number().positive({ message: "Please select a city" }).optional().nullable(),
-  countryId: z.coerce.number().positive({ message: "Please select a country" }).optional().nullable(),
+  destinationId: z.coerce.number().positive({ message: "Please select a destination" }), // Required
+  address: z.string().min(1, { message: "Address is required" }), // Required
+  cityId: z.coerce.number().positive({ message: "Please select a city" }).nullable(), // Optional now
+  countryId: z.coerce.number().positive({ message: "Please select a country" }).nullable(), // Optional now
   postalCode: z.string().optional().nullable(),
   phone: z.string().optional().nullable(),
   email: z.string().email({ message: "Please enter a valid email" }).optional().nullable(),
   website: z.string().url({ message: "Please enter a valid URL" }).optional().nullable(),
   imageUrl: z.string().url({ message: "Please enter a valid URL" }).optional().nullable(),
-  stars: z.coerce.number().min(1).max(5).default(3),
+  stars: z.coerce.number().min(1).max(5).default(3), // Required
   amenities: z.array(z.string()).default([]),
   checkInTime: z
     .string()
@@ -446,7 +446,7 @@ export default function HotelCreatePage() {
                     name="name"
                     render={({ field }) => (
                       <FormItem>
-                        <FormLabel>Hotel Name*</FormLabel>
+                        <FormLabel>Hotel Name <span className="text-red-500">*</span></FormLabel>
                         <FormControl>
                           <Input 
                             id="hotel-name"
@@ -466,7 +466,7 @@ export default function HotelCreatePage() {
                     name="destinationId"
                     render={({ field }) => (
                       <FormItem>
-                        <FormLabel>Destination*</FormLabel>
+                        <FormLabel>Destination <span className="text-red-500">*</span></FormLabel>
                         <Select
                           onValueChange={(value) => field.onChange(parseInt(value))}
                           defaultValue={field.value?.toString()}
@@ -521,7 +521,7 @@ export default function HotelCreatePage() {
                     name="address"
                     render={({ field }) => (
                       <FormItem>
-                        <FormLabel>Address</FormLabel>
+                        <FormLabel>Address <span className="text-red-500">*</span></FormLabel>
                         <FormControl>
                           <div className="relative">
                             <Input
@@ -735,7 +735,7 @@ export default function HotelCreatePage() {
                     name="stars"
                     render={({ field }) => (
                       <FormItem>
-                        <FormLabel>Star Rating</FormLabel>
+                        <FormLabel>Star Rating <span className="text-red-500">*</span></FormLabel>
                         <FormControl>
                           <div className="relative">
                             <Select
