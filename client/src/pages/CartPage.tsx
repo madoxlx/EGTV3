@@ -29,6 +29,15 @@ export default function CartPage() {
     }
   }, [user, authLoading, setLocation]);
 
+  // Update quantity function
+  const updateQuantity = (itemId: number, newQuantity: number) => {
+    if (newQuantity < 1) {
+      removeFromCart(itemId);
+      return;
+    }
+    updateCartItem(itemId, { quantity: newQuantity });
+  };
+
   // Show loading state
   if (authLoading || cartLoading) {
     return (

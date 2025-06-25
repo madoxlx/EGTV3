@@ -106,6 +106,13 @@ The application uses a comprehensive PostgreSQL schema with the following core e
 
 ## Recent Changes
 
+- **Cart Controls and Navigation Fix (June 25, 2025)**: Fixed cart page navigation and interactive controls
+  - Changed cart icon in header to link to /cart instead of /checkout for proper cart page access
+  - Added missing updateQuantity function to enable quantity controls (+/- buttons)
+  - Fixed cart page to display all interactive controls: delete buttons, quantity adjustment, checkout progression
+  - Cart page now shows proper controls for each item with individual removal and quantity management
+  - Authentication-protected cart access with proper user experience flow
+
 - **Package Multiple Cart Addition Fix (June 25, 2025)**: Fixed package booking functionality to allow multiple cart additions
   - Enhanced cart API endpoint to handle duplicate packages by incrementing quantities instead of blocking
   - Packages can now be added to cart multiple times with proper quantity management

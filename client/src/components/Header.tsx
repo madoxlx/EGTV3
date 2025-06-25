@@ -238,7 +238,7 @@ const Header: React.FC = () => {
             </Link>
           )}
 
-          <Link href="/checkout">
+          <Link href="/cart">
             <Button 
               variant="ghost" 
               size="icon" 
