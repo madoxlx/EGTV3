@@ -296,7 +296,10 @@ export default function HotelCreatePage() {
   // Create hotel mutation
   const createHotelMutation = useMutation({
     mutationFn: async (data: HotelFormValues) => {
-      // Map form fields to database schema
+      console.log('Form data before submission:', data);
+      console.log('Selected amenities:', selectedAmenities);
+      
+      // Map form fields to database schema with proper field mapping
       const formData = {
         name: data.name,
         description: data.description,
@@ -311,15 +314,17 @@ export default function HotelCreatePage() {
         email: data.email,
         website: data.website,
         imageUrl: data.imageUrl,
-        stars: data.stars,
-        amenities: JSON.stringify(selectedAmenities), // Convert to JSON string
+        stars: data.stars, // This should be properly passed
+        amenities: selectedAmenities.length > 0 ? JSON.stringify(selectedAmenities) : null,
         checkInTime: data.checkInTime,
         checkOutTime: data.checkOutTime,
-        longitude: data.longitude,
-        latitude: data.latitude,
-        featured: data.featured,
-        status: data.status,
+        longitude: data.longitude || null,
+        latitude: data.latitude || null,
+        featured: data.featured || false,
+        status: data.status || "active",
       };
+      
+      console.log('Mapped form data for API:', formData);
       
       // Clear form data and draft from localStorage on successful submission
       localStorage.removeItem('hotelCreateFormData');
