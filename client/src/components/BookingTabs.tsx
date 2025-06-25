@@ -1250,8 +1250,18 @@ const BookingTabs: React.FC = () => {
                           <SelectValue placeholder="Select Type" />
                         </SelectTrigger>
                         <SelectContent>
-                          {tourCategories.map((category: {value: string, label: string}) => (
-                            <SelectItem key={category.value} value={category.value}>
+                          {React.useMemo(() => {
+                            // Create unique categories to avoid duplicate keys
+                            const uniqueCategories = new Map();
+                            tourCategories.forEach((category, index) => {
+                              const key = `${category.value}-${index}`;
+                              if (!uniqueCategories.has(category.value)) {
+                                uniqueCategories.set(category.value, { ...category, uniqueKey: key });
+                              }
+                            });
+                            return Array.from(uniqueCategories.values());
+                          }, [tourCategories]).map((category: any) => (
+                            <SelectItem key={category.uniqueKey || category.value} value={category.value}>
                               {category.label}
                             </SelectItem>
                           ))}

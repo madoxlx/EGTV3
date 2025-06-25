@@ -106,7 +106,11 @@ The application uses a comprehensive PostgreSQL schema with the following core e
 
 ## Recent Changes
 
-- **Package Booking Form Validation Fix (June 25, 2025)**: Fixed booking functionality on package detail pages with comprehensive form validation
+- **Package Multiple Cart Addition Fix (June 25, 2025)**: Fixed package booking functionality to allow multiple cart additions
+  - Enhanced cart API endpoint to handle duplicate packages by incrementing quantities instead of blocking
+  - Packages can now be added to cart multiple times with proper quantity management
+  - Fixed React duplicate key warnings in BookingTabs and ToursSearchResults components
+  - Implemented proper unique key generation with React.useMemo for tour categories
   - Enhanced BookPackageButton to accept validation callbacks and form data parameters
   - Integrated form validation directly into booking flow to prevent invalid submissions
   - Form data (date, adults, children, room distribution, hotel package) now properly passes to cart API
@@ -114,7 +118,7 @@ The application uses a comprehensive PostgreSQL schema with the following core e
   - Validation prevents booking when required fields missing: travel date, minimum 1 adult, room selection
   - Real-time error messaging with visual feedback (red borders, error text)
   - Automatic validation error clearing when user corrects invalid inputs
-  - Fixed React duplicate key warnings in tour category filters for cleaner console output
+  - Eliminated all React console warnings for cleaner component rendering
 
 - **Package Detail Page Book Now Button Fix (June 24, 2025)**: Fixed non-functional "Book Now" button on package detail pages
   - Replaced static Button component with functional BookPackageButton component
