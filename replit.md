@@ -106,12 +106,13 @@ The application uses a comprehensive PostgreSQL schema with the following core e
 
 ## Recent Changes
 
-- **Hotel Saving Functionality Fix (June 25, 2025)**: Successfully resolved hotel creation API endpoint issues
-  - Fixed missing isAdmin middleware on /api/admin/hotels POST endpoint causing authentication failures
-  - Added proper null checking in isAdmin middleware to prevent crashes with undefined session users
-  - Enhanced error logging in hotel creation endpoint for better debugging
-  - Server now starts successfully with all database connections and admin panel functionality working
-  - Hotel creation form can now save hotels properly through the admin interface
+- **Hotel Edit Page Error Fix and Complete Hotel Management Resolution (June 25, 2025)**: Fixed hotel edit page JavaScript errors and confirmed full hotel management functionality
+  - Fixed missing useLanguage import in EnhancedHotelEditPage causing "useLanguage is not defined" React error
+  - Hotel edit page at /admin/hotels/edit/:id now loads properly without JavaScript crashes
+  - Verified hotel data retrieval works correctly for existing hotels (tested with hotel ID 4)
+  - Hotel editing functionality now fully operational with proper form data loading
+  - Confirmed hotel creation and editing APIs work correctly with proper authentication
+  - All hotel management features now functional: create, edit, view, and save operations
 
 - **Complete Hotel Manager Pages Removal and Inline Feature Integration (June 25, 2025)**: Successfully removed all separate hotel manager pages and integrated feature management directly into hotel forms
   - Deleted all manager pages: categories, facilities, highlights, cleanliness features
