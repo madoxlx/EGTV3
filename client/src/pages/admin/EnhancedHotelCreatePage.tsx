@@ -94,6 +94,9 @@ import {
   FileQuestion,
   RefreshCw,
   Trash2,
+  Link,
+  Image,
+  Upload,
 } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 
@@ -254,6 +257,13 @@ export default function EnhancedHotelCreatePage() {
   const [isSearchingLandmarks, setIsSearchingLandmarks] = useState(false);
   const [suggestedLandmarks, setSuggestedLandmarks] = useState<any[]>([]);
   
+  // Image management state
+  const [mainImageFile, setMainImageFile] = useState<File | null>(null);
+  const [mainImagePreview, setMainImagePreview] = useState<string>("");
+  const [galleryFiles, setGalleryFiles] = useState<File[]>([]);
+  const [galleryPreviews, setGalleryPreviews] = useState<string[]>([]);
+  const [imageUploadMethod, setImageUploadMethod] = useState<'url' | 'upload'>('url');
+  
   // Google Maps integration
   const [apiKey, setApiKey] = useState<string>("");
   const { isLoaded } = useLoadScript({
@@ -279,6 +289,45 @@ export default function EnhancedHotelCreatePage() {
     
     fetchApiKey();
   }, []);
+
+  // Image handling functions
+  const handleMainImageUpload = (event: React.ChangeEvent<HTMLInputElement>) => {
+    const file = event.target.files?.[0];
+    if (file) {
+      setMainImageFile(file);
+      const reader = new FileReader();
+      reader.onload = (e) => {
+        setMainImagePreview(e.target?.result as string);
+      };
+      reader.readAsDataURL(file);
+    }
+  };
+
+  const handleGalleryImageUpload = (event: React.ChangeEvent<HTMLInputElement>) => {
+    const files = Array.from(event.target.files || []);
+    if (files.length > 0) {
+      setGalleryFiles(prev => [...prev, ...files]);
+      
+      files.forEach(file => {
+        const reader = new FileReader();
+        reader.onload = (e) => {
+          setGalleryPreviews(prev => [...prev, e.target?.result as string]);
+        };
+        reader.readAsDataURL(file);
+      });
+    }
+  };
+
+  const removeMainImage = () => {
+    setMainImageFile(null);
+    setMainImagePreview("");
+    form.setValue("imageUrl", "");
+  };
+
+  const removeGalleryImage = (index: number) => {
+    setGalleryFiles(prev => prev.filter((_, i) => i !== index));
+    setGalleryPreviews(prev => prev.filter((_, i) => i !== index));
+  };
 
   // Form setup with default values
   const form = useForm<HotelFormValues>({
@@ -529,7 +578,7 @@ export default function EnhancedHotelCreatePage() {
                         name="name"
                         render={({ field }) => (
                           <FormItem>
-                            <FormLabel>Hotel Name*</FormLabel>
+                            <FormLabel>Hotel Name <span className="text-red-500">*</span></FormLabel>
                             <FormControl>
                               <Input placeholder="Grand Hotel" {...field} />
                             </FormControl>
@@ -544,7 +593,7 @@ export default function EnhancedHotelCreatePage() {
                         name="destinationId"
                         render={({ field }) => (
                           <FormItem>
-                            <FormLabel>Destination*</FormLabel>
+                            <FormLabel>Destination <span className="text-red-500">*</span></FormLabel>
                             <Select
                               onValueChange={(value) => field.onChange(parseInt(value))}
                               defaultValue={field.value?.toString()}
@@ -595,7 +644,7 @@ export default function EnhancedHotelCreatePage() {
                         name="address"
                         render={({ field }) => (
                           <FormItem>
-                            <FormLabel>Address*</FormLabel>
+                            <FormLabel>Address <span className="text-red-500">*</span></FormLabel>
                             <FormControl>
                               <div className="relative">
                                 <Input
@@ -617,7 +666,7 @@ export default function EnhancedHotelCreatePage() {
                         name="countryId"
                         render={({ field }) => (
                           <FormItem>
-                            <FormLabel>Country*</FormLabel>
+                            <FormLabel>Country</FormLabel>
                             <Select 
                               onValueChange={(value) => {
                                 const countryId = parseInt(value);
@@ -652,7 +701,7 @@ export default function EnhancedHotelCreatePage() {
                         name="cityId"
                         render={({ field }) => (
                           <FormItem>
-                            <FormLabel>City*</FormLabel>
+                            <FormLabel>City</FormLabel>
                             <Select 
                               onValueChange={(value) => {
                                 field.onChange(parseInt(value));
@@ -708,7 +757,7 @@ export default function EnhancedHotelCreatePage() {
                         name="stars"
                         render={({ field }) => (
                           <FormItem>
-                            <FormLabel>Star Rating*</FormLabel>
+                            <FormLabel>Star Rating <span className="text-red-500">*</span></FormLabel>
                             <FormControl>
                               <div className="relative">
                                 <Select
@@ -834,24 +883,174 @@ export default function EnhancedHotelCreatePage() {
                         )}
                       />
 
-                      {/* Image URL */}
-                      <FormField
-                        control={form.control}
-                        name="imageUrl"
-                        render={({ field }) => (
-                          <FormItem>
-                            <FormLabel>Image URL</FormLabel>
-                            <FormControl>
-                              <Input
-                                placeholder="https://example.com/hotel-image.jpg"
-                                {...field}
-                                value={field.value || ""}
+                      {/* Image Management */}
+                      <div className="md:col-span-2">
+                        <div className="space-y-4">
+                          <div className="flex items-center gap-4">
+                            <h3 className="text-lg font-semibold flex items-center gap-2">
+                              <Image className="h-5 w-5" />
+                              Hotel Images
+                            </h3>
+                            <div className="flex gap-2">
+                              <Button
+                                type="button"
+                                variant={imageUploadMethod === 'url' ? 'default' : 'outline'}
+                                size="sm"
+                                onClick={() => setImageUploadMethod('url')}
+                              >
+                                <Link className="h-4 w-4 mr-1" />
+                                URL
+                              </Button>
+                              <Button
+                                type="button"
+                                variant={imageUploadMethod === 'upload' ? 'default' : 'outline'}
+                                size="sm"
+                                onClick={() => setImageUploadMethod('upload')}
+                              >
+                                <Upload className="h-4 w-4 mr-1" />
+                                Upload
+                              </Button>
+                            </div>
+                          </div>
+
+                          {/* Main Image Section */}
+                          <div className="border rounded-lg p-4 space-y-4">
+                            <h4 className="font-medium flex items-center gap-2">
+                              <Camera className="h-4 w-4" />
+                              Main Image
+                            </h4>
+                            
+                            {imageUploadMethod === 'url' ? (
+                              <FormField
+                                control={form.control}
+                                name="imageUrl"
+                                render={({ field }) => (
+                                  <FormItem>
+                                    <FormLabel>Main Image URL</FormLabel>
+                                    <FormControl>
+                                      <div className="flex gap-2">
+                                        <Input
+                                          placeholder="https://example.com/hotel-image.jpg"
+                                          {...field}
+                                          value={field.value || ""}
+                                          className="flex-1"
+                                        />
+                                        {field.value && (
+                                          <Button
+                                            type="button"
+                                            variant="outline"
+                                            size="sm"
+                                            onClick={() => field.onChange("")}
+                                          >
+                                            <X className="h-4 w-4" />
+                                          </Button>
+                                        )}
+                                      </div>
+                                    </FormControl>
+                                    <FormMessage />
+                                  </FormItem>
+                                )}
                               />
-                            </FormControl>
-                            <FormMessage />
-                          </FormItem>
-                        )}
-                      />
+                            ) : (
+                              <div className="space-y-2">
+                                <label className="text-sm font-medium">Upload Main Image</label>
+                                <div className="flex items-center gap-4">
+                                  <div className="flex-1">
+                                    <Input
+                                      type="file"
+                                      accept="image/*"
+                                      onChange={handleMainImageUpload}
+                                      className="cursor-pointer"
+                                    />
+                                  </div>
+                                  {mainImagePreview && (
+                                    <Button
+                                      type="button"
+                                      variant="outline"
+                                      size="sm"
+                                      onClick={removeMainImage}
+                                    >
+                                      <X className="h-4 w-4" />
+                                    </Button>
+                                  )}
+                                </div>
+                                {mainImagePreview && (
+                                  <div className="mt-2">
+                                    <img
+                                      src={mainImagePreview}
+                                      alt="Main image preview"
+                                      className="w-32 h-24 object-cover rounded-md border"
+                                    />
+                                  </div>
+                                )}
+                              </div>
+                            )}
+
+                            {/* Preview for URL method */}
+                            {imageUploadMethod === 'url' && form.watch("imageUrl") && (
+                              <div className="mt-2">
+                                <img
+                                  src={form.watch("imageUrl")}
+                                  alt="Main image preview"
+                                  className="w-32 h-24 object-cover rounded-md border"
+                                  onError={(e) => {
+                                    e.currentTarget.style.display = 'none';
+                                  }}
+                                />
+                              </div>
+                            )}
+                          </div>
+
+                          {/* Gallery Images Section */}
+                          <div className="border rounded-lg p-4 space-y-4">
+                            <h4 className="font-medium flex items-center gap-2">
+                              <Image className="h-4 w-4" />
+                              Gallery Images
+                            </h4>
+                            
+                            {imageUploadMethod === 'upload' && (
+                              <div className="space-y-2">
+                                <label className="text-sm font-medium">Upload Gallery Images</label>
+                                <Input
+                                  type="file"
+                                  accept="image/*"
+                                  multiple
+                                  onChange={handleGalleryImageUpload}
+                                  className="cursor-pointer"
+                                />
+                                {galleryPreviews.length > 0 && (
+                                  <div className="grid grid-cols-2 md:grid-cols-4 gap-2 mt-4">
+                                    {galleryPreviews.map((preview, index) => (
+                                      <div key={index} className="relative">
+                                        <img
+                                          src={preview}
+                                          alt={`Gallery image ${index + 1}`}
+                                          className="w-full h-24 object-cover rounded-md border"
+                                        />
+                                        <Button
+                                          type="button"
+                                          variant="destructive"
+                                          size="sm"
+                                          className="absolute top-1 right-1 w-6 h-6 p-0"
+                                          onClick={() => removeGalleryImage(index)}
+                                        >
+                                          <X className="h-3 w-3" />
+                                        </Button>
+                                      </div>
+                                    ))}
+                                  </div>
+                                )}
+                              </div>
+                            )}
+                            
+                            {imageUploadMethod === 'url' && (
+                              <div className="text-sm text-muted-foreground">
+                                Gallery images via URL will be available in a future update. For now, please use the upload method for gallery images.
+                              </div>
+                            )}
+                          </div>
+                        </div>
+                      </div>
                     </div>
                     
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-6">

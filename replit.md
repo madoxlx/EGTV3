@@ -106,6 +106,19 @@ The application uses a comprehensive PostgreSQL schema with the following core e
 
 ## Recent Changes
 
+- **Enhanced Hotel Image Management System with Required Field Indicators (June 25, 2025)**: Implemented comprehensive image upload functionality for hotel creation
+  - Added dual input method: URL input OR file upload with toggle buttons for flexible image management
+  - Separated main image and gallery image sections with clear visual organization
+  - Main image supports both URL input and file upload with live preview functionality
+  - Gallery images support multiple file uploads with responsive grid preview layout
+  - Added image removal functionality with X buttons for both main and gallery images
+  - Implemented proper file handling with FileReader for instant image previews
+  - Enhanced UI with camera and image icons for better visual guidance and professional appearance
+  - Gallery section displays uploaded images in responsive grid with individual delete controls
+  - Applied red asterisk indicators to all required fields (Hotel Name, Destination, Address, Star Rating)
+  - Updated form validation schema to properly reflect required vs optional field requirements
+  - Country and City fields remain optional for flexibility in hotel location specification
+
 - **Hotel Creation Form Required Field Indicators (June 25, 2025)**: Added red asterisk indicators for all required fields in hotel creation form
   - Added elegant red asterisks (*) next to all required field labels using text-red-500 class
   - Required fields marked: Hotel Name, Destination, Address, and Star Rating
