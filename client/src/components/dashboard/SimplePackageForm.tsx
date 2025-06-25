@@ -1086,14 +1086,22 @@ export function PackageCreatorForm({ packageId, onNavigateRequest }: PackageCrea
   
   // Function to filter tours based on search query
   const getFilteredTours = () => {
+    // Ensure tours is an array
+    if (!Array.isArray(tours) || tours.length === 0) {
+      return [];
+    }
+    
     if (!tourSearchQuery.trim()) {
-      // If empty query, return the most recent 10 tours
-      return [...tours].sort((a, b) => b.id - a.id).slice(0, 10);
+      // If empty query, return all tours sorted by ID (most recent first)
+      return [...tours]
+        .filter(tour => tour && tour.id && tour.name) // Filter out invalid entries
+        .sort((a, b) => (b.id || 0) - (a.id || 0))
+        .slice(0, 10);
     }
     
     // Otherwise filter by name match
     return tours.filter(tour => 
-      tour.name.toLowerCase().includes(tourSearchQuery.toLowerCase())
+      tour && tour.name && tour.name.toLowerCase().includes(tourSearchQuery.toLowerCase())
     );
   };
   
@@ -2422,7 +2430,7 @@ export function PackageCreatorForm({ packageId, onNavigateRequest }: PackageCrea
                   <div className="absolute z-10 w-full mt-1 max-h-60 overflow-auto bg-white border rounded-md shadow-lg">
                     {!tourSearchQuery.trim() && (
                       <div className="px-4 py-2 text-sm text-zinc-500 border-b">
-                        Showing 10 most recently added tours
+                        Showing {Math.min(tours.length, 10)} of {tours.length} available tours
                       </div>
                     )}
                     
@@ -2435,7 +2443,9 @@ export function PackageCreatorForm({ packageId, onNavigateRequest }: PackageCrea
                         >
                           <div className="flex justify-between">
                             <span className="font-medium">{tour.name}</span>
-                            <span className="text-sm font-semibold text-green-700">${tour.price}</span>
+                            <span className="text-sm font-semibold text-green-700">
+                              {tour.price ? `${tour.price.toLocaleString('ar-EG')} EGP` : 'Price TBD'}
+                            </span>
                           </div>
                           {tour.description && (
                             <p className="text-xs text-gray-600 mt-1 truncate">
@@ -2445,7 +2455,9 @@ export function PackageCreatorForm({ packageId, onNavigateRequest }: PackageCrea
                         </div>
                       ))
                     ) : (
-                      <div className="px-4 py-2 text-gray-500">No tours found</div>
+                      <div className="px-4 py-2 text-gray-500">
+                        {tours.length === 0 ? 'Loading tours...' : 'No tours found matching your search'}
+                      </div>
                     )}
                   </div>
                 )}
@@ -2471,7 +2483,9 @@ export function PackageCreatorForm({ packageId, onNavigateRequest }: PackageCrea
                   <div className="grid grid-cols-2 gap-4 mt-4">
                     <div className="p-3 bg-zinc-50 rounded-md border border-zinc-100">
                       <h5 className="text-xs font-medium text-zinc-700 mb-1">Base Price</h5>
-                      <p className="text-lg font-semibold text-emerald-600">${selectedTour.price}</p>
+                      <p className="text-lg font-semibold text-emerald-600">
+                        {selectedTour.price ? `${selectedTour.price.toLocaleString('ar-EG')} EGP` : 'Price TBD'}
+                      </p>
                     </div>
                     
                     <div className="p-3 bg-zinc-50 rounded-md border border-zinc-100">

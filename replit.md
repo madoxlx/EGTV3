@@ -106,6 +106,14 @@ The application uses a comprehensive PostgreSQL schema with the following core e
 
 ## Recent Changes
 
+- **Tour Selection Dropdown Display Fix (June 25, 2025)**: Fixed tour selection dropdown to properly display all available tours
+  - Enhanced tour filtering function with comprehensive error handling and data validation
+  - Fixed dropdown display to show accurate count of available tours (8 tours from database)
+  - Updated currency display in tour dropdown and selected tour details to use EGP format consistently
+  - Improved error messaging to distinguish between loading and no results states
+  - Tour selection now properly displays all database tours including "Alexandria Day Trip from Cairo", "Pyramids & Sphinx Half Day Tour", etc.
+  - Dropdown shows "Showing X of Y available tours" with proper tour count and search functionality
+
 - **Enhanced Form Validation with User Requirements Display (June 25, 2025)**: Improved package form validation to show detailed user requirements
   - Created FormRequirementsAlert component to display comprehensive field requirements in error messages
   - Enhanced validation error display to show specific requirements for each field (character limits, format expectations)
