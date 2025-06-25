@@ -60,7 +60,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     queryKey: ["/api/user"],
     queryFn: async () => {
       try {
-        return await apiRequest('GET', '/api/user');
+        return await apiRequest('/api/user');
       } catch (error: any) {
         if (error.message?.includes('401')) {
           localStorage.removeItem('user');
@@ -77,7 +77,10 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const loginMutation = useMutation({
     mutationFn: async (credentials: LoginData) => {
       try {
-        return await apiRequest<User>('POST', '/api/login', credentials);
+        return await apiRequest<User>('/api/login', {
+          method: 'POST',
+          body: JSON.stringify(credentials),
+        });
       } catch (error) {
         if (error instanceof Error) {
           throw error;

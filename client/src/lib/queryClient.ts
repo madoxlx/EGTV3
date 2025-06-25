@@ -8,23 +8,22 @@ async function throwIfResNotOk(res: Response) {
 }
 
 export async function apiRequest<T = any>(
-  method: string,
-  url: string, 
-  data?: any
+  url: string,
+  options?: RequestInit
 ): Promise<T> {
-  const options: RequestInit = {
-    method,
+  const defaultOptions: RequestInit = {
+    method: 'GET',
     headers: { "Content-Type": "application/json" },
     credentials: "include",
   };
 
-  if (data && (method === 'POST' || method === 'PATCH' || method === 'PUT')) {
-    options.body = JSON.stringify(data);
-  }
+  const mergedOptions = options 
+    ? { ...defaultOptions, ...options } 
+    : defaultOptions;
 
-  console.log(`API ${method} ${url}:`, data);
+  console.log(`API ${mergedOptions.method} ${url}:`, mergedOptions.body ? JSON.parse(mergedOptions.body as string) : null);
   
-  const res = await fetch(url, options);
+  const res = await fetch(url, mergedOptions);
   
   console.log(`Response status: ${res.status}`);
   

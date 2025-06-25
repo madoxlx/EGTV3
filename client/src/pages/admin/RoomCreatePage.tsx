@@ -317,10 +317,13 @@ export default function RoomCreatePage() {
 
       console.log("Sending room data:", roomData);
 
-      return await apiRequest("/api/admin/rooms", {
-        method: isEditMode ? "PUT" : "POST",
-        body: JSON.stringify(roomData),
-      });
+      return await apiRequest(
+        isEditMode ? `/api/admin/rooms/${roomId}` : "/api/admin/rooms",
+        {
+          method: isEditMode ? "PUT" : "POST",
+          body: JSON.stringify(roomData),
+        }
+      );
     },
     onSuccess: () => {
       toast({
