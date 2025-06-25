@@ -106,6 +106,14 @@ The application uses a comprehensive PostgreSQL schema with the following core e
 
 ## Recent Changes
 
+- **Hotels and Rooms API Database Fix (June 25, 2025)**: Resolved critical database schema errors preventing hotels and rooms API functionality
+  - Fixed missing country_id column in hotels table causing "column does not exist" errors
+  - Added automatic database schema migration to add country_id column with proper foreign key reference
+  - Implemented missing listRooms method in storage layer with proper filtering and hotel association
+  - Added comprehensive rooms CRUD operations (create, update, delete) to storage layer
+  - Hotels API endpoint now functional with proper country and location data support
+  - Rooms API endpoint now returns proper room data with hotel associations and filtering capabilities
+
 - **Package Edit Data Retrieval Fix (June 25, 2025)**: Fixed package editing functionality to properly load all existing data
   - Fixed package ID comparison logic in SimplePackageForm query to handle both string and numeric IDs
   - Package edit pages now properly retrieve and populate all form fields with existing data

@@ -287,6 +287,18 @@ export class DatabaseStorage implements IStorage {
 
   async listHotels(active?: boolean): Promise<Hotel[]> {
     try {
+      // First check if country_id column exists, if not, add it
+      const client = await pool.connect();
+      try {
+        await client.query(`
+          ALTER TABLE hotels 
+          ADD COLUMN IF NOT EXISTS country_id INTEGER REFERENCES countries(id)
+        `);
+      } catch (alterError) {
+        console.log('Country ID column may already exist or table structure issue:', alterError.message);
+      }
+      client.release();
+      
       if (active !== undefined) {
         return await db.select().from(hotels).where(eq(hotels.status, active ? 'active' : 'inactive')).orderBy(desc(hotels.createdAt));
       }
@@ -542,6 +554,90 @@ export class DatabaseStorage implements IStorage {
     } catch (error) {
       console.error('Error updating site language settings:', error);
       return undefined;
+    }
+  }
+
+  // Rooms management
+  async listRooms(hotelId?: number): Promise<any[]> {
+    try {
+      const client = await pool.connect();
+      let query = 'SELECT * FROM rooms WHERE status = $1 ORDER BY created_at DESC';
+      let params = ['active'];
+      
+      if (hotelId) {
+        query = 'SELECT * FROM rooms WHERE hotel_id = $1 AND status = $2 ORDER BY created_at DESC';
+        params = [hotelId.toString(), 'active'];
+      }
+      
+      const result = await client.query(query, params);
+      client.release();
+      return result.rows || [];
+    } catch (error) {
+      console.error('Error listing rooms:', error);
+      return [];
+    }
+  }
+
+  async createRoom(room: any): Promise<any> {
+    try {
+      const client = await pool.connect();
+      const result = await client.query(`
+        INSERT INTO rooms (
+          name, description, hotel_id, type, max_occupancy, max_adults, 
+          max_children, max_infants, price, discounted_price, currency,
+          image_url, size, bed_type, amenities, view, available, status
+        ) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, $15, $16, $17, $18) 
+        RETURNING *
+      `, [
+        room.name, room.description, room.hotelId, room.type, room.maxOccupancy,
+        room.maxAdults, room.maxChildren || 0, room.maxInfants || 0,
+        room.price, room.discountedPrice, room.currency || 'EGP',
+        room.imageUrl, room.size, room.bedType, JSON.stringify(room.amenities || []),
+        room.view, room.available !== false, room.status || 'active'
+      ]);
+      client.release();
+      return result.rows[0] || null;
+    } catch (error) {
+      console.error('Error creating room:', error);
+      throw error;
+    }
+  }
+
+  async updateRoom(id: number, room: any): Promise<any> {
+    try {
+      const client = await pool.connect();
+      const result = await client.query(`
+        UPDATE rooms SET 
+          name = $1, description = $2, hotel_id = $3, type = $4, max_occupancy = $5,
+          max_adults = $6, max_children = $7, max_infants = $8, price = $9,
+          discounted_price = $10, currency = $11, image_url = $12, size = $13,
+          bed_type = $14, amenities = $15, view = $16, available = $17, status = $18,
+          updated_at = NOW()
+        WHERE id = $19 RETURNING *
+      `, [
+        room.name, room.description, room.hotelId, room.type, room.maxOccupancy,
+        room.maxAdults, room.maxChildren || 0, room.maxInfants || 0,
+        room.price, room.discountedPrice, room.currency || 'EGP',
+        room.imageUrl, room.size, room.bedType, JSON.stringify(room.amenities || []),
+        room.view, room.available !== false, room.status || 'active', id
+      ]);
+      client.release();
+      return result.rows[0] || null;
+    } catch (error) {
+      console.error('Error updating room:', error);
+      throw error;
+    }
+  }
+
+  async deleteRoom(id: number): Promise<boolean> {
+    try {
+      const client = await pool.connect();
+      const result = await client.query('DELETE FROM rooms WHERE id = $1', [id]);
+      client.release();
+      return result.rowCount > 0;
+    } catch (error) {
+      console.error('Error deleting room:', error);
+      return false;
     }
   }
 }
