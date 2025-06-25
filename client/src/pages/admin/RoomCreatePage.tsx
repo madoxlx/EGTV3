@@ -38,21 +38,61 @@ import { Checkbox } from "@/components/ui/checkbox";
 import { useToast } from "@/hooks/use-toast";
 import { apiRequest } from "@/lib/queryClient";
 import { ChevronRight, Save } from "lucide-react";
-// Room form schema
+// Room form schema matching database schema
 const roomFormSchema = z.object({
   name: z.string().min(2, "Name must be at least 2 characters"),
   description: z.string().optional(),
   hotelId: z.string().min(1, "Hotel is required"),
-  price: z.number().min(0, "Price must be a positive number"),
-  maxAdults: z.number().min(0, "Must be a positive number"),
+  type: z.string().min(1, "Room type is required"),
+  maxOccupancy: z.number().min(1, "Maximum occupancy must be at least 1"),
+  maxAdults: z.number().min(1, "Must accommodate at least 1 adult"),
   maxChildren: z.number().min(0, "Must be a positive number"),
   maxInfants: z.number().min(0, "Must be a positive number"),
+  price: z.number().min(0, "Price must be a positive number"),
+  discountedPrice: z.number().min(0, "Discounted price must be positive").optional(),
+  size: z.string().optional(),
+  bedType: z.string().optional(),
+  view: z.string().optional(),
   amenities: z.array(z.string()).optional(),
-  images: z.array(z.string()).optional(),
-  isActive: z.boolean().default(true),
+  available: z.boolean().default(true),
 });
 
 type RoomFormValues = z.infer<typeof roomFormSchema>;
+
+// Define room type options
+const roomTypeOptions = [
+  { value: "standard", label: "Standard Room" },
+  { value: "deluxe", label: "Deluxe Room" },
+  { value: "suite", label: "Suite" },
+  { value: "family", label: "Family Room" },
+  { value: "presidential", label: "Presidential Suite" },
+  { value: "executive", label: "Executive Room" },
+  { value: "junior_suite", label: "Junior Suite" },
+  { value: "penthouse", label: "Penthouse" },
+];
+
+// Define bed type options
+const bedTypeOptions = [
+  { value: "single", label: "Single Bed" },
+  { value: "double", label: "Double Bed" },
+  { value: "queen", label: "Queen Bed" },
+  { value: "king", label: "King Bed" },
+  { value: "twin", label: "Twin Beds" },
+  { value: "sofa_bed", label: "Sofa Bed" },
+  { value: "bunk_bed", label: "Bunk Bed" },
+];
+
+// Define view options
+const viewOptions = [
+  { value: "city", label: "City View" },
+  { value: "ocean", label: "Ocean View" },
+  { value: "mountain", label: "Mountain View" },
+  { value: "garden", label: "Garden View" },
+  { value: "pool", label: "Pool View" },
+  { value: "courtyard", label: "Courtyard View" },
+  { value: "partial_ocean", label: "Partial Ocean View" },
+  { value: "no_view", label: "No View" },
+];
 
 // Define amenities options
 const amenitiesOptions = [
@@ -64,7 +104,10 @@ const amenitiesOptions = [
   { id: "balcony", label: "Balcony" },
   { id: "bathtub", label: "Bathtub" },
   { id: "shower", label: "Shower" },
-  { id: "coffeeMaker", label: "Coffee Maker" },
+  { id: "coffee_maker", label: "Coffee Maker" },
+  { id: "room_service", label: "Room Service" },
+  { id: "housekeeping", label: "Daily Housekeeping" },
+  { id: "iron", label: "Iron & Ironing Board" },
 ];
 
 export default function RoomCreatePage() {
@@ -147,20 +190,25 @@ export default function RoomCreatePage() {
     });
   };
 
-  // Form setup with default values
+  // Form setup with default values matching new schema
   const form = useForm<RoomFormValues>({
     resolver: zodResolver(roomFormSchema),
     defaultValues: {
       name: "",
       description: "",
       hotelId: "",
-      price: 0,
+      type: "",
+      maxOccupancy: 2,
       maxAdults: 2,
-      maxChildren: 1,
-      maxInfants: 1,
+      maxChildren: 0,
+      maxInfants: 0,
+      price: 0,
+      discountedPrice: undefined,
+      size: "",
+      bedType: "",
+      view: "",
       amenities: [],
-      images: [],
-      isActive: true,
+      available: true,
     },
   });
 
@@ -210,58 +258,119 @@ export default function RoomCreatePage() {
         setImages([roomData.imageUrl]);
       }
       
-      // Reset form with room data
+      // Reset form with room data matching new schema
       form.reset({
         name: roomData.name || "",
         description: roomData.description || "",
         hotelId: roomData.hotelId ? roomData.hotelId.toString() : "",
-        price: roomData.price || 0,
+        type: roomData.type || "",
+        maxOccupancy: roomData.maxOccupancy || 2,
         maxAdults: roomData.maxAdults || 2,
-        maxChildren: roomData.maxChildren || 1,
-        maxInfants: roomData.maxInfants || 1,
+        maxChildren: roomData.maxChildren || 0,
+        maxInfants: roomData.maxInfants || 0,
+        price: roomData.price ? roomData.price / 100 : 0, // Convert from cents
+        discountedPrice: roomData.discountedPrice ? roomData.discountedPrice / 100 : undefined,
+        size: roomData.size || "",
+        bedType: roomData.bedType || "",
+        view: roomData.view || "",
         amenities: amenitiesArray,
-        isActive: roomData.status === "active" || roomData.available === true,
+        available: roomData.available !== false,
       });
     }
   }, [isEditMode, roomData, form]);
 
-  // Create room mutation
+  // Create room mutation with proper data transformation
   const createRoomMutation = useMutation({
     mutationFn: async (data: RoomFormValues) => {
-      // Append images to the form data
-      const formData = { ...data, images };
+      // Transform form data to match database schema
+      const roomData = {
+        name: data.name.trim(),
+        description: data.description?.trim() || null,
+        hotelId: parseInt(data.hotelId),
+        type: data.type,
+        maxOccupancy: data.maxOccupancy,
+        maxAdults: data.maxAdults,
+        maxChildren: data.maxChildren,
+        maxInfants: data.maxInfants,
+        price: Math.round(data.price * 100), // Convert to cents for database
+        discountedPrice: data.discountedPrice ? Math.round(data.discountedPrice * 100) : null,
+        currency: "EGP",
+        imageUrl: images.length > 0 ? images[0] : null,
+        size: data.size?.trim() || null,
+        bedType: data.bedType || null,
+        amenities: data.amenities && data.amenities.length > 0 ? data.amenities : null,
+        view: data.view || null,
+        available: data.available,
+        status: data.available ? "active" : "inactive",
+      };
+
       return await apiRequest("/api/admin/rooms", {
-        method: "POST",
-        body: JSON.stringify(formData),
+        method: isEditMode ? "PUT" : "POST",
+        body: JSON.stringify(roomData),
       });
     },
     onSuccess: () => {
-      // Show success message
       toast({
-        title: "Room Created",
-        description: "The room was created successfully",
+        title: isEditMode ? "Room Updated" : "Room Created",
+        description: `The room was ${isEditMode ? 'updated' : 'created'} successfully`,
         duration: 5000,
       });
       
+      // Clear draft on successful submission
+      localStorage.removeItem('roomDraft');
+      setIsDraft(false);
+      
       // Invalidate queries to refresh data
-      queryClient.invalidateQueries({ queryKey: ["/api/admin/rooms"] });
+      queryClient.invalidateQueries({ queryKey: ["rooms-admin"] });
+      queryClient.invalidateQueries({ queryKey: ["hotels-admin"] });
       
       // Navigate back to rooms list
       navigate("/admin/rooms");
     },
     onError: (error: Error) => {
+      console.error("Room creation error:", error);
       toast({
         title: "Error",
-        description: error.message || "Failed to create room",
+        description: error.message || `Failed to ${isEditMode ? 'update' : 'create'} room`,
         variant: "destructive",
         duration: 5000,
       });
     },
   });
 
-  // Form submission handler
-  const onSubmit = (data: RoomFormValues) => {
-    createRoomMutation.mutate(data);
+  // Form submission handler with validation
+  const onSubmit = async (data: RoomFormValues) => {
+    try {
+      // Validate max occupancy matches capacity
+      const totalCapacity = data.maxAdults + data.maxChildren + data.maxInfants;
+      if (data.maxOccupancy < totalCapacity) {
+        toast({
+          title: "Validation Error",
+          description: "Maximum occupancy cannot be less than the sum of adults, children, and infants",
+          variant: "destructive",
+        });
+        return;
+      }
+
+      // Validate pricing
+      if (data.discountedPrice && data.discountedPrice >= data.price) {
+        toast({
+          title: "Validation Error", 
+          description: "Discounted price must be less than the regular price",
+          variant: "destructive",
+        });
+        return;
+      }
+
+      createRoomMutation.mutate(data);
+    } catch (error) {
+      console.error("Form submission error:", error);
+      toast({
+        title: "Validation Error",
+        description: "Please check all fields and try again",
+        variant: "destructive",
+      });
+    }
   };
 
   // Handle image upload
@@ -342,107 +451,243 @@ export default function RoomCreatePage() {
 
         <Card>
           <CardHeader>
-            <CardTitle>Create New Room</CardTitle>
+            <CardTitle>{isEditMode ? 'Edit Room' : 'Create New Room'}</CardTitle>
           </CardHeader>
           <CardContent>
             <Form {...form}>
               <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                  {/* Room Name */}
+                {/* Basic Information Section */}
+                <div className="space-y-4">
+                  <h3 className="text-lg font-medium">Basic Information</h3>
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    {/* Room Name */}
+                    <FormField
+                      control={form.control}
+                      name="name"
+                      render={({ field }) => (
+                        <FormItem>
+                          <FormLabel>Room Name*</FormLabel>
+                          <FormControl>
+                            <Input 
+                              id="room-name"
+                              className="room-name-input admin-input"
+                              placeholder="e.g., Deluxe Ocean View Room" 
+                              {...field} 
+                            />
+                          </FormControl>
+                          <FormMessage />
+                        </FormItem>
+                      )}
+                    />
+
+                    {/* Hotel Selection */}
+                    <FormField
+                      control={form.control}
+                      name="hotelId"
+                      render={({ field }) => (
+                        <FormItem>
+                          <FormLabel>Hotel*</FormLabel>
+                          <Select
+                            onValueChange={field.onChange}
+                            value={field.value}
+                          >
+                            <FormControl>
+                              <SelectTrigger 
+                                id="hotel-select"
+                                className="hotel-select admin-select"
+                              >
+                                <SelectValue placeholder="Select a hotel" />
+                              </SelectTrigger>
+                            </FormControl>
+                            <SelectContent>
+                              {Array.isArray(hotels) && hotels.map((hotel: any) => (
+                                <SelectItem key={hotel.id} value={hotel.id.toString()}>
+                                  {hotel.name}
+                                </SelectItem>
+                              ))}
+                            </SelectContent>
+                          </Select>
+                          <FormMessage />
+                        </FormItem>
+                      )}
+                    />
+
+                    {/* Room Type */}
+                    <FormField
+                      control={form.control}
+                      name="type"
+                      render={({ field }) => (
+                        <FormItem>
+                          <FormLabel>Room Type*</FormLabel>
+                          <Select
+                            onValueChange={field.onChange}
+                            value={field.value}
+                          >
+                            <FormControl>
+                              <SelectTrigger>
+                                <SelectValue placeholder="Select room type" />
+                              </SelectTrigger>
+                            </FormControl>
+                            <SelectContent>
+                              {roomTypeOptions.map((type) => (
+                                <SelectItem key={type.value} value={type.value}>
+                                  {type.label}
+                                </SelectItem>
+                              ))}
+                            </SelectContent>
+                          </Select>
+                          <FormMessage />
+                        </FormItem>
+                      )}
+                    />
+
+                    {/* Room Size */}
+                    <FormField
+                      control={form.control}
+                      name="size"
+                      render={({ field }) => (
+                        <FormItem>
+                          <FormLabel>Room Size</FormLabel>
+                          <FormControl>
+                            <Input 
+                              placeholder="e.g., 35 sqm" 
+                              {...field} 
+                            />
+                          </FormControl>
+                          <FormDescription>
+                            Room size (e.g., "35 sqm", "400 sq ft")
+                          </FormDescription>
+                          <FormMessage />
+                        </FormItem>
+                      )}
+                    />
+
+                    {/* Bed Type */}
+                    <FormField
+                      control={form.control}
+                      name="bedType"
+                      render={({ field }) => (
+                        <FormItem>
+                          <FormLabel>Bed Type</FormLabel>
+                          <Select
+                            onValueChange={field.onChange}
+                            value={field.value}
+                          >
+                            <FormControl>
+                              <SelectTrigger>
+                                <SelectValue placeholder="Select bed type" />
+                              </SelectTrigger>
+                            </FormControl>
+                            <SelectContent>
+                              {bedTypeOptions.map((bed) => (
+                                <SelectItem key={bed.value} value={bed.value}>
+                                  {bed.label}
+                                </SelectItem>
+                              ))}
+                            </SelectContent>
+                          </Select>
+                          <FormMessage />
+                        </FormItem>
+                      )}
+                    />
+
+                    {/* View */}
+                    <FormField
+                      control={form.control}
+                      name="view"
+                      render={({ field }) => (
+                        <FormItem>
+                          <FormLabel>Room View</FormLabel>
+                          <Select
+                            onValueChange={field.onChange}
+                            value={field.value}
+                          >
+                            <FormControl>
+                              <SelectTrigger>
+                                <SelectValue placeholder="Select view" />
+                              </SelectTrigger>
+                            </FormControl>
+                            <SelectContent>
+                              {viewOptions.map((view) => (
+                                <SelectItem key={view.value} value={view.value}>
+                                  {view.label}
+                                </SelectItem>
+                              ))}
+                            </SelectContent>
+                          </Select>
+                          <FormMessage />
+                        </FormItem>
+                      )}
+                    />
+                  </div>
+
+                  {/* Room Description */}
                   <FormField
                     control={form.control}
-                    name="name"
+                    name="description"
                     render={({ field }) => (
                       <FormItem>
-                        <FormLabel>Room Name*</FormLabel>
+                        <FormLabel>Description</FormLabel>
                         <FormControl>
-                          <Input 
-                            id="room-name"
-                            className="room-name-input admin-input"
-                            placeholder="Deluxe Room" 
-                            {...field} 
+                          <Textarea
+                            id="room-description"
+                            className="min-h-[120px] room-description-input admin-textarea"
+                            placeholder="Describe the room features, amenities, and what makes it special..."
+                            {...field}
                           />
                         </FormControl>
-                        <FormMessage />
-                      </FormItem>
-                    )}
-                  />
-
-                  {/* Hotel Selection */}
-                  <FormField
-                    control={form.control}
-                    name="hotelId"
-                    render={({ field }) => (
-                      <FormItem>
-                        <FormLabel>Hotel*</FormLabel>
-                        <Select
-                          onValueChange={field.onChange}
-                          defaultValue={field.value}
-                        >
-                          <FormControl>
-                            <SelectTrigger 
-                              id="hotel-select"
-                              className="hotel-select admin-select"
-                            >
-                              <SelectValue placeholder="Select a hotel" />
-                            </SelectTrigger>
-                          </FormControl>
-                          <SelectContent>
-                            {Array.isArray(hotels) && hotels.map((hotel: any) => (
-                              <SelectItem key={hotel.id} value={hotel.id.toString()}>
-                                {hotel.name}
-                              </SelectItem>
-                            ))}
-                          </SelectContent>
-                        </Select>
+                        <FormDescription>
+                          Detailed description of the room for guests
+                        </FormDescription>
                         <FormMessage />
                       </FormItem>
                     )}
                   />
                 </div>
 
-                {/* Room Description */}
-                <FormField
-                  control={form.control}
-                  name="description"
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel>Description</FormLabel>
-                      <FormControl>
-                        <Textarea
-                          id="room-description"
-                          className="min-h-[120px] room-description-input admin-textarea"
-                          placeholder="Enter room description"
-                          {...field}
-                        />
-                      </FormControl>
-                      <FormDescription>
-                        Describe the room features and amenities
-                      </FormDescription>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
-
-                {/* Room Capacity Section */}
+                {/* Capacity and Occupancy Section */}
                 <div className="space-y-4">
                   <h3 className="text-lg font-medium">Room Capacity</h3>
-                  <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                  <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
+                    {/* Maximum Occupancy */}
+                    <FormField
+                      control={form.control}
+                      name="maxOccupancy"
+                      render={({ field }) => (
+                        <FormItem>
+                          <FormLabel>Max Occupancy*</FormLabel>
+                          <FormControl>
+                            <Input 
+                              id="max-occupancy"
+                              className="admin-number-input"
+                              type="number" 
+                              min="1" 
+                              {...field}
+                              onChange={e => field.onChange(parseInt(e.target.value) || 1)}
+                              value={field.value}
+                            />
+                          </FormControl>
+                          <FormDescription>Total guests allowed</FormDescription>
+                          <FormMessage />
+                        </FormItem>
+                      )}
+                    />
+
                     {/* Adults */}
                     <FormField
                       control={form.control}
                       name="maxAdults"
                       render={({ field }) => (
                         <FormItem>
-                          <FormLabel>Max Adults</FormLabel>
+                          <FormLabel>Max Adults*</FormLabel>
                           <FormControl>
                             <Input 
                               id="max-adults"
                               className="max-adults-input admin-number-input"
                               type="number" 
-                              min="0" 
+                              min="1" 
                               {...field}
-                              onChange={e => field.onChange(parseInt(e.target.value) || 0)}
+                              onChange={e => field.onChange(parseInt(e.target.value) || 1)}
                               value={field.value}
                             />
                           </FormControl>
@@ -499,29 +744,63 @@ export default function RoomCreatePage() {
                   </div>
                 </div>
 
-                {/* Price */}
-                <FormField
-                  control={form.control}
-                  name="price"
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel>Price per Night (EGP)*</FormLabel>
-                      <FormControl>
-                        <Input 
-                          id="room-price"
-                          className="room-price-input admin-currency-input"
-                          type="number" 
-                          min="0" 
-                          placeholder="100.00" 
-                          {...field}
-                          onChange={e => field.onChange(parseFloat(e.target.value) || 0)}
-                          value={field.value}
-                        />
-                      </FormControl>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
+                {/* Pricing Section */}
+                <div className="space-y-4">
+                  <h3 className="text-lg font-medium">Pricing</h3>
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    {/* Regular Price */}
+                    <FormField
+                      control={form.control}
+                      name="price"
+                      render={({ field }) => (
+                        <FormItem>
+                          <FormLabel>Price per Night (EGP)*</FormLabel>
+                          <FormControl>
+                            <Input 
+                              id="room-price"
+                              className="room-price-input admin-currency-input"
+                              type="number" 
+                              min="0" 
+                              step="0.01"
+                              placeholder="1500.00" 
+                              {...field}
+                              onChange={e => field.onChange(parseFloat(e.target.value) || 0)}
+                              value={field.value}
+                            />
+                          </FormControl>
+                          <FormDescription>Base rate per night</FormDescription>
+                          <FormMessage />
+                        </FormItem>
+                      )}
+                    />
+
+                    {/* Discounted Price */}
+                    <FormField
+                      control={form.control}
+                      name="discountedPrice"
+                      render={({ field }) => (
+                        <FormItem>
+                          <FormLabel>Discounted Price (EGP)</FormLabel>
+                          <FormControl>
+                            <Input 
+                              id="room-discounted-price"
+                              className="admin-currency-input"
+                              type="number" 
+                              min="0" 
+                              step="0.01"
+                              placeholder="1200.00" 
+                              {...field}
+                              onChange={e => field.onChange(e.target.value ? parseFloat(e.target.value) : undefined)}
+                              value={field.value || ""}
+                            />
+                          </FormControl>
+                          <FormDescription>Optional promotional price</FormDescription>
+                          <FormMessage />
+                        </FormItem>
+                      )}
+                    />
+                  </div>
+                </div>
 
                 {/* Amenities */}
                 <div className="space-y-4">
@@ -599,10 +878,10 @@ export default function RoomCreatePage() {
                   )}
                 </div>
 
-                {/* Active Status */}
+                {/* Availability Status */}
                 <FormField
                   control={form.control}
-                  name="isActive"
+                  name="available"
                   render={({ field }) => (
                     <FormItem className="flex items-center space-x-2 space-y-0">
                       <FormControl>
@@ -612,9 +891,9 @@ export default function RoomCreatePage() {
                         />
                       </FormControl>
                       <div className="space-y-1">
-                        <FormLabel>Room is Active</FormLabel>
+                        <FormLabel>Room is Available</FormLabel>
                         <FormDescription>
-                          Inactive rooms won't be available for booking
+                          Unavailable rooms won't be shown to guests for booking
                         </FormDescription>
                       </div>
                     </FormItem>
