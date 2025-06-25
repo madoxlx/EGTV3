@@ -106,6 +106,16 @@ The application uses a comprehensive PostgreSQL schema with the following core e
 
 ## Recent Changes
 
+- **Complete Hotel Manager Pages Removal and Inline Feature Integration (June 25, 2025)**: Successfully removed all separate hotel manager pages and integrated feature management directly into hotel forms
+  - Deleted all manager pages: categories, facilities, highlights, cleanliness features
+  - Created InlineFeatureManager component for streamlined create/select functionality within hotel forms
+  - Users can now create new features or select from existing ones directly in hotel creation/edit forms
+  - Eliminated navigation between separate manager pages for improved workflow efficiency
+  - Fixed React infinite re-render errors by replacing empty checkbox handlers with proper toggle functions
+  - Added hotel categories API storage methods and database seeding capabilities
+  - Removed manager routes from App.tsx routing configuration
+  - Enhanced hotel creation workflow with unified feature management interface
+
 - **Complete Hotel Creation Form React Error Fix (June 25, 2025)**: Fully resolved React infinite re-render errors in hotel creation system
   - Fixed "Maximum update depth exceeded" errors caused by empty onCheckedChange handlers across all hotel forms
   - Replaced all instances of `onCheckedChange={() => {}}` with proper toggle functions in both client and replit_agent directories

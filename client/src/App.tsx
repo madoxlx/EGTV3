@@ -81,13 +81,9 @@ import "./styles/sailing-cruise.css";
 
 // Import Category and Feature Manager Pages
 import TourCategoriesPage from "@/pages/admin/tours/categories";
-import HotelCategoriesPage from "@/pages/admin/hotels/categories";
 import RoomCategoriesPage from "@/pages/admin/rooms/categories";
 import RoomAmenitiesPage from "@/pages/admin/rooms/RoomAmenitiesPage";
 import PackageCategoriesPage from "@/pages/admin/packages/categories";
-import HotelFacilitiesPage from "@/pages/admin/hotels/HotelFacilitiesPage";
-import HotelHighlightsPage from "@/pages/admin/hotels/HotelHighlightsPage";
-import CleanlinessPage from "@/pages/admin/hotels/CleanlinessPage";
 import DataExportImportPage from "@/pages/admin/DataExportImportPage";
 import VisasManagement from "@/pages/admin/VisasManagement";
 
@@ -118,13 +114,10 @@ function Router() {
           <AdminRoute path="/admin/tours/edit/:id" component={TourCreatorPage} />
           <AdminRoute path="/admin/tours/categories" component={TourCategoriesPage} />
           <AdminRoute path="/admin/tours" component={ToursManagement} />
-          <AdminRoute path="/admin/hotels/categories" component={HotelCategoriesPage} />
+
           <AdminRoute path="/admin/hotels/create" component={EnhancedHotelCreatePage} />
           <AdminRoute path="/admin/hotels/create-basic" component={HotelCreatePage} />
           <AdminRoute path="/admin/hotels/edit/:id" component={EnhancedHotelEditPage} />
-          <AdminRoute path="/admin/hotels/facilities" component={HotelFacilitiesPage} />
-          <AdminRoute path="/admin/hotels/highlights" component={HotelHighlightsPage} />
-          <AdminRoute path="/admin/hotels/cleanliness-features" component={CleanlinessPage} />
           <AdminRoute path="/admin/hotels" component={AdvancedHotelsManagement} />
           <AdminRoute path="/admin/rooms/categories" component={RoomCategoriesPage} />
           <AdminRoute path="/admin/rooms/amenities" component={RoomAmenitiesPage} />

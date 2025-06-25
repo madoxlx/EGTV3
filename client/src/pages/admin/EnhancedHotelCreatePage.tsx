@@ -6,6 +6,7 @@ import { z } from "zod";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { GoogleMap, useLoadScript, Marker } from "@react-google-maps/api";
 import { apiRequest, getQueryFn } from "@/lib/queryClient";
+import InlineFeatureManager from "@/components/hotel/InlineFeatureManager";
 import { useToast } from "@/hooks/use-toast";
 import { useLanguage } from "@/hooks/use-language";
 import {
@@ -425,17 +426,12 @@ export default function EnhancedHotelCreatePage() {
   });
   
   // Effect to update form when selections change
+  // Update form values when selections change
   useEffect(() => {
     form.setValue("facilityIds", selectedFacilities);
-  }, [selectedFacilities, form]);
-  
-  useEffect(() => {
     form.setValue("highlightIds", selectedHighlights);
-  }, [selectedHighlights, form]);
-  
-  useEffect(() => {
     form.setValue("cleanlinessFeatureIds", selectedCleanlinessFeatures);
-  }, [selectedCleanlinessFeatures, form]);
+  }, [selectedFacilities, selectedHighlights, selectedCleanlinessFeatures, form]);
   
   // Function to search nearby landmarks with Google Places API
   const searchNearbyLandmarks = () => {
@@ -1322,174 +1318,30 @@ export default function EnhancedHotelCreatePage() {
                   
                   {/* Features Tab */}
                   <TabsContent value="features" className="space-y-6">
-                    {/* General Highlights */}
-                    <div className="space-y-4">
-                      <h3 className="text-lg font-semibold flex items-center gap-2">
-                        <Star className="h-5 w-5" />
-                        General Highlights
-                      </h3>
-                      <FormDescription>
-                        Select the highlights that best describe this hotel.
-                      </FormDescription>
-                      
-                      {isLoadingHighlights ? (
-                        <div className="p-4 text-center">
-                          <RefreshCw className="h-6 w-6 animate-spin mx-auto mb-2 text-muted-foreground" />
-                          <p className="text-muted-foreground">Loading highlights...</p>
-                        </div>
-                      ) : (
-                        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-2">
-                          {Array.isArray(highlights) && highlights.map((highlight: any) => (
-                            <div 
-                              key={highlight.id}
-                              className={`border rounded-md p-3 cursor-pointer transition-colors ${
-                                selectedHighlights.includes(highlight.id) 
-                                  ? "border-primary bg-primary/5" 
-                                  : "hover:bg-muted"
-                              }`}
-                              onClick={() => toggleHighlight(highlight.id)}
-                            >
-                              <div className="flex items-center gap-2">
-                                <Checkbox 
-                                  checked={selectedHighlights.includes(highlight.id)}
-                                  onCheckedChange={() => toggleHighlight(highlight.id)}
-                                />
-                                <div>
-                                  <p className="font-medium">{highlight.name}</p>
-                                  {highlight.description && (
-                                    <p className="text-xs text-muted-foreground">{highlight.description}</p>
-                                  )}
-                                </div>
-                              </div>
-                            </div>
-                          ))}
-                        </div>
-                      )}
-                      
-                      <div className="flex justify-end">
-                        <Button 
-                          type="button" 
-                          variant="outline" 
-                          onClick={() => navigate("/admin/hotels/highlights")}
-                        >
-                          Manage Highlights
-                        </Button>
-                      </div>
-                    </div>
+                    <InlineFeatureManager
+                      featureType="highlights"
+                      selectedFeatures={selectedHighlights}
+                      onSelectionChange={setSelectedHighlights}
+                      label="Hotel Highlights"
+                    />
                     
                     <Separator />
                     
-                    {/* Facilities and Services */}
-                    <div className="space-y-4">
-                      <h3 className="text-lg font-semibold flex items-center gap-2">
-                        <Building className="h-5 w-5" />
-                        Facilities and Services
-                      </h3>
-                      <FormDescription>
-                        Select the facilities and services available at this hotel.
-                      </FormDescription>
-                      
-                      {isLoadingFacilities ? (
-                        <div className="p-4 text-center">
-                          <RefreshCw className="h-6 w-6 animate-spin mx-auto mb-2 text-muted-foreground" />
-                          <p className="text-muted-foreground">Loading facilities...</p>
-                        </div>
-                      ) : (
-                        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-2">
-                          {Array.isArray(facilities) && facilities.map((facility: any) => (
-                            <div 
-                              key={facility.id}
-                              className={`border rounded-md p-3 cursor-pointer transition-colors ${
-                                selectedFacilities.includes(facility.id) 
-                                  ? "border-primary bg-primary/5" 
-                                  : "hover:bg-muted"
-                              }`}
-                              onClick={() => toggleFacility(facility.id)}
-                            >
-                              <div className="flex items-center gap-2">
-                                <Checkbox 
-                                  checked={selectedFacilities.includes(facility.id)}
-                                  onCheckedChange={() => toggleFacility(facility.id)}
-                                />
-                                <div>
-                                  <p className="font-medium">{facility.name}</p>
-                                  {facility.description && (
-                                    <p className="text-xs text-muted-foreground">{facility.description}</p>
-                                  )}
-                                </div>
-                              </div>
-                            </div>
-                          ))}
-                        </div>
-                      )}
-                      
-                      <div className="flex justify-end">
-                        <Button 
-                          type="button" 
-                          variant="outline" 
-                          onClick={() => navigate("/admin/hotels/facilities")}
-                        >
-                          Manage Facilities
-                        </Button>
-                      </div>
-                    </div>
+                    <InlineFeatureManager
+                      featureType="facilities"
+                      selectedFeatures={selectedFacilities}
+                      onSelectionChange={setSelectedFacilities}
+                      label="Facilities & Services"
+                    />
                     
                     <Separator />
                     
-                    {/* Cleanliness and Safety */}
-                    <div className="space-y-4">
-                      <h3 className="text-lg font-semibold flex items-center gap-2">
-                        <ShieldCheck className="h-5 w-5" />
-                        Cleanliness and Safety
-                      </h3>
-                      <FormDescription>
-                        Select the cleanliness and safety measures implemented by this hotel.
-                      </FormDescription>
-                      
-                      {isLoadingCleanlinessFeatures ? (
-                        <div className="p-4 text-center">
-                          <RefreshCw className="h-6 w-6 animate-spin mx-auto mb-2 text-muted-foreground" />
-                          <p className="text-muted-foreground">Loading cleanliness features...</p>
-                        </div>
-                      ) : (
-                        <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
-                          {Array.isArray(cleanlinessFeatures) && cleanlinessFeatures.map((feature: any) => (
-                            <div 
-                              key={feature.id}
-                              className={`border rounded-md p-3 cursor-pointer transition-colors ${
-                                selectedCleanlinessFeatures.includes(feature.id) 
-                                  ? "border-primary bg-primary/5" 
-                                  : "hover:bg-muted"
-                              }`}
-                              onClick={() => toggleCleanlinessFeature(feature.id)}
-                            >
-                              <div className="flex items-center gap-2">
-                                <Checkbox 
-                                  checked={selectedCleanlinessFeatures.includes(feature.id)}
-                                  onCheckedChange={() => toggleCleanlinessFeature(feature.id)}
-                                />
-                                <div>
-                                  <p className="font-medium">{feature.name}</p>
-                                  {feature.description && (
-                                    <p className="text-xs text-muted-foreground">{feature.description}</p>
-                                  )}
-                                </div>
-                              </div>
-                            </div>
-                          ))}
-                        </div>
-                      )}
-                      
-                      <div className="flex justify-end">
-                        <Button 
-                          type="button" 
-                          variant="outline" 
-                          onClick={() => navigate("/admin/hotels/cleanliness-features")}
-                        >
-                          Manage Cleanliness Features
-                        </Button>
-                      </div>
-                    </div>
+                    <InlineFeatureManager
+                      featureType="cleanliness-features"
+                      selectedFeatures={selectedCleanlinessFeatures}
+                      onSelectionChange={setSelectedCleanlinessFeatures}
+                      label="Cleanliness & Safety"
+                    />
                   </TabsContent>
                   
                   {/* Transportation Tab */}
