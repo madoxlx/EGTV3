@@ -3039,6 +3039,17 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
   
+  // Get all rooms (admin only)
+  app.get('/api/admin/rooms', isAdmin, async (req, res) => {
+    try {
+      const rooms = await storage.listRooms();
+      res.json(rooms);
+    } catch (error) {
+      console.error('Error fetching rooms:', error);
+      res.status(500).json({ message: 'Failed to fetch rooms' });
+    }
+  });
+  
   // Create a new room (admin only)
   app.post('/api/admin/rooms', isAdmin, async (req, res) => {
     try {

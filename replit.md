@@ -106,6 +106,13 @@ The application uses a comprehensive PostgreSQL schema with the following core e
 
 ## Recent Changes
 
+- **Rooms API Endpoint Fix (June 25, 2025)**: Fixed critical rooms management page error by adding missing GET /api/admin/rooms endpoint
+  - Added missing GET endpoint for /api/admin/rooms with admin authentication
+  - Resolved "Invalid request method" fetch error preventing rooms page from loading
+  - RoomsPage component can now properly fetch and display rooms data
+  - Server now handles rooms listing requests with proper error handling
+  - Eliminated unhandled rejection errors in rooms API calls
+
 - **Complete Hotel Creation Form Fix - All Fields Now Working (June 25, 2025)**: Successfully resolved all hotel creation form field mapping issues
   - Fixed critical insertHotelSchema validation by adding missing fields: countryId, cityId, categoryId, basePrice to .pick() selection
   - Enhanced hotel creation form with proper field transformation and type conversion for numeric fields
