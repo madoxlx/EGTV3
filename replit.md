@@ -106,6 +106,16 @@ The application uses a comprehensive PostgreSQL schema with the following core e
 
 ## Recent Changes
 
+- **Hotel Creation Form Country and City Selectboxes Implementation (June 25, 2025)**: Updated hotel creation form to use proper selectboxes for Country and City fields
+  - Replaced text input fields with Select components matching package creation form functionality
+  - Added cascading functionality where City dropdown filters based on selected Country
+  - Updated hotel form schema to use countryId and cityId numeric fields instead of string fields
+  - Added state management with selectedCountryId tracking for proper cascading behavior
+  - Integrated with existing /api/countries and /api/cities endpoints for data fetching
+  - City selection is disabled until country is selected with proper placeholder text feedback
+  - Form automatically resets city selection when country changes to maintain data consistency
+  - Hotel creation form now matches the same user experience as package creation form
+
 - **Country and City Cascading Select Implementation Verified (June 25, 2025)**: Confirmed proper Country and City select box implementation with cascading functionality
   - Country and City fields properly implemented as Select components (not text inputs) in SimplePackageForm.tsx (lines 1392-1472)
   - Database contains 4 countries (Egypt, Jordan, Morocco, UAE) and 9 cities with proper countryId relationships

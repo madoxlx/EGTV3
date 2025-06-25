@@ -63,8 +63,8 @@ const hotelFormSchema = z.object({
   description: z.string().optional().nullable(),
   destinationId: z.coerce.number().positive({ message: "Please select a destination" }),
   address: z.string().optional().nullable(),
-  city: z.string().optional().nullable(),
-  country: z.string().optional().nullable(),
+  cityId: z.coerce.number().positive({ message: "Please select a city" }).optional().nullable(),
+  countryId: z.coerce.number().positive({ message: "Please select a country" }).optional().nullable(),
   postalCode: z.string().optional().nullable(),
   phone: z.string().optional().nullable(),
   email: z.string().email({ message: "Please enter a valid email" }).optional().nullable(),
@@ -114,13 +114,14 @@ const hotelAmenitiesOptions = [
 ];
 
 export default function HotelCreatePage() {
-  const { t } = useLanguage();
+  // const { t } = useLanguage();
   const [_, navigate] = useLocation();
   const { toast } = useToast();
   const queryClient = useQueryClient();
   const [selectedAmenities, setSelectedAmenities] = useState<string[]>([]);
   const [formInitialized, setFormInitialized] = useState(false);
   const [isDraft, setIsDraft] = useState(false);
+  const [selectedCountryId, setSelectedCountryId] = useState<number | null>(null);
 
   // Get saved form data from localStorage or use defaults
   const getSavedFormData = (): Partial<HotelFormValues> => {
@@ -156,6 +157,18 @@ export default function HotelCreatePage() {
     staleTime: 1000 * 60 * 5, // 5 minutes
   });
 
+  // Query to fetch countries data for the dropdown
+  const { data: countries = [] } = useQuery({
+    queryKey: ["/api/countries"],
+    staleTime: 1000 * 60 * 5, // 5 minutes
+  });
+
+  // Query to fetch cities data for the dropdown
+  const { data: cities = [] } = useQuery({
+    queryKey: ["/api/cities"],
+    staleTime: 1000 * 60 * 5, // 5 minutes
+  });
+
   // Merge default values with saved values from localStorage
   const savedFormData = getSavedFormData();
   
@@ -167,8 +180,8 @@ export default function HotelCreatePage() {
       description: savedFormData.description || "",
       destinationId: savedFormData.destinationId || undefined,
       address: savedFormData.address || "",
-      city: savedFormData.city || "",
-      country: savedFormData.country || "",
+      cityId: savedFormData.cityId || undefined,
+      countryId: savedFormData.countryId || undefined,
       postalCode: savedFormData.postalCode || "",
       phone: savedFormData.phone || "",
       email: savedFormData.email || "",
@@ -197,7 +210,12 @@ export default function HotelCreatePage() {
       setSelectedAmenities(savedFormData.amenities);
       setFormInitialized(true);
     }
-  }, [formInitialized, savedFormData.amenities]);
+
+    // Initialize selectedCountryId from saved data if available
+    if (savedFormData.countryId) {
+      setSelectedCountryId(savedFormData.countryId);
+    }
+  }, [formInitialized, savedFormData.amenities, savedFormData.countryId]);
   
   // Save form data to localStorage whenever it changes
   useEffect(() => {
@@ -521,43 +539,77 @@ export default function HotelCreatePage() {
                     )}
                   />
 
-                  {/* City */}
+                  {/* Country Selection */}
                   <FormField
                     control={form.control}
-                    name="city"
+                    name="countryId"
                     render={({ field }) => (
                       <FormItem>
-                        <FormLabel>City</FormLabel>
-                        <FormControl>
-                          <Input
-                            id="hotel-city"
-                            className="hotel-city-input admin-input"
-                            placeholder="City Name"
-                            {...field}
-                            value={field.value || ""}
-                          />
-                        </FormControl>
+                        <FormLabel>Country</FormLabel>
+                        <Select 
+                          onValueChange={(value) => {
+                            const countryId = parseInt(value);
+                            field.onChange(countryId);
+                            setSelectedCountryId(countryId);
+                            // Reset cityId when country changes
+                            form.setValue("cityId", null as any);
+                          }} 
+                          value={field.value?.toString()}
+                        >
+                          <FormControl>
+                            <SelectTrigger 
+                              id="hotel-country"
+                              className="country-select admin-select"
+                            >
+                              <SelectValue placeholder="Select a country" />
+                            </SelectTrigger>
+                          </FormControl>
+                          <SelectContent>
+                            {countries.map((country: any) => (
+                              <SelectItem key={country.id} value={country.id.toString()}>
+                                {country.name}
+                              </SelectItem>
+                            ))}
+                          </SelectContent>
+                        </Select>
                         <FormMessage />
                       </FormItem>
                     )}
                   />
 
-                  {/* Country */}
+                  {/* City Selection */}
                   <FormField
                     control={form.control}
-                    name="country"
+                    name="cityId"
                     render={({ field }) => (
                       <FormItem>
-                        <FormLabel>Country</FormLabel>
-                        <FormControl>
-                          <Input
-                            id="hotel-country"
-                            className="hotel-country-input admin-input"
-                            placeholder="Country Name"
-                            {...field}
-                            value={field.value || ""}
-                          />
-                        </FormControl>
+                        <FormLabel>City</FormLabel>
+                        <Select 
+                          onValueChange={(value) => {
+                            field.onChange(parseInt(value));
+                          }} 
+                          value={field.value?.toString()}
+                          disabled={!selectedCountryId}
+                        >
+                          <FormControl>
+                            <SelectTrigger 
+                              id="hotel-city"
+                              className="city-select admin-select"
+                            >
+                              <SelectValue placeholder={selectedCountryId ? "Select a city" : "Select a country first"} />
+                            </SelectTrigger>
+                          </FormControl>
+                          <SelectContent>
+                            {Array.isArray(cities) && cities
+                              .filter((city: any) => city.countryId === selectedCountryId)
+                              .map((city: any) => (
+                                <SelectItem key={city.id} value={city.id.toString()}>
+                                  {city.name}
+                                </SelectItem>
+                              ))
+                            }
+                          </SelectContent>
+                        </Select>
                         <FormMessage />
                       </FormItem>
                     )}
