@@ -403,7 +403,8 @@ export function PackageCreatorForm({ packageId, onNavigateRequest }: PackageCrea
       // Find the package with matching ID from the packages array
       if (packageId && Array.isArray(packages)) {
         console.log('Finding package with ID:', packageId);
-        const pkg = packages.find(p => p.id === parseInt(packageId));
+        // Compare as strings since API returns string IDs
+        const pkg = packages.find(p => p.id === packageId || p.id === parseInt(packageId));
         console.log('Found package:', pkg);
         return pkg;
       }
