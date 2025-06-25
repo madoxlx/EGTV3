@@ -6,6 +6,7 @@ import {
   packages, Package, InsertPackage,
   tours, Tour, InsertTour,
   hotels, Hotel, InsertHotel,
+  rooms, Room, InsertRoom,
   heroSlides, HeroSlide, InsertHeroSlide,
   menus, Menu, InsertMenu,
   hotelFacilities, hotelHighlights, cleanlinessFeatures, hotelCategories
@@ -605,23 +606,29 @@ export class DatabaseStorage implements IStorage {
 
   async createRoom(room: any): Promise<any> {
     try {
-      const client = await pool.connect();
-      const result = await client.query(`
-        INSERT INTO rooms (
-          name, description, hotel_id, type, max_occupancy, max_adults, 
-          max_children, max_infants, price, discounted_price, currency,
-          image_url, size, bed_type, amenities, view, available, status
-        ) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, $15, $16, $17, $18) 
-        RETURNING *
-      `, [
-        room.name, room.description, room.hotelId, room.type, room.maxOccupancy,
-        room.maxAdults, room.maxChildren || 0, room.maxInfants || 0,
-        room.price, room.discountedPrice, room.currency || 'EGP',
-        room.imageUrl, room.size, room.bedType, JSON.stringify(room.amenities || []),
-        room.view, room.available !== false, room.status || 'active'
-      ]);
-      client.release();
-      return result.rows[0] || null;
+      const [newRoom] = await db.insert(rooms).values({
+        name: room.name,
+        description: room.description,
+        hotelId: room.hotelId,
+        type: room.type,
+        maxOccupancy: room.maxOccupancy,
+        maxAdults: room.maxAdults,
+        maxChildren: room.maxChildren || 0,
+        maxInfants: room.maxInfants || 0,
+        price: room.price,
+        discountedPrice: room.discountedPrice,
+        currency: room.currency || 'EGP',
+        imageUrl: room.imageUrl,
+        size: room.size,
+        bedType: room.bedType,
+        amenities: room.amenities,
+        view: room.view,
+        available: room.available !== false,
+        status: room.status || 'active',
+        createdAt: new Date(),
+        updatedAt: new Date()
+      }).returning();
+      return newRoom;
     } catch (error) {
       console.error('Error creating room:', error);
       throw error;
@@ -630,27 +637,56 @@ export class DatabaseStorage implements IStorage {
 
   async updateRoom(id: number, room: any): Promise<any> {
     try {
-      const client = await pool.connect();
-      const result = await client.query(`
-        UPDATE rooms SET 
-          name = $1, description = $2, hotel_id = $3, type = $4, max_occupancy = $5,
-          max_adults = $6, max_children = $7, max_infants = $8, price = $9,
-          discounted_price = $10, currency = $11, image_url = $12, size = $13,
-          bed_type = $14, amenities = $15, view = $16, available = $17, status = $18,
-          updated_at = NOW()
-        WHERE id = $19 RETURNING *
-      `, [
-        room.name, room.description, room.hotelId, room.type, room.maxOccupancy,
-        room.maxAdults, room.maxChildren || 0, room.maxInfants || 0,
-        room.price, room.discountedPrice, room.currency || 'EGP',
-        room.imageUrl, room.size, room.bedType, JSON.stringify(room.amenities || []),
-        room.view, room.available !== false, room.status || 'active', id
-      ]);
-      client.release();
-      return result.rows[0] || null;
+      const [updatedRoom] = await db.update(rooms)
+        .set({
+          name: room.name,
+          description: room.description,
+          hotelId: room.hotelId,
+          type: room.type,
+          maxOccupancy: room.maxOccupancy,
+          maxAdults: room.maxAdults,
+          maxChildren: room.maxChildren || 0,
+          maxInfants: room.maxInfants || 0,
+          price: room.price,
+          discountedPrice: room.discountedPrice,
+          currency: room.currency || 'EGP',
+          imageUrl: room.imageUrl,
+          size: room.size,
+          bedType: room.bedType,
+          amenities: room.amenities,
+          view: room.view,
+          available: room.available !== false,
+          status: room.status || 'active',
+          updatedAt: new Date()
+        })
+        .where(eq(rooms.id, id))
+        .returning();
+      return updatedRoom;
     } catch (error) {
       console.error('Error updating room:', error);
       throw error;
+    }
+  }
+
+  async getRoom(id: number): Promise<any | undefined> {
+    try {
+      const [room] = await db.select().from(rooms).where(eq(rooms.id, id));
+      return room;
+    } catch (error) {
+      console.error('Error getting room:', error);
+      return undefined;
+    }
+  }
+
+  async getRoomsByHotel(hotelId: number): Promise<any[]> {
+    try {
+      const result = await db.select().from(rooms)
+        .where(eq(rooms.hotelId, hotelId))
+        .orderBy(rooms.createdAt);
+      return result || [];
+    } catch (error) {
+      console.error('Error getting rooms by hotel:', error);
+      return [];
     }
   }
 
