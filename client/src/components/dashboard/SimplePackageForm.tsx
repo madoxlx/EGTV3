@@ -1057,9 +1057,19 @@ export function PackageCreatorForm({ packageId, onNavigateRequest }: PackageCrea
   };
 
   const updateAvailableRooms = (selectedHotelIds: string[]) => {
-    const hotelRooms = allRooms.filter(room => 
-      selectedHotelIds.includes(room.hotelId)
-    );
+    console.log('Updating available rooms for hotels:', selectedHotelIds);
+    console.log('All rooms data:', allRooms);
+    
+    const hotelRooms = allRooms.filter(room => {
+      // Handle both camelCase and snake_case field names
+      const roomHotelId = room.hotelId || room.hotel_id;
+      // Convert both to strings for comparison since hotels API returns string IDs
+      const matches = selectedHotelIds.includes(String(roomHotelId));
+      console.log(`Room ${room.name}: hotel_id=${roomHotelId}, selectedHotels=${selectedHotelIds}, matches=${matches}`);
+      return matches;
+    });
+    
+    console.log('Filtered hotel rooms:', hotelRooms);
     setAvailableRooms(hotelRooms);
 
     const adultCount = form.getValues("adultCount") || 2;
@@ -2304,7 +2314,7 @@ export function PackageCreatorForm({ packageId, onNavigateRequest }: PackageCrea
                               <h4 className="font-medium text-md mb-3">{hotel.name}</h4>
                               <div className="grid grid-cols-1 gap-3">
                                 {filteredRooms
-                                  .filter(room => room.hotelId === hotel.id)
+                                  .filter(room => String(room.hotelId || room.hotel_id) === String(hotel.id))
                                   .map((room) => (
                                     <FormItem
                                       key={room.id}
