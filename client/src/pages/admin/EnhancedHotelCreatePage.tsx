@@ -547,9 +547,27 @@ export default function EnhancedHotelCreatePage() {
     },
   });
 
+  // Clean URL function to filter out blob URLs
+  const getCleanUrl = (url: string): string | null => {
+    if (!url) return null;
+    // Only allow proper server URLs starting with /uploads
+    if (url.startsWith('/uploads')) return url;
+    // Filter out blob URLs and other invalid formats
+    if (url.startsWith('blob:') || url.startsWith('data:')) return null;
+    return url;
+  };
+
   // Form submission handler
   const onSubmit = async (data: HotelFormValues) => {
     try {
+      // Clean gallery URLs to remove blob URLs
+      const cleanGalleryUrls = galleryPreviews
+        .map(getCleanUrl)
+        .filter(Boolean) as string[];
+      
+      // Clean main image URL
+      const cleanMainImageUrl = getCleanUrl(mainImagePreview || data.imageUrl || '');
+
       // Prepare JSON data for submission
       const hotelData = {
         ...data,
@@ -557,9 +575,9 @@ export default function EnhancedHotelCreatePage() {
         facilityIds: selectedFacilities,
         highlightIds: selectedHighlights,
         cleanlinessFeatureIds: selectedCleanlinessFeatures,
-        // Include uploaded image URLs if available
-        imageUrl: mainImagePreview || data.imageUrl,
-        galleryUrls: galleryPreviews.length > 0 ? galleryPreviews : data.galleryUrls,
+        // Include only clean server URLs
+        imageUrl: cleanMainImageUrl,
+        galleryUrls: cleanGalleryUrls.length > 0 ? cleanGalleryUrls : data.galleryUrls,
       };
 
       console.log('Submitting hotel data:', hotelData);

@@ -106,6 +106,14 @@ The application uses a comprehensive PostgreSQL schema with the following core e
 
 ## Recent Changes
 
+- **Hotel Creation Database Field Size Error Fix (June 28, 2025)**: Fixed critical 500 error caused by oversized image data in hotel creation
+  - Identified issue where gallery images contained large base64 blob URLs (880KB) exceeding database field limits
+  - Added URL cleaning function to filter out blob URLs and only allow proper server URLs starting with /uploads
+  - Enhanced form submission to process both main image and gallery URLs before API submission
+  - Fixed "value too long for type character varying(500)" database error in hotel creation
+  - Hotel creation now sends clean server URLs instead of massive base64 encoded image data
+  - Applied professional data integrity practices to prevent database field overflow errors
+
 - **Hotel Creation Enhancement with City/Country Name Lookup and User Tracking (June 28, 2025)**: Enhanced hotel creation endpoint to automatically populate city and country names from IDs and track creating user
   - Modified hotel creation API endpoint to fetch city names from cityId and store in 'city' column
   - Added country name lookup from countryId to populate 'country' column in database
