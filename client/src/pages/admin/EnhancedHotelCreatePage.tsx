@@ -564,7 +564,7 @@ export default function EnhancedHotelCreatePage() {
       const cleanGalleryUrls = galleryPreviews
         .map(getCleanUrl)
         .filter(Boolean) as string[];
-      
+
       // Clean main image URL
       const cleanMainImageUrl = getCleanUrl(mainImagePreview || data.imageUrl || '');
 
@@ -578,6 +578,10 @@ export default function EnhancedHotelCreatePage() {
         // Include only clean server URLs
         imageUrl: cleanMainImageUrl,
         galleryUrls: cleanGalleryUrls.length > 0 ? cleanGalleryUrls : data.galleryUrls,
+        // يمكنك إضافة أي تعديلات هنا
+        // مثال: تعديل الوصف أو إضافة حقول جديدة
+        // customField: "قيمة مخصصة",
+        // stars: data.stars || 3, // التأكد من وجود تقييم افتراضي
       };
 
       console.log('Submitting hotel data:', hotelData);
