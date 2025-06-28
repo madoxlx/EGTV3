@@ -1062,8 +1062,14 @@ export function PackageCreatorForm({ packageId, onNavigateRequest }: PackageCrea
   }, []);
 
   const handleHotelSelectionChange = (selectedHotelIds: string[]) => {
+    console.log('🏨 HOTEL SELECTION CHANGED:', selectedHotelIds);
     form.setValue("selectedHotels", selectedHotelIds);
     updateAvailableRooms(selectedHotelIds);
+    
+    // Force re-render by triggering form watch
+    setTimeout(() => {
+      console.log('Current selectedHotels from form:', form.watch("selectedHotels"));
+    }, 100);
   };
 
   const updateAvailableRooms = (selectedHotelIds: string[]) => {
@@ -1094,6 +1100,9 @@ export function PackageCreatorForm({ packageId, onNavigateRequest }: PackageCrea
     const infantCount = form.getValues("infantCount") || 0;
     
     filterRoomsByCapacity(hotelRooms, adultCount, childrenCount, infantCount);
+    
+    // Force re-render by updating form state
+    form.trigger("selectedHotels");
   };
   
   // Function to handle tour selection
@@ -2305,7 +2314,7 @@ export function PackageCreatorForm({ packageId, onNavigateRequest }: PackageCrea
             </div>
 
             {/* Available Rooms */}
-            {Array.isArray(form.watch("selectedHotels")) && (form.watch("selectedHotels")?.length || 0) > 0 && (
+            {Array.isArray(form.watch("selectedHotels")) && (form.watch("selectedHotels")?.length || 0) > 0 && filteredRooms.length > 0 && (
               <FormField
                 control={form.control}
                 name="rooms"
