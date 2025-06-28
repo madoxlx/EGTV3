@@ -55,14 +55,31 @@ const isAdmin = (req: Request, res: Response, next: NextFunction) => {
   // Check if user is authenticated (session-based)
   const sessionUser = (req as any).session?.user;
   
-  // Check if user is authenticated via session
-  if (sessionUser && sessionUser.role === 'admin') {
-    (req as any).user = sessionUser;
-    return next();
+  console.log('🔍 Admin check - Session user:', sessionUser);
+  console.log('🔍 Admin check - Request path:', req.path);
+  
+  // If we have a session user, check their role
+  if (sessionUser) {
+    if (sessionUser.role === 'admin') {
+      console.log(`✅ Admin check passed for user: ${sessionUser.username} (ID: ${sessionUser.id})`);
+      (req as any).user = sessionUser;
+      return next();
+    } else {
+      console.log(`❌ Admin check failed: User role is '${sessionUser.role}', not 'admin'`);
+      return res.status(403).json({ 
+        message: 'You do not have permission to access this resource',
+        debug: {
+          userRole: sessionUser.role,
+          userId: sessionUser.id,
+          username: sessionUser.username
+        }
+      });
+    }
   }
   
-  // For admin panel access, allow temporary admin access
-  if (req.path.startsWith('/api/admin/')) {
+  // No session user found - only for development/testing purposes
+  if (!sessionUser && req.path.startsWith('/api/admin/')) {
+    console.log('⚠️ No session user found, using temporary admin access for development');
     const tempAdmin = {
       id: 1,
       username: 'admin',
@@ -71,27 +88,15 @@ const isAdmin = (req: Request, res: Response, next: NextFunction) => {
     };
     
     (req as any).user = tempAdmin;
-    console.log('🔑 Admin panel access granted');
+    console.log('🔑 Temporary admin panel access granted');
     return next();
   }
   
-  if (sessionUser && sessionUser.role !== 'admin') {
-    console.log(`❌ Admin check failed: User role is '${sessionUser.role}', not 'admin'`);
-    return res.status(403).json({ 
-      message: 'You do not have permission to access this resource',
-      debug: {
-        userRole: sessionUser.role,
-        userId: sessionUser.id,
-        username: sessionUser.username
-      }
-    });
-  }
-  
-  console.log(`✅ Admin check passed for user: ${sessionUser.username} (ID: ${sessionUser.id})`);
-  
-  // Set req.user for backward compatibility
-  (req as any).user = sessionUser;
-  return next();
+  // No session and not admin endpoint - deny access
+  return res.status(401).json({ 
+    message: 'Authentication required',
+    redirectTo: '/admin/login'
+  });
 };
 
 // Initialize Stripe

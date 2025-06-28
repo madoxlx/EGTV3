@@ -121,6 +121,13 @@ The application uses a comprehensive PostgreSQL schema with the following core e
   - Hotel creation now sends clean server URLs instead of massive base64 encoded image data
   - Applied professional data integrity practices to prevent database field overflow errors
 
+- **Hotel Creation User Tracking Fix (June 28, 2025)**: Fixed critical issue where all hotels were created with createdBy = 1 regardless of signed-in admin user
+  - Fixed authentication middleware to properly prioritize session users over fallback mechanism  
+  - Enhanced admin check to correctly capture real user ID instead of defaulting to temporary admin ID 1
+  - Added detailed logging to track session user information during admin requests
+  - User tracking now works correctly - hotels created by AhmedSh (ID: 9) will show createdBy = 9
+  - Resolved authentication flow that was overriding actual session user with hardcoded fallback
+
 - **Hotel Creation Enhancement with City/Country Name Lookup and User Tracking (June 28, 2025)**: Enhanced hotel creation endpoint to automatically populate city and country names from IDs and track creating user
   - Modified hotel creation API endpoint to fetch city names from cityId and store in 'city' column
   - Added country name lookup from countryId to populate 'country' column in database

@@ -600,8 +600,7 @@ export default function EnhancedHotelCreatePage() {
         // مثال: تعديل الوصف أو إضافة حقول جديدة
         // customField: "قيمة مخصصة",
         // stars: data.stars || 3, // التأكد من وجود تقييم افتراضي
-        stars: data.stars 
-
+        stars: data.stars,
         guestRating: data.guestRating || 0,
 
         // Add any other necessary fields or transformations here
