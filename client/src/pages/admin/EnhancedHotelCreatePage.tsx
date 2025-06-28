@@ -2175,6 +2175,144 @@ export default function EnhancedHotelCreatePage() {
                   </Button>
                   <Button
                     type="button"
+                    variant="ghost"
+                    className="bg-yellow-50 hover:bg-yellow-100 text-yellow-800 border-yellow-200"
+                    onClick={() => {
+                      // Debug function to analyze current form state
+                      const debugHotelData = () => {
+                        const formValues = form.getValues();
+                        const formErrors = form.formState.errors;
+                        
+                        console.group("🔍 HOTEL CREATION DEBUG ANALYSIS");
+                        
+                        // Basic Information Analysis
+                        console.group("📋 Basic Information");
+                        console.log("Name:", formValues.name || "❌ MISSING");
+                        console.log("Description:", formValues.description || "⚠️ Empty");
+                        console.log("Destination ID:", formValues.destinationId || "❌ MISSING");
+                        console.log("Address:", formValues.address || "❌ MISSING");
+                        console.log("City ID:", formValues.cityId || "⚠️ Not selected");
+                        console.log("Country ID:", formValues.countryId || "⚠️ Not selected");
+                        console.log("Stars:", formValues.stars || "❌ MISSING");
+                        console.groupEnd();
+                        
+                        // Contact Information Analysis
+                        console.group("📞 Contact Information");
+                        console.log("Phone:", formValues.phone || "⚠️ Empty");
+                        console.log("Email:", formValues.email || "⚠️ Empty");
+                        console.log("Website:", formValues.website || "⚠️ Empty");
+                        console.groupEnd();
+                        
+                        // Location Analysis
+                        console.group("📍 Location Data");
+                        console.log("Longitude:", formValues.longitude !== undefined ? formValues.longitude : "⚠️ Not set");
+                        console.log("Latitude:", formValues.latitude !== undefined ? formValues.latitude : "⚠️ Not set");
+                        console.groupEnd();
+                        
+                        // Features Analysis
+                        console.group("✨ Features & Amenities");
+                        console.log("Selected Highlights:", selectedHighlights.length > 0 ? selectedHighlights : "⚠️ None selected");
+                        console.log("Selected Facilities:", selectedFacilities.length > 0 ? selectedFacilities : "⚠️ None selected");
+                        console.log("Selected Cleanliness Features:", selectedCleanlinessFeatures.length > 0 ? selectedCleanlinessFeatures : "⚠️ None selected");
+                        console.groupEnd();
+                        
+                        // Transportation Analysis
+                        console.group("🚗 Transportation Options");
+                        console.log("Parking Available:", formValues.parkingAvailable ? "✅ Yes" : "❌ No");
+                        console.log("Airport Transfer:", formValues.airportTransferAvailable ? "✅ Yes" : "❌ No");
+                        console.log("Car Rental:", formValues.carRentalAvailable ? "✅ Yes" : "❌ No");
+                        console.log("Shuttle Service:", formValues.shuttleAvailable ? "✅ Yes" : "❌ No");
+                        console.log("WiFi Available:", formValues.wifiAvailable ? "✅ Yes" : "❌ No");
+                        console.log("Pet Friendly:", formValues.petFriendly ? "✅ Yes" : "❌ No");
+                        console.log("Accessible Facilities:", formValues.accessibleFacilities ? "✅ Yes" : "❌ No");
+                        console.groupEnd();
+                        
+                        // Images Analysis
+                        console.group("🖼️ Images");
+                        console.log("Main Image File:", mainImageFile ? `✅ ${mainImageFile.name}` : "⚠️ No file selected");
+                        console.log("Main Image Preview:", mainImagePreview ? "✅ Available" : "⚠️ No preview");
+                        console.log("Gallery Files:", galleryFiles.length > 0 ? `✅ ${galleryFiles.length} files` : "⚠️ No files");
+                        console.log("Gallery Previews:", galleryPreviews.length > 0 ? `✅ ${galleryPreviews.length} previews` : "⚠️ No previews");
+                        console.groupEnd();
+                        
+                        // Related Data Analysis
+                        console.group("🏢 Related Data");
+                        console.log("Landmarks:", formValues.landmarks?.length > 0 ? `✅ ${formValues.landmarks.length} landmarks` : "⚠️ None added");
+                        console.log("Restaurants:", formValues.restaurants?.length > 0 ? `✅ ${formValues.restaurants.length} restaurants` : "⚠️ None added");
+                        console.log("FAQs:", formValues.faqs?.length > 0 ? `✅ ${formValues.faqs.length} FAQs` : "⚠️ None added");
+                        console.log("Room Types:", formValues.roomTypes?.length > 0 ? `✅ ${formValues.roomTypes.length} room types` : "⚠️ None added");
+                        console.groupEnd();
+                        
+                        // Form Validation Analysis
+                        console.group("⚠️ Form Validation Errors");
+                        if (Object.keys(formErrors).length > 0) {
+                          console.error("Validation Errors Found:", formErrors);
+                        } else {
+                          console.log("✅ No validation errors");
+                        }
+                        console.groupEnd();
+                        
+                        // Final Data Preview
+                        console.group("📦 Final Hotel Data Preview");
+                        const cleanGalleryUrls = galleryPreviews
+                          .map(getCleanUrl)
+                          .filter(Boolean) as string[];
+                        const cleanMainImageUrl = getCleanUrl(
+                          mainImagePreview || formValues.imageUrl || "",
+                        );
+                        
+                        const finalHotelData = {
+                          ...formValues,
+                          facilityIds: selectedFacilities,
+                          highlightIds: selectedHighlights,
+                          cleanlinessFeatureIds: selectedCleanlinessFeatures,
+                          imageUrl: cleanMainImageUrl,
+                          galleryUrls: cleanGalleryUrls.length > 0 ? cleanGalleryUrls : formValues.galleryUrls,
+                          amenities: [
+                            ...(formValues.wifiAvailable ? ['wifi'] : []),
+                            ...(formValues.parkingAvailable ? ['parking'] : []),
+                            ...(formValues.airportTransferAvailable ? ['airport_shuttle'] : []),
+                            ...(formValues.carRentalAvailable ? ['car_rental'] : []),
+                            ...(formValues.shuttleAvailable ? ['shuttle'] : []),
+                            ...(formValues.petFriendly ? ['pet_friendly'] : []),
+                            ...(formValues.accessibleFacilities ? ['wheelchair_accessible'] : []),
+                          ],
+                          stars: formValues.stars,
+                          guestRating: formValues.guestRating || 0,
+                        };
+                        
+                        console.log("📊 Complete Hotel Data Object:", finalHotelData);
+                        console.groupEnd();
+                        
+                        // Missing Required Fields Check
+                        console.group("🚨 Missing Required Fields Check");
+                        const requiredFields = ['name', 'destinationId', 'address', 'stars'];
+                        const missingFields = requiredFields.filter(field => !formValues[field as keyof typeof formValues]);
+                        
+                        if (missingFields.length > 0) {
+                          console.error("❌ Missing Required Fields:", missingFields);
+                        } else {
+                          console.log("✅ All required fields are filled");
+                        }
+                        console.groupEnd();
+                        
+                        console.groupEnd();
+                        
+                        // Show toast notification
+                        toast({
+                          title: "🔍 Debug Analysis Complete",
+                          description: `Check browser console for detailed analysis. ${missingFields.length > 0 ? `Missing: ${missingFields.join(', ')}` : 'All required fields OK!'}`,
+                          duration: 5000,
+                        });
+                      };
+                      
+                      debugHotelData();
+                    }}
+                  >
+                    🔍 Debug Hotel Data
+                  </Button>
+                  <Button
+                    type="button"
                     variant="secondary"
                     onClick={() => {
                       // Get current form values without validation
