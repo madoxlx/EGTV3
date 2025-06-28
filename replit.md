@@ -106,17 +106,15 @@ The application uses a comprehensive PostgreSQL schema with the following core e
 
 ## Recent Changes
 
-- **Package Creation Room Display System Complete (June 28, 2025)**: Successfully implemented complete room display functionality in package creation
-  - Resolved critical issue where rooms weren't appearing when hotels were selected
-  - Fixed React Query integration to properly load 3 rooms from database (hotel_ids: 2, 14, 15)
-  - Enhanced room filtering logic with comprehensive debugging and proper field name handling
-  - Added immediate room display when hotels are selected in "Available Rooms" section
-  - Implemented proper hotel selection change detection with form trigger updates
-  - Fixed field name mismatch between database schema (hotel_id) and frontend code (hotelId)
-  - Enhanced type conversion for string hotel IDs from API and numeric hotel_id values
-  - Room filtering now works correctly with authentic database data and proper capacity filtering
-  - Package creation displays all available rooms grouped by selected hotels with full details
-  - System provides complete room selection experience with real-time filtering and display
+- **Package Creation Hotel Selection Persistence Fix Complete (June 28, 2025)**: Successfully resolved hotel selection persistence across tab navigation
+  - Fixed critical issue where hotel selections disappeared when switching between tabs in package creation
+  - Replaced isolated HotelSearchComponent with integrated form field for proper state management
+  - Hotel selections now persist across all tab navigation using main form's selectedHotels field
+  - Rooms display immediately when hotels are selected and remain visible when returning to Accommodation tab
+  - Enhanced form state consistency throughout package creation workflow
+  - Eliminated conflicting hotel selection systems that caused state synchronization issues
+  - Package creation now provides seamless experience with persistent hotel and room selections
+  - System maintains all user selections during multi-tab package configuration process
 
 - **Hotel Creation TypeScript Schema Error Fix (June 28, 2025)**: Fixed form validation TypeScript errors preventing hotel creation submission
   - Added missing 'stars' field to hotelFormSchema with proper validation (1-5 star rating)

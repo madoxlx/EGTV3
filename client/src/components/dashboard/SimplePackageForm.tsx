@@ -2213,20 +2213,51 @@ export function PackageCreatorForm({ packageId, onNavigateRequest }: PackageCrea
 
           {/* Accommodation Tab */}
           <TabsContent value="accommodation" className="space-y-6 pt-4">
-            {/* New Hotel Search Component */}
-            <HotelSearchComponent 
-              onSelectionChange={(selectedRooms) => {
-                setSelectedHotelRooms(selectedRooms);
-              }}
-              initialSelection={selectedHotelRooms}
-              guestBreakdown={{
-                adults: 2,
-                children: 0,
-                infants: 0
-              }}
-              nights={3}
-              // Completely isolated from main form
-            />
+            {/* Hotel Selection */}
+            <div className="space-y-4 border rounded-md p-4">
+              <h3 className="text-lg font-semibold">Select Hotels</h3>
+              <FormField
+                control={form.control}
+                name="selectedHotels"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormControl>
+                      <div className="space-y-2">
+                        {hotels.map((hotel) => (
+                          <div key={hotel.id} className="flex items-center space-x-2 p-2 border rounded">
+                            <Checkbox
+                              id={`hotel-${hotel.id}`}
+                              checked={Array.isArray(field.value) && field.value.includes(hotel.id)}
+                              onCheckedChange={(checked) => {
+                                const currentSelection = Array.isArray(field.value) ? field.value : [];
+                                let newSelection;
+                                if (checked) {
+                                  newSelection = [...currentSelection, hotel.id];
+                                } else {
+                                  newSelection = currentSelection.filter(id => id !== hotel.id);
+                                }
+                                field.onChange(newSelection);
+                                handleHotelSelectionChange(newSelection);
+                              }}
+                            />
+                            <label
+                              htmlFor={`hotel-${hotel.id}`}
+                              className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70"
+                            >
+                              {hotel.name}
+                            </label>
+                            <div className="ml-auto text-xs text-muted-foreground">
+                              {hotel.city}, {hotel.country}
+                            </div>
+                          </div>
+                        ))}
+                      </div>
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+            </div>
 
 
             {/* Guest Breakdown */}
