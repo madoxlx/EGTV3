@@ -165,6 +165,14 @@ const hotelFormSchema = z.object({
     .optional()
     .nullable(),
 
+  // Hotel rating
+  stars: z.coerce
+    .number()
+    .min(1, { message: "Rating must be at least 1 star" })
+    .max(5, { message: "Rating cannot exceed 5 stars" })
+    .optional()
+    .nullable(),
+
   // Coordinates and additional info
   longitude: z.coerce.number().optional().nullable(),
   latitude: z.coerce.number().optional().nullable(),
@@ -190,11 +198,18 @@ const hotelFormSchema = z.object({
   facilityIds: z.array(z.number()).default([]),
   cleanlinessFeatureIds: z.array(z.number()).default([]),
 
-  // Transportation (direct fields in hotels table)
+  // Transportation and amenities (direct fields in hotels table)
   parkingAvailable: z.boolean().default(false),
   airportTransferAvailable: z.boolean().default(false),
   carRentalAvailable: z.boolean().default(false),
   shuttleAvailable: z.boolean().default(false),
+  wifiAvailable: z.boolean().default(true),
+  petFriendly: z.boolean().default(false),
+  accessibleFacilities: z.boolean().default(false),
+
+  // Additional fields for database compatibility
+  imageUrl: z.string().optional().nullable(),
+  galleryUrls: z.array(z.string()).default([]),
 
   // Complex related data (to be processed separately)
   landmarks: z.array(landmarkSchema).default([]),
@@ -551,9 +566,9 @@ export default function EnhancedHotelCreatePage() {
   const getCleanUrl = (url: string): string | null => {
     if (!url) return null;
     // Only allow proper server URLs starting with /uploads
-    if (url.startsWith('/uploads')) return url;
+    if (url.startsWith("/uploads")) return url;
     // Filter out blob URLs and other invalid formats
-    if (url.startsWith('blob:') || url.startsWith('data:')) return null;
+    if (url.startsWith("blob:") || url.startsWith("data:")) return null;
     return url;
   };
 
@@ -566,7 +581,9 @@ export default function EnhancedHotelCreatePage() {
         .filter(Boolean) as string[];
 
       // Clean main image URL
-      const cleanMainImageUrl = getCleanUrl(mainImagePreview || data.imageUrl || '');
+      const cleanMainImageUrl = getCleanUrl(
+        mainImagePreview || data.imageUrl || "",
+      );
 
       // Prepare JSON data for submission
       const hotelData = {
@@ -577,14 +594,20 @@ export default function EnhancedHotelCreatePage() {
         cleanlinessFeatureIds: selectedCleanlinessFeatures,
         // Include only clean server URLs
         imageUrl: cleanMainImageUrl,
-        galleryUrls: cleanGalleryUrls.length > 0 ? cleanGalleryUrls : data.galleryUrls,
+        galleryUrls:
+          cleanGalleryUrls.length > 0 ? cleanGalleryUrls : data.galleryUrls,
         // يمكنك إضافة أي تعديلات هنا
         // مثال: تعديل الوصف أو إضافة حقول جديدة
         // customField: "قيمة مخصصة",
         // stars: data.stars || 3, // التأكد من وجود تقييم افتراضي
+        stars: data.stars 
+
+        guestRating: data.guestRating || 0,
+
+        // Add any other necessary fields or transformations here
       };
 
-      console.log('Submitting hotel data:', hotelData);
+      console.log("Submitting hotel data:", hotelData);
 
       // Call the mutation with JSON data
       createHotelMutation.mutate(hotelData);

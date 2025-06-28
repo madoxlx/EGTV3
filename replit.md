@@ -106,6 +106,13 @@ The application uses a comprehensive PostgreSQL schema with the following core e
 
 ## Recent Changes
 
+- **Hotel Creation TypeScript Schema Error Fix (June 28, 2025)**: Fixed form validation TypeScript errors preventing hotel creation submission
+  - Added missing 'stars' field to hotelFormSchema with proper validation (1-5 star rating)
+  - Added missing amenity fields: wifiAvailable, petFriendly, accessibleFacilities to form schema
+  - Added imageUrl and galleryUrls fields for database compatibility
+  - Enhanced form schema validation with comprehensive field coverage
+  - Fixed "Property 'stars' does not exist" TypeScript compilation error
+
 - **Hotel Creation Database Field Size Error Fix (June 28, 2025)**: Fixed critical 500 error caused by oversized image data in hotel creation
   - Identified issue where gallery images contained large base64 blob URLs (880KB) exceeding database field limits
   - Added URL cleaning function to filter out blob URLs and only allow proper server URLs starting with /uploads
