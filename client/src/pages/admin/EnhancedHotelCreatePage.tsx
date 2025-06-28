@@ -138,18 +138,33 @@ const hotelFormSchema = z.object({
   // Basic Hotel Information
   name: z.string().min(3, { message: "Name must be at least 3 characters" }),
   description: z.string().optional().nullable(),
-  destinationId: z.coerce.number().positive({ message: "Please select a destination" }),
+  destinationId: z.coerce
+    .number()
+    .positive({ message: "Please select a destination" }),
   address: z.string().min(1, { message: "Address is required" }),
-  cityId: z.coerce.number().positive({ message: "Please select a city" }).optional().nullable(),
-  countryId: z.coerce.number().positive({ message: "Please select a country" }).optional().nullable(),
+  cityId: z.coerce
+    .number()
+    .positive({ message: "Please select a city" })
+    .optional()
+    .nullable(),
+  countryId: z.coerce
+    .number()
+    .positive({ message: "Please select a country" })
+    .optional()
+    .nullable(),
   postalCode: z.string().optional().nullable(),
   phone: z.string().optional().nullable(),
-  email: z.string().email({ message: "Please enter a valid email" }).optional().nullable(),
-  website: z.string().url({ message: "Please enter a valid URL" }).optional().nullable(),
-  imageUrl: z.string().url({ message: "Please enter a valid URL" }).optional().nullable(),
-  stars: z.coerce.number().min(1).max(5).default(3),
-  guestRating: z.coerce.number().min(0).max(10).optional().nullable(),
-  
+  email: z
+    .string()
+    .email({ message: "Please enter a valid email" })
+    .optional()
+    .nullable(),
+  website: z
+    .string()
+    .url({ message: "Please enter a valid URL" })
+    .optional()
+    .nullable(),
+
   // Coordinates and additional info
   longitude: z.coerce.number().optional().nullable(),
   latitude: z.coerce.number().optional().nullable(),
@@ -169,18 +184,18 @@ const hotelFormSchema = z.object({
     })
     .optional()
     .nullable(),
-    
+
   // General Highlights, Facilities, and Cleanliness Features (using IDs for Many-to-Many)
   highlightIds: z.array(z.number()).default([]),
   facilityIds: z.array(z.number()).default([]),
   cleanlinessFeatureIds: z.array(z.number()).default([]),
-  
+
   // Transportation (direct fields in hotels table)
   parkingAvailable: z.boolean().default(false),
   airportTransferAvailable: z.boolean().default(false),
   carRentalAvailable: z.boolean().default(false),
   shuttleAvailable: z.boolean().default(false),
-  
+
   // Complex related data (to be processed separately)
   landmarks: z.array(landmarkSchema).default([]),
   restaurants: z.array(restaurantSchema).default([]),
@@ -253,25 +268,27 @@ export default function EnhancedHotelCreatePage() {
   // State for selections
   const [selectedFacilities, setSelectedFacilities] = useState<number[]>([]);
   const [selectedHighlights, setSelectedHighlights] = useState<number[]>([]);
-  const [selectedCleanlinessFeatures, setSelectedCleanlinessFeatures] = useState<number[]>([]);
-  const [selectedCountryId, setSelectedCountryId] = useState<number | null>(null);
+  const [selectedCleanlinessFeatures, setSelectedCleanlinessFeatures] =
+    useState<number[]>([]);
+  const [selectedCountryId, setSelectedCountryId] = useState<number | null>(
+    null,
+  );
   const [locationSearchQuery, setLocationSearchQuery] = useState("");
   const [isSearchingLandmarks, setIsSearchingLandmarks] = useState(false);
   const [suggestedLandmarks, setSuggestedLandmarks] = useState<any[]>([]);
-  
+
   // Image management state
   const [mainImageFile, setMainImageFile] = useState<File | null>(null);
   const [mainImagePreview, setMainImagePreview] = useState<string>("");
   const [galleryFiles, setGalleryFiles] = useState<File[]>([]);
   const [galleryPreviews, setGalleryPreviews] = useState<string[]>([]);
-  const [imageUploadMethod, setImageUploadMethod] = useState<'url' | 'upload'>('url');
-  
+
   // Google Maps integration
   const [apiKey, setApiKey] = useState<string>("");
   const { isLoaded } = useLoadScript({
     googleMapsApiKey: apiKey || "",
   });
-  
+
   // Load Google Maps API key
   useEffect(() => {
     // In a real implementation, this would fetch from your backend
@@ -288,12 +305,14 @@ export default function EnhancedHotelCreatePage() {
         console.error("Failed to load Maps API key:", error);
       }
     };
-    
+
     fetchApiKey();
   }, []);
 
   // Image handling functions
-  const handleMainImageUpload = (event: React.ChangeEvent<HTMLInputElement>) => {
+  const handleMainImageUpload = (
+    event: React.ChangeEvent<HTMLInputElement>,
+  ) => {
     const file = event.target.files?.[0];
     if (file) {
       setMainImageFile(file);
@@ -305,15 +324,17 @@ export default function EnhancedHotelCreatePage() {
     }
   };
 
-  const handleGalleryImageUpload = (event: React.ChangeEvent<HTMLInputElement>) => {
+  const handleGalleryImageUpload = (
+    event: React.ChangeEvent<HTMLInputElement>,
+  ) => {
     const files = Array.from(event.target.files || []);
     if (files.length > 0) {
-      setGalleryFiles(prev => [...prev, ...files]);
-      
-      files.forEach(file => {
+      setGalleryFiles((prev) => [...prev, ...files]);
+
+      files.forEach((file) => {
         const reader = new FileReader();
         reader.onload = (e) => {
-          setGalleryPreviews(prev => [...prev, e.target?.result as string]);
+          setGalleryPreviews((prev) => [...prev, e.target?.result as string]);
         };
         reader.readAsDataURL(file);
       });
@@ -323,12 +344,11 @@ export default function EnhancedHotelCreatePage() {
   const removeMainImage = () => {
     setMainImageFile(null);
     setMainImagePreview("");
-    form.setValue("imageUrl", "");
   };
 
   const removeGalleryImage = (index: number) => {
-    setGalleryFiles(prev => prev.filter((_, i) => i !== index));
-    setGalleryPreviews(prev => prev.filter((_, i) => i !== index));
+    setGalleryFiles((prev) => prev.filter((_, i) => i !== index));
+    setGalleryPreviews((prev) => prev.filter((_, i) => i !== index));
   };
 
   // Form setup with default values
@@ -345,7 +365,6 @@ export default function EnhancedHotelCreatePage() {
       phone: "",
       email: "",
       website: "",
-      imageUrl: "",
       stars: 3,
       guestRating: undefined,
       checkInTime: "14:00",
@@ -367,33 +386,34 @@ export default function EnhancedHotelCreatePage() {
       roomTypes: [],
     },
   });
-  
+
   // Setup field arrays for related items
   const landmarksFieldArray = useFieldArray({
     control: form.control,
     name: "landmarks",
   });
-  
+
   const restaurantsFieldArray = useFieldArray({
     control: form.control,
     name: "restaurants",
   });
-  
+
   const faqsFieldArray = useFieldArray({
     control: form.control,
     name: "faqs",
   });
-  
+
   const roomTypesFieldArray = useFieldArray({
     control: form.control,
     name: "roomTypes",
   });
-  
+
   // Fetch destinations
-  const { data: destinations = [], isLoading: isLoadingDestinations } = useQuery({
-    queryKey: ["/api/destinations"],
-    queryFn: getQueryFn(),
-  });
+  const { data: destinations = [], isLoading: isLoadingDestinations } =
+    useQuery({
+      queryKey: ["/api/destinations"],
+      queryFn: getQueryFn(),
+    });
 
   // Fetch countries data for the dropdown
   const { data: countries = [] } = useQuery({
@@ -406,52 +426,80 @@ export default function EnhancedHotelCreatePage() {
     queryKey: ["/api/cities"],
     staleTime: 1000 * 60 * 5, // 5 minutes
   });
-  
+
   // Fetch facilities
   const { data: facilities = [], isLoading: isLoadingFacilities } = useQuery({
     queryKey: ["/api/admin/hotel-facilities"],
     queryFn: getQueryFn(),
   });
-  
+
   // Fetch highlights
   const { data: highlights = [], isLoading: isLoadingHighlights } = useQuery({
     queryKey: ["/api/admin/hotel-highlights"],
     queryFn: getQueryFn(),
   });
-  
+
   // Fetch cleanliness features
-  const { data: cleanlinessFeatures = [], isLoading: isLoadingCleanlinessFeatures } = useQuery({
+  const {
+    data: cleanlinessFeatures = [],
+    isLoading: isLoadingCleanlinessFeatures,
+  } = useQuery({
     queryKey: ["/api/admin/cleanliness-features"],
     queryFn: getQueryFn(),
   });
-  
+
   // Effect to update form when selections change
   // Update form values when selections change
   useEffect(() => {
     form.setValue("facilityIds", selectedFacilities);
     form.setValue("highlightIds", selectedHighlights);
     form.setValue("cleanlinessFeatureIds", selectedCleanlinessFeatures);
-  }, [selectedFacilities, selectedHighlights, selectedCleanlinessFeatures, form]);
-  
+  }, [
+    selectedFacilities,
+    selectedHighlights,
+    selectedCleanlinessFeatures,
+    form,
+  ]);
+
   // Function to search nearby landmarks with Google Places API
   const searchNearbyLandmarks = () => {
     setIsSearchingLandmarks(true);
-    
+
     // This would typically call the Google Places API
     // For this implementation, we're simulating results
     setTimeout(() => {
       const mockLandmarks = [
-        { name: "Great Pyramid of Giza", description: "Ancient Egyptian pyramid", distance: "1.2 km", placeId: "ChIJN8F_47w7WBQRUJGUzM6Fsks" },
-        { name: "Egyptian Museum", description: "History museum", distance: "3.4 km", placeId: "ChIJ5y7_47R7WBQRuLZMSJXnDzs" },
-        { name: "Khan el-Khalili", description: "Historic bazaar", distance: "5.8 km", placeId: "ChIJ9dSaz6s_WBQRam44QaRRdWQ" },
-        { name: "Tahrir Square", description: "Public square", distance: "2.9 km", placeId: "ChIJLR2Vc8c_WBQRftgykvDG_PY" },
+        {
+          name: "Great Pyramid of Giza",
+          description: "Ancient Egyptian pyramid",
+          distance: "1.2 km",
+          placeId: "ChIJN8F_47w7WBQRUJGUzM6Fsks",
+        },
+        {
+          name: "Egyptian Museum",
+          description: "History museum",
+          distance: "3.4 km",
+          placeId: "ChIJ5y7_47R7WBQRuLZMSJXnDzs",
+        },
+        {
+          name: "Khan el-Khalili",
+          description: "Historic bazaar",
+          distance: "5.8 km",
+          placeId: "ChIJ9dSaz6s_WBQRam44QaRRdWQ",
+        },
+        {
+          name: "Tahrir Square",
+          description: "Public square",
+          distance: "2.9 km",
+          placeId: "ChIJLR2Vc8c_WBQRftgykvDG_PY",
+        },
       ];
-      
+
       setSuggestedLandmarks(mockLandmarks);
       setIsSearchingLandmarks(false);
     }, 1000);
   };
-  
+
   // Handle adding a landmark from suggestions
   const addLandmarkFromSuggestion = (landmark: any) => {
     landmarksFieldArray.append({
@@ -461,7 +509,7 @@ export default function EnhancedHotelCreatePage() {
       placeId: landmark.placeId,
     });
   };
-  
+
   // Create hotel mutation
   const createHotelMutation = useMutation({
     mutationFn: async (data: HotelFormValues) => {
@@ -469,8 +517,8 @@ export default function EnhancedHotelCreatePage() {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(data),
-        credentials: "include"
-      }).then(res => {
+        credentials: "include",
+      }).then((res) => {
         if (!res.ok) throw new Error("Failed to create hotel");
         return res.json();
       });
@@ -482,10 +530,10 @@ export default function EnhancedHotelCreatePage() {
         description: "The hotel was created successfully",
         duration: 5000,
       });
-      
+
       // Invalidate queries to refresh data
       queryClient.invalidateQueries({ queryKey: ["/api/admin/hotels"] });
-      
+
       // Navigate back to hotels list
       navigate("/admin/hotels");
     },
@@ -498,47 +546,79 @@ export default function EnhancedHotelCreatePage() {
       });
     },
   });
-  
+
   // Form submission handler
-  const onSubmit = (data: HotelFormValues) => {
-    createHotelMutation.mutate(data);
+  const onSubmit = async (data: HotelFormValues) => {
+    try {
+      // Prepare JSON data for submission
+      const hotelData = {
+        ...data,
+        // Add selected features
+        facilityIds: selectedFacilities,
+        highlightIds: selectedHighlights,
+        cleanlinessFeatureIds: selectedCleanlinessFeatures,
+        // Include uploaded image URLs if available
+        imageUrl: mainImagePreview || data.imageUrl,
+        galleryUrls: galleryPreviews.length > 0 ? galleryPreviews : data.galleryUrls,
+      };
+
+      console.log('Submitting hotel data:', hotelData);
+
+      // Call the mutation with JSON data
+      createHotelMutation.mutate(hotelData);
+    } catch (error) {
+      console.error("Error preparing form data:", error);
+    }
   };
-  
+
   // Toggle facility selection
   const toggleFacility = (facilityId: number) => {
     if (selectedFacilities.includes(facilityId)) {
-      setSelectedFacilities(selectedFacilities.filter(id => id !== facilityId));
+      setSelectedFacilities(
+        selectedFacilities.filter((id) => id !== facilityId),
+      );
     } else {
       setSelectedFacilities([...selectedFacilities, facilityId]);
     }
   };
-  
+
   // Toggle highlight selection
   const toggleHighlight = (highlightId: number) => {
     if (selectedHighlights.includes(highlightId)) {
-      setSelectedHighlights(selectedHighlights.filter(id => id !== highlightId));
+      setSelectedHighlights(
+        selectedHighlights.filter((id) => id !== highlightId),
+      );
     } else {
       setSelectedHighlights([...selectedHighlights, highlightId]);
     }
   };
-  
+
   // Toggle cleanliness feature selection
   const toggleCleanlinessFeature = (featureId: number) => {
     if (selectedCleanlinessFeatures.includes(featureId)) {
-      setSelectedCleanlinessFeatures(selectedCleanlinessFeatures.filter(id => id !== featureId));
+      setSelectedCleanlinessFeatures(
+        selectedCleanlinessFeatures.filter((id) => id !== featureId),
+      );
     } else {
-      setSelectedCleanlinessFeatures([...selectedCleanlinessFeatures, featureId]);
+      setSelectedCleanlinessFeatures([
+        ...selectedCleanlinessFeatures,
+        featureId,
+      ]);
     }
   };
-  
+
   return (
     <div>
       <div className="space-y-4 p-4 sm:p-6 lg:p-8">
         <div className="mb-6">
           <div className="flex items-center gap-2">
-            <Button variant="link" onClick={() => navigate("/admin")}>Dashboard</Button>
+            <Button variant="link" onClick={() => navigate("/admin")}>
+              Dashboard
+            </Button>
             <ChevronRight className="h-4 w-4" />
-            <Button variant="link" onClick={() => navigate("/admin/hotels")}>Hotels</Button>
+            <Button variant="link" onClick={() => navigate("/admin/hotels")}>
+              Hotels
+            </Button>
             <ChevronRight className="h-4 w-4" />
             <span>Create Hotel</span>
           </div>
@@ -547,27 +627,34 @@ export default function EnhancedHotelCreatePage() {
         <Card>
           <CardHeader>
             <CardTitle>Create New Hotel</CardTitle>
-            <CardDescription>Enter comprehensive details to create a new hotel listing</CardDescription>
+            <CardDescription>
+              Enter comprehensive details to create a new hotel listing
+            </CardDescription>
           </CardHeader>
           <CardContent>
             <Form {...form}>
-              <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
+              <form
+                onSubmit={form.handleSubmit(onSubmit)}
+                className="space-y-6"
+              >
                 <Tabs defaultValue="basic" className="w-full">
                   <TabsList className="grid grid-cols-5 mb-4">
                     <TabsTrigger value="basic">Basic Info</TabsTrigger>
                     <TabsTrigger value="features">Features</TabsTrigger>
-                    <TabsTrigger value="transportation">Transportation</TabsTrigger>
+                    <TabsTrigger value="transportation">
+                      Transportation
+                    </TabsTrigger>
                     <TabsTrigger value="dining">Dining</TabsTrigger>
                     <TabsTrigger value="rooms-faqs">Rooms & FAQs</TabsTrigger>
                   </TabsList>
-                  
+
                   {/* Basic Information Tab */}
                   <TabsContent value="basic" className="space-y-6">
                     <h3 className="text-lg font-semibold flex items-center gap-2">
                       <Building className="h-5 w-5" />
                       Basic Hotel Information
                     </h3>
-                    
+
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                       {/* Hotel Name */}
                       <FormField
@@ -575,7 +662,9 @@ export default function EnhancedHotelCreatePage() {
                         name="name"
                         render={({ field }) => (
                           <FormItem>
-                            <FormLabel>Hotel Name <span className="text-red-500">*</span></FormLabel>
+                            <FormLabel>
+                              Hotel Name <span className="text-red-500">*</span>
+                            </FormLabel>
                             <FormControl>
                               <Input placeholder="Grand Hotel" {...field} />
                             </FormControl>
@@ -590,9 +679,14 @@ export default function EnhancedHotelCreatePage() {
                         name="destinationId"
                         render={({ field }) => (
                           <FormItem>
-                            <FormLabel>Destination <span className="text-red-500">*</span></FormLabel>
+                            <FormLabel>
+                              Destination{" "}
+                              <span className="text-red-500">*</span>
+                            </FormLabel>
                             <Select
-                              onValueChange={(value) => field.onChange(parseInt(value))}
+                              onValueChange={(value) =>
+                                field.onChange(parseInt(value))
+                              }
                               defaultValue={field.value?.toString()}
                             >
                               <FormControl>
@@ -601,11 +695,16 @@ export default function EnhancedHotelCreatePage() {
                                 </SelectTrigger>
                               </FormControl>
                               <SelectContent>
-                                {!isLoadingDestinations && Array.isArray(destinations) && destinations.map((destination: any) => (
-                                  <SelectItem key={destination.id} value={destination.id.toString()}>
-                                    {destination.name}, {destination.country}
-                                  </SelectItem>
-                                ))}
+                                {!isLoadingDestinations &&
+                                  Array.isArray(destinations) &&
+                                  destinations.map((destination: any) => (
+                                    <SelectItem
+                                      key={destination.id}
+                                      value={destination.id.toString()}
+                                    >
+                                      {destination.name}, {destination.country}
+                                    </SelectItem>
+                                  ))}
                               </SelectContent>
                             </Select>
                             <FormMessage />
@@ -641,7 +740,9 @@ export default function EnhancedHotelCreatePage() {
                         name="address"
                         render={({ field }) => (
                           <FormItem>
-                            <FormLabel>Address <span className="text-red-500">*</span></FormLabel>
+                            <FormLabel>
+                              Address <span className="text-red-500">*</span>
+                            </FormLabel>
                             <FormControl>
                               <div className="relative">
                                 <Input
@@ -664,14 +765,14 @@ export default function EnhancedHotelCreatePage() {
                         render={({ field }) => (
                           <FormItem>
                             <FormLabel>Country</FormLabel>
-                            <Select 
+                            <Select
                               onValueChange={(value) => {
                                 const countryId = parseInt(value);
                                 field.onChange(countryId);
                                 setSelectedCountryId(countryId);
                                 // Reset cityId when country changes
                                 form.setValue("cityId", null as any);
-                              }} 
+                              }}
                               value={field.value?.toString()}
                             >
                               <FormControl>
@@ -681,7 +782,10 @@ export default function EnhancedHotelCreatePage() {
                               </FormControl>
                               <SelectContent>
                                 {countries.map((country: any) => (
-                                  <SelectItem key={country.id} value={country.id.toString()}>
+                                  <SelectItem
+                                    key={country.id}
+                                    value={country.id.toString()}
+                                  >
                                     {country.name}
                                   </SelectItem>
                                 ))}
@@ -699,27 +803,39 @@ export default function EnhancedHotelCreatePage() {
                         render={({ field }) => (
                           <FormItem>
                             <FormLabel>City</FormLabel>
-                            <Select 
+                            <Select
                               onValueChange={(value) => {
                                 field.onChange(parseInt(value));
-                              }} 
+                              }}
                               value={field.value?.toString()}
                               disabled={!selectedCountryId}
                             >
                               <FormControl>
                                 <SelectTrigger>
-                                  <SelectValue placeholder={selectedCountryId ? "Select a city" : "Select a country first"} />
+                                  <SelectValue
+                                    placeholder={
+                                      selectedCountryId
+                                        ? "Select a city"
+                                        : "Select a country first"
+                                    }
+                                  />
                                 </SelectTrigger>
                               </FormControl>
                               <SelectContent>
-                                {Array.isArray(cities) && cities
-                                  .filter((city: any) => city.countryId === selectedCountryId)
-                                  .map((city: any) => (
-                                    <SelectItem key={city.id} value={city.id.toString()}>
-                                      {city.name}
-                                    </SelectItem>
-                                  ))
-                                }
+                                {Array.isArray(cities) &&
+                                  cities
+                                    .filter(
+                                      (city: any) =>
+                                        city.countryId === selectedCountryId,
+                                    )
+                                    .map((city: any) => (
+                                      <SelectItem
+                                        key={city.id}
+                                        value={city.id.toString()}
+                                      >
+                                        {city.name}
+                                      </SelectItem>
+                                    ))}
                               </SelectContent>
                             </Select>
                             <FormMessage />
@@ -746,7 +862,7 @@ export default function EnhancedHotelCreatePage() {
                         )}
                       />
                     </div>
-                    
+
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                       {/* Star Rating */}
                       <FormField
@@ -754,11 +870,16 @@ export default function EnhancedHotelCreatePage() {
                         name="stars"
                         render={({ field }) => (
                           <FormItem>
-                            <FormLabel>Star Rating <span className="text-red-500">*</span></FormLabel>
+                            <FormLabel>
+                              Star Rating{" "}
+                              <span className="text-red-500">*</span>
+                            </FormLabel>
                             <FormControl>
                               <div className="relative">
                                 <Select
-                                  onValueChange={(value) => field.onChange(parseInt(value))}
+                                  onValueChange={(value) =>
+                                    field.onChange(parseInt(value))
+                                  }
                                   defaultValue={field.value?.toString() || "3"}
                                 >
                                   <SelectTrigger className="pl-10">
@@ -766,7 +887,10 @@ export default function EnhancedHotelCreatePage() {
                                   </SelectTrigger>
                                   <SelectContent>
                                     {[1, 2, 3, 4, 5].map((stars) => (
-                                      <SelectItem key={stars} value={stars.toString()}>
+                                      <SelectItem
+                                        key={stars}
+                                        value={stars.toString()}
+                                      >
                                         {stars} {stars === 1 ? "Star" : "Stars"}
                                       </SelectItem>
                                     ))}
@@ -779,7 +903,7 @@ export default function EnhancedHotelCreatePage() {
                           </FormItem>
                         )}
                       />
-                      
+
                       {/* Guest Rating */}
                       <FormField
                         control={form.control}
@@ -796,8 +920,19 @@ export default function EnhancedHotelCreatePage() {
                                   max="10"
                                   step="0.1"
                                   {...field}
-                                  value={field.value === undefined || field.value === null ? "" : field.value}
-                                  onChange={(e) => field.onChange(e.target.value === "" ? undefined : parseFloat(e.target.value))}
+                                  value={
+                                    field.value === undefined ||
+                                    field.value === null
+                                      ? ""
+                                      : field.value
+                                  }
+                                  onChange={(e) =>
+                                    field.onChange(
+                                      e.target.value === ""
+                                        ? undefined
+                                        : parseFloat(e.target.value),
+                                    )
+                                  }
                                 />
                               </div>
                             </FormControl>
@@ -807,7 +942,7 @@ export default function EnhancedHotelCreatePage() {
                         )}
                       />
                     </div>
-                    
+
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                       {/* Phone */}
                       <FormField
@@ -855,7 +990,7 @@ export default function EnhancedHotelCreatePage() {
                         )}
                       />
                     </div>
-                    
+
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                       {/* Website */}
                       <FormField
@@ -888,26 +1023,6 @@ export default function EnhancedHotelCreatePage() {
                               <Image className="h-5 w-5" />
                               Hotel Images
                             </h3>
-                            <div className="flex gap-2">
-                              <Button
-                                type="button"
-                                variant={imageUploadMethod === 'url' ? 'default' : 'outline'}
-                                size="sm"
-                                onClick={() => setImageUploadMethod('url')}
-                              >
-                                <Link className="h-4 w-4 mr-1" />
-                                URL
-                              </Button>
-                              <Button
-                                type="button"
-                                variant={imageUploadMethod === 'upload' ? 'default' : 'outline'}
-                                size="sm"
-                                onClick={() => setImageUploadMethod('upload')}
-                              >
-                                <Upload className="h-4 w-4 mr-1" />
-                                Upload
-                              </Button>
-                            </div>
                           </div>
 
                           {/* Main Image Section */}
@@ -916,86 +1031,41 @@ export default function EnhancedHotelCreatePage() {
                               <Camera className="h-4 w-4" />
                               Main Image
                             </h4>
-                            
-                            {imageUploadMethod === 'url' ? (
-                              <FormField
-                                control={form.control}
-                                name="imageUrl"
-                                render={({ field }) => (
-                                  <FormItem>
-                                    <FormLabel>Main Image URL</FormLabel>
-                                    <FormControl>
-                                      <div className="flex gap-2">
-                                        <Input
-                                          placeholder="https://example.com/hotel-image.jpg"
-                                          {...field}
-                                          value={field.value || ""}
-                                          className="flex-1"
-                                        />
-                                        {field.value && (
-                                          <Button
-                                            type="button"
-                                            variant="outline"
-                                            size="sm"
-                                            onClick={() => field.onChange("")}
-                                          >
-                                            <X className="h-4 w-4" />
-                                          </Button>
-                                        )}
-                                      </div>
-                                    </FormControl>
-                                    <FormMessage />
-                                  </FormItem>
-                                )}
-                              />
-                            ) : (
-                              <div className="space-y-2">
-                                <label className="text-sm font-medium">Upload Main Image</label>
-                                <div className="flex items-center gap-4">
-                                  <div className="flex-1">
-                                    <Input
-                                      type="file"
-                                      accept="image/*"
-                                      onChange={handleMainImageUpload}
-                                      className="cursor-pointer"
-                                    />
-                                  </div>
-                                  {mainImagePreview && (
-                                    <Button
-                                      type="button"
-                                      variant="outline"
-                                      size="sm"
-                                      onClick={removeMainImage}
-                                    >
-                                      <X className="h-4 w-4" />
-                                    </Button>
-                                  )}
+
+                            <div className="space-y-2">
+                              <label className="text-sm font-medium">
+                                Upload Main Image
+                              </label>
+                              <div className="flex items-center gap-4">
+                                <div className="flex-1">
+                                  <Input
+                                    type="file"
+                                    accept="image/*"
+                                    onChange={handleMainImageUpload}
+                                    className="cursor-pointer"
+                                  />
                                 </div>
                                 {mainImagePreview && (
-                                  <div className="mt-2">
-                                    <img
-                                      src={mainImagePreview}
-                                      alt="Main image preview"
-                                      className="w-32 h-24 object-cover rounded-md border"
-                                    />
-                                  </div>
+                                  <Button
+                                    type="button"
+                                    variant="outline"
+                                    size="sm"
+                                    onClick={removeMainImage}
+                                  >
+                                    <X className="h-4 w-4" />
+                                  </Button>
                                 )}
                               </div>
-                            )}
-
-                            {/* Preview for URL method */}
-                            {imageUploadMethod === 'url' && form.watch("imageUrl") && (
-                              <div className="mt-2">
-                                <img
-                                  src={form.watch("imageUrl")}
-                                  alt="Main image preview"
-                                  className="w-32 h-24 object-cover rounded-md border"
-                                  onError={(e) => {
-                                    e.currentTarget.style.display = 'none';
-                                  }}
-                                />
-                              </div>
-                            )}
+                              {mainImagePreview && (
+                                <div className="mt-2">
+                                  <img
+                                    src={mainImagePreview}
+                                    alt="Main image preview"
+                                    className="w-32 h-24 object-cover rounded-md border"
+                                  />
+                                </div>
+                              )}
+                            </div>
                           </div>
 
                           {/* Gallery Images Section */}
@@ -1004,52 +1074,48 @@ export default function EnhancedHotelCreatePage() {
                               <Image className="h-4 w-4" />
                               Gallery Images
                             </h4>
-                            
-                            {imageUploadMethod === 'upload' && (
-                              <div className="space-y-2">
-                                <label className="text-sm font-medium">Upload Gallery Images</label>
-                                <Input
-                                  type="file"
-                                  accept="image/*"
-                                  multiple
-                                  onChange={handleGalleryImageUpload}
-                                  className="cursor-pointer"
-                                />
-                                {galleryPreviews.length > 0 && (
-                                  <div className="grid grid-cols-2 md:grid-cols-4 gap-2 mt-4">
-                                    {galleryPreviews.map((preview, index) => (
-                                      <div key={index} className="relative">
-                                        <img
-                                          src={preview}
-                                          alt={`Gallery image ${index + 1}`}
-                                          className="w-full h-24 object-cover rounded-md border"
-                                        />
-                                        <Button
-                                          type="button"
-                                          variant="destructive"
-                                          size="sm"
-                                          className="absolute top-1 right-1 w-6 h-6 p-0"
-                                          onClick={() => removeGalleryImage(index)}
-                                        >
-                                          <X className="h-3 w-3" />
-                                        </Button>
-                                      </div>
-                                    ))}
-                                  </div>
-                                )}
-                              </div>
-                            )}
-                            
-                            {imageUploadMethod === 'url' && (
-                              <div className="text-sm text-muted-foreground">
-                                Gallery images via URL will be available in a future update. For now, please use the upload method for gallery images.
-                              </div>
-                            )}
+
+                            <div className="space-y-2">
+                              <label className="text-sm font-medium">
+                                Upload Gallery Images
+                              </label>
+                              <Input
+                                type="file"
+                                accept="image/*"
+                                multiple
+                                onChange={handleGalleryImageUpload}
+                                className="cursor-pointer"
+                              />
+                              {galleryPreviews.length > 0 && (
+                                <div className="grid grid-cols-2 md:grid-cols-4 gap-2 mt-4">
+                                  {galleryPreviews.map((preview, index) => (
+                                    <div key={index} className="relative">
+                                      <img
+                                        src={preview}
+                                        alt={`Gallery image ${index + 1}`}
+                                        className="w-full h-24 object-cover rounded-md border"
+                                      />
+                                      <Button
+                                        type="button"
+                                        variant="destructive"
+                                        size="sm"
+                                        className="absolute top-1 right-1 w-6 h-6 p-0"
+                                        onClick={() =>
+                                          removeGalleryImage(index)
+                                        }
+                                      >
+                                        <X className="h-3 w-3" />
+                                      </Button>
+                                    </div>
+                                  ))}
+                                </div>
+                              )}
+                            </div>
                           </div>
                         </div>
                       </div>
                     </div>
-                    
+
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                       {/* Check-in Time */}
                       <FormField
@@ -1097,7 +1163,7 @@ export default function EnhancedHotelCreatePage() {
                         )}
                       />
                     </div>
-                    
+
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                       {/* Longitude */}
                       <FormField
@@ -1112,8 +1178,19 @@ export default function EnhancedHotelCreatePage() {
                                 placeholder="0.0000"
                                 step="0.000001"
                                 {...field}
-                                value={field.value === undefined || field.value === null ? "" : field.value}
-                                onChange={(e) => field.onChange(e.target.value === "" ? undefined : parseFloat(e.target.value))}
+                                value={
+                                  field.value === undefined ||
+                                  field.value === null
+                                    ? ""
+                                    : field.value
+                                }
+                                onChange={(e) =>
+                                  field.onChange(
+                                    e.target.value === ""
+                                      ? undefined
+                                      : parseFloat(e.target.value),
+                                  )
+                                }
                               />
                             </FormControl>
                             <FormMessage />
@@ -1134,8 +1211,19 @@ export default function EnhancedHotelCreatePage() {
                                 placeholder="0.0000"
                                 step="0.000001"
                                 {...field}
-                                value={field.value === undefined || field.value === null ? "" : field.value}
-                                onChange={(e) => field.onChange(e.target.value === "" ? undefined : parseFloat(e.target.value))}
+                                value={
+                                  field.value === undefined ||
+                                  field.value === null
+                                    ? ""
+                                    : field.value
+                                }
+                                onChange={(e) =>
+                                  field.onChange(
+                                    e.target.value === ""
+                                      ? undefined
+                                      : parseFloat(e.target.value),
+                                  )
+                                }
                               />
                             </FormControl>
                             <FormMessage />
@@ -1143,7 +1231,7 @@ export default function EnhancedHotelCreatePage() {
                         )}
                       />
                     </div>
-                    
+
                     {/* Nearby Landmarks */}
                     <div className="space-y-4">
                       <div className="flex justify-between items-center">
@@ -1152,53 +1240,75 @@ export default function EnhancedHotelCreatePage() {
                           Nearby Landmarks
                         </h3>
                       </div>
-                      
+
                       <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
                         <div className="md:col-span-2">
                           <div className="flex gap-2">
-                            <Input 
+                            <Input
                               placeholder="Search for nearby landmarks"
                               value={locationSearchQuery}
-                              onChange={(e) => setLocationSearchQuery(e.target.value)}
+                              onChange={(e) =>
+                                setLocationSearchQuery(e.target.value)
+                              }
                               className="flex-1"
                             />
-                            <Button 
-                              type="button" 
+                            <Button
+                              type="button"
                               onClick={searchNearbyLandmarks}
-                              disabled={isSearchingLandmarks || !locationSearchQuery.trim()}
+                              disabled={
+                                isSearchingLandmarks ||
+                                !locationSearchQuery.trim()
+                              }
                             >
-                              {isSearchingLandmarks ? <RefreshCw className="h-4 w-4 animate-spin" /> : <Search className="h-4 w-4" />}
+                              {isSearchingLandmarks ? (
+                                <RefreshCw className="h-4 w-4 animate-spin" />
+                              ) : (
+                                <Search className="h-4 w-4" />
+                              )}
                               {isSearchingLandmarks ? "Searching..." : "Search"}
                             </Button>
                           </div>
                         </div>
-                        
+
                         <div className="md:col-span-1">
                           <FormDescription>
-                            Search for landmarks near this hotel to help guests know what's nearby.
+                            Search for landmarks near this hotel to help guests
+                            know what's nearby.
                           </FormDescription>
                         </div>
                       </div>
-                      
+
                       {suggestedLandmarks.length > 0 && (
                         <Card className="mt-4">
                           <CardHeader className="pb-2">
-                            <CardTitle className="text-sm">Suggested Landmarks</CardTitle>
+                            <CardTitle className="text-sm">
+                              Suggested Landmarks
+                            </CardTitle>
                           </CardHeader>
                           <CardContent>
                             <ScrollArea className="h-48">
                               <div className="space-y-2">
                                 {suggestedLandmarks.map((landmark, index) => (
-                                  <div key={index} className="flex justify-between items-center p-2 hover:bg-muted rounded-md">
+                                  <div
+                                    key={index}
+                                    className="flex justify-between items-center p-2 hover:bg-muted rounded-md"
+                                  >
                                     <div>
-                                      <p className="font-medium">{landmark.name}</p>
-                                      <p className="text-sm text-muted-foreground">{landmark.description} • {landmark.distance}</p>
+                                      <p className="font-medium">
+                                        {landmark.name}
+                                      </p>
+                                      <p className="text-sm text-muted-foreground">
+                                        {landmark.description} •{" "}
+                                        {landmark.distance}
+                                      </p>
                                     </div>
-                                    <Button 
-                                      type="button" 
-                                      variant="outline" 
+                                    <Button
+                                      type="button"
+                                      variant="outline"
                                       size="sm"
-                                      onClick={() => addLandmarkFromSuggestion(landmark)}
+                                      onClick={() =>
+                                        addLandmarkFromSuggestion(landmark)
+                                      }
                                     >
                                       <Plus className="h-4 w-4 mr-1" /> Add
                                     </Button>
@@ -1209,7 +1319,7 @@ export default function EnhancedHotelCreatePage() {
                           </CardContent>
                         </Card>
                       )}
-                      
+
                       <div>
                         <div className="flex justify-between items-center mb-2">
                           <h4 className="font-medium">Added Landmarks</h4>
@@ -1217,23 +1327,34 @@ export default function EnhancedHotelCreatePage() {
                             type="button"
                             variant="outline"
                             size="sm"
-                            onClick={() => landmarksFieldArray.append({ name: "", description: "", distance: "", placeId: "" })}
+                            onClick={() =>
+                              landmarksFieldArray.append({
+                                name: "",
+                                description: "",
+                                distance: "",
+                                placeId: "",
+                              })
+                            }
                           >
                             <Plus className="h-4 w-4 mr-1" /> Add Manually
                           </Button>
                         </div>
-                        
+
                         {landmarksFieldArray.fields.length > 0 ? (
                           <div className="border rounded-md divide-y">
                             {landmarksFieldArray.fields.map((field, index) => (
                               <div key={field.id} className="p-4">
                                 <div className="flex justify-between items-start mb-2">
-                                  <h5 className="font-medium">Landmark #{index + 1}</h5>
+                                  <h5 className="font-medium">
+                                    Landmark #{index + 1}
+                                  </h5>
                                   <Button
                                     type="button"
                                     variant="ghost"
                                     size="sm"
-                                    onClick={() => landmarksFieldArray.remove(index)}
+                                    onClick={() =>
+                                      landmarksFieldArray.remove(index)
+                                    }
                                   >
                                     <Trash2 className="h-4 w-4 text-red-500" />
                                   </Button>
@@ -1246,7 +1367,10 @@ export default function EnhancedHotelCreatePage() {
                                       <FormItem>
                                         <FormLabel>Name*</FormLabel>
                                         <FormControl>
-                                          <Input placeholder="Landmark name" {...field} />
+                                          <Input
+                                            placeholder="Landmark name"
+                                            {...field}
+                                          />
                                         </FormControl>
                                         <FormMessage />
                                       </FormItem>
@@ -1259,7 +1383,10 @@ export default function EnhancedHotelCreatePage() {
                                       <FormItem>
                                         <FormLabel>Distance</FormLabel>
                                         <FormControl>
-                                          <Input placeholder="e.g. 1.2 km" {...field} />
+                                          <Input
+                                            placeholder="e.g. 1.2 km"
+                                            {...field}
+                                          />
                                         </FormControl>
                                         <FormMessage />
                                       </FormItem>
@@ -1273,7 +1400,10 @@ export default function EnhancedHotelCreatePage() {
                                         <FormItem>
                                           <FormLabel>Description</FormLabel>
                                           <FormControl>
-                                            <Input placeholder="Brief description" {...field} />
+                                            <Input
+                                              placeholder="Brief description"
+                                              {...field}
+                                            />
                                           </FormControl>
                                           <FormMessage />
                                         </FormItem>
@@ -1287,17 +1417,23 @@ export default function EnhancedHotelCreatePage() {
                         ) : (
                           <div className="border rounded-md p-6 text-center">
                             <MapPin className="h-6 w-6 text-muted-foreground mx-auto mb-2" />
-                            <p className="text-muted-foreground">No landmarks added yet</p>
+                            <p className="text-muted-foreground">
+                              No landmarks added yet
+                            </p>
                           </div>
                         )}
                       </div>
                     </div>
-                    
+
                     {/* Featured */}
                     <div className="flex justify-between items-center">
                       <div>
-                        <FormLabel className="text-base">Featured Hotel</FormLabel>
-                        <FormDescription>Feature this hotel on the homepage and search results</FormDescription>
+                        <FormLabel className="text-base">
+                          Featured Hotel
+                        </FormLabel>
+                        <FormDescription>
+                          Feature this hotel on the homepage and search results
+                        </FormDescription>
                       </div>
                       <FormField
                         control={form.control}
@@ -1315,7 +1451,7 @@ export default function EnhancedHotelCreatePage() {
                       />
                     </div>
                   </TabsContent>
-                  
+
                   {/* Features Tab */}
                   <TabsContent value="features" className="space-y-6">
                     <InlineFeatureManager
@@ -1324,18 +1460,18 @@ export default function EnhancedHotelCreatePage() {
                       onSelectionChange={setSelectedHighlights}
                       label="Hotel Highlights"
                     />
-                    
+
                     <Separator />
-                    
+
                     <InlineFeatureManager
                       featureType="facilities"
                       selectedFeatures={selectedFacilities}
                       onSelectionChange={setSelectedFacilities}
                       label="Facilities & Services"
                     />
-                    
+
                     <Separator />
-                    
+
                     <InlineFeatureManager
                       featureType="cleanliness-features"
                       selectedFeatures={selectedCleanlinessFeatures}
@@ -1343,7 +1479,7 @@ export default function EnhancedHotelCreatePage() {
                       label="Cleanliness & Safety"
                     />
                   </TabsContent>
-                  
+
                   {/* Transportation Tab */}
                   <TabsContent value="transportation" className="space-y-6">
                     <h3 className="text-lg font-semibold flex items-center gap-2">
@@ -1351,9 +1487,10 @@ export default function EnhancedHotelCreatePage() {
                       Transportation Options
                     </h3>
                     <FormDescription>
-                      Configure the transportation options available at this hotel.
+                      Configure the transportation options available at this
+                      hotel.
                     </FormDescription>
-                    
+
                     <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
                       {/* Airport Transfer */}
                       <div className="flex justify-between items-center p-4 border rounded-md">
@@ -1363,7 +1500,9 @@ export default function EnhancedHotelCreatePage() {
                           </div>
                           <div>
                             <p className="font-medium">Airport Transfer</p>
-                            <p className="text-sm text-muted-foreground">Hotel offers airport transfer service</p>
+                            <p className="text-sm text-muted-foreground">
+                              Hotel offers airport transfer service
+                            </p>
                           </div>
                         </div>
                         <FormField
@@ -1381,7 +1520,7 @@ export default function EnhancedHotelCreatePage() {
                           )}
                         />
                       </div>
-                      
+
                       {/* Car Rental */}
                       <div className="flex justify-between items-center p-4 border rounded-md">
                         <div className="flex items-center gap-3">
@@ -1390,7 +1529,9 @@ export default function EnhancedHotelCreatePage() {
                           </div>
                           <div>
                             <p className="font-medium">Car Rental</p>
-                            <p className="text-sm text-muted-foreground">Hotel provides car rental services</p>
+                            <p className="text-sm text-muted-foreground">
+                              Hotel provides car rental services
+                            </p>
                           </div>
                         </div>
                         <FormField
@@ -1408,7 +1549,7 @@ export default function EnhancedHotelCreatePage() {
                           )}
                         />
                       </div>
-                      
+
                       {/* Shuttle Service */}
                       <div className="flex justify-between items-center p-4 border rounded-md">
                         <div className="flex items-center gap-3">
@@ -1417,7 +1558,9 @@ export default function EnhancedHotelCreatePage() {
                           </div>
                           <div>
                             <p className="font-medium">Shuttle Service</p>
-                            <p className="text-sm text-muted-foreground">Hotel offers shuttle or taxi services</p>
+                            <p className="text-sm text-muted-foreground">
+                              Hotel offers shuttle or taxi services
+                            </p>
                           </div>
                         </div>
                         <FormField
@@ -1435,7 +1578,7 @@ export default function EnhancedHotelCreatePage() {
                           )}
                         />
                       </div>
-                      
+
                       {/* Parking */}
                       <div className="flex justify-between items-center p-4 border rounded-md">
                         <div className="flex items-center gap-3">
@@ -1444,7 +1587,9 @@ export default function EnhancedHotelCreatePage() {
                           </div>
                           <div>
                             <p className="font-medium">Parking</p>
-                            <p className="text-sm text-muted-foreground">Hotel has parking facilities</p>
+                            <p className="text-sm text-muted-foreground">
+                              Hotel has parking facilities
+                            </p>
                           </div>
                         </div>
                         <FormField
@@ -1464,7 +1609,7 @@ export default function EnhancedHotelCreatePage() {
                       </div>
                     </div>
                   </TabsContent>
-                  
+
                   {/* Dining Tab */}
                   <TabsContent value="dining" className="space-y-6">
                     <h3 className="text-lg font-semibold flex items-center gap-2">
@@ -1472,9 +1617,10 @@ export default function EnhancedHotelCreatePage() {
                       Food and Dining
                     </h3>
                     <FormDescription>
-                      Add information about restaurants and dining options at this hotel.
+                      Add information about restaurants and dining options at
+                      this hotel.
                     </FormDescription>
-                    
+
                     <div className="space-y-4">
                       <div className="flex justify-between items-center">
                         <h4 className="font-medium">Hotel Restaurants</h4>
@@ -1482,23 +1628,33 @@ export default function EnhancedHotelCreatePage() {
                           type="button"
                           variant="outline"
                           size="sm"
-                          onClick={() => restaurantsFieldArray.append({ name: "", cuisineType: "", breakfastOptions: [] })}
+                          onClick={() =>
+                            restaurantsFieldArray.append({
+                              name: "",
+                              cuisineType: "",
+                              breakfastOptions: [],
+                            })
+                          }
                         >
                           <Plus className="h-4 w-4 mr-1" /> Add Restaurant
                         </Button>
                       </div>
-                      
+
                       {restaurantsFieldArray.fields.length > 0 ? (
                         <div className="border rounded-md divide-y">
                           {restaurantsFieldArray.fields.map((field, index) => (
                             <div key={field.id} className="p-4">
                               <div className="flex justify-between items-start mb-4">
-                                <h5 className="font-medium">Restaurant #{index + 1}</h5>
+                                <h5 className="font-medium">
+                                  Restaurant #{index + 1}
+                                </h5>
                                 <Button
                                   type="button"
                                   variant="ghost"
                                   size="sm"
-                                  onClick={() => restaurantsFieldArray.remove(index)}
+                                  onClick={() =>
+                                    restaurantsFieldArray.remove(index)
+                                  }
                                 >
                                   <Trash2 className="h-4 w-4 text-red-500" />
                                 </Button>
@@ -1511,7 +1667,10 @@ export default function EnhancedHotelCreatePage() {
                                     <FormItem>
                                       <FormLabel>Restaurant Name*</FormLabel>
                                       <FormControl>
-                                        <Input placeholder="Restaurant name" {...field} />
+                                        <Input
+                                          placeholder="Restaurant name"
+                                          {...field}
+                                        />
                                       </FormControl>
                                       <FormMessage />
                                     </FormItem>
@@ -1524,7 +1683,10 @@ export default function EnhancedHotelCreatePage() {
                                     <FormItem>
                                       <FormLabel>Cuisine Type</FormLabel>
                                       <FormControl>
-                                        <Input placeholder="e.g. Italian, Middle Eastern" {...field} />
+                                        <Input
+                                          placeholder="e.g. Italian, Middle Eastern"
+                                          {...field}
+                                        />
                                       </FormControl>
                                       <FormMessage />
                                     </FormItem>
@@ -1539,15 +1701,28 @@ export default function EnhancedHotelCreatePage() {
                                         <FormLabel>Breakfast Options</FormLabel>
                                         <div className="grid grid-cols-2 gap-2 mt-2">
                                           {breakfastOptions.map((option) => (
-                                            <div key={option.id} className="flex items-center space-x-2">
+                                            <div
+                                              key={option.id}
+                                              className="flex items-center space-x-2"
+                                            >
                                               <Checkbox
                                                 id={`breakfast-${index}-${option.id}`}
-                                                checked={field.value.includes(option.id)}
+                                                checked={field.value.includes(
+                                                  option.id,
+                                                )}
                                                 onCheckedChange={(checked) => {
                                                   if (checked) {
-                                                    field.onChange([...field.value, option.id]);
+                                                    field.onChange([
+                                                      ...field.value,
+                                                      option.id,
+                                                    ]);
                                                   } else {
-                                                    field.onChange(field.value.filter((val: string) => val !== option.id));
+                                                    field.onChange(
+                                                      field.value.filter(
+                                                        (val: string) =>
+                                                          val !== option.id,
+                                                      ),
+                                                    );
                                                   }
                                                 }}
                                               />
@@ -1572,12 +1747,14 @@ export default function EnhancedHotelCreatePage() {
                       ) : (
                         <div className="border rounded-md p-6 text-center">
                           <Utensils className="h-6 w-6 text-muted-foreground mx-auto mb-2" />
-                          <p className="text-muted-foreground">No restaurants added yet</p>
+                          <p className="text-muted-foreground">
+                            No restaurants added yet
+                          </p>
                         </div>
                       )}
                     </div>
                   </TabsContent>
-                  
+
                   {/* Rooms & FAQs Tab */}
                   <TabsContent value="rooms-faqs" className="space-y-6">
                     {/* Room Types */}
@@ -1587,32 +1764,47 @@ export default function EnhancedHotelCreatePage() {
                         Room Types
                       </h3>
                       <FormDescription>
-                        Add information about room types available at this hotel. You can add more detailed information after creating the hotel.
+                        Add information about room types available at this
+                        hotel. You can add more detailed information after
+                        creating the hotel.
                       </FormDescription>
-                      
+
                       <div className="flex justify-between items-center">
                         <h4 className="font-medium">Room Types</h4>
                         <Button
                           type="button"
                           variant="outline"
                           size="sm"
-                          onClick={() => roomTypesFieldArray.append({ name: "", bedType: "", size: "", view: "", amenities: [], price: undefined })}
+                          onClick={() =>
+                            roomTypesFieldArray.append({
+                              name: "",
+                              bedType: "",
+                              size: "",
+                              view: "",
+                              amenities: [],
+                              price: undefined,
+                            })
+                          }
                         >
                           <Plus className="h-4 w-4 mr-1" /> Add Room Type
                         </Button>
                       </div>
-                      
+
                       {roomTypesFieldArray.fields.length > 0 ? (
                         <div className="border rounded-md divide-y">
                           {roomTypesFieldArray.fields.map((field, index) => (
                             <div key={field.id} className="p-4">
                               <div className="flex justify-between items-start mb-4">
-                                <h5 className="font-medium">Room Type #{index + 1}</h5>
+                                <h5 className="font-medium">
+                                  Room Type #{index + 1}
+                                </h5>
                                 <Button
                                   type="button"
                                   variant="ghost"
                                   size="sm"
-                                  onClick={() => roomTypesFieldArray.remove(index)}
+                                  onClick={() =>
+                                    roomTypesFieldArray.remove(index)
+                                  }
                                 >
                                   <Trash2 className="h-4 w-4 text-red-500" />
                                 </Button>
@@ -1625,7 +1817,10 @@ export default function EnhancedHotelCreatePage() {
                                     <FormItem>
                                       <FormLabel>Room Name*</FormLabel>
                                       <FormControl>
-                                        <Input placeholder="e.g. Deluxe Double Room" {...field} />
+                                        <Input
+                                          placeholder="e.g. Deluxe Double Room"
+                                          {...field}
+                                        />
                                       </FormControl>
                                       <FormMessage />
                                     </FormItem>
@@ -1665,7 +1860,10 @@ export default function EnhancedHotelCreatePage() {
                                     <FormItem>
                                       <FormLabel>Room Size</FormLabel>
                                       <FormControl>
-                                        <Input placeholder="e.g. 30 m²" {...field} />
+                                        <Input
+                                          placeholder="e.g. 30 m²"
+                                          {...field}
+                                        />
                                       </FormControl>
                                       <FormMessage />
                                     </FormItem>
@@ -1705,12 +1903,22 @@ export default function EnhancedHotelCreatePage() {
                                     <FormItem>
                                       <FormLabel>Price per Night</FormLabel>
                                       <FormControl>
-                                        <Input 
-                                          type="number" 
-                                          placeholder="e.g. 150" 
+                                        <Input
+                                          type="number"
+                                          placeholder="e.g. 150"
                                           {...field}
-                                          value={field.value === undefined ? "" : field.value}
-                                          onChange={e => field.onChange(e.target.value === "" ? undefined : Number(e.target.value))}
+                                          value={
+                                            field.value === undefined
+                                              ? ""
+                                              : field.value
+                                          }
+                                          onChange={(e) =>
+                                            field.onChange(
+                                              e.target.value === ""
+                                                ? undefined
+                                                : Number(e.target.value),
+                                            )
+                                          }
                                         />
                                       </FormControl>
                                       <FormMessage />
@@ -1726,15 +1934,28 @@ export default function EnhancedHotelCreatePage() {
                                         <FormLabel>Room Amenities</FormLabel>
                                         <div className="grid grid-cols-2 md:grid-cols-3 gap-2 mt-2">
                                           {roomAmenityOptions.map((option) => (
-                                            <div key={option.id} className="flex items-center space-x-2">
+                                            <div
+                                              key={option.id}
+                                              className="flex items-center space-x-2"
+                                            >
                                               <Checkbox
                                                 id={`room-amenity-${index}-${option.id}`}
-                                                checked={field.value.includes(option.id)}
+                                                checked={field.value.includes(
+                                                  option.id,
+                                                )}
                                                 onCheckedChange={(checked) => {
                                                   if (checked) {
-                                                    field.onChange([...field.value, option.id]);
+                                                    field.onChange([
+                                                      ...field.value,
+                                                      option.id,
+                                                    ]);
                                                   } else {
-                                                    field.onChange(field.value.filter((val: string) => val !== option.id));
+                                                    field.onChange(
+                                                      field.value.filter(
+                                                        (val: string) =>
+                                                          val !== option.id,
+                                                      ),
+                                                    );
                                                   }
                                                 }}
                                               />
@@ -1759,13 +1980,15 @@ export default function EnhancedHotelCreatePage() {
                       ) : (
                         <div className="border rounded-md p-6 text-center">
                           <BedDouble className="h-6 w-6 text-muted-foreground mx-auto mb-2" />
-                          <p className="text-muted-foreground">No room types added yet</p>
+                          <p className="text-muted-foreground">
+                            No room types added yet
+                          </p>
                         </div>
                       )}
                     </div>
-                    
+
                     <Separator />
-                    
+
                     {/* FAQs */}
                     <div className="space-y-4">
                       <h3 className="text-lg font-semibold flex items-center gap-2">
@@ -1775,25 +1998,29 @@ export default function EnhancedHotelCreatePage() {
                       <FormDescription>
                         Add frequently asked questions about this hotel.
                       </FormDescription>
-                      
+
                       <div className="flex justify-between items-center">
                         <h4 className="font-medium">FAQ Items</h4>
                         <Button
                           type="button"
                           variant="outline"
                           size="sm"
-                          onClick={() => faqsFieldArray.append({ question: "", answer: "" })}
+                          onClick={() =>
+                            faqsFieldArray.append({ question: "", answer: "" })
+                          }
                         >
                           <Plus className="h-4 w-4 mr-1" /> Add FAQ
                         </Button>
                       </div>
-                      
+
                       {faqsFieldArray.fields.length > 0 ? (
                         <div className="border rounded-md divide-y">
                           {faqsFieldArray.fields.map((field, index) => (
                             <div key={field.id} className="p-4">
                               <div className="flex justify-between items-start mb-4">
-                                <h5 className="font-medium">FAQ #{index + 1}</h5>
+                                <h5 className="font-medium">
+                                  FAQ #{index + 1}
+                                </h5>
                                 <Button
                                   type="button"
                                   variant="ghost"
@@ -1811,7 +2038,10 @@ export default function EnhancedHotelCreatePage() {
                                     <FormItem>
                                       <FormLabel>Question*</FormLabel>
                                       <FormControl>
-                                        <Input placeholder="e.g. What are the check-in and check-out times?" {...field} />
+                                        <Input
+                                          placeholder="e.g. What are the check-in and check-out times?"
+                                          {...field}
+                                        />
                                       </FormControl>
                                       <FormMessage />
                                     </FormItem>
@@ -1824,10 +2054,10 @@ export default function EnhancedHotelCreatePage() {
                                     <FormItem>
                                       <FormLabel>Answer*</FormLabel>
                                       <FormControl>
-                                        <Textarea 
-                                          placeholder="Provide an answer to the question" 
+                                        <Textarea
+                                          placeholder="Provide an answer to the question"
                                           className="min-h-[100px]"
-                                          {...field} 
+                                          {...field}
                                         />
                                       </FormControl>
                                       <FormMessage />
@@ -1841,51 +2071,56 @@ export default function EnhancedHotelCreatePage() {
                       ) : (
                         <div className="border rounded-md p-6 text-center">
                           <FileQuestion className="h-6 w-6 text-muted-foreground mx-auto mb-2" />
-                          <p className="text-muted-foreground">No FAQs added yet</p>
+                          <p className="text-muted-foreground">
+                            No FAQs added yet
+                          </p>
                         </div>
                       )}
                     </div>
                   </TabsContent>
                 </Tabs>
-                
+
                 {/* Google Map */}
                 <div className="mt-6">
                   <h3 className="text-lg font-semibold mb-4">Map Location</h3>
-                  
+
                   <div className="aspect-video bg-slate-100 rounded-md flex items-center justify-center border">
-                    {isLoaded && 
-                     form.watch('latitude') !== undefined && 
-                     form.watch('latitude') !== null && 
-                     form.watch('longitude') !== undefined && 
-                     form.watch('longitude') !== null ? (
+                    {isLoaded &&
+                    form.watch("latitude") !== undefined &&
+                    form.watch("latitude") !== null &&
+                    form.watch("longitude") !== undefined &&
+                    form.watch("longitude") !== null ? (
                       <GoogleMap
-                        mapContainerStyle={{ width: '100%', height: '100%' }}
-                        center={{ 
-                          lat: Number(form.watch('latitude')), 
-                          lng: Number(form.watch('longitude')) 
+                        mapContainerStyle={{ width: "100%", height: "100%" }}
+                        center={{
+                          lat: Number(form.watch("latitude")),
+                          lng: Number(form.watch("longitude")),
                         }}
                         zoom={15}
                       >
-                        <Marker 
-                          position={{ 
-                            lat: Number(form.watch('latitude')), 
-                            lng: Number(form.watch('longitude')) 
-                          }} 
+                        <Marker
+                          position={{
+                            lat: Number(form.watch("latitude")),
+                            lng: Number(form.watch("longitude")),
+                          }}
                         />
                       </GoogleMap>
                     ) : (
                       <div className="text-center p-4">
                         <MapPin className="h-10 w-10 text-muted-foreground mx-auto mb-2" />
-                        <h3 className="text-lg font-medium mb-1">Map Integration</h3>
+                        <h3 className="text-lg font-medium mb-1">
+                          Map Integration
+                        </h3>
                         <p className="text-sm text-muted-foreground max-w-md mx-auto">
-                          Enter latitude and longitude coordinates to see the hotel location on the map.
+                          Enter latitude and longitude coordinates to see the
+                          hotel location on the map.
                           {!apiKey && " (Google Maps API key required)"}
                         </p>
                       </div>
                     )}
                   </div>
                 </div>
-                
+
                 <div className="flex justify-end gap-2">
                   <Button
                     type="button"
@@ -1902,42 +2137,52 @@ export default function EnhancedHotelCreatePage() {
                       const currentValues = form.getValues();
                       // Set status to draft
                       currentValues.status = "draft";
-                      
+
                       // Create mutation for saving draft without validation
                       const saveDraft = async () => {
                         try {
-                          const response = await fetch("/api/admin/hotel-drafts", {
-                            method: "POST",
-                            headers: { "Content-Type": "application/json" },
-                            body: JSON.stringify(currentValues),
-                            credentials: "include"
-                          });
-                          
+                          const response = await fetch(
+                            "/api/admin/hotel-drafts",
+                            {
+                              method: "POST",
+                              headers: { "Content-Type": "application/json" },
+                              body: JSON.stringify(currentValues),
+                              credentials: "include",
+                            },
+                          );
+
                           if (!response.ok) {
                             const errorData = await response.json();
-                            throw new Error(errorData.message || "Failed to save draft");
+                            throw new Error(
+                              errorData.message || "Failed to save draft",
+                            );
                           }
-                          
+
                           toast({
                             title: "Draft saved",
                             description: "Hotel has been saved as a draft",
                           });
-                          
+
                           // Refresh hotel list
-                          queryClient.invalidateQueries({ queryKey: ['/api/admin/hotels'] });
-                          
+                          queryClient.invalidateQueries({
+                            queryKey: ["/api/admin/hotels"],
+                          });
+
                           // Navigate back to hotel list
                           navigate("/admin/hotels");
                         } catch (error) {
                           toast({
                             title: "Error saving draft",
-                            description: error instanceof Error ? error.message : "There was a problem saving your draft",
+                            description:
+                              error instanceof Error
+                                ? error.message
+                                : "There was a problem saving your draft",
                             variant: "destructive",
                           });
                           console.error("Error saving draft:", error);
                         }
                       };
-                      
+
                       // Execute the draft save
                       saveDraft();
                     }}

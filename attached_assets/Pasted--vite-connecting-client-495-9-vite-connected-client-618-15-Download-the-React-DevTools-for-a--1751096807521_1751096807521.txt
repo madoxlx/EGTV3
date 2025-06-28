@@ -1,0 +1,37 @@
+[vite] connecting... client:495:9
+[vite] connected. client:618:15
+Download the React DevTools for a better development experience: https://reactjs.org/link/react-devtools chunk-RPCDYKBN.js:21551:25
+API GET GET: null 2 queryClient.ts:15:11
+Response status: 200 2 queryClient.ts:17:11
+Google Maps JavaScript API warning: NoApiKeys https://developers.google.com/maps/documentation/javascript/error-messages#no-api-keys util.js:39:64
+Cross-Origin Request Blocked: The Same Origin Policy disallows reading the remote resource at https://maps.googleapis.com/maps/api/mapsjs/gen_204?csp_test=true. (Reason: CORS request did not succeed). Status code: (null).
+API GET GET: null queryClient.ts:15:11
+Response status: 200 queryClient.ts:17:11
+A resource is blocked by OpaqueResponseBlocking, please check browser console for details. photo-1581335167266-5662e1958b2f
+Error fetching cart: SyntaxError: JSON.parse: unexpected character at line 1 column 1 of the JSON data useCart.ts:35:17
+A resource is blocked by OpaqueResponseBlocking, please check browser console for details. photo-1581335167266-5662e1958b2f
+As of February 21st, 2024, google.maps.Marker is deprecated. Please use google.maps.marker.AdvancedMarkerElement instead. At this time, google.maps.Marker is not scheduled to be discontinued, but google.maps.marker.AdvancedMarkerElement is recommended over google.maps.Marker. While google.maps.Marker will continue to receive bug fixes for any major regressions, existing bugs in google.maps.Marker will not be addressed. At least 12 months notice will be given before support is discontinued. Please see https://developers.google.com/maps/deprecations for additional details and https://developers.google.com/maps/documentation/javascript/advanced-markers/migration for the migration guide. main.js:173:151
+Google Maps JavaScript API error: ApiProjectMapError
+https://developers.google.com/maps/documentation/javascript/error-messages#api-project-map-error main.js:146:68
+Error fetching cleanliness-features: SyntaxError: JSON.parse: unexpected character at line 1 column 1 of the JSON data InlineFeatureManager.tsx:52:15
+Error fetching cleanliness-features: SyntaxError: JSON.parse: unexpected character at line 1 column 1 of the JSON data InlineFeatureManager.tsx:52:15
+    fetchFeatures InlineFeatureManager.tsx:53
+Source map error: No sources are declared in this source map.
+Resource URL: https://fc4fb5aa-0ec0-4a53-8e60-bc3b6a481d5f-00-2ufbc8vdv7bpq.janeway.replit.dev:8080/@fs/home/runner/workspace/node_modules/.vite/deps/chunk-WOOG5QLI.js?v=e150c17f
+Source Map URL: chunk-WOOG5QLI.js.map
+XHRPOST
+https://fc4fb5aa-0ec0-4a53-8e60-bc3b6a481d5f-00-2ufbc8vdv7bpq.janeway.replit.dev:8080/api/admin/hotels
+[HTTP/1.1 400 Bad Request 173ms]
+
+	
+POST
+	https://fc4fb5aa-0ec0-4a53-8e60-bc3b6a481d5f-00-2ufbc8vdv7bpq.janeway.replit.dev:8080/api/admin/hotels
+Status
+400
+Bad Request
+VersionHTTP/1.1
+Transferred698 B (147 B size)
+Referrer Policystrict-origin-when-cross-origin
+Request PriorityHighest
+DNS ResolutionSystem
+
