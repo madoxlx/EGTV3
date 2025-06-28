@@ -106,6 +106,14 @@ The application uses a comprehensive PostgreSQL schema with the following core e
 
 ## Recent Changes
 
+- **Hotel Creation Enhancement with City/Country Name Lookup and User Tracking (June 28, 2025)**: Enhanced hotel creation endpoint to automatically populate city and country names from IDs and track creating user
+  - Modified hotel creation API endpoint to fetch city names from cityId and store in 'city' column
+  - Added country name lookup from countryId to populate 'country' column in database
+  - Implemented user tracking by capturing current admin user and storing in 'createdBy' field
+  - Enhanced logging to track which city/country names and user IDs are being stored during hotel creation
+  - Updated authentication handling to properly capture session user information for audit trail
+  - Hotel creation now automatically resolves location names instead of requiring manual entry
+
 - **Complete Room Creation System with Full Database Integration (June 25, 2025)**: Successfully implemented comprehensive room management with verified functionality
   - Enhanced form schema to match database fields: type, maxOccupancy, size, bedType, view, available
   - Added professional dropdown options for room types, bed types, and views with proper validation

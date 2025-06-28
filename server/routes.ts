@@ -2829,6 +2829,33 @@ export async function registerRoutes(app: Express): Promise<Server> {
       const formData = req.body;
       console.log('Raw form data received:', JSON.stringify(formData, null, 2));
       
+      // Get city and country names from IDs
+      let cityName = formData.city || null;
+      let countryName = formData.country || null;
+      
+      if (formData.cityId) {
+        const cityData = await storage.getCity(parseInt(formData.cityId.toString()));
+        if (cityData) {
+          cityName = cityData.name;
+          console.log('Fetched city name:', cityName);
+        }
+      }
+      
+      if (formData.countryId) {
+        const countryData = await storage.getCountry(parseInt(formData.countryId.toString()));
+        if (countryData) {
+          countryName = countryData.name;
+          console.log('Fetched country name:', countryName);
+        }
+      }
+      
+      // Get current user ID for created_by field
+      const sessionUser = (req as any).session?.user;
+      const currentUserId = sessionUser?.id || req.user?.id || null;
+      console.log('Current user ID for created_by:', currentUserId);
+      console.log('Session user:', sessionUser);
+      console.log('Request user:', req.user);
+      
       const transformedData = {
         name: formData.name,
         description: formData.description,
@@ -2838,8 +2865,8 @@ export async function registerRoutes(app: Express): Promise<Server> {
         cityId: formData.cityId ? parseInt(formData.cityId.toString()) : null,
         categoryId: formData.categoryId ? parseInt(formData.categoryId.toString()) : null,
         address: formData.address,
-        city: formData.city,
-        country: formData.country,
+        city: cityName,
+        country: countryName,
         postalCode: formData.postalCode,
         phone: formData.phone,
         email: formData.email,
@@ -2865,7 +2892,8 @@ export async function registerRoutes(app: Express): Promise<Server> {
         petFriendly: formData.petFriendly || false,
         accessibleFacilities: formData.accessibleFacilities || false,
         status: formData.status || "active",
-        verificationStatus: formData.verificationStatus || "pending"
+        verificationStatus: formData.verificationStatus || "pending",
+        createdBy: currentUserId
       };
       
       console.log('Transformed hotel data:', transformedData);
