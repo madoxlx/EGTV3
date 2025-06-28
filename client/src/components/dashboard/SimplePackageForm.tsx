@@ -365,10 +365,20 @@ export function PackageCreatorForm({ packageId, onNavigateRequest }: PackageCrea
   });
 
   // Fetch rooms data from database
-  const { data: allRooms = [] } = useQuery<any[]>({
+  const { data: allRooms = [], isLoading: roomsLoading, error: roomsError } = useQuery<any[]>({
     queryKey: ['/api/admin/rooms'],
     staleTime: 5 * 60 * 1000, // 5 minutes cache
   });
+
+  // Debug logging for rooms data
+  useEffect(() => {
+    console.log('Rooms query status:', { 
+      allRooms, 
+      roomsLoading, 
+      roomsError,
+      roomsCount: allRooms?.length 
+    });
+  }, [allRooms, roomsLoading, roomsError]);
 
   // Fetch countries for the dropdown
   const { data: countries = [] } = useQuery<any[]>({
@@ -1057,19 +1067,26 @@ export function PackageCreatorForm({ packageId, onNavigateRequest }: PackageCrea
   };
 
   const updateAvailableRooms = (selectedHotelIds: string[]) => {
-    console.log('Updating available rooms for hotels:', selectedHotelIds);
-    console.log('All rooms data:', allRooms);
+    console.log('🏨 HOTEL SELECTION CHANGED:', selectedHotelIds);
+    console.log('📊 All rooms in database:', allRooms.length, 'rooms');
+    
+    if (selectedHotelIds.length === 0) {
+      console.log('❌ No hotels selected - clearing available rooms');
+      setAvailableRooms([]);
+      setFilteredRooms([]);
+      return;
+    }
     
     const hotelRooms = allRooms.filter(room => {
       // Handle both camelCase and snake_case field names
       const roomHotelId = room.hotelId || room.hotel_id;
       // Convert both to strings for comparison since hotels API returns string IDs
       const matches = selectedHotelIds.includes(String(roomHotelId));
-      console.log(`Room ${room.name}: hotel_id=${roomHotelId}, selectedHotels=${selectedHotelIds}, matches=${matches}`);
+      console.log(`🏠 Room "${room.name}": hotel_id=${roomHotelId}, matches=${matches ? '✅' : '❌'}`);
       return matches;
     });
     
-    console.log('Filtered hotel rooms:', hotelRooms);
+    console.log('🔄 Rooms for selected hotels:', hotelRooms.length, 'rooms found');
     setAvailableRooms(hotelRooms);
 
     const adultCount = form.getValues("adultCount") || 2;
