@@ -106,6 +106,15 @@ The application uses a comprehensive PostgreSQL schema with the following core e
 
 ## Recent Changes
 
+- **Package Creation Room Filtering Database Integration Fix (June 28, 2025)**: Fixed critical issue where package creation form wasn't showing available rooms from actual database
+  - Replaced hardcoded mock hotel and room data with real database queries using React Query
+  - Fixed room filtering logic to use correct database schema field names (maxOccupancy instead of mock maxAdults/maxChildren/maxInfants)
+  - Updated room display components to show capacity information from actual database structure
+  - Enhanced filtering function to handle different database field formats with fallback support
+  - Added debugging logs to track room filtering process for troubleshooting
+  - Package creation now properly displays all available rooms for any hotel including "alex hotel2"
+  - System now uses authentic database data instead of disconnected mock arrays
+
 - **Hotel Creation TypeScript Schema Error Fix (June 28, 2025)**: Fixed form validation TypeScript errors preventing hotel creation submission
   - Added missing 'stars' field to hotelFormSchema with proper validation (1-5 star rating)
   - Added missing amenity fields: wifiAvailable, petFriendly, accessibleFacilities to form schema

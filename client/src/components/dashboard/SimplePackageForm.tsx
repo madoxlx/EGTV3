@@ -187,12 +187,6 @@ const pricingOptions = [
   { id: "infant", label: "Infant (0-23 months)" },
 ];
 
-const hotels = [
-  { id: "hotel1", name: "Pyramids View Hotel", rooms: ["Deluxe Room", "Superior Room", "Suite"] },
-  { id: "hotel2", name: "Nile Palace Resort", rooms: ["Standard Room", "Executive Room", "Royal Suite"] },
-  { id: "hotel3", name: "Desert Oasis Lodge", rooms: ["Garden View", "Pool View", "Presidential Suite"] },
-];
-
 const features = [
   { id: "breakfast", label: "Breakfast Included" },
   { id: "lunch", label: "Lunch Included" },
@@ -364,18 +358,17 @@ export function PackageCreatorForm({ packageId, onNavigateRequest }: PackageCrea
     queryKey: ['/api/admin/tours'],
   });
 
-  // Mock rooms data with capacity info - in a real app, this would come from your API
-  const allRooms = [
-    { id: "room1", name: "Deluxe Room", hotelId: "hotel1", hotelName: "Pyramids View Hotel", maxAdults: 2, maxChildren: 1, maxInfants: 1, price: 150 },
-    { id: "room2", name: "Superior Room", hotelId: "hotel1", hotelName: "Pyramids View Hotel", maxAdults: 3, maxChildren: 2, maxInfants: 1, price: 200 },
-    { id: "room3", name: "Suite", hotelId: "hotel1", hotelName: "Pyramids View Hotel", maxAdults: 4, maxChildren: 2, maxInfants: 2, price: 300 },
-    { id: "room4", name: "Standard Room", hotelId: "hotel2", hotelName: "Nile Palace Resort", maxAdults: 2, maxChildren: 1, maxInfants: 1, price: 140 },
-    { id: "room5", name: "Executive Room", hotelId: "hotel2", hotelName: "Nile Palace Resort", maxAdults: 2, maxChildren: 2, maxInfants: 1, price: 220 },
-    { id: "room6", name: "Royal Suite", hotelId: "hotel2", hotelName: "Nile Palace Resort", maxAdults: 4, maxChildren: 3, maxInfants: 2, price: 400 },
-    { id: "room7", name: "Garden View", hotelId: "hotel3", hotelName: "Desert Oasis Lodge", maxAdults: 2, maxChildren: 0, maxInfants: 1, price: 120 },
-    { id: "room8", name: "Pool View", hotelId: "hotel3", hotelName: "Desert Oasis Lodge", maxAdults: 3, maxChildren: 1, maxInfants: 1, price: 180 },
-    { id: "room9", name: "Presidential Suite", hotelId: "hotel3", hotelName: "Desert Oasis Lodge", maxAdults: 6, maxChildren: 4, maxInfants: 2, price: 500 },
-  ];
+  // Fetch hotels from database
+  const { data: hotels = [] } = useQuery<any[]>({
+    queryKey: ['/api/admin/hotels'],
+    staleTime: 5 * 60 * 1000, // 5 minutes cache
+  });
+
+  // Fetch rooms data from database
+  const { data: allRooms = [] } = useQuery<any[]>({
+    queryKey: ['/api/admin/rooms'],
+    staleTime: 5 * 60 * 1000, // 5 minutes cache
+  });
 
   // Fetch countries for the dropdown
   const { data: countries = [] } = useQuery<any[]>({
@@ -1106,11 +1099,22 @@ export function PackageCreatorForm({ packageId, onNavigateRequest }: PackageCrea
   };
   
   const filterRoomsByCapacity = (rooms: any[], adults: number, children: number, infants: number) => {
-    const filtered = rooms.filter(room => 
-      room.maxAdults >= adults && 
-      room.maxChildren >= children && 
-      room.maxInfants >= infants
-    );
+    console.log('Filtering rooms by capacity:', { adults, children, infants });
+    console.log('Available rooms:', rooms);
+    
+    const totalGuests = adults + children + infants;
+    
+    const filtered = rooms.filter(room => {
+      // Check different possible field names based on database schema
+      const roomCapacity = room.maxOccupancy || room.maxAdults || room.capacity || 2;
+      const meetsCapacity = roomCapacity >= totalGuests;
+      
+      console.log(`Room ${room.name || room.id}: capacity=${roomCapacity}, totalGuests=${totalGuests}, meets=${meetsCapacity}`);
+      
+      return meetsCapacity;
+    });
+    
+    console.log('Filtered rooms:', filtered);
     setFilteredRooms(filtered);
 
     // Clear selected rooms that no longer match criteria
@@ -2335,14 +2339,18 @@ export function PackageCreatorForm({ packageId, onNavigateRequest }: PackageCrea
                                           </FormLabel>
                                           <div className="flex gap-2 mt-1">
                                             <Badge variant="outline" className="text-xs">
-                                              {room.maxAdults} Adults
+                                              Max {room.maxOccupancy || room.maxAdults || room.capacity || 2} Guests
                                             </Badge>
-                                            <Badge variant="outline" className="text-xs">
-                                              {room.maxChildren} Children
-                                            </Badge>
-                                            <Badge variant="outline" className="text-xs">
-                                              {room.maxInfants} Infants
-                                            </Badge>
+                                            {room.type && (
+                                              <Badge variant="secondary" className="text-xs">
+                                                {room.type}
+                                              </Badge>
+                                            )}
+                                            {room.bedType && (
+                                              <Badge variant="outline" className="text-xs">
+                                                {room.bedType}
+                                              </Badge>
+                                            )}
                                           </div>
                                           <div className="text-sm text-muted-foreground mt-1">
                                             Room pricing moved to Pricing Rules section
