@@ -340,8 +340,18 @@ export class DatabaseStorage implements IStorage {
   }
 
   async createHotel(hotel: InsertHotel): Promise<Hotel> {
-    const [created] = await db.insert(hotels).values(hotel).returning();
-    return created;
+    try {
+      console.log('Storage createHotel called with data:', hotel);
+      console.log('Hotel data keys:', Object.keys(hotel));
+      
+      const [created] = await db.insert(hotels).values(hotel).returning();
+      console.log('Hotel created successfully in storage:', created);
+      return created;
+    } catch (error) {
+      console.error('Database error in createHotel:', error);
+      console.error('Hotel data that caused error:', hotel);
+      throw error;
+    }
   }
 
   // Tours

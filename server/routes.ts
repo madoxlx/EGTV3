@@ -2918,8 +2918,15 @@ export async function registerRoutes(app: Express): Promise<Server> {
         console.error('Zod validation errors:', error.errors);
         return res.status(400).json({ message: 'Invalid hotel data', errors: error.errors });
       }
-      console.error('Error creating hotel:', error);
-      res.status(500).json({ message: 'Failed to create hotel', error: error.message });
+      
+      // Enhanced error logging to identify crash causes
+      console.error('Error creating hotel - Full error:', error);
+      console.error('Error stack:', error instanceof Error ? error.stack : 'No stack trace');
+      console.error('Error type:', typeof error);
+      console.error('Error constructor:', error?.constructor?.name);
+      
+      const errorMessage = error instanceof Error ? error.message : 'Unknown error occurred';
+      res.status(500).json({ message: 'Failed to create hotel', error: errorMessage });
     }
   });
   

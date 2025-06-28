@@ -1253,6 +1253,15 @@ export const insertHotelSchema = createInsertSchema(hotels).pick({
   rating: true,
   guestRating: true,
   status: true,
+  verificationStatus: true,
+  parkingAvailable: true,
+  airportTransferAvailable: true,
+  carRentalAvailable: true,
+  shuttleAvailable: true,
+  wifiAvailable: true,
+  petFriendly: true,
+  accessibleFacilities: true,
+  createdBy: true,
 });
 
 // Hero slide schema types
