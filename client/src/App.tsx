@@ -124,7 +124,7 @@ function Router() {
           <AdminRoute path="/admin/packages" component={PackagesManagement} />
           <AdminRoute
             path="/admin/advanced-users"
-            component={UsersManagement}
+            component={AdvancedUserManagement}
           />
           <AdminRoute path="/admin/tours/create" component={CreateTour} />
           <AdminRoute path="/admin/tours/edit" component={ToursEdit} />
