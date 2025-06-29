@@ -2986,7 +2986,68 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
   
-  // Update a hotel (admin only)
+  // Update a hotel (admin only) - Support both PUT and PATCH
+  app.put('/api/admin/hotels/:id', async (req, res) => {
+    try {
+      const id = parseInt(req.params.id);
+      if (isNaN(id)) {
+        return res.status(400).json({ message: 'Invalid hotel ID' });
+      }
+      
+      // Verify hotel exists
+      const existingHotel = await storage.getHotel(id);
+      if (!existingHotel) {
+        return res.status(404).json({ message: 'Hotel not found' });
+      }
+      
+      console.log('Hotel update request for ID:', id);
+      console.log('Update data received:', req.body);
+      
+      // Extract feature data
+      const { facilityIds, highlightIds, cleanlinessFeatureIds, ...hotelData } = req.body;
+      
+      // Validate the update data (excluding feature arrays)
+      const updateData = insertHotelSchema.partial().parse(hotelData);
+      
+      // Check if destination exists if destinationId is provided
+      if (updateData.destinationId) {
+        const destination = await storage.getDestination(updateData.destinationId);
+        if (!destination) {
+          return res.status(400).json({ message: 'Invalid destination ID' });
+        }
+      }
+      
+      // Update hotel basic data
+      const updatedHotel = await storage.updateHotel(id, updateData);
+      
+      // Update hotel features if provided
+      if (facilityIds !== undefined) {
+        console.log('Updating hotel facilities:', facilityIds);
+        await storage.updateHotelFeatureAssociations(id, 'facilities', facilityIds);
+      }
+      
+      if (highlightIds !== undefined) {
+        console.log('Updating hotel highlights:', highlightIds);
+        await storage.updateHotelFeatureAssociations(id, 'highlights', highlightIds);
+      }
+      
+      if (cleanlinessFeatureIds !== undefined) {
+        console.log('Updating hotel cleanliness features:', cleanlinessFeatureIds);
+        await storage.updateHotelFeatureAssociations(id, 'cleanlinessFeatures', cleanlinessFeatureIds);
+      }
+      
+      // Return updated hotel with features
+      const hotelWithFeatures = await storage.getHotelWithFeatures(id);
+      res.json(hotelWithFeatures || updatedHotel);
+    } catch (error) {
+      if (error instanceof z.ZodError) {
+        return res.status(400).json({ message: 'Invalid hotel data', errors: error.errors });
+      }
+      console.error('Error updating hotel:', error);
+      res.status(500).json({ message: 'Failed to update hotel' });
+    }
+  });
+
   app.patch('/api/admin/hotels/:id', async (req, res) => {
     try {
       const id = parseInt(req.params.id);
