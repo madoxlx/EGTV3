@@ -123,14 +123,22 @@ const faqSchema = z.object({
   answer: z.string().min(1, "Answer is required"),
 });
 
-// Define schema for room type
+// Define schema for room type (matching database requirements)
 const roomTypeSchema = z.object({
-  name: z.string().min(1, "Name is required"),
-  bedType: z.string().optional(),
+  name: z.string().min(1, "Room name is required"),
+  description: z.string().optional(),
+  type: z.string().min(1, "Room type is required"),
+  maxOccupancy: z.coerce.number().min(1, "Max occupancy must be at least 1"),
+  maxAdults: z.coerce.number().min(1, "Max adults must be at least 1"),
+  maxChildren: z.coerce.number().min(0, "Max children cannot be negative").default(0),
+  maxInfants: z.coerce.number().min(0, "Max infants cannot be negative").default(0),
+  price: z.coerce.number().min(1, "Price is required and must be greater than 0"),
+  discountedPrice: z.coerce.number().optional(),
   size: z.string().optional(),
+  bedType: z.string().optional(),
   view: z.string().optional(),
   amenities: z.array(z.string()).default([]),
-  price: z.number().optional(),
+  available: z.boolean().default(true),
 });
 
 // Define the schema for hotel form validation
@@ -241,6 +249,23 @@ const roomViewOptions = [
   "River View",
   "Landmark View",
   "No View",
+];
+
+// Room type options (for the type field)
+const roomTypeOptions = [
+  "Standard",
+  "Deluxe",
+  "Superior",
+  "Suite",
+  "Executive",
+  "Presidential",
+  "Family",
+  "Twin",
+  "Single",
+  "Double",
+  "Junior Suite",
+  "Connecting",
+  "Accessible",
 ];
 
 // Bed type options
@@ -1822,11 +1847,19 @@ export default function EnhancedHotelCreatePage() {
                           onClick={() =>
                             roomTypesFieldArray.append({
                               name: "",
+                              description: "",
+                              type: "",
+                              maxOccupancy: 2,
+                              maxAdults: 2,
+                              maxChildren: 0,
+                              maxInfants: 0,
+                              price: 0,
+                              discountedPrice: undefined,
                               bedType: "",
                               size: "",
                               view: "",
                               amenities: [],
-                              price: undefined,
+                              available: true,
                             })
                           }
                         >
@@ -1854,12 +1887,13 @@ export default function EnhancedHotelCreatePage() {
                                 </Button>
                               </div>
                               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                                {/* Room Name - Required */}
                                 <FormField
                                   control={form.control}
                                   name={`roomTypes.${index}.name`}
                                   render={({ field }) => (
                                     <FormItem>
-                                      <FormLabel>Room Name*</FormLabel>
+                                      <FormLabel>Room Name <span className="text-red-500">*</span></FormLabel>
                                       <FormControl>
                                         <Input
                                           placeholder="e.g. Deluxe Double Room"
@@ -1870,6 +1904,173 @@ export default function EnhancedHotelCreatePage() {
                                     </FormItem>
                                   )}
                                 />
+
+                                {/* Room Type - Required */}
+                                <FormField
+                                  control={form.control}
+                                  name={`roomTypes.${index}.type`}
+                                  render={({ field }) => (
+                                    <FormItem>
+                                      <FormLabel>Room Type <span className="text-red-500">*</span></FormLabel>
+                                      <Select
+                                        onValueChange={field.onChange}
+                                        value={field.value}
+                                      >
+                                        <FormControl>
+                                          <SelectTrigger>
+                                            <SelectValue placeholder="Select room type" />
+                                          </SelectTrigger>
+                                        </FormControl>
+                                        <SelectContent>
+                                          {roomTypeOptions.map((type) => (
+                                            <SelectItem key={type} value={type}>
+                                              {type}
+                                            </SelectItem>
+                                          ))}
+                                        </SelectContent>
+                                      </Select>
+                                      <FormMessage />
+                                    </FormItem>
+                                  )}
+                                />
+
+                                {/* Max Occupancy - Required */}
+                                <FormField
+                                  control={form.control}
+                                  name={`roomTypes.${index}.maxOccupancy`}
+                                  render={({ field }) => (
+                                    <FormItem>
+                                      <FormLabel>Max Occupancy <span className="text-red-500">*</span></FormLabel>
+                                      <FormControl>
+                                        <Input
+                                          type="number"
+                                          min="1"
+                                          max="10"
+                                          placeholder="e.g. 4"
+                                          {...field}
+                                          value={field.value}
+                                          onChange={(e) => field.onChange(Number(e.target.value))}
+                                        />
+                                      </FormControl>
+                                      <FormMessage />
+                                    </FormItem>
+                                  )}
+                                />
+
+                                {/* Max Adults - Required */}
+                                <FormField
+                                  control={form.control}
+                                  name={`roomTypes.${index}.maxAdults`}
+                                  render={({ field }) => (
+                                    <FormItem>
+                                      <FormLabel>Max Adults <span className="text-red-500">*</span></FormLabel>
+                                      <FormControl>
+                                        <Input
+                                          type="number"
+                                          min="1"
+                                          max="8"
+                                          placeholder="e.g. 2"
+                                          {...field}
+                                          value={field.value}
+                                          onChange={(e) => field.onChange(Number(e.target.value))}
+                                        />
+                                      </FormControl>
+                                      <FormMessage />
+                                    </FormItem>
+                                  )}
+                                />
+
+                                {/* Max Children */}
+                                <FormField
+                                  control={form.control}
+                                  name={`roomTypes.${index}.maxChildren`}
+                                  render={({ field }) => (
+                                    <FormItem>
+                                      <FormLabel>Max Children</FormLabel>
+                                      <FormControl>
+                                        <Input
+                                          type="number"
+                                          min="0"
+                                          max="6"
+                                          placeholder="e.g. 2"
+                                          {...field}
+                                          value={field.value}
+                                          onChange={(e) => field.onChange(Number(e.target.value))}
+                                        />
+                                      </FormControl>
+                                      <FormMessage />
+                                    </FormItem>
+                                  )}
+                                />
+
+                                {/* Max Infants */}
+                                <FormField
+                                  control={form.control}
+                                  name={`roomTypes.${index}.maxInfants`}
+                                  render={({ field }) => (
+                                    <FormItem>
+                                      <FormLabel>Max Infants</FormLabel>
+                                      <FormControl>
+                                        <Input
+                                          type="number"
+                                          min="0"
+                                          max="4"
+                                          placeholder="e.g. 1"
+                                          {...field}
+                                          value={field.value}
+                                          onChange={(e) => field.onChange(Number(e.target.value))}
+                                        />
+                                      </FormControl>
+                                      <FormMessage />
+                                    </FormItem>
+                                  )}
+                                />
+
+                                {/* Price - Required */}
+                                <FormField
+                                  control={form.control}
+                                  name={`roomTypes.${index}.price`}
+                                  render={({ field }) => (
+                                    <FormItem>
+                                      <FormLabel>Price per Night (EGP) <span className="text-red-500">*</span></FormLabel>
+                                      <FormControl>
+                                        <Input
+                                          type="number"
+                                          min="1"
+                                          placeholder="e.g. 2500"
+                                          {...field}
+                                          value={field.value}
+                                          onChange={(e) => field.onChange(Number(e.target.value))}
+                                        />
+                                      </FormControl>
+                                      <FormMessage />
+                                    </FormItem>
+                                  )}
+                                />
+
+                                {/* Discounted Price */}
+                                <FormField
+                                  control={form.control}
+                                  name={`roomTypes.${index}.discountedPrice`}
+                                  render={({ field }) => (
+                                    <FormItem>
+                                      <FormLabel>Discounted Price (EGP)</FormLabel>
+                                      <FormControl>
+                                        <Input
+                                          type="number"
+                                          min="1"
+                                          placeholder="e.g. 2000"
+                                          {...field}
+                                          value={field.value || ""}
+                                          onChange={(e) => field.onChange(e.target.value ? Number(e.target.value) : undefined)}
+                                        />
+                                      </FormControl>
+                                      <FormMessage />
+                                    </FormItem>
+                                  )}
+                                />
+
+                                {/* Bed Type */}
                                 <FormField
                                   control={form.control}
                                   name={`roomTypes.${index}.bedType`}
@@ -1897,6 +2098,8 @@ export default function EnhancedHotelCreatePage() {
                                     </FormItem>
                                   )}
                                 />
+
+                                {/* Room Size */}
                                 <FormField
                                   control={form.control}
                                   name={`roomTypes.${index}.size`}
@@ -1913,6 +2116,8 @@ export default function EnhancedHotelCreatePage() {
                                     </FormItem>
                                   )}
                                 />
+
+                                {/* View */}
                                 <FormField
                                   control={form.control}
                                   name={`roomTypes.${index}.view`}
@@ -1940,35 +2145,48 @@ export default function EnhancedHotelCreatePage() {
                                     </FormItem>
                                   )}
                                 />
+
+                                {/* Available Toggle */}
                                 <FormField
                                   control={form.control}
-                                  name={`roomTypes.${index}.price`}
+                                  name={`roomTypes.${index}.available`}
                                   render={({ field }) => (
-                                    <FormItem>
-                                      <FormLabel>Price per Night</FormLabel>
+                                    <FormItem className="flex flex-row items-center justify-between rounded-lg border p-3">
+                                      <div className="space-y-0.5">
+                                        <FormLabel>Available for Booking</FormLabel>
+                                        <FormDescription>
+                                          Make this room available for booking
+                                        </FormDescription>
+                                      </div>
                                       <FormControl>
-                                        <Input
-                                          type="number"
-                                          placeholder="e.g. 150"
-                                          {...field}
-                                          value={
-                                            field.value === undefined
-                                              ? ""
-                                              : field.value
-                                          }
-                                          onChange={(e) =>
-                                            field.onChange(
-                                              e.target.value === ""
-                                                ? undefined
-                                                : Number(e.target.value),
-                                            )
-                                          }
+                                        <Switch
+                                          checked={field.value}
+                                          onCheckedChange={field.onChange}
                                         />
                                       </FormControl>
-                                      <FormMessage />
                                     </FormItem>
                                   )}
                                 />
+
+                                {/* Description */}
+                                <div className="md:col-span-2">
+                                  <FormField
+                                    control={form.control}
+                                    name={`roomTypes.${index}.description`}
+                                    render={({ field }) => (
+                                      <FormItem>
+                                        <FormLabel>Room Description</FormLabel>
+                                        <FormControl>
+                                          <Textarea
+                                            placeholder="Describe the room features and amenities..."
+                                            {...field}
+                                          />
+                                        </FormControl>
+                                        <FormMessage />
+                                      </FormItem>
+                                    )}
+                                  />
+                                </div>
                                 <div className="md:col-span-2">
                                   <FormField
                                     control={form.control}
