@@ -101,14 +101,14 @@ export default function InlineFeatureManager({
       console.error(`Error creating ${featureType}:`, error);
       toast({
         title: "Error",
-        description: `Failed to create ${label.toLowerCase()}`,
+        description: `Failed to create ${label ? label.toLowerCase() : 'feature'}`,
         variant: "destructive"
       });
     }
   };
 
   if (loading) {
-    return <div>Loading {label.toLowerCase()}...</div>;
+    return <div>Loading {label ? label.toLowerCase() : 'features'}...</div>;
   }
 
   return (
@@ -133,7 +133,7 @@ export default function InlineFeatureManager({
                   id="name"
                   value={newFeature.name}
                   onChange={(e) => setNewFeature({ ...newFeature, name: e.target.value })}
-                  placeholder={`Enter ${label.toLowerCase()} name`}
+                  placeholder={`Enter ${label ? label.toLowerCase() : 'feature'} name`}
                 />
               </div>
               <div>
@@ -142,7 +142,7 @@ export default function InlineFeatureManager({
                   id="description"
                   value={newFeature.description}
                   onChange={(e) => setNewFeature({ ...newFeature, description: e.target.value })}
-                  placeholder={`Enter ${label.toLowerCase()} description`}
+                  placeholder={`Enter ${label ? label.toLowerCase() : 'feature'} description`}
                 />
               </div>
               <div>

@@ -1345,11 +1345,10 @@ export default function EnhancedHotelEditPage() {
                     Hotel Highlights
                   </h4>
                   <InlineFeatureManager
-                    apiEndpoint="/api/admin/hotel-highlights"
-                    selectedIds={selectedHighlights}
-                    onToggle={toggleHighlight}
-                    createLabel="Create New Highlight"
-                    selectLabel="Select Highlights"
+                    featureType="highlights"
+                    selectedFeatures={selectedHighlights}
+                    onSelectionChange={setSelectedHighlights}
+                    label="Hotel Highlights"
                   />
                 </div>
 
@@ -1360,11 +1359,10 @@ export default function EnhancedHotelEditPage() {
                     Hotel Facilities
                   </h4>
                   <InlineFeatureManager
-                    apiEndpoint="/api/admin/hotel-facilities"
-                    selectedIds={selectedFacilities}
-                    onToggle={toggleFacility}
-                    createLabel="Create New Facility"
-                    selectLabel="Select Facilities"
+                    featureType="facilities"
+                    selectedFeatures={selectedFacilities}
+                    onSelectionChange={setSelectedFacilities}
+                    label="Hotel Facilities"
                   />
                 </div>
 
@@ -1375,11 +1373,10 @@ export default function EnhancedHotelEditPage() {
                     Health & Safety Features
                   </h4>
                   <InlineFeatureManager
-                    apiEndpoint="/api/admin/cleanliness-features"
-                    selectedIds={selectedCleanlinessFeatures}
-                    onToggle={toggleCleanlinessFeature}
-                    createLabel="Create New Safety Feature"
-                    selectLabel="Select Safety Features"
+                    featureType="cleanliness-features"
+                    selectedFeatures={selectedCleanlinessFeatures}
+                    onSelectionChange={setSelectedCleanlinessFeatures}
+                    label="Health & Safety Features"
                   />
                 </div>
 
