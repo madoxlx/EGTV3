@@ -52,6 +52,7 @@ export interface IStorage {
   getHotel(id: number): Promise<Hotel | undefined>;
   listHotels(active?: boolean): Promise<Hotel[]>;
   createHotel(hotel: InsertHotel): Promise<Hotel>;
+  updateHotel(id: number, hotel: Partial<InsertHotel>): Promise<Hotel | undefined>;
 
   // Tours
   getTour(id: number): Promise<Tour | undefined>;
@@ -350,6 +351,27 @@ export class DatabaseStorage implements IStorage {
     } catch (error) {
       console.error('Database error in createHotel:', error);
       console.error('Hotel data that caused error:', hotel);
+      throw error;
+    }
+  }
+
+  async updateHotel(id: number, hotel: Partial<InsertHotel>): Promise<Hotel | undefined> {
+    try {
+      console.log('Storage updateHotel called for ID:', id);
+      console.log('Update data:', hotel);
+
+      const [updated] = await db
+        .update(hotels)
+        .set(hotel)
+        .where(eq(hotels.id, id))
+        .returning();
+      
+      console.log('Hotel updated successfully in storage:', updated);
+      return updated;
+    } catch (error) {
+      console.error('Database error in updateHotel:', error);
+      console.error('Hotel ID:', id);
+      console.error('Update data that caused error:', hotel);
       throw error;
     }
   }
