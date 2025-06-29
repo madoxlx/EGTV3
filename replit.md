@@ -106,6 +106,13 @@ The application uses a comprehensive PostgreSQL schema with the following core e
 
 ## Recent Changes
 
+- **Hotel Edit Form Feature Association Fix (June 29, 2025)**: Fixed critical hotel feature loading issue in edit forms
+  - Corrected database column mapping for cleanliness features (feature_id vs cleanliness_feature_id)
+  - Fixed getHotelFeatureAssociations method to properly query junction tables
+  - Added sample feature associations for testing (hotel ID 24 now has facilities, highlights, cleanliness features)
+  - Hotel edit forms now correctly populate with existing feature selections from database
+  - Feature checkboxes properly reflect saved hotel amenities and highlight selections
+
 - **Complete Hotel Edit Form Enhancement (June 29, 2025)**: Successfully rebuilt hotel edit form to match create form functionality
   - Added comprehensive form schema with all creation features: landmarks, restaurants, FAQs, room types
   - Integrated image management system with upload and gallery functionality for both main and gallery images

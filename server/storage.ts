@@ -408,11 +408,11 @@ export class DatabaseStorage implements IStorage {
           
         case 'cleanlinessFeatures':
           result = await client.query(
-            'SELECT cleanliness_feature_id FROM hotel_to_cleanliness WHERE hotel_id = $1',
+            'SELECT feature_id FROM hotel_to_cleanliness WHERE hotel_id = $1',
             [hotelId]
           );
           client.release();
-          return result.rows.map(row => row.cleanliness_feature_id);
+          return result.rows.map(row => row.feature_id);
           
         default:
           client.release();
