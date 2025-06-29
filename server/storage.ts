@@ -364,15 +364,19 @@ export class DatabaseStorage implements IStorage {
       }
 
       // Get associated features
-      const facilities = await this.getHotelFeatureAssociations(id, 'facilities');
-      const highlights = await this.getHotelFeatureAssociations(id, 'highlights');
-      const cleanlinessFeatures = await this.getHotelFeatureAssociations(id, 'cleanlinessFeatures');
+      const facilityIds = await this.getHotelFeatureAssociations(id, 'facilities');
+      const highlightIds = await this.getHotelFeatureAssociations(id, 'highlights');
+      const cleanlinessFeatureIds = await this.getHotelFeatureAssociations(id, 'cleanlinessFeatures');
 
       return {
         ...hotel,
-        facilities,
-        highlights,
-        cleanlinessFeatures
+        facilityIds,
+        highlightIds,
+        cleanlinessFeatureIds,
+        // Also include the actual feature objects for backwards compatibility
+        facilities: facilityIds,
+        highlights: highlightIds,
+        cleanlinessFeatures: cleanlinessFeatureIds
       };
     } catch (error) {
       console.error('Error fetching hotel with features:', error);
@@ -382,9 +386,38 @@ export class DatabaseStorage implements IStorage {
 
   async getHotelFeatureAssociations(hotelId: number, featureType: string): Promise<number[]> {
     try {
-      // This is a placeholder - you'll need to implement based on your actual schema
-      // For now, return empty array
-      return [];
+      const client = await pool.connect();
+      let result;
+      
+      switch (featureType) {
+        case 'facilities':
+          result = await client.query(
+            'SELECT facility_id FROM hotel_to_facilities WHERE hotel_id = $1',
+            [hotelId]
+          );
+          client.release();
+          return result.rows.map(row => row.facility_id);
+          
+        case 'highlights':
+          result = await client.query(
+            'SELECT highlight_id FROM hotel_to_highlights WHERE hotel_id = $1',
+            [hotelId]
+          );
+          client.release();
+          return result.rows.map(row => row.highlight_id);
+          
+        case 'cleanlinessFeatures':
+          result = await client.query(
+            'SELECT cleanliness_feature_id FROM hotel_to_cleanliness WHERE hotel_id = $1',
+            [hotelId]
+          );
+          client.release();
+          return result.rows.map(row => row.cleanliness_feature_id);
+          
+        default:
+          client.release();
+          return [];
+      }
     } catch (error) {
       console.error(`Error fetching hotel ${featureType}:`, error);
       return [];
