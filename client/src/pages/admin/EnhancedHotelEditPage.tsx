@@ -498,22 +498,71 @@ export default function EnhancedHotelEditPage() {
     if (hotel && !formInitialized) {
       console.log('Hotel data received:', hotel);
       
-      // Add some test data to verify tabs are working
-      appendLandmark({ name: "Pyramids of Giza", distance: "5 km", description: "Famous ancient pyramids" });
-      appendRestaurant({ 
-        name: "Main Restaurant", 
-        cuisineType: "International", 
-        breakfastOptions: ["buffet", "continental"] 
-      });
-      appendFaq({ question: "What time is check-in?", answer: "Check-in is at 3:00 PM" });
-      appendRoomType({ 
-        name: "Deluxe Room", 
-        bedType: "King", 
-        size: "45 sqm", 
-        view: "Sea View", 
-        amenities: ["WiFi", "AC"], 
-        price: 200 
-      });
+      // Load real data from hotel if exists, otherwise add empty items to show the interface
+      if (hotel.landmarks && hotel.landmarks.length > 0) {
+        hotel.landmarks.forEach((landmark: any) => {
+          appendLandmark({ 
+            name: landmark.name || "", 
+            distance: landmark.distance || "", 
+            description: landmark.description || "" 
+          });
+        });
+      } else {
+        // Add one empty landmark to show the interface
+        appendLandmark({ name: "", distance: "", description: "" });
+      }
+
+      if (hotel.restaurants && hotel.restaurants.length > 0) {
+        hotel.restaurants.forEach((restaurant: any) => {
+          appendRestaurant({ 
+            name: restaurant.name || "", 
+            cuisineType: restaurant.cuisineType || "", 
+            breakfastOptions: restaurant.breakfastOptions || [] 
+          });
+        });
+      } else {
+        // Add one empty restaurant to show the interface
+        appendRestaurant({ 
+          name: "", 
+          cuisineType: "", 
+          breakfastOptions: [] 
+        });
+      }
+
+      if (hotel.faqs && hotel.faqs.length > 0) {
+        hotel.faqs.forEach((faq: any) => {
+          appendFaq({ 
+            question: faq.question || "", 
+            answer: faq.answer || "" 
+          });
+        });
+      } else {
+        // Add one empty FAQ to show the interface
+        appendFaq({ question: "", answer: "" });
+      }
+
+      if (hotel.roomTypes && hotel.roomTypes.length > 0) {
+        hotel.roomTypes.forEach((roomType: any) => {
+          appendRoomType({ 
+            name: roomType.name || "", 
+            bedType: roomType.bedType || "", 
+            size: roomType.size || "", 
+            view: roomType.view || "", 
+            amenities: roomType.amenities || [], 
+            price: roomType.price || 0 
+          });
+        });
+      } else {
+        // Add one empty room type to show the interface
+        appendRoomType({ 
+          name: "", 
+          bedType: "", 
+          size: "", 
+          view: "", 
+          amenities: [], 
+          price: 0 
+        });
+      }
 
       const formData: Partial<HotelFormValues> = {
         name: hotel.name || "",
@@ -552,6 +601,10 @@ export default function EnhancedHotelEditPage() {
       };
 
       // Set selected features
+      console.log('Setting facilities:', hotel.facilityIds);
+      console.log('Setting highlights:', hotel.highlightIds);
+      console.log('Setting cleanliness features:', hotel.cleanlinessFeatureIds);
+      
       setSelectedFacilities(hotel.facilityIds || []);
       setSelectedHighlights(hotel.highlightIds || []);
       setSelectedCleanlinessFeatures(hotel.cleanlinessFeatureIds || []);

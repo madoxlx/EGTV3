@@ -44,10 +44,15 @@ export default function InlineFeatureManager({
   const fetchFeatures = async () => {
     try {
       setLoading(true);
-      const response = await fetch(apiEndpoint);
+      const response = await fetch(apiEndpoint, {
+        credentials: 'include'
+      });
       if (response.ok) {
         const data = await response.json();
+        console.log(`Loaded ${featureType}:`, data);
         setFeatures(data);
+      } else {
+        console.error(`Failed to fetch ${featureType}, status:`, response.status);
       }
     } catch (error) {
       console.error(`Error fetching ${featureType}:`, error);
