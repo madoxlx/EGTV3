@@ -330,7 +330,13 @@ export default function EnhancedHotelEditPage() {
     error: hotelError,
   } = useQuery({
     queryKey: [`/api/admin/hotels/${hotelId}`],
-    queryFn: getQueryFn,
+    queryFn: async () => {
+      const response = await fetch(`/api/admin/hotels/${hotelId}`, {
+        credentials: 'include'
+      });
+      if (!response.ok) throw new Error('Failed to fetch hotel');
+      return response.json();
+    },
     enabled: !!hotelId,
   });
 
@@ -341,7 +347,11 @@ export default function EnhancedHotelEditPage() {
     error: destinationsError,
   } = useQuery({
     queryKey: ["/api/destinations"],
-    queryFn: getQueryFn,
+    queryFn: async () => {
+      const response = await fetch('/api/destinations');
+      if (!response.ok) throw new Error('Failed to fetch destinations');
+      return response.json();
+    },
   });
 
   // Fetch countries
@@ -351,7 +361,11 @@ export default function EnhancedHotelEditPage() {
     error: countriesError,
   } = useQuery({
     queryKey: ["/api/countries"],
-    queryFn: getQueryFn,
+    queryFn: async () => {
+      const response = await fetch('/api/countries');
+      if (!response.ok) throw new Error('Failed to fetch countries');
+      return response.json();
+    },
   });
 
   // Fetch cities based on selected country
@@ -361,23 +375,45 @@ export default function EnhancedHotelEditPage() {
     error: citiesError,
   } = useQuery({
     queryKey: ["/api/cities"],
-    queryFn: getQueryFn,
+    queryFn: async () => {
+      const response = await fetch('/api/cities');
+      if (!response.ok) throw new Error('Failed to fetch cities');
+      return response.json();
+    },
   });
 
   // Fetch hotel features data
   const { data: highlights } = useQuery({
     queryKey: ["/api/admin/hotel-highlights"],
-    queryFn: getQueryFn,
+    queryFn: async () => {
+      const response = await fetch('/api/admin/hotel-highlights', {
+        credentials: 'include'
+      });
+      if (!response.ok) throw new Error('Failed to fetch highlights');
+      return response.json();
+    },
   });
 
   const { data: facilities } = useQuery({
     queryKey: ["/api/admin/hotel-facilities"],
-    queryFn: getQueryFn,
+    queryFn: async () => {
+      const response = await fetch('/api/admin/hotel-facilities', {
+        credentials: 'include'
+      });
+      if (!response.ok) throw new Error('Failed to fetch facilities');
+      return response.json();
+    },
   });
 
   const { data: cleanlinessFeatures } = useQuery({
     queryKey: ["/api/admin/cleanliness-features"],
-    queryFn: getQueryFn,
+    queryFn: async () => {
+      const response = await fetch('/api/admin/cleanliness-features', {
+        credentials: 'include'
+      });
+      if (!response.ok) throw new Error('Failed to fetch cleanliness features');
+      return response.json();
+    },
   });
 
   // Initialize form with proper typing
