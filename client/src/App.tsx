@@ -8,7 +8,10 @@ import { AuthProvider, useAuth } from "@/hooks/use-auth";
 import { LanguageProvider } from "@/hooks/use-language";
 import { ProtectedRoute } from "@/lib/protected-route";
 import { AdminRoute } from "@/lib/admin-route";
-import { NavigationProvider, useNavigation } from "@/contexts/NavigationContext";
+import {
+  NavigationProvider,
+  useNavigation,
+} from "@/contexts/NavigationContext";
 import Preloader from "@/components/Preloader";
 import NotFound from "@/pages/not-found";
 import Home from "@/pages/Home";
@@ -36,7 +39,7 @@ import {
   TransportationSearchResults,
   VisasSearchResults,
   ToursSearchResults,
-  PackagesSearchResults
+  PackagesSearchResults,
 } from "@/pages/search-results";
 
 // Admin Pages
@@ -102,46 +105,130 @@ function Router() {
     return (
       <DashboardLayout location={location}>
         <Switch>
-          <AdminRoute path="/admin/packages/create" component={PackageCreatorPage} />
-          <AdminRoute path="/admin/packages/edit/:id" component={PackageCreatorPage} />
-          <AdminRoute path="/admin/packages/create-manual" component={CreateManualPackage} />
-          <AdminRoute path="/admin/packages/categories" component={PackageCategoriesPage} />
+          <AdminRoute
+            path="/admin/packages/create"
+            component={PackageCreatorPage}
+          />
+          <AdminRoute
+            path="/admin/packages/edit/:id"
+            component={PackageCreatorPage}
+          />
+          <AdminRoute
+            path="/admin/packages/create-manual"
+            component={CreateManualPackage}
+          />
+          <AdminRoute
+            path="/admin/packages/categories"
+            component={PackageCategoriesPage}
+          />
           <AdminRoute path="/admin/packages" component={PackagesManagement} />
-          <AdminRoute path="/admin/users" component={UsersManagement} />
+          <AdminRoute
+            path="/admin/advanced-users"
+            component={UsersManagement}
+          />
           <AdminRoute path="/admin/tours/create" component={CreateTour} />
           <AdminRoute path="/admin/tours/edit" component={ToursEdit} />
           <AdminRoute path="/admin/tours/creator" component={TourCreatorPage} />
-          <AdminRoute path="/admin/tours/edit/:id" component={TourCreatorPage} />
-          <AdminRoute path="/admin/tours/categories" component={TourCategoriesPage} />
+          <AdminRoute
+            path="/admin/tours/edit/:id"
+            component={TourCreatorPage}
+          />
+          <AdminRoute
+            path="/admin/tours/categories"
+            component={TourCategoriesPage}
+          />
           <AdminRoute path="/admin/tours" component={ToursManagement} />
 
-          <AdminRoute path="/admin/hotels/create" component={EnhancedHotelCreatePage} />
-          <AdminRoute path="/admin/hotels/create-basic" component={HotelCreatePage} />
-          <AdminRoute path="/admin/hotels/edit/:id" component={EnhancedHotelEditPage} />
-          <AdminRoute path="/admin/hotels" component={AdvancedHotelsManagement} />
-          <AdminRoute path="/admin/rooms/categories" component={RoomCategoriesPage} />
-          <AdminRoute path="/admin/rooms/amenities" component={RoomAmenitiesPage} />
+          <AdminRoute
+            path="/admin/hotels/create"
+            component={EnhancedHotelCreatePage}
+          />
+          <AdminRoute
+            path="/admin/hotels/create-basic"
+            component={HotelCreatePage}
+          />
+          <AdminRoute
+            path="/admin/hotels/edit/:id"
+            component={EnhancedHotelEditPage}
+          />
+          <AdminRoute
+            path="/admin/hotels"
+            component={AdvancedHotelsManagement}
+          />
+          <AdminRoute
+            path="/admin/rooms/categories"
+            component={RoomCategoriesPage}
+          />
+          <AdminRoute
+            path="/admin/rooms/amenities"
+            component={RoomAmenitiesPage}
+          />
           <AdminRoute path="/admin/rooms/create" component={RoomCreatePage} />
           <AdminRoute path="/admin/rooms/:id/edit" component={RoomCreatePage} />
           <AdminRoute path="/admin/rooms" component={RoomsPage} />
-          <AdminRoute path="/admin/transportation/create" component={TransportationCreate} />
-          <AdminRoute path="/admin/transportation/edit/:id" component={TransportationEdit} />
-          <AdminRoute path="/admin/transportation" component={TransportationManagement} />
-          <AdminRoute path="/admin/transport-types" component={TransportTypesManagement} />
-          <AdminRoute path="/admin/transport-locations" component={TransportLocationsManagement} />
-          <AdminRoute path="/admin/transport-durations" component={TransportDurationsManagement} />
-          <AdminRoute path="/admin/countries-cities" component={CountryCityManagement} />
-          <AdminRoute path="/admin/destinations" component={DestinationsManagement} />
-          <AdminRoute path="/admin/translations" component={TranslationManagement} />
-          <AdminRoute path="/admin/data-export-import" component={DataExportImportPage} />
-          <AdminRoute path="/admin/enhanced-import" component={EnhancedDataImportPage} />
+          <AdminRoute
+            path="/admin/transportation/create"
+            component={TransportationCreate}
+          />
+          <AdminRoute
+            path="/admin/transportation/edit/:id"
+            component={TransportationEdit}
+          />
+          <AdminRoute
+            path="/admin/transportation"
+            component={TransportationManagement}
+          />
+          <AdminRoute
+            path="/admin/transport-types"
+            component={TransportTypesManagement}
+          />
+          <AdminRoute
+            path="/admin/transport-locations"
+            component={TransportLocationsManagement}
+          />
+          <AdminRoute
+            path="/admin/transport-durations"
+            component={TransportDurationsManagement}
+          />
+          <AdminRoute
+            path="/admin/countries-cities"
+            component={CountryCityManagement}
+          />
+          <AdminRoute
+            path="/admin/destinations"
+            component={DestinationsManagement}
+          />
+          <AdminRoute
+            path="/admin/translations"
+            component={TranslationManagement}
+          />
+          <AdminRoute
+            path="/admin/data-export-import"
+            component={DataExportImportPage}
+          />
+          <AdminRoute
+            path="/admin/enhanced-import"
+            component={EnhancedDataImportPage}
+          />
           <AdminRoute path="/admin/analytics" component={AnalyticsDashboard} />
-          <AdminRoute path="/admin/system-monitoring" component={SystemMonitoring} />
+          <AdminRoute
+            path="/admin/system-monitoring"
+            component={SystemMonitoring}
+          />
           <AdminRoute path="/admin/settings" component={SettingsPage} />
-          <AdminRoute path="/admin/advanced-settings" component={AdvancedSystemSettings} />
-          <AdminRoute path="/admin/advanced-dashboard" component={AdvancedDashboard} />
-          <AdminRoute path="/admin/advanced-bookings" component={AdvancedBookingsManagement} />
-          <AdminRoute path="/admin/advanced-users" component={AdvancedUserManagement} />
+          <AdminRoute
+            path="/admin/advanced-settings"
+            component={AdvancedSystemSettings}
+          />
+          <AdminRoute
+            path="/admin/advanced-dashboard"
+            component={AdvancedDashboard}
+          />
+          <AdminRoute
+            path="/admin/advanced-bookings"
+            component={AdvancedBookingsManagement}
+          />
+
           <AdminRoute path="/admin/slider" component={SliderManagement} />
           <AdminRoute path="/admin" component={AdminDashboard} />
           <AdminRoute path="/admin/visas" component={VisasManagement} />
@@ -165,33 +252,45 @@ function Router() {
         <Route path="/sailing-cruise" component={SailingCruise} />
         <Route path="/zigzag-demo" component={ZigzagDemo} />
         <ProtectedRoute path="/profile" component={ProfilePage} />
-        
+
         {/* Search Results Pages */}
         <Route path="/search/flights" component={FlightsSearchResults} />
         <Route path="/search/hotels" component={HotelsSearchResults} />
-        <Route path="/search/transportation" component={TransportationSearchResults} />
+        <Route
+          path="/search/transportation"
+          component={TransportationSearchResults}
+        />
         <Route path="/search/visas" component={VisasSearchResults} />
         <Route path="/search/tours" component={ToursSearchResults} />
         <Route path="/search/packages" component={PackagesSearchResults} />
-        
+
         {/* Package detail page */}
         <Route path="/packages/:id" component={PackageDetail} />
-        
+
         {/* Tours pages */}
         <Route path="/tours/:slug" component={TourDetail} />
         <Route path="/tours" component={ToursPackageStyle} />
-        
+
         {/* Hotel detail page */}
-        <Route path="/hotel/:id" component={() => {
-          const HotelDetailsPage = React.lazy(() => import("@/pages/hotel-details/HotelDetailsPage"));
-          return <React.Suspense fallback={<div>Loading...</div>}><HotelDetailsPage /></React.Suspense>;
-        }} />
-        
+        <Route
+          path="/hotel/:id"
+          component={() => {
+            const HotelDetailsPage = React.lazy(
+              () => import("@/pages/hotel-details/HotelDetailsPage"),
+            );
+            return (
+              <React.Suspense fallback={<div>Loading...</div>}>
+                <HotelDetailsPage />
+              </React.Suspense>
+            );
+          }}
+        />
+
         {/* Cart and Checkout pages */}
         <Route path="/cart" component={CartPage} />
         <Route path="/checkout" component={CheckoutPage} />
         <Route path="/order-confirmation" component={OrderConfirmationPage} />
-        
+
         <Route component={NotFound} />
       </Switch>
     </Layout>
@@ -201,11 +300,11 @@ function Router() {
 function InnerApp() {
   const { isLoading } = useNavigation();
   const { user, isLoading: authLoading } = useAuth();
-  
+
   if (authLoading || isLoading) {
     return <Preloader isVisible={true} />;
   }
-  
+
   return <Router />;
 }
 
