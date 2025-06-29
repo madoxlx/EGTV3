@@ -106,6 +106,14 @@ The application uses a comprehensive PostgreSQL schema with the following core e
 
 ## Recent Changes
 
+- **Hotel Edit Features Display Fix (June 29, 2025)**: Fixed critical issue where hotel features weren't displaying in edit forms
+  - Corrected InlineFeatureManager API endpoint mapping for cleanliness features
+  - Fixed incorrect URL construction from `/api/admin/hotel-cleanliness-features` to `/api/admin/cleanliness-features`
+  - All feature types now load correctly: facilities, highlights, and cleanliness features
+  - Hotel edit forms now properly display all available features for selection
+  - Eliminated "Error fetching cleanliness-features" console errors
+  - Feature selection checkboxes now populate correctly with existing hotel feature associations
+
 - **Hotel Edit Form Feature Association Fix (June 29, 2025)**: Fixed critical hotel feature loading issue in edit forms
   - Corrected database column mapping for cleanliness features (feature_id vs cleanliness_feature_id)
   - Fixed getHotelFeatureAssociations method to properly query junction tables

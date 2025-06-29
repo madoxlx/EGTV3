@@ -35,7 +35,9 @@ export default function InlineFeatureManager({
   const [newFeature, setNewFeature] = useState({ name: '', description: '', icon: '' });
   const { toast } = useToast();
 
-  const apiEndpoint = `/api/admin/hotel-${featureType}`;
+  const apiEndpoint = featureType === 'cleanliness-features' 
+    ? `/api/admin/cleanliness-features`
+    : `/api/admin/hotel-${featureType}`;
 
   useEffect(() => {
     fetchFeatures();
