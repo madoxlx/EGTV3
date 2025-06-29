@@ -640,13 +640,10 @@ export default function EnhancedHotelEditPage() {
         },
       });
 
-      if (!response.ok) {
-        throw new Error("Failed to update hotel");
-      }
-
-      return response.json();
+      return response;
     },
-    onSuccess: () => {
+    onSuccess: (data) => {
+      console.log("Update successful, data:", data);
       toast({
         title: "Success",
         description: "Hotel updated successfully",
@@ -661,6 +658,7 @@ export default function EnhancedHotelEditPage() {
       navigate("/admin/hotels");
     },
     onError: (error: Error) => {
+      console.error("Update error:", error);
       toast({
         title: "Error",
         description: error.message || "Failed to update hotel",
@@ -708,6 +706,12 @@ export default function EnhancedHotelEditPage() {
       };
 
       console.log("Submitting hotel data:", hotelData);
+      console.log("Form validation errors:", form.formState.errors);
+      console.log("Mutation state before submit:", {
+        isPending: updateHotelMutation.isPending,
+        isError: updateHotelMutation.isError,
+        error: updateHotelMutation.error
+      });
 
       // Call the mutation with JSON data
       updateHotelMutation.mutate(hotelData);
