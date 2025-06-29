@@ -496,6 +496,25 @@ export default function EnhancedHotelEditPage() {
   // Initialize form data when hotel data is loaded
   useEffect(() => {
     if (hotel && !formInitialized) {
+      console.log('Hotel data received:', hotel);
+      
+      // Add some test data to verify tabs are working
+      appendLandmark({ name: "Pyramids of Giza", distance: "5 km", description: "Famous ancient pyramids" });
+      appendRestaurant({ 
+        name: "Main Restaurant", 
+        cuisineType: "International", 
+        breakfastOptions: ["buffet", "continental"] 
+      });
+      appendFaq({ question: "What time is check-in?", answer: "Check-in is at 3:00 PM" });
+      appendRoomType({ 
+        name: "Deluxe Room", 
+        bedType: "King", 
+        size: "45 sqm", 
+        view: "Sea View", 
+        amenities: ["WiFi", "AC"], 
+        price: 200 
+      });
+
       const formData: Partial<HotelFormValues> = {
         name: hotel.name || "",
         description: hotel.description || "",
