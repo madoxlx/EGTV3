@@ -493,11 +493,11 @@ export default function EnhancedHotelEditPage() {
     name: "roomTypes",
   });
 
-  // Initialize form data when hotel data is loaded
+  // Load hotel data into form when it's available
   useEffect(() => {
     if (hotel && !formInitialized) {
       console.log('Hotel data received:', hotel);
-      
+
       // Load real data from hotel if exists, otherwise add empty items to show the interface
       if (hotel.landmarks && hotel.landmarks.length > 0) {
         hotel.landmarks.forEach((landmark: any) => {
@@ -604,7 +604,7 @@ export default function EnhancedHotelEditPage() {
       console.log('Setting facilities:', hotel.facilityIds);
       console.log('Setting highlights:', hotel.highlightIds);
       console.log('Setting cleanliness features:', hotel.cleanlinessFeatureIds);
-      
+
       setSelectedFacilities(hotel.facilityIds || []);
       setSelectedHighlights(hotel.highlightIds || []);
       setSelectedCleanlinessFeatures(hotel.cleanlinessFeatureIds || []);

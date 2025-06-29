@@ -2813,7 +2813,8 @@ export async function registerRoutes(app: Express): Promise<Server> {
         return res.status(400).json({ message: 'Invalid hotel ID' });
       }
       
-      const hotel = await storage.getHotel(id);
+      // Get hotel with all associated features
+      const hotel = await storage.getHotelWithFeatures(id);
       if (!hotel) {
         return res.status(404).json({ message: 'Hotel not found' });
       }
@@ -2986,7 +2987,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
   });
   
   // Update a hotel (admin only)
-  app.put('/api/admin/hotels/:id', async (req, res) => {
+  app.patch('/api/admin/hotels/:id', async (req, res) => {
     try {
       const id = parseInt(req.params.id);
       if (isNaN(id)) {
@@ -2999,8 +3000,14 @@ export async function registerRoutes(app: Express): Promise<Server> {
         return res.status(404).json({ message: 'Hotel not found' });
       }
       
-      // Validate the update data
-      const updateData = insertHotelSchema.parse(req.body);
+      console.log('Hotel update request for ID:', id);
+      console.log('Update data received:', req.body);
+      
+      // Extract feature data
+      const { facilities, highlights, cleanlinessFeatures, ...hotelData } = req.body;
+      
+      // Validate the update data (excluding feature arrays)
+      const updateData = insertHotelSchema.partial().parse(hotelData);
       
       // Check if destination exists if destinationId is provided
       if (updateData.destinationId) {
@@ -3010,9 +3017,28 @@ export async function registerRoutes(app: Express): Promise<Server> {
         }
       }
       
-      // Perform the update
+      // Update hotel basic data
       const updatedHotel = await storage.updateHotel(id, updateData);
-      res.json(updatedHotel);
+      
+      // Update hotel features if provided
+      if (facilities !== undefined) {
+        console.log('Updating hotel facilities:', facilities);
+        await storage.updateHotelFeatureAssociations(id, 'facilities', facilities);
+      }
+      
+      if (highlights !== undefined) {
+        console.log('Updating hotel highlights:', highlights);
+        await storage.updateHotelFeatureAssociations(id, 'highlights', highlights);
+      }
+      
+      if (cleanlinessFeatures !== undefined) {
+        console.log('Updating hotel cleanliness features:', cleanlinessFeatures);
+        await storage.updateHotelFeatureAssociations(id, 'cleanlinessFeatures', cleanlinessFeatures);
+      }
+      
+      // Return updated hotel with features
+      const hotelWithFeatures = await storage.getHotelWithFeatures(id);
+      res.json(hotelWithFeatures || updatedHotel);
     } catch (error) {
       if (error instanceof z.ZodError) {
         return res.status(400).json({ message: 'Invalid hotel data', errors: error.errors });

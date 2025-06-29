@@ -203,3 +203,83 @@ export default function InlineFeatureManager({
     </div>
   );
 }
+
+// Hypothetical HotelEdit component to demonstrate the usage of InlineFeatureManager
+interface Hotel {
+    id: number;
+    name: string;
+    facilities?: any[];
+    highlights?: any[];
+    cleanlinessFeatures?: any[];
+}
+
+interface HotelEditProps {
+    hotel: Hotel;
+    onFacilitiesChange?: (ids: number[]) => void;
+    onHighlightsChange?: (ids: number[]) => void;
+    onCleanlinessChange?: (ids: number[]) => void;
+}
+
+function HotelEdit({ hotel, onFacilitiesChange, onHighlightsChange, onCleanlinessChange }: HotelEditProps) {
+    const [selectedFacilities, setSelectedFacilities] = useState<number[]>([]);
+    const [selectedHighlights, setSelectedHighlights] = useState<number[]>([]);
+    const [selectedCleanlinessFeatures, setSelectedCleanlinessFeatures] = useState<number[]>([]);
+
+    // Load existing selections when hotel data changes
+    useEffect(() => {
+      console.log('Hotel prop changed in InlineFeatureManager:', hotel);
+  
+      if (hotel?.facilities) {
+        const facilityIds = Array.isArray(hotel.facilities) 
+          ? hotel.facilities.map((f: any) => f.id || f)
+          : [];
+        console.log('Setting initial facilities:', facilityIds);
+        setSelectedFacilities(facilityIds);
+        onFacilitiesChange?.(facilityIds);
+      }
+  
+      if (hotel?.highlights) {
+        const highlightIds = Array.isArray(hotel.highlights)
+          ? hotel.highlights.map((h: any) => h.id || h)
+          : [];
+        console.log('Setting initial highlights:', highlightIds);
+        setSelectedHighlights(highlightIds);
+        onHighlightsChange?.(highlightIds);
+      }
+  
+      if (hotel?.cleanlinessFeatures) {
+        const cleanlinessIds = Array.isArray(hotel.cleanlinessFeatures)
+          ? hotel.cleanlinessFeatures.map((c: any) => c.id || c)
+          : [];
+        console.log('Setting initial cleanliness features:', cleanlinessIds);
+        setSelectedCleanlinessFeatures(cleanlinessIds);
+        onCleanlinessChange?.(cleanlinessIds);
+      }
+    }, [hotel, onFacilitiesChange, onHighlightsChange, onCleanlinessChange]);
+
+    return (
+        <div>
+            <h1>Edit Hotel: {hotel.name}</h1>
+            <InlineFeatureManager
+                featureType="facilities"
+                selectedFeatures={selectedFacilities}
+                onSelectionChange={setSelectedFacilities}
+                label="Facilities"
+            />
+            <InlineFeatureManager
+                featureType="highlights"
+                selectedFeatures={selectedHighlights}
+                onSelectionChange={setSelectedHighlights}
+                label="Highlights"
+            />
+            <InlineFeatureManager
+                featureType="cleanliness-features"
+                selectedFeatures={selectedCleanlinessFeatures}
+                onSelectionChange={setSelectedCleanlinessFeatures}
+                label="Cleanliness Features"
+            />
+        </div>
+    );
+}
+
+export default HotelEdit;

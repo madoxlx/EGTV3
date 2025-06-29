@@ -343,7 +343,7 @@ export class DatabaseStorage implements IStorage {
     try {
       console.log('Storage createHotel called with data:', hotel);
       console.log('Hotel data keys:', Object.keys(hotel));
-      
+
       const [created] = await db.insert(hotels).values(hotel).returning();
       console.log('Hotel created successfully in storage:', created);
       return created;
@@ -351,6 +351,53 @@ export class DatabaseStorage implements IStorage {
       console.error('Database error in createHotel:', error);
       console.error('Hotel data that caused error:', hotel);
       throw error;
+    }
+  }
+
+  async getHotelWithFeatures(id: number): Promise<any | undefined> {
+    try {
+      // Get basic hotel data
+      const [hotel] = await db.select().from(hotels).where(eq(hotels.id, id));
+
+      if (!hotel) {
+        return undefined;
+      }
+
+      // Get associated features
+      const facilities = await this.getHotelFeatureAssociations(id, 'facilities');
+      const highlights = await this.getHotelFeatureAssociations(id, 'highlights');
+      const cleanlinessFeatures = await this.getHotelFeatureAssociations(id, 'cleanlinessFeatures');
+
+      return {
+        ...hotel,
+        facilities,
+        highlights,
+        cleanlinessFeatures
+      };
+    } catch (error) {
+      console.error('Error fetching hotel with features:', error);
+      return await this.getHotel(id);
+    }
+  }
+
+  async getHotelFeatureAssociations(hotelId: number, featureType: string): Promise<number[]> {
+    try {
+      // This is a placeholder - you'll need to implement based on your actual schema
+      // For now, return empty array
+      return [];
+    } catch (error) {
+      console.error(`Error fetching hotel ${featureType}:`, error);
+      return [];
+    }
+  }
+
+  async updateHotelFeatureAssociations(hotelId: number, featureType: string, featureIds: number[]): Promise<void> {
+    try {
+      console.log(`Updating hotel ${featureType} for hotel ${hotelId}:`, featureIds);
+      // This is a placeholder - you'll need to implement based on your actual schema
+      // For now, just log the operation
+    } catch (error) {
+      console.error(`Error updating hotel ${featureType}:`, error);
     }
   }
 
@@ -601,17 +648,17 @@ export class DatabaseStorage implements IStorage {
   async listRooms(hotelId?: number): Promise<any[]> {
     try {
       console.log('🔍 Listing rooms with hotelId:', hotelId);
-      
+
       // Always use raw SQL for reliability
       const client = await pool.connect();
       const sqlQuery = hotelId 
         ? 'SELECT * FROM rooms WHERE hotel_id = $1 ORDER BY created_at DESC'
         : 'SELECT * FROM rooms ORDER BY created_at DESC';
-      
+
       const params = hotelId ? [hotelId] : [];
       const result = await client.query(sqlQuery, params);
       client.release();
-      
+
       console.log('✅ Rooms query result:', result.rows.length, 'rooms found');
       if (result.rows.length > 0) {
         console.log('📋 Sample room:', {
@@ -620,7 +667,7 @@ export class DatabaseStorage implements IStorage {
           hotel_id: result.rows[0].hotel_id
         });
       }
-      
+
       return result.rows || [];
     } catch (error) {
       console.error('❌ Error listing rooms:', error);
