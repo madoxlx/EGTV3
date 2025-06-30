@@ -33,9 +33,18 @@ export async function apiRequest<T = any>(
     throw new Error(`${res.status}: ${text}`);
   }
   
-  const result = await res.json();
-  console.log(`API Response:`, result);
-  return result;
+  // Check if response is JSON before parsing
+  const contentType = res.headers.get('content-type');
+  if (contentType && contentType.includes('application/json')) {
+    const result = await res.json();
+    console.log(`API Response:`, result);
+    return result;
+  } else {
+    // If not JSON, return the text response
+    const textResult = await res.text();
+    console.error('Non-JSON response received:', textResult.substring(0, 200));
+    throw new Error(`Expected JSON response but received ${contentType || 'unknown content-type'}`);
+  }
 }
 
 // Legacy apiRequest function for backwards compatibility

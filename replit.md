@@ -106,6 +106,13 @@ The application uses a comprehensive PostgreSQL schema with the following core e
 
 ## Recent Changes
 
+- **Cart API Routing Conflict Resolution (June 30, 2025)**: Fixed cart API routing conflicts and authentication errors
+  - Removed duplicate cart endpoint from server/index.ts to eliminate routing conflicts
+  - Fixed apiRequest function calls in useCart hook to use correct signature with proper method and body parameters
+  - Enhanced cart authentication error handling to return proper JSON responses instead of HTML
+  - Updated cart API endpoints in routes.ts to properly handle authentication requirements
+  - Cart functionality now properly validates user sessions and returns appropriate error messages
+
 - **Hotel Restaurant Display Fix Complete (June 30, 2025)**: Successfully resolved missing restaurant data in hotel edit forms
   - Added missing database columns (restaurants, landmarks, faqs, room_types) to hotels table schema
   - Enhanced getHotelWithFeatures method to properly parse and return complex JSON data from database

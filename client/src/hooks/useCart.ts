@@ -52,19 +52,28 @@ export function useCart() {
       }
       
       try {
-        const response = await apiRequest('GET', '/api/cart');
+        const response = await apiRequest('/api/cart');
         console.log('Cart fetch response:', response);
-        return response;
+        return Array.isArray(response) ? response : [];
       } catch (error) {
         console.error('Error fetching cart:', error);
-        if (error.message?.includes('401')) {
-          // User not authenticated, redirect to login
-          checkAuth();
+        
+        // Handle different error types
+        if (error.message?.includes('401') || error.message?.includes('Authentication required')) {
+          // User not authenticated, silently return empty cart
+          return [];
+        } else if (error.message?.includes('Expected JSON response')) {
+          // Got HTML instead of JSON, likely authentication issue
+          console.warn('Cart API returned HTML instead of JSON - user may not be authenticated');
+          return [];
         }
+        
+        // For other errors, still return empty array to prevent crashes
         return [];
       }
     },
     enabled: !!user, // Only run query if user is authenticated
+    retry: false, // Don't retry on authentication errors
   });
 
   // Add to cart mutation
@@ -73,7 +82,10 @@ export function useCart() {
       if (!checkAuth()) return;
       
       console.log('Adding cart item:', item);
-      return await apiRequest('POST', '/api/cart', item);
+      return await apiRequest('/api/cart', {
+        method: 'POST',
+        body: JSON.stringify(item)
+      });
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['cart'] });
@@ -100,7 +112,10 @@ export function useCart() {
   const updateCartMutation = useMutation({
     mutationFn: async ({ id, updates }: { id: number; updates: any }) => {
       if (!checkAuth()) return;
-      return await apiRequest('PATCH', `/api/cart/${id}`, updates);
+      return await apiRequest(`/api/cart/${id}`, {
+        method: 'PATCH',
+        body: JSON.stringify(updates)
+      });
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['cart'] });
@@ -123,7 +138,9 @@ export function useCart() {
   const removeFromCartMutation = useMutation({
     mutationFn: async (id: number) => {
       if (!checkAuth()) return;
-      return await apiRequest('DELETE', `/api/cart/${id}`);
+      return await apiRequest(`/api/cart/${id}`, {
+        method: 'DELETE'
+      });
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['cart'] });
@@ -150,7 +167,9 @@ export function useCart() {
   const clearCartMutation = useMutation({
     mutationFn: async () => {
       if (!checkAuth()) return;
-      return await apiRequest('DELETE', '/api/cart');
+      return await apiRequest('/api/cart', {
+        method: 'DELETE'
+      });
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['cart'] });

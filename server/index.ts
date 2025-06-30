@@ -257,55 +257,7 @@ app.use((req, res, next) => {
       console.error('Error:', err);
     });
 
-    // Add cart endpoint directly before Vite setup to bypass routing issues
-    app.post('/api/cart/add', async (req, res) => {
-      try {
-        console.log('Direct cart add endpoint hit:', req.body);
-        
-        const { insertCartItemSchema } = await import("@shared/schema");
-        const { db, cartItems } = await import("./db");
-        const { eq, and } = await import("drizzle-orm");
-        
-        const cartData = insertCartItemSchema.parse(req.body);
-        console.log('Parsed cart data:', cartData);
-        
-        // Use test user ID for now
-        cartData.userId = 11;
-        delete cartData.sessionId;
-        
-        // Check if item already exists in cart (prevent duplicates)
-        const existingItem = await db.select()
-          .from(cartItems)
-          .where(and(
-            eq(cartItems.userId, cartData.userId),
-            eq(cartItems.itemType, cartData.itemType),
-            eq(cartItems.itemId, cartData.itemId)
-          ))
-          .limit(1);
-        
-        if (existingItem.length > 0) {
-          // Update quantity instead of creating duplicate
-          const updatedItem = await db.update(cartItems)
-            .set({ 
-              quantity: existingItem[0].quantity + cartData.quantity,
-              updatedAt: new Date()
-            })
-            .where(eq(cartItems.id, existingItem[0].id))
-            .returning();
-          
-          console.log('Cart item quantity updated:', updatedItem[0]);
-          res.json(updatedItem[0]);
-        } else {
-          // Create new cart item
-          const result = await db.insert(cartItems).values(cartData).returning();
-          console.log('Cart item added successfully:', result[0]);
-          res.json(result[0]);
-        }
-      } catch (error) {
-        console.error('Error in direct cart endpoint:', error);
-        res.status(500).json({ message: 'Failed to add item to cart', error: error.message });
-      }
-    });
+    // Cart endpoints are handled in routes.ts - no duplicate needed here
 
     // Add API route debugging middleware
     app.use('/api/*', (req, res, next) => {
