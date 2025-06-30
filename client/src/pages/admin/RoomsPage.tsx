@@ -147,17 +147,23 @@ export default function RoomsPage() {
   });
 
   // Transform and apply filters to the rooms data
-  const transformedRooms = (Array.isArray(rawRooms) ? rawRooms : []).map((room: any) => ({
-    ...room,
-    hotelId: room.hotel_id || room.hotelId,
-    hotelName: room.hotel_name || `Hotel ${room.hotel_id || room.hotelId}`,
-    maxAdults: room.max_adults || room.maxAdults || 0,
-    maxChildren: room.max_children || room.maxChildren || 0,
-    maxInfants: room.max_infants || room.maxInfants || 0,
-    isActive: room.available !== undefined ? room.available : room.isActive,
-    category: room.type || room.category,
-    images: room.image_url ? [room.image_url] : (room.images || [])
-  }));
+  const transformedRooms = (Array.isArray(rawRooms) ? rawRooms : []).map((room: any) => {
+    // Find the hotel name from the hotels data
+    const hotel = hotels.find((h: any) => h.id === (room.hotel_id || room.hotelId));
+    const hotelName = hotel?.name || hotel?.title || `Hotel ID: ${room.hotel_id || room.hotelId}`;
+    
+    return {
+      ...room,
+      hotelId: room.hotel_id || room.hotelId,
+      hotelName: hotelName,
+      maxAdults: room.max_adults || room.maxAdults || 0,
+      maxChildren: room.max_children || room.maxChildren || 0,
+      maxInfants: room.max_infants || room.maxInfants || 0,
+      isActive: room.available !== undefined ? room.available : room.isActive,
+      category: room.type || room.category,
+      images: room.image_url ? [room.image_url] : (room.images || [])
+    };
+  });
 
   const filteredRooms = transformedRooms.filter((room: Room) => {
     // Search filter

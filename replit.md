@@ -106,6 +106,13 @@ The application uses a comprehensive PostgreSQL schema with the following core e
 
 ## Recent Changes
 
+- **Hotel Name Display in Admin Rooms Management (June 30, 2025)**: Fixed admin rooms page to display actual hotel names instead of hotel IDs
+  - Enhanced RoomsPage component to fetch and link hotel data from database
+  - Rooms table now shows real hotel names in the Hotel column instead of numeric IDs
+  - Hotel filter dropdown displays actual hotel names for better user experience
+  - Added proper data transformation to map hotel_id to hotel names with fallback handling
+  - Improved admin interface usability by showing meaningful hotel information
+
 - **Room-Based Guest Capacity Display in Package Creation (June 30, 2025)**: Enhanced guest count display to show capacity based on selected rooms instead of general settings
   - Changed guest count source from general form settings to actual selected room capacities
   - Shows individual room capacity breakdown (adults, children, infants) for each selected room
