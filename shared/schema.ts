@@ -346,6 +346,11 @@ export const hotels = pgTable("hotels", {
   lastRenovatedYear: integer("last_renovated_year"),
   totalRooms: integer("total_rooms"),
   totalFloors: integer("total_floors"),
+  // Complex data fields
+  restaurants: json("restaurants"),
+  landmarks: json("landmarks"),
+  faqs: json("faqs"),
+  roomTypes: json("room_types"),
   status: text("status").default("active"),
   verificationStatus: text("verification_status").default("pending"),
   createdAt: timestamp("created_at").notNull().defaultNow(),

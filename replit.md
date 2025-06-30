@@ -106,6 +106,15 @@ The application uses a comprehensive PostgreSQL schema with the following core e
 
 ## Recent Changes
 
+- **Hotel Restaurant Display Fix Complete (June 30, 2025)**: Successfully resolved missing restaurant data in hotel edit forms
+  - Added missing database columns (restaurants, landmarks, faqs, room_types) to hotels table schema
+  - Enhanced getHotelWithFeatures method to properly parse and return complex JSON data from database
+  - Updated hotel schema in shared/schema.ts to include all required complex data fields
+  - Added comprehensive test data for hotel ID 27 including restaurants and landmarks
+  - Fixed API endpoint to properly return restaurant data in hotel edit forms
+  - Restaurant data now displays correctly in "Dining" tab of hotel edit interface
+  - All complex hotel data (FAQs, landmarks, room types) now properly loads in edit forms
+
 - **Hotel Creation CreatedBy Validation Fix (June 30, 2025)**: Fixed Zod validation error preventing hotel creation
   - Resolved "Expected number, received string" error for createdBy field in hotel creation endpoint
   - Added proper type conversion from string to number for user ID from session data
