@@ -106,6 +106,12 @@ The application uses a comprehensive PostgreSQL schema with the following core e
 
 ## Recent Changes
 
+- **Hotel Creation CreatedBy Validation Fix (June 30, 2025)**: Fixed Zod validation error preventing hotel creation
+  - Resolved "Expected number, received string" error for createdBy field in hotel creation endpoint
+  - Added proper type conversion from string to number for user ID from session data
+  - Hotel creation now properly validates and saves user tracking information
+  - Fixed server-side validation schema to handle session user ID correctly
+
 - **Hotel Edit Features Display Fix (June 29, 2025)**: Fixed critical issue where hotel features weren't displaying in edit forms
   - Corrected InlineFeatureManager API endpoint mapping for cleanliness features
   - Fixed incorrect URL construction from `/api/admin/hotel-cleanliness-features` to `/api/admin/cleanliness-features`

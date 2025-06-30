@@ -2857,7 +2857,8 @@ export async function registerRoutes(app: Express): Promise<Server> {
       
       // Get current user ID for created_by field
       const sessionUser = (req as any).session?.user;
-      const currentUserId = sessionUser?.id || req.user?.id || null;
+      const rawUserId = sessionUser?.id || req.user?.id || null;
+      const currentUserId = rawUserId ? parseInt(rawUserId.toString()) : null;
       console.log('Current user ID for created_by:', currentUserId);
       console.log('Session user:', sessionUser);
       console.log('Request user:', req.user);
