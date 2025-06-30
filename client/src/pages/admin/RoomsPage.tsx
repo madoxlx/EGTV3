@@ -148,13 +148,19 @@ export default function RoomsPage() {
 
   // Transform and apply filters to the rooms data
   const transformedRooms = (Array.isArray(rawRooms) ? rawRooms : []).map((room: any) => {
-    // Find the hotel name from the hotels data
-    const hotel = hotels.find((h: any) => h.id === (room.hotel_id || room.hotelId));
-    const hotelName = hotel?.name || hotel?.title || `Hotel ID: ${room.hotel_id || room.hotelId}`;
+    // Find the hotel name from the hotels data - handle both string and number IDs
+    const roomHotelId = room.hotel_id || room.hotelId;
+    const hotel = hotels.find((h: any) => 
+      h.id == roomHotelId || // == to handle string/number comparison
+      parseInt(h.id) === parseInt(roomHotelId)
+    );
+    const hotelName = hotel?.name || hotel?.title || `Hotel ID: ${roomHotelId}`;
+    
+
     
     return {
       ...room,
-      hotelId: room.hotel_id || room.hotelId,
+      hotelId: roomHotelId,
       hotelName: hotelName,
       maxAdults: room.max_adults || room.maxAdults || 0,
       maxChildren: room.max_children || room.maxChildren || 0,
