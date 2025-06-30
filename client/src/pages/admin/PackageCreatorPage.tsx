@@ -3,6 +3,7 @@ import { useLocation, useParams } from "wouter";
 import { PackageCreatorForm } from "@/components/dashboard/PackageCreatorForm";
 import { Breadcrumb, BreadcrumbItem, BreadcrumbLink } from "@/components/ui/breadcrumb";
 import { Button } from "@/components/ui/button";
+import { IconSelector } from "@/components/ui/IconSelector";
 import { Home, Package, ArrowLeft } from "lucide-react";
 export default function PackageCreatorPage() {
   // Temporarily remove useLanguage to fix runtime error

@@ -71,7 +71,7 @@ const LucideIcon = ({
   if (name === 'trash') return <Trash className={className} {...props} />;
   if (name === 'star') return <Star className={className} {...props} />;
   if (name === 'x') return <X className={className} {...props} />;
-  
+
   // Default fallback
   return <>{fallback || <Package className={className} {...props} />}</>;
 };
@@ -99,25 +99,25 @@ const packageFormSchema = z.object({
   duration: z.coerce.number().min(1, { message: "Duration must be at least 1 day" }),
   rating: z.coerce.number().min(0).max(5).optional().nullable(),
   reviewCount: z.coerce.number().min(0).optional().nullable(),
-  
+
   // Location fields
   destinationId: z.coerce.number().positive().optional().nullable(),
   countryId: z.coerce.number().optional().nullable(),
   cityId: z.coerce.number().optional().nullable(),
   categoryId: z.coerce.number().optional().nullable(),
   category: z.string().optional(),
-  
+
   // Date fields
   startDate: z.date().optional(),
   endDate: z.date().optional(),
-  
+
   // Route and metadata
   route: z.string().optional(),
   type: z.string().optional(),
   maxGroupSize: z.coerce.number().min(1, { message: "Group size must be at least 1" }).optional(),
   language: z.string().optional(),
   bestTimeToVisit: z.string().optional(),
-  
+
   // Complex fields
   idealFor: z.array(z.string()).optional(),
   whatToPack: z.array(z.object({
@@ -142,11 +142,11 @@ const packageFormSchema = z.object({
     icon: z.string().optional()
   })).optional(),
   transportationDetails: z.array(z.string()).optional(),
-  
+
   // Transportation
   transportation: z.string().optional(),
   transportationPrice: z.coerce.number().optional(),
-  
+
   // Hotel and room selections
   selectedHotels: z.array(z.string()).optional(),
   rooms: z.array(z.object({
@@ -159,19 +159,19 @@ const packageFormSchema = z.object({
     maxChildren: z.number().optional(),
     maxInfants: z.number().optional()
   })).optional(),
-  
+
   // Tour selection
   tourSelection: z.array(z.string()).optional(),
   selectedTourId: z.number().optional(),
-  
+
   // Traveler counts
   adultCount: z.coerce.number().min(1, { message: "At least 1 adult is required" }),
   childrenCount: z.coerce.number().min(0, { message: "Cannot be negative" }),
   infantCount: z.coerce.number().min(0, { message: "Cannot be negative" }),
-  
+
   // Pricing
   pricingMode: z.enum(["per_booking", "per_percentage", "per_amount"]),
-  
+
   // Status
   featured: z.boolean().default(false),
   slug: z.string().optional(),
@@ -279,7 +279,7 @@ export function PackageCreatorForm({ packageId, onNavigateRequest }: PackageCrea
   const [selectedHotelRooms, setSelectedHotelRooms] = useState<any[]>([]);
   const [aiGenerating, setAiGenerating] = useState<boolean>(false);
   const [isInitialized, setIsInitialized] = useState<boolean>(false);
-  
+
   // Tour selection variables
   const [tourSearchQuery, setTourSearchQuery] = useState<string>('');
   const [showTourDropdown, setShowTourDropdown] = useState<boolean>(false);
@@ -288,35 +288,35 @@ export function PackageCreatorForm({ packageId, onNavigateRequest }: PackageCrea
 
   // Track whether we're submitting an update or create
   const [isUpdating, setIsUpdating] = useState<boolean>(false);
-  
+
   // For validation hints
   const [validationErrors, setValidationErrors] = useState<{[key: string]: string[]}>({});
   const [showValidationHints, setShowValidationHints] = useState<boolean>(false);
   const [activeTab, setActiveTab] = useState<string>("basic");
-  
+
   // Package feature states with user-friendly names
   const [excludedItemsList, setExcludedItemsList] = useState<string[]>([]);
   const [selectedTravellerTypes, setSelectedTravellerTypes] = useState<string[]>([]);
   const [optionalExcursions, setOptionalExcursions] = useState<string[]>([]);
   const [travelRouteItems, setTravelRouteItems] = useState<string[]>([]);
-  
+
   // Packing list section
   const [packItems, setPackItems] = useState<{ item: string, icon: string, tooltip: string }[]>([]);
   const [newPackItem, setNewPackItem] = useState({ item: "", icon: "Luggage", tooltip: "" });
-  
+
   // Day-by-day itinerary
   const [itineraryItems, setItineraryItems] = useState<{ day: number, title: string, description: string, image: string }[]>([]);
   const [newItineraryDay, setNewItineraryDay] = useState({ day: 1, title: "", description: "", image: "" });
-  
+
   // Hotel and accommodation features
   const [accommodationHighlights, setAccommodationHighlights] = useState<{ title: string, description: string, icon: string }[]>([]);
   const [newHighlight, setNewHighlight] = useState({ title: "", description: "", icon: "Hotel" });
-  
+
   // For transportation options
   const [selectedTransport, setSelectedTransport] = useState("");
   const [transportPrice, setTransportPrice] = useState(0);
   const [allowFormSubmission, setAllowFormSubmission] = useState(false);
-  
+
   // Track form changes for unsaved changes warning
   const [hasUnsavedChanges, setHasUnsavedChanges] = useState(false);
   const [initialFormData, setInitialFormData] = useState<PackageFormValues | null>(null);
@@ -352,7 +352,7 @@ export function PackageCreatorForm({ packageId, onNavigateRequest }: PackageCrea
   const { data: packageCategories = [] } = useQuery<any[]>({
     queryKey: ['/api/package-categories'],
   });
-  
+
   // Fetch tours for the tour search feature
   const { data: tours = [] } = useQuery<Tour[]>({
     queryKey: ['/api/admin/tours'],
@@ -423,7 +423,7 @@ export function PackageCreatorForm({ packageId, onNavigateRequest }: PackageCrea
         setShowTourDropdown(false);
       }
     }
-    
+
     document.addEventListener('mousedown', handleClickOutside);
     return () => {
       document.removeEventListener('mousedown', handleClickOutside);
@@ -558,57 +558,57 @@ export function PackageCreatorForm({ packageId, onNavigateRequest }: PackageCrea
         basePrice: formData.basePrice || 0, // Map to price on server
         price: formData.basePrice || 0,
         discountedPrice: Math.round((formData.basePrice || 0) * 0.9),
-        
+
         // Media
         imageUrl: mainImageUrl,
         galleryUrls: galleryUrls,
-        
+
         // Location and categorization
         destinationId: formData.category ? parseInt(formData.category) : null,
         category: formData.category, // Map to categoryId on server
         categoryId: formData.categoryId,
         countryId: countryId,
         cityId: cityId,
-        
+
         // Route and itinerary information
         route: formData.route || "",
         itinerary: itineraryItems,
-        
+
         // Travel details
         duration: formData.startDate && formData.endDate 
           ? Math.ceil((formData.endDate.getTime() - formData.startDate.getTime()) / (1000 * 3600 * 24)) 
           : 7,
         startDate: formData.startDate?.toISOString() || new Date().toISOString(),
         endDate: formData.endDate?.toISOString() || new Date(Date.now() + 7 * 24 * 60 * 60 * 1000).toISOString(),
-        
+
         // Traveler information
         idealFor: selectedTravellerTypes,
         adultCount: formData.adultCount,
         childrenCount: formData.childrenCount,
         infantCount: formData.infantCount,
         maxGroupSize: formData.maxGroupSize || 15,
-        
+
         // Package features and inclusions
         includedFeatures: formData.includedFeatures || [],
         inclusions: formData.includedFeatures || [],
         excludedFeatures: excludedItemsList,
         excludedItems: excludedItemsList,
         optionalExcursions: optionalExcursions,
-        
+
         // Accommodation and packing
         accommodationHighlights: accommodationHighlights,
         whatToPack: packItems,
         travelRoute: travelRouteItems,
-        
+
         // Tour selection
         tourSelection: selectedTour?.id || formData.selectedTourId,
         selectedTourId: selectedTour?.id || formData.selectedTourId,
-        
+
         // Pricing and metadata
         pricingMode: formData.pricingMode || "per_booking",
         language: formData.language || "english",
         bestTimeToVisit: formData.bestTimeToVisit || "",
-        
+
         // Additional metadata
         rating: 45,
         featured: true,
@@ -676,32 +676,32 @@ export function PackageCreatorForm({ packageId, onNavigateRequest }: PackageCrea
     console.log("=== FORM SUBMISSION STARTED ===");
     console.log("Form submitted", data);
     console.log("allowFormSubmission state:", allowFormSubmission);
-    
+
     // CRITICAL: Block all automatic submissions
     if (!allowFormSubmission) {
       console.log("🚫 FORM SUBMISSION BLOCKED - Manual trigger required");
       setAllowFormSubmission(false); // Reset to ensure it stays false
       return false;
     }
-    
+
     console.log("✅ Form submission allowed - proceeding");
 
     // Check for missing required fields
     const errors = validateFormFields();
     console.log("=== VALIDATION COMPLETE ===");
-    
+
     if (Object.keys(errors).length > 0) {
       // Show validation hints
       setValidationErrors(errors);
       setShowValidationHints(true);
-      
+
       // Switch to the first tab with errors
       const firstErrorTab = getFirstTabWithErrors(errors);
       setActiveTab(firstErrorTab);
-      
+
       // Scroll to top of form
       window.scrollTo({ top: 0, behavior: 'smooth' });
-      
+
       return;
     }
 
@@ -799,7 +799,7 @@ export function PackageCreatorForm({ packageId, onNavigateRequest }: PackageCrea
 
     // All validations passed, proceed with submission
     packageMutation.mutate(data);
-    
+
     // Reset the permission flag after submission
     setAllowFormSubmission(false);
   }, [allowFormSubmission]);
@@ -830,36 +830,7 @@ export function PackageCreatorForm({ packageId, onNavigateRequest }: PackageCrea
         galleryUrls = [existingPackageData.imageUrl];
       }
 
-      // Find the destination data for this package to get country and city
-      const destinationId = existingPackageData.destinationId;
-      const destination = destinations.find(d => d.id === destinationId);
-      console.log('Found destination for package:', destination);
-
-      // Determine country ID from the destination
-      let countryId = existingPackageData.countryId;
-      if (!countryId && destination) {
-        // Try to find the country from the country name
-        const country = countries.find(c => c.name === destination.country);
-        if (country) {
-          countryId = country.id;
-          console.log('Auto-detected country ID:', countryId);
-        }
-      }
-
-      // Set the country ID first to load cities
-      if (countryId) {
-        setSelectedCountryId(countryId);
-      }
-
-      // Ensure we have the main image loaded
-      const mainImageUrl = existingPackageData.imageUrl || "https://images.unsplash.com/photo-1540541338287-41700207dee6?q=80&w=800";
-
-      // Create a default gallery with the main image if no gallery exists
-      if (galleryUrls.length === 0 && mainImageUrl) {
-        galleryUrls = [mainImageUrl];
-      }
-
-      // Make sure the main image is included in the gallery
+      // Make sure the main image is included inthe gallery
       if (mainImageUrl && !galleryUrls.includes(mainImageUrl)) {
         galleryUrls.unshift(mainImageUrl);
       }
@@ -976,7 +947,7 @@ export function PackageCreatorForm({ packageId, onNavigateRequest }: PackageCrea
         setItineraryItems(parsedItinerary);
         setExcludedItemsList(parsedExcludedItems);
         setAccommodationHighlights(parsedAccommodationHighlights);
-        
+
         // Set selected tour if exists
         if (existingPackageData.selectedTourId) {
           const tour = tours.find(t => t.id === existingPackageData.selectedTourId);
@@ -1030,7 +1001,7 @@ export function PackageCreatorForm({ packageId, onNavigateRequest }: PackageCrea
 
   // Watch form changes to track unsaved changes (after form is initialized)
   const formValues = form.watch();
-  
+
   useEffect(() => {
     if (initialFormData) {
       const hasChanges = JSON.stringify(formValues) !== JSON.stringify(initialFormData);
@@ -1065,7 +1036,7 @@ export function PackageCreatorForm({ packageId, onNavigateRequest }: PackageCrea
     console.log('🏨 HOTEL SELECTION CHANGED:', selectedHotelIds);
     form.setValue("selectedHotels", selectedHotelIds);
     updateAvailableRooms(selectedHotelIds);
-    
+
     // Force re-render by triggering form watch
     setTimeout(() => {
       console.log('Current selectedHotels from form:', form.watch("selectedHotels"));
@@ -1075,14 +1046,14 @@ export function PackageCreatorForm({ packageId, onNavigateRequest }: PackageCrea
   const updateAvailableRooms = (selectedHotelIds: string[]) => {
     console.log('🏨 HOTEL SELECTION CHANGED:', selectedHotelIds);
     console.log('📊 All rooms in database:', allRooms.length, 'rooms');
-    
+
     if (selectedHotelIds.length === 0) {
       console.log('❌ No hotels selected - clearing available rooms');
       setAvailableRooms([]);
       setFilteredRooms([]);
       return;
     }
-    
+
     const hotelRooms = allRooms.filter(room => {
       // Handle both camelCase and snake_case field names
       const roomHotelId = room.hotelId || room.hotel_id;
@@ -1091,20 +1062,20 @@ export function PackageCreatorForm({ packageId, onNavigateRequest }: PackageCrea
       console.log(`🏠 Room "${room.name}": hotel_id=${roomHotelId}, matches=${matches ? '✅' : '❌'}`);
       return matches;
     });
-    
+
     console.log('🔄 Rooms for selected hotels:', hotelRooms.length, 'rooms found');
     setAvailableRooms(hotelRooms);
 
     const adultCount = form.getValues("adultCount") || 2;
     const childrenCount = form.getValues("childrenCount") || 0;
     const infantCount = form.getValues("infantCount") || 0;
-    
+
     filterRoomsByCapacity(hotelRooms, adultCount, childrenCount, infantCount);
-    
+
     // Force re-render by updating form state
     form.trigger("selectedHotels");
   };
-  
+
   // Function to handle tour selection
   const handleTourSelection = (tour: Tour) => {
     setSelectedTour(tour);
@@ -1112,14 +1083,14 @@ export function PackageCreatorForm({ packageId, onNavigateRequest }: PackageCrea
     setShowTourDropdown(false);
     setTourSearchQuery(tour.name);
   };
-  
+
   // Function to filter tours based on search query
   const getFilteredTours = () => {
     // Ensure tours is an array
     if (!Array.isArray(tours) || tours.length === 0) {
       return [];
     }
-    
+
     if (!tourSearchQuery.trim()) {
       // If empty query, return all tours sorted by ID (most recent first)
       return [...tours]
@@ -1127,29 +1098,29 @@ export function PackageCreatorForm({ packageId, onNavigateRequest }: PackageCrea
         .sort((a, b) => (b.id || 0) - (a.id || 0))
         .slice(0, 10);
     }
-    
+
     // Otherwise filter by name match
     return tours.filter(tour => 
       tour && tour.name && tour.name.toLowerCase().includes(tourSearchQuery.toLowerCase())
     );
   };
-  
+
   const filterRoomsByCapacity = (rooms: any[], adults: number, children: number, infants: number) => {
     console.log('Filtering rooms by capacity:', { adults, children, infants });
     console.log('Available rooms:', rooms);
-    
+
     const totalGuests = adults + children + infants;
-    
+
     const filtered = rooms.filter(room => {
       // Check different possible field names based on database schema
       const roomCapacity = room.maxOccupancy || room.maxAdults || room.capacity || 2;
       const meetsCapacity = roomCapacity >= totalGuests;
-      
+
       console.log(`Room ${room.name || room.id}: capacity=${roomCapacity}, totalGuests=${totalGuests}, meets=${meetsCapacity}`);
-      
+
       return meetsCapacity;
     });
-    
+
     console.log('Filtered rooms:', filtered);
     setFilteredRooms(filtered);
 
@@ -1306,7 +1277,7 @@ export function PackageCreatorForm({ packageId, onNavigateRequest }: PackageCrea
   const getFirstTabWithErrors = (errors: {[key: string]: string[]}) => {
     const tabOrder = ["basic", "pricing", "accommodation", "features", "itinerary", "packing", "route"];
     const errorTabs = Object.keys(errors);
-    
+
     for (const tab of tabOrder) {
       if (tab === "basic" && errorTabs.includes("Basic Info")) return "basic";
       if (tab === "pricing" && errorTabs.includes("Pricing Rules")) return "pricing";
@@ -1345,12 +1316,12 @@ export function PackageCreatorForm({ packageId, onNavigateRequest }: PackageCrea
       <form onSubmit={(e) => {
         e.preventDefault();
         e.stopPropagation();
-        
+
         if (!allowFormSubmission) {
           console.log("🚫 BLOCKED: Form auto-submission prevented");
           return false;
         }
-        
+
         console.log("✅ ALLOWED: Manual form submission proceeding");
         onSubmit(form.getValues());
       }} className="space-y-8">
@@ -1364,7 +1335,7 @@ export function PackageCreatorForm({ packageId, onNavigateRequest }: PackageCrea
               className="mt-3"
             />
           )}
-          
+
           {/* Enhanced Validation Requirements */}
           {showValidationHints && Object.keys(validationErrors).length > 0 && (
             <FormRequirementsAlert 
@@ -1712,7 +1683,7 @@ export function PackageCreatorForm({ packageId, onNavigateRequest }: PackageCrea
                 </FormItem>
               )}
             />
-            
+
             {/* Location/Route */}
             <FormField
               control={form.control}
@@ -1815,8 +1786,7 @@ export function PackageCreatorForm({ packageId, onNavigateRequest }: PackageCrea
                 control={form.control}
                 name="endDate"
                 render={({ field }) => (
-                  <FormItem className="flex flex-col">
-                    <FormLabel>End Date</FormLabel>
+                  <FormItem className="flex flex-col"><FormLabel>End Date</FormLabel>
                     <Popover>
                       <PopoverTrigger asChild>
                         <FormControl>
@@ -2076,7 +2046,7 @@ export function PackageCreatorForm({ packageId, onNavigateRequest }: PackageCrea
                 <p className="text-sm text-muted-foreground mb-4">
                   Configure pricing for each selected room based on capacity
                 </p>
-                
+
                 <Table>
                   <TableHeader>
                     <TableRow>
@@ -2123,13 +2093,13 @@ export function PackageCreatorForm({ packageId, onNavigateRequest }: PackageCrea
                     ))}
                   </TableBody>
                 </Table>
-                
+
                 <div className="text-sm text-muted-foreground mt-4">
                   <span className="font-medium">Note:</span> Room prices will be adjusted based on the selected pricing mode and traveler rules below
                 </div>
               </div>
             )}
-            
+
             <Card>
               <CardContent className="pt-6">
                 <div className="flex flex-col gap-2 mb-4">
@@ -2200,7 +2170,7 @@ export function PackageCreatorForm({ packageId, onNavigateRequest }: PackageCrea
                     <Plus size={16} className="mr-2" />
                     Add Pricing Rule
                   </Button>
-                  
+
                   {(filteredRooms?.length || 0) > 0 && (form.getValues("rooms")?.length || 0) > 0 && (
                     <p className="text-xs text-amber-600 mt-2">
                       Adding new pricing rules is disabled when room pricing is configured
@@ -2486,7 +2456,7 @@ export function PackageCreatorForm({ packageId, onNavigateRequest }: PackageCrea
               <FormDescription className="mb-4">
                 Search and select available tours to include in this package
               </FormDescription>
-              
+
               <div className="relative mb-4" ref={tourSearchRef}>
                 <div className="flex items-center relative">
                   <Input
@@ -2500,7 +2470,7 @@ export function PackageCreatorForm({ packageId, onNavigateRequest }: PackageCrea
                   />
                   <Search className="w-4 h-4 absolute right-3 text-gray-500" />
                 </div>
-                
+
                 {showTourDropdown && (
                   <div className="absolute z-10 w-full mt-1 max-h-60 overflow-auto bg-white border rounded-md shadow-lg">
                     {!tourSearchQuery.trim() && (
@@ -2508,7 +2478,7 @@ export function PackageCreatorForm({ packageId, onNavigateRequest }: PackageCrea
                         Showing {Math.min(tours.length, 10)} of {tours.length} available tours
                       </div>
                     )}
-                    
+
                     {getFilteredTours().length > 0 ? (
                       getFilteredTours().map((tour) => (
                         <div
@@ -2537,7 +2507,7 @@ export function PackageCreatorForm({ packageId, onNavigateRequest }: PackageCrea
                   </div>
                 )}
               </div>
-              
+
               {selectedTour && (
                 <div className="mt-6 p-4 border rounded-md bg-white shadow-sm">
                   <div className="flex justify-between items-start mb-3">
@@ -2549,12 +2519,12 @@ export function PackageCreatorForm({ packageId, onNavigateRequest }: PackageCrea
                       ID: {selectedTour.id}
                     </Badge>
                   </div>
-                  
+
                   <div className="bg-zinc-50 p-3 rounded-md mt-3 border border-zinc-100">
                     <h5 className="text-sm font-medium text-zinc-700 mb-2">Tour Description</h5>
                     <p className="text-sm text-zinc-600">{selectedTour.description}</p>
                   </div>
-                  
+
                   <div className="grid grid-cols-2 gap-4 mt-4">
                     <div className="p-3 bg-zinc-50 rounded-md border border-zinc-100">
                       <h5 className="text-xs font-medium text-zinc-700 mb-1">Base Price</h5>
@@ -2562,7 +2532,7 @@ export function PackageCreatorForm({ packageId, onNavigateRequest }: PackageCrea
                         {selectedTour.price ? `${selectedTour.price.toLocaleString('ar-EG')} EGP` : 'Price TBD'}
                       </p>
                     </div>
-                    
+
                     <div className="p-3 bg-zinc-50 rounded-md border border-zinc-100">
                       <h5 className="text-xs font-medium text-zinc-700 mb-1">Duration</h5>
                       <p className="text-lg font-semibold text-zinc-700">
@@ -2570,7 +2540,7 @@ export function PackageCreatorForm({ packageId, onNavigateRequest }: PackageCrea
                       </p>
                     </div>
                   </div>
-                  
+
                   <div className="mt-4 flex justify-end">
                     <Button 
                       type="button" 
@@ -2588,7 +2558,7 @@ export function PackageCreatorForm({ packageId, onNavigateRequest }: PackageCrea
                 </div>
               )}
             </div>
-            
+
             <FormField
               control={form.control}
               name="includedFeatures"
@@ -2778,17 +2748,17 @@ export function PackageCreatorForm({ packageId, onNavigateRequest }: PackageCrea
                       });
                       return;
                     }
-                    
+
                     const updatedItems = [...itineraryItems, newItineraryDay];
                     // Sort by day number
                     updatedItems.sort((a, b) => a.day - b.day);
-                    
+
                     setItineraryItems(updatedItems);
                     form.setValue('itinerary', updatedItems);
-                    
+
                     // Reset the new day form but increment the day number
                     setNewItineraryDay({ 
-                      day: Math.max(...updatedItems.map(item => item.day), 0) + 1, 
+                      day: Math.max(...updatedItems.map(item => item.day, 0)) + 1, 
                       title: "", 
                       description: "", 
                       image: "" 
@@ -2851,12 +2821,23 @@ export function PackageCreatorForm({ packageId, onNavigateRequest }: PackageCrea
                 </div>
                 <div>
                   <Label htmlFor="item-icon">Icon</Label>
-                  <Input 
-                    id="item-icon" 
-                    value={newPackItem.icon}
-                    onChange={(e) => setNewPackItem({...newPackItem, icon: e.target.value})}
-                    placeholder="e.g., sun"
-                  />
+                  <FormField
+                control={form.control}
+                name="icon"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Icon</FormLabel>
+                    <FormControl>
+                      <IconSelector
+                        value={field.value}
+                        onChange={field.onChange}
+                        placeholder="Select an icon"
+                      />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
                 </div>
                 <div>
                   <Label htmlFor="item-tooltip">Tooltip/Description</Label>
@@ -2880,11 +2861,11 @@ export function PackageCreatorForm({ packageId, onNavigateRequest }: PackageCrea
                     });
                     return;
                   }
-                  
+
                   const updatedItems = [...packItems, newPackItem];
                   setPackItems(updatedItems);
                   form.setValue('whatToPack', updatedItems);
-                  
+
                   // Reset the new item form
                   setNewPackItem({ item: "", icon: "suitcase", tooltip: "" });
                 }}
@@ -2950,7 +2931,7 @@ export function PackageCreatorForm({ packageId, onNavigateRequest }: PackageCrea
                           onValueChange={(value) => {
                             field.onChange(value);
                             setSelectedTransport(value);
-                            
+
                             // Update price based on selection
                             const option = transportOptions.find(opt => opt.id === value);
                             if (option) {
@@ -2983,7 +2964,7 @@ export function PackageCreatorForm({ packageId, onNavigateRequest }: PackageCrea
                     )}
                   />
                 </div>
-                
+
                 <div>
                   <FormField
                     control={form.control}
@@ -3055,12 +3036,23 @@ export function PackageCreatorForm({ packageId, onNavigateRequest }: PackageCrea
                     </div>
                     <div>
                       <Label htmlFor="highlight-icon">Icon</Label>
-                      <Input 
-                        id="highlight-icon" 
-                        value={newHighlight.icon}
-                        onChange={(e) => setNewHighlight({...newHighlight, icon: e.target.value})}
-                        placeholder="e.g., hotel"
+                      <FormField
+                control={form.control}
+                name="icon"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Icon</FormLabel>
+                    <FormControl>
+                      <IconSelector
+                        value={field.value}
+                        onChange={field.onChange}
+                        placeholder="Select an icon"
                       />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
                     </div>
                     <div className="md:col-span-3">
                       <Label htmlFor="highlight-description">Description</Label>
@@ -3085,11 +3077,11 @@ export function PackageCreatorForm({ packageId, onNavigateRequest }: PackageCrea
                         });
                         return;
                       }
-                      
+
                       const updatedHighlights = [...accommodationHighlights, newHighlight];
                       setAccommodationHighlights(updatedHighlights);
                       form.setValue('accommodationHighlights', updatedHighlights);
-                      
+
                       // Reset the form
                       setNewHighlight({ title: "", description: "", icon: "home" });
                     }}
