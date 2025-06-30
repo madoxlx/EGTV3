@@ -390,6 +390,69 @@ export class DatabaseStorage implements IStorage {
       const highlightIds = await this.getHotelFeatureAssociations(id, 'highlights');
       const cleanlinessFeatureIds = await this.getHotelFeatureAssociations(id, 'cleanlinessFeatures');
 
+      // Get complex fields from hotel data
+      let restaurants = [];
+      let landmarks = [];
+      let faqs = [];
+      let roomTypes = [];
+
+      // Parse restaurants from hotel data if exists
+      if (hotel.restaurants && typeof hotel.restaurants === 'string') {
+        try {
+          restaurants = JSON.parse(hotel.restaurants);
+        } catch (e) {
+          console.log('Error parsing restaurants:', e);
+          restaurants = [];
+        }
+      } else if (Array.isArray(hotel.restaurants)) {
+        restaurants = hotel.restaurants;
+      }
+
+      // Parse landmarks from hotel data if exists
+      if (hotel.landmarks && typeof hotel.landmarks === 'string') {
+        try {
+          landmarks = JSON.parse(hotel.landmarks);
+        } catch (e) {
+          console.log('Error parsing landmarks:', e);
+          landmarks = [];
+        }
+      } else if (Array.isArray(hotel.landmarks)) {
+        landmarks = hotel.landmarks;
+      }
+
+      // Parse FAQs from hotel data if exists
+      if (hotel.faqs && typeof hotel.faqs === 'string') {
+        try {
+          faqs = JSON.parse(hotel.faqs);
+        } catch (e) {
+          console.log('Error parsing faqs:', e);
+          faqs = [];
+        }
+      } else if (Array.isArray(hotel.faqs)) {
+        faqs = hotel.faqs;
+      }
+
+      // Parse room types from hotel data if exists
+      if (hotel.roomTypes && typeof hotel.roomTypes === 'string') {
+        try {
+          roomTypes = JSON.parse(hotel.roomTypes);
+        } catch (e) {
+          console.log('Error parsing room types:', e);
+          roomTypes = [];
+        }
+      } else if (Array.isArray(hotel.roomTypes)) {
+        roomTypes = hotel.roomTypes;
+      }
+
+      console.log('Hotel with features loaded:', {
+        id: hotel.id,
+        name: hotel.name,
+        restaurantsCount: restaurants.length,
+        landmarksCount: landmarks.length,
+        faqsCount: faqs.length,
+        roomTypesCount: roomTypes.length
+      });
+
       return {
         ...hotel,
         facilityIds,
@@ -398,7 +461,12 @@ export class DatabaseStorage implements IStorage {
         // Also include the actual feature objects for backwards compatibility
         facilities: facilityIds,
         highlights: highlightIds,
-        cleanlinessFeatures: cleanlinessFeatureIds
+        cleanlinessFeatures: cleanlinessFeatureIds,
+        // Include complex data
+        restaurants,
+        landmarks,
+        faqs,
+        roomTypes
       };
     } catch (error) {
       console.error('Error fetching hotel with features:', error);

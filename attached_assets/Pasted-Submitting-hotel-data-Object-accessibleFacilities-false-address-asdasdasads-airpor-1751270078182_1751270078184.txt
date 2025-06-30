@@ -1,0 +1,273 @@
+Submitting hotel data: 
+Object
+accessibleFacilities
+: 
+false
+address
+: 
+"asdasdasads"
+airportTransferAvailable
+: 
+true
+carRentalAvailable
+: 
+true
+checkInTime
+: 
+"14:00"
+checkOutTime
+: 
+"11:00"
+cityId
+: 
+25
+cleanlinessFeatureIds
+: 
+[18]
+countryId
+: 
+11
+description
+: 
+"asdsadas"
+destinationId
+: 
+7
+email
+: 
+"mr.ahmedshowky@gmail.com"
+facilityIds
+: 
+Array(1)
+0
+: 
+18
+length
+: 
+1
+[[Prototype]]
+: 
+Array(0)
+faqs
+: 
+Array(0)
+length
+: 
+0
+[[Prototype]]
+: 
+Array(0)
+featured
+: 
+false
+galleryUrls
+: 
+[]
+guestRating
+: 
+0
+highlightIds
+: 
+Array(3)
+0
+: 
+17
+1
+: 
+18
+2
+: 
+20
+length
+: 
+3
+[[Prototype]]
+: 
+Array(0)
+imageUrl
+: 
+null
+landmarks
+: 
+[{…}]
+latitude
+: 
+21321312
+longitude
+: 
+3213213123
+name
+: 
+"sadasdasd"
+parkingAvailable
+: 
+false
+petFriendly
+: 
+false
+phone
+: 
+"+201152117102"
+postalCode
+: 
+"121212"
+restaurants
+: 
+Array(2)
+0
+: 
+breakfastOptions
+: 
+(2) ['vegetarian', 'glutenFree']
+cuisineType
+: 
+"شسيسشي"
+name
+: 
+"سشسشيسشي"
+[[Prototype]]
+: 
+Object
+constructor
+: 
+ƒ Object()
+hasOwnProperty
+: 
+ƒ hasOwnProperty()
+isPrototypeOf
+: 
+ƒ isPrototypeOf()
+propertyIsEnumerable
+: 
+ƒ propertyIsEnumerable()
+toLocaleString
+: 
+ƒ toLocaleString()
+toString
+: 
+ƒ toString()
+valueOf
+: 
+ƒ valueOf()
+__defineGetter__
+: 
+ƒ __defineGetter__()
+__defineSetter__
+: 
+ƒ __defineSetter__()
+__lookupGetter__
+: 
+ƒ __lookupGetter__()
+__lookupSetter__
+: 
+ƒ __lookupSetter__()
+__proto__
+: 
+(...)
+get __proto__
+: 
+ƒ __proto__()
+set __proto__
+: 
+ƒ __proto__()
+1
+: 
+breakfastOptions
+: 
+Array(1)
+0
+: 
+"vegetarian"
+length
+: 
+1
+[[Prototype]]
+: 
+Array(0)
+cuisineType
+: 
+"سيسشي"
+name
+: 
+"شسيسشيسش"
+[[Prototype]]
+: 
+Object
+length
+: 
+2
+[[Prototype]]
+: 
+Array(0)
+roomTypes
+: 
+Array(1)
+0
+: 
+{name: 'wqewqeqw', description: 'يبسشيسشيشسيشسيشس', type: 'Standard', maxOccupancy: 2, maxAdults: 2, …}
+length
+: 
+1
+[[Prototype]]
+: 
+Array(0)
+shuttleAvailable
+: 
+false
+stars
+: 
+3
+status
+: 
+"active"
+website
+: 
+"https://sdsadas.com"
+wifiAvailable
+: 
+true
+[[Prototype]]
+: 
+Object
+constructor
+: 
+ƒ Object()
+hasOwnProperty
+: 
+ƒ hasOwnProperty()
+isPrototypeOf
+: 
+ƒ isPrototypeOf()
+propertyIsEnumerable
+: 
+ƒ propertyIsEnumerable()
+toLocaleString
+: 
+ƒ toLocaleString()
+toString
+: 
+ƒ toString()
+valueOf
+: 
+ƒ valueOf()
+__defineGetter__
+: 
+ƒ __defineGetter__()
+__defineSetter__
+: 
+ƒ __defineSetter__()
+__lookupGetter__
+: 
+ƒ __lookupGetter__()
+__lookupSetter__
+: 
+ƒ __lookupSetter__()
+__proto__
+: 
+(...)
+get __proto__
+: 
+ƒ __proto__()
+set __proto__
+: 
+ƒ __proto__()
