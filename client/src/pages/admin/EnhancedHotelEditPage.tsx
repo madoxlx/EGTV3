@@ -105,7 +105,7 @@ import {
   Pencil,
   Tag,
   Sparkles,
-  Hotel
+  Hotel,
 } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 
@@ -332,9 +332,9 @@ export default function EnhancedHotelEditPage() {
     queryKey: [`/api/admin/hotels/${hotelId}`],
     queryFn: async () => {
       const response = await fetch(`/api/admin/hotels/${hotelId}`, {
-        credentials: 'include'
+        credentials: "include",
       });
-      if (!response.ok) throw new Error('Failed to fetch hotel');
+      if (!response.ok) throw new Error("Failed to fetch hotel");
       return response.json();
     },
     enabled: !!hotelId,
@@ -348,8 +348,8 @@ export default function EnhancedHotelEditPage() {
   } = useQuery({
     queryKey: ["/api/destinations"],
     queryFn: async () => {
-      const response = await fetch('/api/destinations');
-      if (!response.ok) throw new Error('Failed to fetch destinations');
+      const response = await fetch("/api/destinations");
+      if (!response.ok) throw new Error("Failed to fetch destinations");
       return response.json();
     },
   });
@@ -362,8 +362,8 @@ export default function EnhancedHotelEditPage() {
   } = useQuery({
     queryKey: ["/api/countries"],
     queryFn: async () => {
-      const response = await fetch('/api/countries');
-      if (!response.ok) throw new Error('Failed to fetch countries');
+      const response = await fetch("/api/countries");
+      if (!response.ok) throw new Error("Failed to fetch countries");
       return response.json();
     },
   });
@@ -376,8 +376,8 @@ export default function EnhancedHotelEditPage() {
   } = useQuery({
     queryKey: ["/api/cities"],
     queryFn: async () => {
-      const response = await fetch('/api/cities');
-      if (!response.ok) throw new Error('Failed to fetch cities');
+      const response = await fetch("/api/cities");
+      if (!response.ok) throw new Error("Failed to fetch cities");
       return response.json();
     },
   });
@@ -386,10 +386,10 @@ export default function EnhancedHotelEditPage() {
   const { data: highlights } = useQuery({
     queryKey: ["/api/admin/hotel-highlights"],
     queryFn: async () => {
-      const response = await fetch('/api/admin/hotel-highlights', {
-        credentials: 'include'
+      const response = await fetch("/api/admin/hotel-highlights", {
+        credentials: "include",
       });
-      if (!response.ok) throw new Error('Failed to fetch highlights');
+      if (!response.ok) throw new Error("Failed to fetch highlights");
       return response.json();
     },
   });
@@ -397,10 +397,10 @@ export default function EnhancedHotelEditPage() {
   const { data: facilities } = useQuery({
     queryKey: ["/api/admin/hotel-facilities"],
     queryFn: async () => {
-      const response = await fetch('/api/admin/hotel-facilities', {
-        credentials: 'include'
+      const response = await fetch("/api/admin/hotel-facilities", {
+        credentials: "include",
       });
-      if (!response.ok) throw new Error('Failed to fetch facilities');
+      if (!response.ok) throw new Error("Failed to fetch facilities");
       return response.json();
     },
   });
@@ -408,10 +408,10 @@ export default function EnhancedHotelEditPage() {
   const { data: cleanlinessFeatures } = useQuery({
     queryKey: ["/api/admin/cleanliness-features"],
     queryFn: async () => {
-      const response = await fetch('/api/admin/cleanliness-features', {
-        credentials: 'include'
+      const response = await fetch("/api/admin/cleanliness-features", {
+        credentials: "include",
       });
-      if (!response.ok) throw new Error('Failed to fetch cleanliness features');
+      if (!response.ok) throw new Error("Failed to fetch cleanliness features");
       return response.json();
     },
   });
@@ -496,15 +496,15 @@ export default function EnhancedHotelEditPage() {
   // Load hotel data into form when it's available
   useEffect(() => {
     if (hotel && !formInitialized) {
-      console.log('Hotel data received:', hotel);
+      console.log("Hotel data received:", hotel);
 
       // Load real data from hotel if exists, otherwise add empty items to show the interface
       if (hotel.landmarks && hotel.landmarks.length > 0) {
         hotel.landmarks.forEach((landmark: any) => {
-          appendLandmark({ 
-            name: landmark.name || "", 
-            distance: landmark.distance || "", 
-            description: landmark.description || "" 
+          appendLandmark({
+            name: landmark.name || "",
+            distance: landmark.distance || "",
+            description: landmark.description || "",
           });
         });
       } else {
@@ -514,26 +514,26 @@ export default function EnhancedHotelEditPage() {
 
       if (hotel.restaurants && hotel.restaurants.length > 0) {
         hotel.restaurants.forEach((restaurant: any) => {
-          appendRestaurant({ 
-            name: restaurant.name || "", 
-            cuisineType: restaurant.cuisineType || "", 
-            breakfastOptions: restaurant.breakfastOptions || [] 
+          appendRestaurant({
+            name: restaurant.name || "",
+            cuisineType: restaurant.cuisineType || "",
+            breakfastOptions: restaurant.breakfastOptions || [],
           });
         });
       } else {
         // Add one empty restaurant to show the interface
-        appendRestaurant({ 
-          name: "", 
-          cuisineType: "", 
-          breakfastOptions: [] 
+        appendRestaurant({
+          name: "",
+          cuisineType: "",
+          breakfastOptions: [],
         });
       }
 
       if (hotel.faqs && hotel.faqs.length > 0) {
         hotel.faqs.forEach((faq: any) => {
-          appendFaq({ 
-            question: faq.question || "", 
-            answer: faq.answer || "" 
+          appendFaq({
+            question: faq.question || "",
+            answer: faq.answer || "",
           });
         });
       } else {
@@ -543,24 +543,24 @@ export default function EnhancedHotelEditPage() {
 
       if (hotel.roomTypes && hotel.roomTypes.length > 0) {
         hotel.roomTypes.forEach((roomType: any) => {
-          appendRoomType({ 
-            name: roomType.name || "", 
-            bedType: roomType.bedType || "", 
-            size: roomType.size || "", 
-            view: roomType.view || "", 
-            amenities: roomType.amenities || [], 
-            price: roomType.price || 0 
+          appendRoomType({
+            name: roomType.name || "",
+            bedType: roomType.bedType || "",
+            size: roomType.size || "",
+            view: roomType.view || "",
+            amenities: roomType.amenities || [],
+            price: roomType.price || 0,
           });
         });
       } else {
         // Add one empty room type to show the interface
-        appendRoomType({ 
-          name: "", 
-          bedType: "", 
-          size: "", 
-          view: "", 
-          amenities: [], 
-          price: 0 
+        appendRoomType({
+          name: "",
+          bedType: "",
+          size: "",
+          view: "",
+          amenities: [],
+          price: 0,
         });
       }
 
@@ -601,9 +601,9 @@ export default function EnhancedHotelEditPage() {
       };
 
       // Set selected features
-      console.log('Setting facilities:', hotel.facilityIds);
-      console.log('Setting highlights:', hotel.highlightIds);
-      console.log('Setting cleanliness features:', hotel.cleanlinessFeatureIds);
+      console.log("Setting facilities:", hotel.facilityIds);
+      console.log("Setting highlights:", hotel.highlightIds);
+      console.log("Setting cleanliness features:", hotel.cleanlinessFeatureIds);
 
       setSelectedFacilities(hotel.facilityIds || []);
       setSelectedHighlights(hotel.highlightIds || []);
@@ -652,7 +652,9 @@ export default function EnhancedHotelEditPage() {
 
       // Invalidate queries to refresh data
       queryClient.invalidateQueries({ queryKey: ["/api/admin/hotels"] });
-      queryClient.invalidateQueries({ queryKey: [`/api/admin/hotels/${hotelId}`] });
+      queryClient.invalidateQueries({
+        queryKey: [`/api/admin/hotels/${hotelId}`],
+      });
 
       // Navigate back to hotels list
       navigate("/admin/hotels");
@@ -710,7 +712,7 @@ export default function EnhancedHotelEditPage() {
       console.log("Mutation state before submit:", {
         isPending: updateHotelMutation.isPending,
         isError: updateHotelMutation.isError,
-        error: updateHotelMutation.error
+        error: updateHotelMutation.error,
       });
 
       // Call the mutation with JSON data
@@ -757,7 +759,9 @@ export default function EnhancedHotelEditPage() {
   };
 
   // Image management functions
-  const handleMainImageChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+  const handleMainImageChange = (
+    event: React.ChangeEvent<HTMLInputElement>,
+  ) => {
     const file = event.target.files?.[0];
     if (file) {
       setMainImageFile(file);
@@ -769,7 +773,9 @@ export default function EnhancedHotelEditPage() {
     }
   };
 
-  const handleGalleryImagesChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+  const handleGalleryImagesChange = (
+    event: React.ChangeEvent<HTMLInputElement>,
+  ) => {
     const files = Array.from(event.target.files || []);
     setGalleryFiles([...galleryFiles, ...files]);
 
@@ -827,10 +833,7 @@ export default function EnhancedHotelEditPage() {
           <p className="text-muted-foreground mt-2">
             The hotel you're looking for doesn't exist or has been deleted.
           </p>
-          <Button
-            onClick={() => navigate("/admin/hotels")}
-            className="mt-4"
-          >
+          <Button onClick={() => navigate("/admin/hotels")} className="mt-4">
             Back to Hotels
           </Button>
         </div>
@@ -847,7 +850,10 @@ export default function EnhancedHotelEditPage() {
             Dashboard
           </Button>
           <ChevronRight className="h-4 w-4" />
-          <Button variant="link" onClick={() => handleNavigateAway("/admin/hotels")}>
+          <Button
+            variant="link"
+            onClick={() => handleNavigateAway("/admin/hotels")}
+          >
             <Hotel className="h-4 w-4 mr-2" />
             Hotels
           </Button>
@@ -862,13 +868,20 @@ export default function EnhancedHotelEditPage() {
           Update hotel information and manage associated features.
         </p>
       </div>
+      <div id="json-hotel-scheme" className="my-6">
+        <div className="bg-gray-50 dark:bg-gray-900 rounded-lg p-4 border">
+          <h3 className="text-lg font-semibold mb-3 text-gray-700 dark:text-gray-300">
+            Hotel JSON Response (ID: {hotelId})
+          </h3>
+          <pre className="text-sm text-gray-600 dark:text-gray-400 overflow-auto max-h-96 whitespace-pre-wrap">
+            {hotel ? JSON.stringify(hotel, null, 2) : 'Loading hotel data...'}
+          </pre>
+        </div>
+      </div>
 
       {formInitialized && (
         <Form {...form}>
-          <form
-            onSubmit={form.handleSubmit(onSubmit)}
-            className="space-y-6"
-          >
+          <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
             <Tabs defaultValue="basic" className="w-full">
               <TabsList className="grid grid-cols-5 mb-4">
                 <TabsTrigger value="basic">Basic Info</TabsTrigger>
@@ -910,8 +923,7 @@ export default function EnhancedHotelEditPage() {
                     render={({ field }) => (
                       <FormItem>
                         <FormLabel>
-                          Destination{" "}
-                          <span className="text-red-500">*</span>
+                          Destination <span className="text-red-500">*</span>
                         </FormLabel>
                         <Select
                           onValueChange={(value) =>
@@ -998,7 +1010,9 @@ export default function EnhancedHotelEditPage() {
                           Star Rating <span className="text-red-500">*</span>
                         </FormLabel>
                         <Select
-                          onValueChange={(value) => field.onChange(parseInt(value))}
+                          onValueChange={(value) =>
+                            field.onChange(parseInt(value))
+                          }
                           value={field.value?.toString()}
                         >
                           <FormControl>
@@ -1010,7 +1024,8 @@ export default function EnhancedHotelEditPage() {
                             {[1, 2, 3, 4, 5].map((stars) => (
                               <SelectItem key={stars} value={stars.toString()}>
                                 <div className="flex items-center">
-                                  {"★".repeat(stars)} ({stars} Star{stars > 1 ? "s" : ""})
+                                  {"★".repeat(stars)} ({stars} Star
+                                  {stars > 1 ? "s" : ""})
                                 </div>
                               </SelectItem>
                             ))}
@@ -1072,7 +1087,9 @@ export default function EnhancedHotelEditPage() {
                       <FormItem>
                         <FormLabel>City</FormLabel>
                         <Select
-                          onValueChange={(value) => field.onChange(parseInt(value))}
+                          onValueChange={(value) =>
+                            field.onChange(parseInt(value))
+                          }
                           value={field.value?.toString()}
                           disabled={!selectedCountryId}
                         >
@@ -1091,7 +1108,10 @@ export default function EnhancedHotelEditPage() {
                             {!isLoadingCities &&
                               Array.isArray(cities) &&
                               cities
-                                .filter((city: any) => city.countryId === selectedCountryId)
+                                .filter(
+                                  (city: any) =>
+                                    city.countryId === selectedCountryId,
+                                )
                                 .map((city: any) => (
                                   <SelectItem
                                     key={city.id}
@@ -1272,7 +1292,9 @@ export default function EnhancedHotelEditPage() {
                           type="button"
                           variant="outline"
                           onClick={() =>
-                            document.getElementById("main-image-upload")?.click()
+                            document
+                              .getElementById("main-image-upload")
+                              ?.click()
                           }
                         >
                           <Camera className="h-4 w-4 mr-2" />
@@ -1317,7 +1339,9 @@ export default function EnhancedHotelEditPage() {
                         type="button"
                         variant="outline"
                         onClick={() =>
-                          document.getElementById("gallery-images-upload")?.click()
+                          document
+                            .getElementById("gallery-images-upload")
+                            ?.click()
                         }
                       >
                         <Upload className="h-4 w-4 mr-2" />
@@ -1367,7 +1391,10 @@ export default function EnhancedHotelEditPage() {
                     render={({ field }) => (
                       <FormItem>
                         <FormLabel>Status</FormLabel>
-                        <Select onValueChange={field.onChange} value={field.value}>
+                        <Select
+                          onValueChange={field.onChange}
+                          value={field.value}
+                        >
                           <FormControl>
                             <SelectTrigger>
                               <SelectValue placeholder="Select status" />
@@ -1390,7 +1417,9 @@ export default function EnhancedHotelEditPage() {
                     render={({ field }) => (
                       <FormItem className="flex flex-row items-center justify-between rounded-lg border p-4">
                         <div className="space-y-0.5">
-                          <FormLabel className="text-base">Featured Hotel</FormLabel>
+                          <FormLabel className="text-base">
+                            Featured Hotel
+                          </FormLabel>
                           <FormDescription>
                             Display this hotel prominently on the homepage
                           </FormDescription>
@@ -1531,7 +1560,9 @@ export default function EnhancedHotelEditPage() {
                     render={({ field }) => (
                       <FormItem className="flex flex-row items-center justify-between rounded-lg border p-4">
                         <div className="space-y-0.5">
-                          <FormLabel className="text-base">Parking Available</FormLabel>
+                          <FormLabel className="text-base">
+                            Parking Available
+                          </FormLabel>
                           <FormDescription>
                             Hotel provides parking facilities
                           </FormDescription>
@@ -1552,7 +1583,9 @@ export default function EnhancedHotelEditPage() {
                     render={({ field }) => (
                       <FormItem className="flex flex-row items-center justify-between rounded-lg border p-4">
                         <div className="space-y-0.5">
-                          <FormLabel className="text-base">Airport Transfer</FormLabel>
+                          <FormLabel className="text-base">
+                            Airport Transfer
+                          </FormLabel>
                           <FormDescription>
                             Airport shuttle service available
                           </FormDescription>
@@ -1573,7 +1606,9 @@ export default function EnhancedHotelEditPage() {
                     render={({ field }) => (
                       <FormItem className="flex flex-row items-center justify-between rounded-lg border p-4">
                         <div className="space-y-0.5">
-                          <FormLabel className="text-base">Car Rental</FormLabel>
+                          <FormLabel className="text-base">
+                            Car Rental
+                          </FormLabel>
                           <FormDescription>
                             Car rental services available
                           </FormDescription>
@@ -1594,7 +1629,9 @@ export default function EnhancedHotelEditPage() {
                     render={({ field }) => (
                       <FormItem className="flex flex-row items-center justify-between rounded-lg border p-4">
                         <div className="space-y-0.5">
-                          <FormLabel className="text-base">Shuttle Service</FormLabel>
+                          <FormLabel className="text-base">
+                            Shuttle Service
+                          </FormLabel>
                           <FormDescription>
                             Local shuttle service available
                           </FormDescription>
@@ -1649,7 +1686,10 @@ export default function EnhancedHotelEditPage() {
                               <FormItem>
                                 <FormLabel>Restaurant Name</FormLabel>
                                 <FormControl>
-                                  <Input placeholder="Restaurant name" {...field} />
+                                  <Input
+                                    placeholder="Restaurant name"
+                                    {...field}
+                                  />
                                 </FormControl>
                                 <FormMessage />
                               </FormItem>
@@ -1663,7 +1703,10 @@ export default function EnhancedHotelEditPage() {
                               <FormItem>
                                 <FormLabel>Cuisine Type</FormLabel>
                                 <FormControl>
-                                  <Input placeholder="Mediterranean, Arabic, etc." {...field} />
+                                  <Input
+                                    placeholder="Mediterranean, Arabic, etc."
+                                    {...field}
+                                  />
                                 </FormControl>
                                 <FormMessage />
                               </FormItem>
@@ -1683,13 +1726,22 @@ export default function EnhancedHotelEditPage() {
                                   <FormItem className="flex flex-row items-center space-x-2 space-y-0">
                                     <FormControl>
                                       <Checkbox
-                                        checked={field.value?.includes(option.id)}
+                                        checked={field.value?.includes(
+                                          option.id,
+                                        )}
                                         onCheckedChange={(checked) => {
                                           const current = field.value || [];
                                           if (checked) {
-                                            field.onChange([...current, option.id]);
+                                            field.onChange([
+                                              ...current,
+                                              option.id,
+                                            ]);
                                           } else {
-                                            field.onChange(current.filter((item) => item !== option.id));
+                                            field.onChange(
+                                              current.filter(
+                                                (item) => item !== option.id,
+                                              ),
+                                            );
                                           }
                                         }}
                                       />
@@ -1775,7 +1827,10 @@ export default function EnhancedHotelEditPage() {
                             render={({ field }) => (
                               <FormItem>
                                 <FormLabel>Bed Type</FormLabel>
-                                <Select onValueChange={field.onChange} value={field.value}>
+                                <Select
+                                  onValueChange={field.onChange}
+                                  value={field.value}
+                                >
                                   <FormControl>
                                     <SelectTrigger>
                                       <SelectValue placeholder="Select bed type" />
@@ -1814,7 +1869,10 @@ export default function EnhancedHotelEditPage() {
                             render={({ field }) => (
                               <FormItem>
                                 <FormLabel>View</FormLabel>
-                                <Select onValueChange={field.onChange} value={field.value}>
+                                <Select
+                                  onValueChange={field.onChange}
+                                  value={field.value}
+                                >
                                   <FormControl>
                                     <SelectTrigger>
                                       <SelectValue placeholder="Select view" />
@@ -1844,7 +1902,9 @@ export default function EnhancedHotelEditPage() {
                                     type="number"
                                     placeholder="2500"
                                     {...field}
-                                    onChange={(e) => field.onChange(parseFloat(e.target.value))}
+                                    onChange={(e) =>
+                                      field.onChange(parseFloat(e.target.value))
+                                    }
                                   />
                                 </FormControl>
                                 <FormMessage />
@@ -1865,13 +1925,22 @@ export default function EnhancedHotelEditPage() {
                                   <FormItem className="flex flex-row items-center space-x-2 space-y-0">
                                     <FormControl>
                                       <Checkbox
-                                        checked={field.value?.includes(amenity.id)}
+                                        checked={field.value?.includes(
+                                          amenity.id,
+                                        )}
                                         onCheckedChange={(checked) => {
                                           const current = field.value || [];
                                           if (checked) {
-                                            field.onChange([...current, amenity.id]);
+                                            field.onChange([
+                                              ...current,
+                                              amenity.id,
+                                            ]);
                                           } else {
-                                            field.onChange(current.filter((item) => item !== amenity.id));
+                                            field.onChange(
+                                              current.filter(
+                                                (item) => item !== amenity.id,
+                                              ),
+                                            );
                                           }
                                         }}
                                       />
@@ -1930,7 +1999,10 @@ export default function EnhancedHotelEditPage() {
                               <FormItem>
                                 <FormLabel>Question</FormLabel>
                                 <FormControl>
-                                  <Input placeholder="What time is check-in?" {...field} />
+                                  <Input
+                                    placeholder="What time is check-in?"
+                                    {...field}
+                                  />
                                 </FormControl>
                                 <FormMessage />
                               </FormItem>
@@ -1975,18 +2047,15 @@ export default function EnhancedHotelEditPage() {
 
             {/* Form Actions */}
             <div className="flex justify-between">
-              <Button 
-                type="button" 
-                variant="outline" 
+              <Button
+                type="button"
+                variant="outline"
                 onClick={() => handleNavigateAway("/admin/hotels")}
               >
                 Cancel
               </Button>
               <div className="flex space-x-2">
-                <Button 
-                  type="submit" 
-                  disabled={updateHotelMutation.isPending}
-                >
+                <Button type="submit" disabled={updateHotelMutation.isPending}>
                   {updateHotelMutation.isPending && (
                     <Loader2 className="mr-2 h-4 w-4 animate-spin" />
                   )}
@@ -1999,13 +2068,16 @@ export default function EnhancedHotelEditPage() {
       )}
 
       {/* Unsaved Changes Alert */}
-      <AlertDialog open={showUnsavedChangesAlert} onOpenChange={setShowUnsavedChangesAlert}>
+      <AlertDialog
+        open={showUnsavedChangesAlert}
+        onOpenChange={setShowUnsavedChangesAlert}
+      >
         <AlertDialogContent>
           <AlertDialogHeader>
             <AlertDialogTitle>Unsaved Changes</AlertDialogTitle>
             <AlertDialogDescription>
-              You have unsaved changes. Are you sure you want to leave this page?
-              Your changes will be lost.
+              You have unsaved changes. Are you sure you want to leave this
+              page? Your changes will be lost.
             </AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter>
