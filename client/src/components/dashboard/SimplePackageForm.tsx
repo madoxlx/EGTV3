@@ -2706,40 +2706,73 @@ export function PackageCreatorForm({
                         </div>
                       ) : (
                         <div className="space-y-6">
-                          {/* Current Guest Selection Display */}
-                          <div className="bg-blue-50 border border-blue-200 rounded-md p-4">
-                            <h4 className="text-sm font-medium text-blue-900 mb-2">
-                              Current Guest Selection:
-                            </h4>
-                            <div className="flex gap-4 text-sm">
-                              <div className="flex items-center gap-1">
-                                <span className="font-medium text-blue-800">Adults:</span>
-                                <Badge variant="outline" className="bg-white">
-                                  {form.watch("adultCount") || 2}
-                                </Badge>
-                              </div>
-                              <div className="flex items-center gap-1">
-                                <span className="font-medium text-blue-800">Children:</span>
-                                <Badge variant="outline" className="bg-white">
-                                  {form.watch("childrenCount") || 0}
-                                </Badge>
-                              </div>
-                              <div className="flex items-center gap-1">
-                                <span className="font-medium text-blue-800">Infants:</span>
-                                <Badge variant="outline" className="bg-white">
-                                  {form.watch("infantCount") || 0}
-                                </Badge>
-                              </div>
-                              <div className="flex items-center gap-1">
-                                <span className="font-medium text-blue-800">Total:</span>
-                                <Badge variant="default" className="bg-blue-600">
-                                  {(form.watch("adultCount") || 2) + 
-                                   (form.watch("childrenCount") || 0) + 
-                                   (form.watch("infantCount") || 0)} guests
-                                </Badge>
+                          {/* Room Capacity Summary */}
+                          {form.watch("rooms") && form.watch("rooms").length > 0 && (
+                            <div className="bg-green-50 border border-green-200 rounded-md p-4">
+                              <h4 className="text-sm font-medium text-green-900 mb-2">
+                                Selected Rooms Capacity:
+                              </h4>
+                              <div className="space-y-2">
+                                {form.watch("rooms").map((selectedRoom: any, index: number) => {
+                                  const roomData = filteredRooms.find(r => r.id === selectedRoom.id);
+                                  if (!roomData) return null;
+                                  
+                                  return (
+                                    <div key={selectedRoom.id} className="flex items-center justify-between text-sm bg-white p-2 rounded border">
+                                      <span className="font-medium text-green-800">
+                                        {roomData.name}
+                                      </span>
+                                      <div className="flex gap-2">
+                                        <Badge variant="outline" className="text-xs">
+                                          Adults: {roomData.max_adults || roomData.maxAdults || 2}
+                                        </Badge>
+                                        <Badge variant="outline" className="text-xs">
+                                          Children: {roomData.max_children || roomData.maxChildren || 0}
+                                        </Badge>
+                                        <Badge variant="outline" className="text-xs">
+                                          Infants: {roomData.max_infants || roomData.maxInfants || 0}
+                                        </Badge>
+                                        <Badge variant="default" className="bg-green-600 text-xs">
+                                          Total: {roomData.max_occupancy || roomData.maxOccupancy || 2}
+                                        </Badge>
+                                      </div>
+                                    </div>
+                                  );
+                                })}
+                                <div className="border-t pt-2 mt-2">
+                                  <div className="flex items-center justify-between">
+                                    <span className="font-semibold text-green-900">Total Package Capacity:</span>
+                                    <div className="flex gap-2">
+                                      <Badge variant="secondary">
+                                        Adults: {form.watch("rooms").reduce((total: number, room: any) => {
+                                          const roomData = filteredRooms.find(r => r.id === room.id);
+                                          return total + (roomData?.max_adults || roomData?.maxAdults || 2);
+                                        }, 0)}
+                                      </Badge>
+                                      <Badge variant="secondary">
+                                        Children: {form.watch("rooms").reduce((total: number, room: any) => {
+                                          const roomData = filteredRooms.find(r => r.id === room.id);
+                                          return total + (roomData?.max_children || roomData?.maxChildren || 0);
+                                        }, 0)}
+                                      </Badge>
+                                      <Badge variant="secondary">
+                                        Infants: {form.watch("rooms").reduce((total: number, room: any) => {
+                                          const roomData = filteredRooms.find(r => r.id === room.id);
+                                          return total + (roomData?.max_infants || roomData?.maxInfants || 0);
+                                        }, 0)}
+                                      </Badge>
+                                      <Badge variant="default" className="bg-green-700">
+                                        Total: {form.watch("rooms").reduce((total: number, room: any) => {
+                                          const roomData = filteredRooms.find(r => r.id === room.id);
+                                          return total + (roomData?.max_occupancy || roomData?.maxOccupancy || 2);
+                                        }, 0)} guests
+                                      </Badge>
+                                    </div>
+                                  </div>
+                                </div>
                               </div>
                             </div>
-                          </div>
+                          )}
 
                           {hotels
                             .filter(

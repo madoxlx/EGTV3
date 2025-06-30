@@ -106,12 +106,13 @@ The application uses a comprehensive PostgreSQL schema with the following core e
 
 ## Recent Changes
 
-- **Guest Count Display Enhancement in Package Creation (June 30, 2025)**: Added clear visual display of selected guest counts in room selection section
-  - Added guest count summary box showing adults, children, and infants with individual badges
-  - Displays total guest count prominently above available rooms
-  - Updates automatically when guest numbers change in Guest Breakdown section
-  - Helps users understand their current selection when choosing rooms for packages
-  - Improves user experience by making guest configuration visible throughout accommodation selection
+- **Room-Based Guest Capacity Display in Package Creation (June 30, 2025)**: Enhanced guest count display to show capacity based on selected rooms instead of general settings
+  - Changed guest count source from general form settings to actual selected room capacities
+  - Shows individual room capacity breakdown (adults, children, infants) for each selected room
+  - Calculates and displays total package capacity from all selected rooms combined
+  - Green-themed display box that appears only when rooms are actually selected
+  - Provides accurate capacity information based on real room limitations rather than theoretical counts
+  - Improves accuracy by showing what the package can actually accommodate based on chosen accommodation
 
 - **Hotel Restaurant Data Persistence Issue Resolution (June 30, 2025)**: Fixed critical issue where restaurant data appeared as null in database despite proper form submission
   - Identified root cause: JSON preprocessing in insertHotelSchema was filtering out valid array data with overly restrictive conditions
