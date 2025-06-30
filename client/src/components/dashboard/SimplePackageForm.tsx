@@ -2706,6 +2706,41 @@ export function PackageCreatorForm({
                         </div>
                       ) : (
                         <div className="space-y-6">
+                          {/* Current Guest Selection Display */}
+                          <div className="bg-blue-50 border border-blue-200 rounded-md p-4">
+                            <h4 className="text-sm font-medium text-blue-900 mb-2">
+                              Current Guest Selection:
+                            </h4>
+                            <div className="flex gap-4 text-sm">
+                              <div className="flex items-center gap-1">
+                                <span className="font-medium text-blue-800">Adults:</span>
+                                <Badge variant="outline" className="bg-white">
+                                  {form.watch("adultCount") || 2}
+                                </Badge>
+                              </div>
+                              <div className="flex items-center gap-1">
+                                <span className="font-medium text-blue-800">Children:</span>
+                                <Badge variant="outline" className="bg-white">
+                                  {form.watch("childrenCount") || 0}
+                                </Badge>
+                              </div>
+                              <div className="flex items-center gap-1">
+                                <span className="font-medium text-blue-800">Infants:</span>
+                                <Badge variant="outline" className="bg-white">
+                                  {form.watch("infantCount") || 0}
+                                </Badge>
+                              </div>
+                              <div className="flex items-center gap-1">
+                                <span className="font-medium text-blue-800">Total:</span>
+                                <Badge variant="default" className="bg-blue-600">
+                                  {(form.watch("adultCount") || 2) + 
+                                   (form.watch("childrenCount") || 0) + 
+                                   (form.watch("infantCount") || 0)} guests
+                                </Badge>
+                              </div>
+                            </div>
+                          </div>
+
                           {hotels
                             .filter(
                               (hotel) =>
