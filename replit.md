@@ -106,6 +106,16 @@ The application uses a comprehensive PostgreSQL schema with the following core e
 
 ## Recent Changes
 
+- **Hotel Creation Restaurant Form Fields Implementation (June 30, 2025)**: Successfully added comprehensive restaurant and landmark form fields to hotel creation
+  - Added dynamic restaurant form section with useFieldArray for multiple restaurant management
+  - Restaurant fields include name, cuisine type, and breakfast options with add/remove functionality
+  - Added landmarks section for nearby attractions with name, distance, and description fields
+  - Enhanced hotel form schema to include restaurants, landmarks, faqs, and roomTypes arrays
+  - Fixed all TypeScript validation errors in coordinate input fields (longitude/latitude)
+  - Restaurant data now properly collected from users and saved to database instead of appearing as null
+  - Form supports dynamic addition and removal of multiple restaurants and landmarks
+  - All complex hotel data fields now have proper UI components for data input
+
 - **Cart API Routing Conflict Resolution (June 30, 2025)**: Fixed cart API routing conflicts and authentication errors
   - Removed duplicate cart endpoint from server/index.ts to eliminate routing conflicts
   - Fixed apiRequest function calls in useCart hook to use correct signature with proper method and body parameters

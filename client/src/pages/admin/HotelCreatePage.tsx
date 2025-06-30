@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useRef } from "react";
 import { useLocation, useRoute } from "wouter";
-import { useForm } from "react-hook-form";
+import { useForm, useFieldArray } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
@@ -93,6 +93,27 @@ const hotelFormSchema = z.object({
   latitude: z.coerce.number().optional().nullable(),
   featured: z.boolean().default(false),
   status: z.string().default("active"),
+  // Complex data fields
+  restaurants: z.array(z.object({
+    name: z.string(),
+    cuisineType: z.string(),
+    breakfastOptions: z.array(z.string()).default([])
+  })).default([]),
+  landmarks: z.array(z.object({
+    name: z.string(),
+    distance: z.string(),
+    description: z.string()
+  })).default([]),
+  faqs: z.array(z.object({
+    question: z.string(),
+    answer: z.string()
+  })).default([]),
+  roomTypes: z.array(z.object({
+    name: z.string(),
+    capacity: z.number(),
+    price: z.number(),
+    description: z.string()
+  })).default([]),
 });
 
 type HotelFormValues = z.infer<typeof hotelFormSchema>;
@@ -152,7 +173,10 @@ export default function HotelCreatePage() {
     });
   };
   
-  // Use navigateWithConfirmation from our hook for all navigation
+  // Navigation helper function
+  const handleNavigation = (path: string) => {
+    navigate(path);
+  };
 
   // Query to fetch destinations data for the dropdown
   const { data: destinations = [] } = useQuery({
@@ -161,13 +185,13 @@ export default function HotelCreatePage() {
   });
 
   // Query to fetch countries data for the dropdown
-  const { data: countries = [] } = useQuery({
+  const { data: countries = [] } = useQuery<any[]>({
     queryKey: ["/api/countries"],
     staleTime: 1000 * 60 * 5, // 5 minutes
   });
 
   // Query to fetch cities data for the dropdown
-  const { data: cities = [] } = useQuery({
+  const { data: cities = [] } = useQuery<any[]>({
     queryKey: ["/api/cities"],
     staleTime: 1000 * 60 * 5, // 5 minutes
   });
@@ -198,7 +222,49 @@ export default function HotelCreatePage() {
       latitude: savedFormData.latitude || undefined,
       featured: savedFormData.featured || false,
       status: savedFormData.status || "active",
+      // Complex data fields
+      restaurants: savedFormData.restaurants || [],
+      landmarks: savedFormData.landmarks || [],
+      faqs: savedFormData.faqs || [],
+      roomTypes: savedFormData.roomTypes || [],
     },
+  });
+
+  // Setup field arrays for restaurants and other complex data
+  const {
+    fields: restaurantFields,
+    append: appendRestaurant,
+    remove: removeRestaurant,
+  } = useFieldArray({
+    control: form.control,
+    name: "restaurants",
+  });
+
+  const {
+    fields: landmarkFields,
+    append: appendLandmark,
+    remove: removeLandmark,
+  } = useFieldArray({
+    control: form.control,
+    name: "landmarks",
+  });
+
+  const {
+    fields: faqFields,
+    append: appendFaq,
+    remove: removeFaq,
+  } = useFieldArray({
+    control: form.control,
+    name: "faqs",
+  });
+
+  const {
+    fields: roomTypeFields,
+    append: appendRoomType,
+    remove: removeRoomType,
+  } = useFieldArray({
+    control: form.control,
+    name: "roomTypes",
   });
 
   // Check for drafts on component mount
@@ -322,6 +388,11 @@ export default function HotelCreatePage() {
         latitude: data.latitude || null,
         featured: data.featured || false,
         status: data.status || "active",
+        // Include complex data fields
+        restaurants: data.restaurants || [],
+        landmarks: data.landmarks || [],
+        faqs: data.faqs || [],
+        roomTypes: data.roomTypes || [],
       };
       
       console.log('Mapped form data for API:', formData);
@@ -592,7 +663,7 @@ export default function HotelCreatePage() {
                             </SelectTrigger>
                           </FormControl>
                           <SelectContent>
-                            {countries.map((country: any) => (
+                            {Array.isArray(countries) && countries.map((country: any) => (
                               <SelectItem key={country.id} value={country.id.toString()}>
                                 {country.name}
                               </SelectItem>
@@ -849,8 +920,7 @@ export default function HotelCreatePage() {
                             type="number"
                             placeholder="0.0000"
                             step="0.000001"
-                            {...field}
-                            value={field.value === undefined ? "" : field.value}
+                            value={field.value == null ? "" : String(field.value)}
                             onChange={(e) => field.onChange(e.target.value === "" ? undefined : parseFloat(e.target.value))}
                           />
                         </FormControl>
@@ -871,8 +941,7 @@ export default function HotelCreatePage() {
                             type="number"
                             placeholder="0.0000"
                             step="0.000001"
-                            {...field}
-                            value={field.value === undefined ? "" : field.value}
+                            value={field.value == null ? "" : String(field.value)}
                             onChange={(e) => field.onChange(e.target.value === "" ? undefined : parseFloat(e.target.value))}
                           />
                         </FormControl>
@@ -956,50 +1025,155 @@ export default function HotelCreatePage() {
                   </div>
                 </div>
 
-                {/* Hotel Features Management */}
-                <div className="border p-4 rounded-lg mb-6 bg-slate-50">
-                  <h3 className="text-lg font-semibold mb-3">Hotel Features Management</h3>
-                  <p className="text-sm text-muted-foreground mb-4">
-                    Create and manage various features that can be assigned to hotels.
-                  </p>
-                  <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-3">
-                    <Button 
-                      type="button" 
-                      variant="outline" 
-                      onClick={() => navigate("/admin/hotels/categories")}
-                      className="flex justify-start items-center"
+                {/* Restaurants Section */}
+                <div className="space-y-4">
+                  <div className="flex items-center justify-between">
+                    <FormLabel>Hotel Restaurants</FormLabel>
+                    <Button
+                      type="button"
+                      variant="outline"
+                      size="sm"
+                      onClick={() => appendRestaurant({ name: "", cuisineType: "", breakfastOptions: [] })}
                     >
-                      <Tag className="h-4 w-4 mr-2" />
-                      Category Manager
-                    </Button>
-                    <Button 
-                      type="button" 
-                      variant="outline" 
-                      onClick={() => navigate("/admin/hotels/facilities")}
-                      className="flex justify-start items-center"
-                    >
-                      <Building className="h-4 w-4 mr-2" />
-                      Facilities Manager
-                    </Button>
-                    <Button 
-                      type="button" 
-                      variant="outline" 
-                      onClick={() => navigate("/admin/hotels/highlights")}
-                      className="flex justify-start items-center"
-                    >
-                      <Star className="h-4 w-4 mr-2" />
-                      Highlights Manager
-                    </Button>
-                    <Button 
-                      type="button" 
-                      variant="outline" 
-                      onClick={() => navigate("/admin/hotels/cleanliness-features")}
-                      className="flex justify-start items-center"
-                    >
-                      <ShieldCheck className="h-4 w-4 mr-2" />
-                      Cleanliness Features
+                      Add Restaurant
                     </Button>
                   </div>
+                  
+                  {restaurantFields.map((field, index) => (
+                    <Card key={field.id} className="p-4">
+                      <div className="flex justify-between items-center mb-4">
+                        <h4 className="font-medium">Restaurant {index + 1}</h4>
+                        <Button
+                          type="button"
+                          variant="ghost"
+                          size="sm"
+                          onClick={() => removeRestaurant(index)}
+                        >
+                          Remove
+                        </Button>
+                      </div>
+                      
+                      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                        <FormField
+                          control={form.control}
+                          name={`restaurants.${index}.name`}
+                          render={({ field }) => (
+                            <FormItem>
+                              <FormLabel>Restaurant Name</FormLabel>
+                              <FormControl>
+                                <Input
+                                  placeholder="Restaurant name"
+                                  {...field}
+                                />
+                              </FormControl>
+                              <FormMessage />
+                            </FormItem>
+                          )}
+                        />
+                        
+                        <FormField
+                          control={form.control}
+                          name={`restaurants.${index}.cuisineType`}
+                          render={({ field }) => (
+                            <FormItem>
+                              <FormLabel>Cuisine Type</FormLabel>
+                              <FormControl>
+                                <Input
+                                  placeholder="e.g., Italian, International, Arabic"
+                                  {...field}
+                                />
+                              </FormControl>
+                              <FormMessage />
+                            </FormItem>
+                          )}
+                        />
+                      </div>
+                    </Card>
+                  ))}
+                </div>
+
+                {/* Landmarks Section */}
+                <div className="space-y-4">
+                  <div className="flex items-center justify-between">
+                    <FormLabel>Nearby Landmarks</FormLabel>
+                    <Button
+                      type="button"
+                      variant="outline"
+                      size="sm"
+                      onClick={() => appendLandmark({ name: "", distance: "", description: "" })}
+                    >
+                      Add Landmark
+                    </Button>
+                  </div>
+                  
+                  {landmarkFields.map((field, index) => (
+                    <Card key={field.id} className="p-4">
+                      <div className="flex justify-between items-center mb-4">
+                        <h4 className="font-medium">Landmark {index + 1}</h4>
+                        <Button
+                          type="button"
+                          variant="ghost"
+                          size="sm"
+                          onClick={() => removeLandmark(index)}
+                        >
+                          Remove
+                        </Button>
+                      </div>
+                      
+                      <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                        <FormField
+                          control={form.control}
+                          name={`landmarks.${index}.name`}
+                          render={({ field }) => (
+                            <FormItem>
+                              <FormLabel>Landmark Name</FormLabel>
+                              <FormControl>
+                                <Input
+                                  placeholder="Landmark name"
+                                  {...field}
+                                />
+                              </FormControl>
+                              <FormMessage />
+                            </FormItem>
+                          )}
+                        />
+                        
+                        <FormField
+                          control={form.control}
+                          name={`landmarks.${index}.distance`}
+                          render={({ field }) => (
+                            <FormItem>
+                              <FormLabel>Distance</FormLabel>
+                              <FormControl>
+                                <Input
+                                  placeholder="e.g., 2.5 km"
+                                  {...field}
+                                />
+                              </FormControl>
+                              <FormMessage />
+                            </FormItem>
+                          )}
+                        />
+                        
+                        <FormField
+                          control={form.control}
+                          name={`landmarks.${index}.description`}
+                          render={({ field }) => (
+                            <FormItem>
+                              <FormLabel>Description</FormLabel>
+                              <FormControl>
+                                <Input
+                                  placeholder="Brief description"
+                                  {...field}
+                                />
+                              </FormControl>
+                              <FormMessage />
+                            </FormItem>
+                          )}
+                        />
+                      </div>
+                    </Card>
+                  ))}
                 </div>
 
                 {/* Submit Button */}
@@ -1015,7 +1189,7 @@ export default function HotelCreatePage() {
                   <Button
                     type="button"
                     variant="secondary"
-                    onClick={saveAsDraft}
+                    onClick={saveFormAsDraft}
                   >
                     <Save className="mr-2 h-4 w-4" />
                     Save as Draft
