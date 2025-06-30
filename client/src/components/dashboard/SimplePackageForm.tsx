@@ -1,4 +1,10 @@
-import React, { useState, useEffect, useRef, useMemo, useCallback } from "react";
+import React, {
+  useState,
+  useEffect,
+  useRef,
+  useMemo,
+  useCallback,
+} from "react";
 import { format } from "date-fns";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
@@ -36,51 +42,67 @@ import {
 import { Checkbox } from "@/components/ui/checkbox";
 import { Switch } from "@/components/ui/switch";
 import { Card, CardContent } from "@/components/ui/card";
-import { 
-  AlertCircle, 
-  CalendarIcon, 
-  ImagePlus, 
-  Loader2, 
-  Plus, 
-  Trash, 
-  Star, 
-  X, 
-  Package, 
-  Hotel, 
-  Map as MapIcon, 
+import {
+  AlertCircle,
+  CalendarIcon,
+  ImagePlus,
+  Loader2,
+  Plus,
+  Trash,
+  Star,
+  X,
+  Package,
+  Hotel,
+  Map as MapIcon,
   Search,
-  LucideProps 
+  LucideProps,
 } from "lucide-react";
 
 // A simple component to dynamically use Lucide icons based on string name
 // A simple component to render an icon using Lucide
-const LucideIcon = ({ 
-  name, 
-  className, 
-  fallback, 
-  ...props 
-}: { 
-  name: string, 
-  className?: string, 
-  fallback?: React.ReactNode 
-} & Omit<LucideProps, 'ref'>) => {
+const LucideIcon = ({
+  name,
+  className,
+  fallback,
+  ...props
+}: {
+  name: string;
+  className?: string;
+  fallback?: React.ReactNode;
+} & Omit<LucideProps, "ref">) => {
   // If we have an exact match for the icon name, use it
-  if (name === 'package') return <Package className={className} {...props} />;
-  if (name === 'hotel') return <Hotel className={className} {...props} />;
-  if (name === 'map') return <MapIcon className={className} {...props} />;
-  if (name === 'trash') return <Trash className={className} {...props} />;
-  if (name === 'star') return <Star className={className} {...props} />;
-  if (name === 'x') return <X className={className} {...props} />;
+  if (name === "package") return <Package className={className} {...props} />;
+  if (name === "hotel") return <Hotel className={className} {...props} />;
+  if (name === "map") return <MapIcon className={className} {...props} />;
+  if (name === "trash") return <Trash className={className} {...props} />;
+  if (name === "star") return <Star className={className} {...props} />;
+  if (name === "x") return <X className={className} {...props} />;
 
   // Default fallback
   return <>{fallback || <Package className={className} {...props} />}</>;
 };
-import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
+import {
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
+} from "@/components/ui/table";
 import { cn } from "@/lib/utils";
 import { useToast } from "@/hooks/use-toast";
 import { queryClient } from "@/lib/queryClient";
-import { validateForm, validateRequiredFields, validateDateFields, validateNumericFields } from "@/lib/validateForm";
-import { FormRequiredFieldsNote, FormValidationAlert, FormRequirementsAlert } from "@/components/dashboard/FormValidationAlert";
+import {
+  validateForm,
+  validateRequiredFields,
+  validateDateFields,
+  validateNumericFields,
+} from "@/lib/validateForm";
+import {
+  FormRequiredFieldsNote,
+  FormValidationAlert,
+  FormRequirementsAlert,
+} from "@/components/dashboard/FormValidationAlert";
 import { useLocation } from "wouter";
 import { IconSelector } from "@/components/ui/IconSelector";
 
@@ -88,15 +110,21 @@ import { IconSelector } from "@/components/ui/IconSelector";
 const packageFormSchema = z.object({
   // Basic fields
   title: z.string().min(3, { message: "Title must be at least 3 characters" }),
-  description: z.string().min(20, { message: "Description should be at least 20 characters" }),
+  description: z
+    .string()
+    .min(20, { message: "Description should be at least 20 characters" }),
   shortDescription: z.string().optional(),
   overview: z.string().optional(),
-  price: z.coerce.number().min(0, { message: "Price must be a positive number" }),
+  price: z.coerce
+    .number()
+    .min(0, { message: "Price must be a positive number" }),
   discountedPrice: z.coerce.number().min(0).optional().nullable(),
   currency: z.string().default("EGP"),
   imageUrl: z.string().optional(),
   galleryUrls: z.array(z.string()).optional(),
-  duration: z.coerce.number().min(1, { message: "Duration must be at least 1 day" }),
+  duration: z.coerce
+    .number()
+    .min(1, { message: "Duration must be at least 1 day" }),
   rating: z.coerce.number().min(0).max(5).optional().nullable(),
   reviewCount: z.coerce.number().min(0).optional().nullable(),
 
@@ -114,33 +142,48 @@ const packageFormSchema = z.object({
   // Route and metadata
   route: z.string().optional(),
   type: z.string().optional(),
-  maxGroupSize: z.coerce.number().min(1, { message: "Group size must be at least 1" }).optional(),
+  maxGroupSize: z.coerce
+    .number()
+    .min(1, { message: "Group size must be at least 1" })
+    .optional(),
   language: z.string().optional(),
   bestTimeToVisit: z.string().optional(),
 
   // Complex fields
   idealFor: z.array(z.string()).optional(),
-  whatToPack: z.array(z.object({
-    item: z.string(),
-    icon: z.string().optional(),
-    tooltip: z.string().optional()
-  })).optional(),
-  itinerary: z.array(z.object({
-    day: z.number(),
-    title: z.string(),
-    description: z.string(),
-    image: z.string().optional()
-  })).optional(),
+  whatToPack: z
+    .array(
+      z.object({
+        item: z.string(),
+        icon: z.string().optional(),
+        tooltip: z.string().optional(),
+      }),
+    )
+    .optional(),
+  itinerary: z
+    .array(
+      z.object({
+        day: z.number(),
+        title: z.string(),
+        description: z.string(),
+        image: z.string().optional(),
+      }),
+    )
+    .optional(),
   inclusions: z.array(z.string()).optional(),
   includedFeatures: z.array(z.string()).optional(),
   excludedFeatures: z.array(z.string()).optional(),
   optionalExcursions: z.array(z.string()).optional(),
   travelRoute: z.array(z.string()).optional(),
-  accommodationHighlights: z.array(z.object({
-    title: z.string(),
-    description: z.string(),
-    icon: z.string().optional()
-  })).optional(),
+  accommodationHighlights: z
+    .array(
+      z.object({
+        title: z.string(),
+        description: z.string(),
+        icon: z.string().optional(),
+      }),
+    )
+    .optional(),
   transportationDetails: z.array(z.string()).optional(),
 
   // Transportation
@@ -149,23 +192,29 @@ const packageFormSchema = z.object({
 
   // Hotel and room selections
   selectedHotels: z.array(z.string()).optional(),
-  rooms: z.array(z.object({
-    id: z.string(),
-    name: z.string(),
-    hotelId: z.string(),
-    hotelName: z.string(),
-    price: z.coerce.number(),
-    maxAdults: z.number().optional(),
-    maxChildren: z.number().optional(),
-    maxInfants: z.number().optional()
-  })).optional(),
+  rooms: z
+    .array(
+      z.object({
+        id: z.string(),
+        name: z.string(),
+        hotelId: z.string(),
+        hotelName: z.string(),
+        price: z.coerce.number(),
+        maxAdults: z.number().optional(),
+        maxChildren: z.number().optional(),
+        maxInfants: z.number().optional(),
+      }),
+    )
+    .optional(),
 
   // Tour selection
   tourSelection: z.array(z.string()).optional(),
   selectedTourId: z.number().optional(),
 
   // Traveler counts
-  adultCount: z.coerce.number().min(1, { message: "At least 1 adult is required" }),
+  adultCount: z.coerce
+    .number()
+    .min(1, { message: "At least 1 adult is required" }),
   childrenCount: z.coerce.number().min(0, { message: "Cannot be negative" }),
   infantCount: z.coerce.number().min(0, { message: "Cannot be negative" }),
 
@@ -263,7 +312,10 @@ interface Tour {
   destination_id?: number;
 }
 
-export function PackageCreatorForm({ packageId, onNavigateRequest }: PackageCreatorFormProps) {
+export function PackageCreatorForm({
+  packageId,
+  onNavigateRequest,
+}: PackageCreatorFormProps) {
   const isEditMode = !!packageId;
   const [, setLocation] = useLocation();
 
@@ -273,7 +325,9 @@ export function PackageCreatorForm({ packageId, onNavigateRequest }: PackageCrea
     { id: "child", value: 75, percentage: true, name: "Child (2-11 years)" },
     { id: "infant", value: 0, percentage: true, name: "Infant (0-23 months)" },
   ]);
-  const [images, setImages] = useState<{ id: string; file: File | null; preview: string; isMain: boolean }[]>([]);
+  const [images, setImages] = useState<
+    { id: string; file: File | null; preview: string; isMain: boolean }[]
+  >([]);
   const [availableRooms, setAvailableRooms] = useState<any[]>([]);
   const [filteredRooms, setFilteredRooms] = useState<any[]>([]);
   const [selectedHotelRooms, setSelectedHotelRooms] = useState<any[]>([]);
@@ -281,7 +335,7 @@ export function PackageCreatorForm({ packageId, onNavigateRequest }: PackageCrea
   const [isInitialized, setIsInitialized] = useState<boolean>(false);
 
   // Tour selection variables
-  const [tourSearchQuery, setTourSearchQuery] = useState<string>('');
+  const [tourSearchQuery, setTourSearchQuery] = useState<string>("");
   const [showTourDropdown, setShowTourDropdown] = useState<boolean>(false);
   const [selectedTour, setSelectedTour] = useState<Tour | null>(null);
   const tourSearchRef = useRef<HTMLDivElement>(null);
@@ -290,27 +344,51 @@ export function PackageCreatorForm({ packageId, onNavigateRequest }: PackageCrea
   const [isUpdating, setIsUpdating] = useState<boolean>(false);
 
   // For validation hints
-  const [validationErrors, setValidationErrors] = useState<{[key: string]: string[]}>({});
-  const [showValidationHints, setShowValidationHints] = useState<boolean>(false);
+  const [validationErrors, setValidationErrors] = useState<{
+    [key: string]: string[];
+  }>({});
+  const [showValidationHints, setShowValidationHints] =
+    useState<boolean>(false);
   const [activeTab, setActiveTab] = useState<string>("basic");
 
   // Package feature states with user-friendly names
   const [excludedItemsList, setExcludedItemsList] = useState<string[]>([]);
-  const [selectedTravellerTypes, setSelectedTravellerTypes] = useState<string[]>([]);
+  const [selectedTravellerTypes, setSelectedTravellerTypes] = useState<
+    string[]
+  >([]);
   const [optionalExcursions, setOptionalExcursions] = useState<string[]>([]);
   const [travelRouteItems, setTravelRouteItems] = useState<string[]>([]);
 
   // Packing list section
-  const [packItems, setPackItems] = useState<{ item: string, icon: string, tooltip: string }[]>([]);
-  const [newPackItem, setNewPackItem] = useState({ item: "", icon: "Luggage", tooltip: "" });
+  const [packItems, setPackItems] = useState<
+    { item: string; icon: string; tooltip: string }[]
+  >([]);
+  const [newPackItem, setNewPackItem] = useState({
+    item: "",
+    icon: "Luggage",
+    tooltip: "",
+  });
 
   // Day-by-day itinerary
-  const [itineraryItems, setItineraryItems] = useState<{ day: number, title: string, description: string, image: string }[]>([]);
-  const [newItineraryDay, setNewItineraryDay] = useState({ day: 1, title: "", description: "", image: "" });
+  const [itineraryItems, setItineraryItems] = useState<
+    { day: number; title: string; description: string; image: string }[]
+  >([]);
+  const [newItineraryDay, setNewItineraryDay] = useState({
+    day: 1,
+    title: "",
+    description: "",
+    image: "",
+  });
 
   // Hotel and accommodation features
-  const [accommodationHighlights, setAccommodationHighlights] = useState<{ title: string, description: string, icon: string }[]>([]);
-  const [newHighlight, setNewHighlight] = useState({ title: "", description: "", icon: "Hotel" });
+  const [accommodationHighlights, setAccommodationHighlights] = useState<
+    { title: string; description: string; icon: string }[]
+  >([]);
+  const [newHighlight, setNewHighlight] = useState({
+    title: "",
+    description: "",
+    icon: "Hotel",
+  });
 
   // For transportation options
   const [selectedTransport, setSelectedTransport] = useState("");
@@ -319,13 +397,14 @@ export function PackageCreatorForm({ packageId, onNavigateRequest }: PackageCrea
 
   // Track form changes for unsaved changes warning
   const [hasUnsavedChanges, setHasUnsavedChanges] = useState(false);
-  const [initialFormData, setInitialFormData] = useState<PackageFormValues | null>(null);
+  const [initialFormData, setInitialFormData] =
+    useState<PackageFormValues | null>(null);
 
   // Function to check for unsaved changes and warn user
   const handleNavigateWithWarning = (destination: string) => {
     if (hasUnsavedChanges) {
       const confirmLeave = window.confirm(
-        "You have unsaved changes. Are you sure you want to leave? Your changes will be lost."
+        "You have unsaved changes. Are you sure you want to leave? Your changes will be lost.",
       );
       if (confirmLeave) {
         if (onNavigateRequest) {
@@ -345,88 +424,100 @@ export function PackageCreatorForm({ packageId, onNavigateRequest }: PackageCrea
 
   // Fetch destinations for the dropdown
   const { data: destinations = [] } = useQuery<any[]>({
-    queryKey: ['/api/destinations'],
+    queryKey: ["/api/destinations"],
   });
 
   // Fetch package categories for the dropdown
   const { data: packageCategories = [] } = useQuery<any[]>({
-    queryKey: ['/api/package-categories'],
+    queryKey: ["/api/package-categories"],
   });
 
   // Fetch tours for the tour search feature
   const { data: tours = [] } = useQuery<Tour[]>({
-    queryKey: ['/api/admin/tours'],
+    queryKey: ["/api/admin/tours"],
   });
 
   // Fetch hotels from database
   const { data: hotels = [] } = useQuery<any[]>({
-    queryKey: ['/api/admin/hotels'],
+    queryKey: ["/api/admin/hotels"],
     staleTime: 5 * 60 * 1000, // 5 minutes cache
   });
 
   // Fetch rooms data from database
-  const { data: allRooms = [], isLoading: roomsLoading, error: roomsError } = useQuery<any[]>({
-    queryKey: ['/api/admin/rooms'],
+  const {
+    data: allRooms = [],
+    isLoading: roomsLoading,
+    error: roomsError,
+  } = useQuery<any[]>({
+    queryKey: ["/api/admin/rooms"],
     staleTime: 5 * 60 * 1000, // 5 minutes cache
   });
 
   // Debug logging for rooms data
   useEffect(() => {
-    console.log('Rooms query status:', { 
-      allRooms, 
-      roomsLoading, 
+    console.log("Rooms query status:", {
+      allRooms,
+      roomsLoading,
       roomsError,
-      roomsCount: allRooms?.length 
+      roomsCount: allRooms?.length,
     });
   }, [allRooms, roomsLoading, roomsError]);
 
   // Fetch countries for the dropdown
   const { data: countries = [] } = useQuery<any[]>({
-    queryKey: ['/api/countries'],
+    queryKey: ["/api/countries"],
     staleTime: 5 * 60 * 1000, // 5 minutes cache
   });
 
   // Fetch cities based on selected country
-  const [selectedCountryId, setSelectedCountryId] = useState<number | null>(null);
+  const [selectedCountryId, setSelectedCountryId] = useState<number | null>(
+    null,
+  );
   const { data: cities = [] } = useQuery<any[]>({
-    queryKey: ['/api/cities'],
+    queryKey: ["/api/cities"],
     staleTime: 5 * 60 * 1000, // 5 minutes cache
   });
 
   // Memoize filtered cities to prevent unnecessary re-calculations
   const filteredCities = useMemo(() => {
     if (!selectedCountryId) return cities;
-    return cities.filter(city => city.countryId === selectedCountryId);
+    return cities.filter((city) => city.countryId === selectedCountryId);
   }, [cities, selectedCountryId]);
 
   // Fetch the package data if in edit mode
-  const { data: existingPackageData, isLoading: isLoadingPackage } = useQuery<any>({
-    queryKey: ['/api/packages'],
-    select: (packages) => {
-      // Find the package with matching ID from the packages array
-      if (packageId && Array.isArray(packages)) {
-        console.log('Finding package with ID:', packageId);
-        // Compare as strings since API returns string IDs
-        const pkg = packages.find(p => p.id === packageId || p.id === parseInt(packageId));
-        console.log('Found package:', pkg);
-        return pkg;
-      }
-      return undefined;
-    },
-    enabled: isEditMode,
-  });
+  const { data: existingPackageData, isLoading: isLoadingPackage } =
+    useQuery<any>({
+      queryKey: ["/api/packages"],
+      select: (packages) => {
+        // Find the package with matching ID from the packages array
+        if (packageId && Array.isArray(packages)) {
+          console.log("Finding package with ID:", packageId);
+          // Compare as strings since API returns string IDs
+          const pkg = packages.find(
+            (p) => p.id === packageId || p.id === parseInt(packageId),
+          );
+          console.log("Found package:", pkg);
+          return pkg;
+        }
+        return undefined;
+      },
+      enabled: isEditMode,
+    });
 
   // Handle click outside tour search dropdown
   useEffect(() => {
     function handleClickOutside(event: MouseEvent) {
-      if (tourSearchRef.current && !tourSearchRef.current.contains(event.target as Node)) {
+      if (
+        tourSearchRef.current &&
+        !tourSearchRef.current.contains(event.target as Node)
+      ) {
         setShowTourDropdown(false);
       }
     }
 
-    document.addEventListener('mousedown', handleClickOutside);
+    document.addEventListener("mousedown", handleClickOutside);
     return () => {
-      document.removeEventListener('mousedown', handleClickOutside);
+      document.removeEventListener("mousedown", handleClickOutside);
     };
   }, [tourSearchRef]);
 
@@ -487,38 +578,48 @@ export function PackageCreatorForm({ packageId, onNavigateRequest }: PackageCrea
   const packageMutation = useMutation({
     mutationFn: async (formData: PackageFormValues) => {
       // Get the main image URL (or a default if none is set)
-      const mainImage = images.find(img => img.isMain);
+      const mainImage = images.find((img) => img.isMain);
       // If the preview URL is a blob URL, use a placeholder or existing image
-      let mainImageUrl = mainImage ? mainImage.preview : "https://images.unsplash.com/photo-1540541338287-41700207dee6?q=80&w=800";
-      if (mainImageUrl && mainImageUrl.startsWith('blob:')) {
+      let mainImageUrl = mainImage
+        ? mainImage.preview
+        : "https://images.unsplash.com/photo-1540541338287-41700207dee6?q=80&w=800";
+      if (mainImageUrl && mainImageUrl.startsWith("blob:")) {
         // For edit mode, if we have existing data, use the existing image URL
         if (isEditMode && existingPackageData && existingPackageData.imageUrl) {
           mainImageUrl = existingPackageData.imageUrl;
         } else {
           // Otherwise use placeholder
-          mainImageUrl = "https://images.unsplash.com/photo-1540541338287-41700207dee6?q=80&w=800";
+          mainImageUrl =
+            "https://images.unsplash.com/photo-1540541338287-41700207dee6?q=80&w=800";
         }
       }
 
       // Handle gallery URLs
       let galleryUrls: string[] = [];
 
-      if (isEditMode && existingPackageData && existingPackageData.galleryUrls) {
+      if (
+        isEditMode &&
+        existingPackageData &&
+        existingPackageData.galleryUrls
+      ) {
         // For edit mode, if we already have gallery URLs in the database, start with those
         try {
           // Parse the existing gallery URLs
-          const existingGalleryUrls: string[] = typeof existingPackageData.galleryUrls === 'string' 
-            ? JSON.parse(existingPackageData.galleryUrls) 
-            : (existingPackageData.galleryUrls as string[] || []);
+          const existingGalleryUrls: string[] =
+            typeof existingPackageData.galleryUrls === "string"
+              ? JSON.parse(existingPackageData.galleryUrls)
+              : (existingPackageData.galleryUrls as string[]) || [];
 
           // Then add all non-blob URLs from the images array
           const validNewUrls = images
-            .map(img => img.preview)
-            .filter(url => !url.startsWith('blob:'));
+            .map((img) => img.preview)
+            .filter((url) => !url.startsWith("blob:"));
 
           // Merge the two lists, filtering out duplicates
           // Use Array.from to properly handle the Set to Array conversion for TypeScript
-          galleryUrls = Array.from(new Set([...existingGalleryUrls, ...validNewUrls]));
+          galleryUrls = Array.from(
+            new Set([...existingGalleryUrls, ...validNewUrls]),
+          );
         } catch (e) {
           console.error("Error parsing galleryUrls:", e);
           galleryUrls = [];
@@ -526,13 +627,13 @@ export function PackageCreatorForm({ packageId, onNavigateRequest }: PackageCrea
       } else {
         // For new packages, just use valid URLs
         galleryUrls = images
-          .map(img => img.preview)
-          .filter(url => !url.startsWith('blob:'));
+          .map((img) => img.preview)
+          .filter((url) => !url.startsWith("blob:"));
       }
 
       // Transform the form data to match the API schema
       // Log current form values for debugging
-      console.log('Form submission values:', {
+      console.log("Form submission values:", {
         name: formData.name,
         overview: formData.overview,
         basePrice: formData.basePrice,
@@ -546,14 +647,14 @@ export function PackageCreatorForm({ packageId, onNavigateRequest }: PackageCrea
       const countryId = formData.countryId ? Number(formData.countryId) : null;
       const cityId = formData.cityId ? Number(formData.cityId) : null;
 
-      console.log('Parsed countryId:', countryId, 'cityId:', cityId);
+      console.log("Parsed countryId:", countryId, "cityId:", cityId);
 
       const packagePayload = {
         // Basic package information
         name: formData.name, // Map to title on server
         title: formData.name,
         shortDescription: formData.shortDescription || "",
-        overview: formData.overview, // Map to description on server  
+        overview: formData.overview, // Map to description on server
         description: formData.overview,
         basePrice: formData.basePrice || 0, // Map to price on server
         price: formData.basePrice || 0,
@@ -575,11 +676,18 @@ export function PackageCreatorForm({ packageId, onNavigateRequest }: PackageCrea
         itinerary: itineraryItems,
 
         // Travel details
-        duration: formData.startDate && formData.endDate 
-          ? Math.ceil((formData.endDate.getTime() - formData.startDate.getTime()) / (1000 * 3600 * 24)) 
-          : 7,
-        startDate: formData.startDate?.toISOString() || new Date().toISOString(),
-        endDate: formData.endDate?.toISOString() || new Date(Date.now() + 7 * 24 * 60 * 60 * 1000).toISOString(),
+        duration:
+          formData.startDate && formData.endDate
+            ? Math.ceil(
+                (formData.endDate.getTime() - formData.startDate.getTime()) /
+                  (1000 * 3600 * 24),
+              )
+            : 7,
+        startDate:
+          formData.startDate?.toISOString() || new Date().toISOString(),
+        endDate:
+          formData.endDate?.toISOString() ||
+          new Date(Date.now() + 7 * 24 * 60 * 60 * 1000).toISOString(),
 
         // Traveler information
         idealFor: selectedTravellerTypes,
@@ -612,35 +720,40 @@ export function PackageCreatorForm({ packageId, onNavigateRequest }: PackageCrea
         // Additional metadata
         rating: 45,
         featured: true,
-        type: categoryOptions.find(c => c.value === formData.category)?.label || "Tour Package"
+        type:
+          categoryOptions.find((c) => c.value === formData.category)?.label ||
+          "Tour Package",
       };
 
       // Log final payload for debugging
-      console.log('Package payload:', packagePayload);
+      console.log("Package payload:", packagePayload);
 
       // Determine if this is an update or create
       const isUpdate = isEditMode && packageId;
-      const url = isUpdate 
-        ? `/api/admin/packages/${packageId}` 
-        : '/api/admin/packages';
+      const url = isUpdate
+        ? `/api/admin/packages/${packageId}`
+        : "/api/admin/packages";
 
-      const method = isUpdate ? 'PUT' : 'POST';
+      const method = isUpdate ? "PUT" : "POST";
 
       const response = await fetch(url, {
         method: method,
-        headers: { 'Content-Type': 'application/json' },
+        headers: { "Content-Type": "application/json" },
         body: JSON.stringify(packagePayload),
       });
 
       if (!response.ok) {
         const errorData = await response.json();
-        throw new Error(errorData.message || `Failed to ${isUpdate ? 'update' : 'create'} package`);
+        throw new Error(
+          errorData.message ||
+            `Failed to ${isUpdate ? "update" : "create"} package`,
+        );
       }
 
       return await response.json();
     },
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['/api/packages'] });
+      queryClient.invalidateQueries({ queryKey: ["/api/packages"] });
 
       // Show success message
       const action = isEditMode ? "Updated" : "Created";
@@ -657,169 +770,209 @@ export function PackageCreatorForm({ packageId, onNavigateRequest }: PackageCrea
         // Reset any component state
         setImages([]);
         setPricingRules([
-          { id: "adult", value: 100, percentage: true, name: "Adult (12+ years)" },
-          { id: "child", value: 75, percentage: true, name: "Child (2-11 years)" },
-          { id: "infant", value: 0, percentage: true, name: "Infant (0-23 months)" },
+          {
+            id: "adult",
+            value: 100,
+            percentage: true,
+            name: "Adult (12+ years)",
+          },
+          {
+            id: "child",
+            value: 75,
+            percentage: true,
+            name: "Child (2-11 years)",
+          },
+          {
+            id: "infant",
+            value: 0,
+            percentage: true,
+            name: "Infant (0-23 months)",
+          },
         ]);
       }
     },
     onError: (error: Error) => {
       toast({
-        title: `Error ${isEditMode ? 'updating' : 'creating'} package`,
+        title: `Error ${isEditMode ? "updating" : "creating"} package`,
         description: error.message,
         variant: "destructive",
       });
     },
   });
 
-  const onSubmit = useCallback((data: PackageFormValues) => {
-    console.log("=== FORM SUBMISSION STARTED ===");
-    console.log("Form submitted", data);
-    console.log("allowFormSubmission state:", allowFormSubmission);
+  const onSubmit = useCallback(
+    (data: PackageFormValues) => {
+      console.log("=== FORM SUBMISSION STARTED ===");
+      console.log("Form submitted", data);
+      console.log("allowFormSubmission state:", allowFormSubmission);
 
-    // CRITICAL: Block all automatic submissions
-    if (!allowFormSubmission) {
-      console.log("🚫 FORM SUBMISSION BLOCKED - Manual trigger required");
-      setAllowFormSubmission(false); // Reset to ensure it stays false
-      return false;
-    }
-
-    console.log("✅ Form submission allowed - proceeding");
-
-    // Check for missing required fields
-    const errors = validateFormFields();
-    console.log("=== VALIDATION COMPLETE ===");
-
-    if (Object.keys(errors).length > 0) {
-      // Show validation hints
-      setValidationErrors(errors);
-      setShowValidationHints(true);
-
-      // Switch to the first tab with errors
-      const firstErrorTab = getFirstTabWithErrors(errors);
-      setActiveTab(firstErrorTab);
-
-      // Scroll to top of form
-      window.scrollTo({ top: 0, behavior: 'smooth' });
-
-      return;
-    }
-
-    // Hide validation hints if all fields are valid
-    setShowValidationHints(false);
-    setValidationErrors({});
-
-    // Use our validation utilities for better error handling
-
-    // 1. Required fields validation
-    const requiredFieldsValid = validateRequiredFields(
-      data,
-      ['name', 'overview', 'countryId', 'cityId', 'category', 'startDate', 'endDate', 'basePrice'],
-      {
-        name: 'Package Name',
-        overview: 'Overview',
-        countryId: 'Country',
-        cityId: 'City',
-        category: 'Destination',
-        startDate: 'Start Date',
-        endDate: 'End Date',
-        basePrice: 'Base Price'
+      // CRITICAL: Block all automatic submissions
+      if (!allowFormSubmission) {
+        console.log("🚫 FORM SUBMISSION BLOCKED - Manual trigger required");
+        setAllowFormSubmission(false); // Reset to ensure it stays false
+        return false;
       }
-    );
 
-    if (!requiredFieldsValid) return;
+      console.log("✅ Form submission allowed - proceeding");
 
-    // 2. Numeric fields validation
-    const numericFieldsValid = validateNumericFields(
-      data,
-      [
-        { field: 'basePrice', label: 'Base Price', min: 0.01 },
-        { field: 'adultCount', label: 'Adult Count', min: 1, integer: true },
-        { field: 'childrenCount', label: 'Children Count', min: 0, integer: true },
-        { field: 'infantCount', label: 'Infant Count', min: 0, integer: true }
-      ]
-    );
+      // Check for missing required fields
+      const errors = validateFormFields();
+      console.log("=== VALIDATION COMPLETE ===");
 
-    if (!numericFieldsValid) return;
+      if (Object.keys(errors).length > 0) {
+        // Show validation hints
+        setValidationErrors(errors);
+        setShowValidationHints(true);
 
-    // 3. Date fields validation
-    const today = new Date();
-    today.setHours(0, 0, 0, 0);
+        // Switch to the first tab with errors
+        const firstErrorTab = getFirstTabWithErrors(errors);
+        setActiveTab(firstErrorTab);
 
-    const dateFieldsValid = validateDateFields(
-      data,
-      [
-        { 
-          field: 'startDate', 
-          label: 'Start Date', 
-          notInPast: true 
-        },
-        { 
-          field: 'endDate', 
-          label: 'End Date', 
-          notInPast: true 
-        }
-      ],
-      [
+        // Scroll to top of form
+        window.scrollTo({ top: 0, behavior: "smooth" });
+
+        return;
+      }
+
+      // Hide validation hints if all fields are valid
+      setShowValidationHints(false);
+      setValidationErrors({});
+
+      // Use our validation utilities for better error handling
+
+      // 1. Required fields validation
+      const requiredFieldsValid = validateRequiredFields(
+        data,
+        [
+          "name",
+          "overview",
+          "countryId",
+          "cityId",
+          "category",
+          "startDate",
+          "endDate",
+          "basePrice",
+        ],
         {
-          startField: 'startDate',
-          endField: 'endDate',
-          startLabel: 'Start Date',
-          endLabel: 'End Date'
-        }
-      ]
-    );
-
-    if (!dateFieldsValid) return;
-
-    // 4. Custom validations
-    const customValidationsValid = validateForm(data, [
-      {
-        condition: (data.endDate && data.startDate) ? data.endDate.getTime() === data.startDate.getTime() : false,
-        errorMessage: {
-          title: "Invalid Duration",
-          description: "The package must have at least 1 day duration"
+          name: "Package Name",
+          overview: "Overview",
+          countryId: "Country",
+          cityId: "City",
+          category: "Destination",
+          startDate: "Start Date",
+          endDate: "End Date",
+          basePrice: "Base Price",
         },
-        variant: "destructive"
-      },
-      {
-        condition: data.includedFeatures === undefined || (data.includedFeatures && data.includedFeatures.length === 0),
-        errorMessage: {
-          title: "No Features Selected",
-          description: "Please select at least one included feature for the package"
+      );
+
+      if (!requiredFieldsValid) return;
+
+      // 2. Numeric fields validation
+      const numericFieldsValid = validateNumericFields(data, [
+        { field: "basePrice", label: "Base Price", min: 0.01 },
+        { field: "adultCount", label: "Adult Count", min: 1, integer: true },
+        {
+          field: "childrenCount",
+          label: "Children Count",
+          min: 0,
+          integer: true,
         },
-        variant: "destructive"
+        { field: "infantCount", label: "Infant Count", min: 0, integer: true },
+      ]);
+
+      if (!numericFieldsValid) return;
+
+      // 3. Date fields validation
+      const today = new Date();
+      today.setHours(0, 0, 0, 0);
+
+      const dateFieldsValid = validateDateFields(
+        data,
+        [
+          {
+            field: "startDate",
+            label: "Start Date",
+            notInPast: true,
+          },
+          {
+            field: "endDate",
+            label: "End Date",
+            notInPast: true,
+          },
+        ],
+        [
+          {
+            startField: "startDate",
+            endField: "endDate",
+            startLabel: "Start Date",
+            endLabel: "End Date",
+          },
+        ],
+      );
+
+      if (!dateFieldsValid) return;
+
+      // 4. Custom validations
+      const customValidationsValid = validateForm(data, [
+        {
+          condition:
+            data.endDate && data.startDate
+              ? data.endDate.getTime() === data.startDate.getTime()
+              : false,
+          errorMessage: {
+            title: "Invalid Duration",
+            description: "The package must have at least 1 day duration",
+          },
+          variant: "destructive",
+        },
+        {
+          condition:
+            data.includedFeatures === undefined ||
+            (data.includedFeatures && data.includedFeatures.length === 0),
+          errorMessage: {
+            title: "No Features Selected",
+            description:
+              "Please select at least one included feature for the package",
+          },
+          variant: "destructive",
+        },
+      ]);
+
+      if (!customValidationsValid) {
+        setAllowFormSubmission(false);
+        return;
       }
-    ]);
 
-    if (!customValidationsValid) {
+      // All validations passed, proceed with submission
+      packageMutation.mutate(data);
+
+      // Reset the permission flag after submission
       setAllowFormSubmission(false);
-      return;
-    }
-
-    // All validations passed, proceed with submission
-    packageMutation.mutate(data);
-
-    // Reset the permission flag after submission
-    setAllowFormSubmission(false);
-  }, [allowFormSubmission]);
+    },
+    [allowFormSubmission],
+  );
 
   // Effect to load package data when in edit mode
   useEffect(() => {
     if (isEditMode && existingPackageData && !isInitialized) {
-      console.log('Initializing edit form with package data:', existingPackageData);
+      console.log(
+        "Initializing edit form with package data:",
+        existingPackageData,
+      );
 
       // Parse JSON strings into arrays if needed
-      const inclusions = typeof existingPackageData.inclusions === 'string' 
-        ? JSON.parse(existingPackageData.inclusions) 
-        : existingPackageData.inclusions || [];
+      const inclusions =
+        typeof existingPackageData.inclusions === "string"
+          ? JSON.parse(existingPackageData.inclusions)
+          : existingPackageData.inclusions || [];
 
       // Handle gallery URLs, ensuring we have a non-null array even if no images
       let galleryUrls: string[] = [];
       if (existingPackageData.galleryUrls) {
-        galleryUrls = typeof existingPackageData.galleryUrls === 'string' 
-          ? JSON.parse(existingPackageData.galleryUrls) 
-          : (existingPackageData.galleryUrls as string[] || []);
+        galleryUrls =
+          typeof existingPackageData.galleryUrls === "string"
+            ? JSON.parse(existingPackageData.galleryUrls)
+            : (existingPackageData.galleryUrls as string[]) || [];
       }
 
       // If galleryUrls is still null or undefined, use an empty array
@@ -836,25 +989,28 @@ export function PackageCreatorForm({ packageId, onNavigateRequest }: PackageCrea
       }
 
       // Log image information for debugging
-      console.log('Package main image URL:', mainImageUrl);
-      console.log('Gallery URLs:', galleryUrls);
+      console.log("Package main image URL:", mainImageUrl);
+      console.log("Gallery URLs:", galleryUrls);
 
       // Create image objects from galleryUrls
       const imageObjects = galleryUrls.map((url: string, index: number) => ({
         id: `existing-${index}`,
-        file: null, 
+        file: null,
         preview: url,
-        isMain: url === mainImageUrl // Set main image flag
+        isMain: url === mainImageUrl, // Set main image flag
       }));
 
       // Ensure at least one image is marked as main
-      if (imageObjects.length > 0 && !imageObjects.some((img: {isMain: boolean}) => img.isMain)) {
-        console.log('No main image found, setting first image as main');
+      if (
+        imageObjects.length > 0 &&
+        !imageObjects.some((img: { isMain: boolean }) => img.isMain)
+      ) {
+        console.log("No main image found, setting first image as main");
         imageObjects[0].isMain = true;
       }
 
       // Log the created image objects
-      console.log('Created image objects:', imageObjects);
+      console.log("Created image objects:", imageObjects);
 
       // Set state values
       setImages(imageObjects);
@@ -862,8 +1018,16 @@ export function PackageCreatorForm({ packageId, onNavigateRequest }: PackageCrea
 
       // Calculate dates based on duration if not provided
       const today = new Date();
-      const startDate = new Date(today.getFullYear(), today.getMonth(), today.getDate() + 7); // Default to 1 week from now
-      const endDate = new Date(today.getFullYear(), today.getMonth(), today.getDate() + 7 + (existingPackageData.duration || 7)); // Default to 1 week duration
+      const startDate = new Date(
+        today.getFullYear(),
+        today.getMonth(),
+        today.getDate() + 7,
+      ); // Default to 1 week from now
+      const endDate = new Date(
+        today.getFullYear(),
+        today.getMonth(),
+        today.getDate() + 7 + (existingPackageData.duration || 7),
+      ); // Default to 1 week duration
 
       // Try to detect city ID based on the destination name matching a city name
       let cityId = existingPackageData.cityId;
@@ -872,74 +1036,87 @@ export function PackageCreatorForm({ packageId, onNavigateRequest }: PackageCrea
           cityId = destination.city_id;
         } else {
           // Try to find a city with the same name as the destination
-          const matchedCity = cities.find(city => 
-            city.name === destination.name && 
-            (!countryId || city.countryId === countryId)
+          const matchedCity = cities.find(
+            (city) =>
+              city.name === destination.name &&
+              (!countryId || city.countryId === countryId),
           );
 
           if (matchedCity) {
             cityId = matchedCity.id;
-            console.log('Matched city by name:', matchedCity.name, 'ID:', cityId);
+            console.log(
+              "Matched city by name:",
+              matchedCity.name,
+              "ID:",
+              cityId,
+            );
           } else {
             // Hard-coded mappings based on known destination-to-city relationships
             const destinationCityMap: Record<number, number> = {
-              1: 1,  // Cairo destination → Cairo city
-              2: 4,  // Dubai destination → Dubai city
-              3: 3,  // Sharm El Sheikh destination → Sharm El Sheikh city
-              4: 7,  // Petra destination → Petra city
-              5: 8,  // Marrakech destination → Marrakech city
+              1: 1, // Cairo destination → Cairo city
+              2: 4, // Dubai destination → Dubai city
+              3: 3, // Sharm El Sheikh destination → Sharm El Sheikh city
+              4: 7, // Petra destination → Petra city
+              5: 8, // Marrakech destination → Marrakech city
             };
 
             if (destinationCityMap[destination.id]) {
               cityId = destinationCityMap[destination.id];
-              console.log('Applied city mapping for destination ID:', destination.id, 'City ID:', cityId);
+              console.log(
+                "Applied city mapping for destination ID:",
+                destination.id,
+                "City ID:",
+                cityId,
+              );
             }
           }
         }
       }
 
       // Log what we found for debugging
-      console.log('Setting form values with:', {
+      console.log("Setting form values with:", {
         countryId,
         cityId,
         destinationId: existingPackageData.destinationId,
-        category: existingPackageData.destinationId?.toString()
+        category: existingPackageData.destinationId?.toString(),
       });
 
       // Wait for the country to load cities before setting the form values
       setTimeout(() => {
         // Log the available cities for the selected country
-        console.log('Available cities for country ID', countryId, ':', cities);
+        console.log("Available cities for country ID", countryId, ":", cities);
 
         // Parse additional field data
-        const parsedShortDescription = existingPackageData.shortDescription || "";
+        const parsedShortDescription =
+          existingPackageData.shortDescription || "";
         const parsedCategoryId = existingPackageData.categoryId || null;
-        const parsedIdealFor = existingPackageData.idealFor 
-          ? (typeof existingPackageData.idealFor === 'string' 
-              ? JSON.parse(existingPackageData.idealFor) 
-              : existingPackageData.idealFor)
+        const parsedIdealFor = existingPackageData.idealFor
+          ? typeof existingPackageData.idealFor === "string"
+            ? JSON.parse(existingPackageData.idealFor)
+            : existingPackageData.idealFor
           : [];
         const parsedRoute = existingPackageData.route || "";
-        const parsedWhatToPack = existingPackageData.whatToPack 
-          ? (typeof existingPackageData.whatToPack === 'string' 
-              ? JSON.parse(existingPackageData.whatToPack) 
-              : existingPackageData.whatToPack)
+        const parsedWhatToPack = existingPackageData.whatToPack
+          ? typeof existingPackageData.whatToPack === "string"
+            ? JSON.parse(existingPackageData.whatToPack)
+            : existingPackageData.whatToPack
           : [];
-        const parsedItinerary = existingPackageData.itinerary 
-          ? (typeof existingPackageData.itinerary === 'string' 
-              ? JSON.parse(existingPackageData.itinerary) 
-              : existingPackageData.itinerary)
+        const parsedItinerary = existingPackageData.itinerary
+          ? typeof existingPackageData.itinerary === "string"
+            ? JSON.parse(existingPackageData.itinerary)
+            : existingPackageData.itinerary
           : [];
-        const parsedExcludedItems = existingPackageData.excludedItems 
-          ? (typeof existingPackageData.excludedItems === 'string' 
-              ? JSON.parse(existingPackageData.excludedItems) 
-              : existingPackageData.excludedItems)
+        const parsedExcludedItems = existingPackageData.excludedItems
+          ? typeof existingPackageData.excludedItems === "string"
+            ? JSON.parse(existingPackageData.excludedItems)
+            : existingPackageData.excludedItems
           : [];
-        const parsedAccommodationHighlights = existingPackageData.accommodationHighlights 
-          ? (typeof existingPackageData.accommodationHighlights === 'string' 
-              ? JSON.parse(existingPackageData.accommodationHighlights) 
-              : existingPackageData.accommodationHighlights)
-          : [];
+        const parsedAccommodationHighlights =
+          existingPackageData.accommodationHighlights
+            ? typeof existingPackageData.accommodationHighlights === "string"
+              ? JSON.parse(existingPackageData.accommodationHighlights)
+              : existingPackageData.accommodationHighlights
+            : [];
 
         // Set component state for complex fields
         setSelectedTravellerTypes(parsedIdealFor);
@@ -950,7 +1127,9 @@ export function PackageCreatorForm({ packageId, onNavigateRequest }: PackageCrea
 
         // Set selected tour if exists
         if (existingPackageData.selectedTourId) {
-          const tour = tours.find(t => t.id === existingPackageData.selectedTourId);
+          const tour = tours.find(
+            (t) => t.id === existingPackageData.selectedTourId,
+          );
           if (tour) {
             setSelectedTour(tour);
           }
@@ -984,27 +1163,36 @@ export function PackageCreatorForm({ packageId, onNavigateRequest }: PackageCrea
         });
 
         // Force update the form control values directly as a backup
-        form.setValue('countryId', countryId);
-        form.setValue('cityId', cityId);
-        form.setValue('categoryId', parsedCategoryId);
-        form.setValue('shortDescription', parsedShortDescription);
-        form.setValue('route', parsedRoute);
+        form.setValue("countryId", countryId);
+        form.setValue("cityId", cityId);
+        form.setValue("categoryId", parsedCategoryId);
+        form.setValue("shortDescription", parsedShortDescription);
+        form.setValue("route", parsedRoute);
 
         // Set initial form data for change tracking
         const currentFormData = form.getValues();
         setInitialFormData(currentFormData);
 
-        console.log('Form values set:', currentFormData);
+        console.log("Form values set:", currentFormData);
       }, 800); // Give a longer delay to ensure cities are loaded
     }
-  }, [existingPackageData, isEditMode, form, isInitialized, destinations, countries, cities]);
+  }, [
+    existingPackageData,
+    isEditMode,
+    form,
+    isInitialized,
+    destinations,
+    countries,
+    cities,
+  ]);
 
   // Watch form changes to track unsaved changes (after form is initialized)
   const formValues = form.watch();
 
   useEffect(() => {
     if (initialFormData) {
-      const hasChanges = JSON.stringify(formValues) !== JSON.stringify(initialFormData);
+      const hasChanges =
+        JSON.stringify(formValues) !== JSON.stringify(initialFormData);
       setHasUnsavedChanges(hasChanges);
     }
   }, [formValues, initialFormData]);
@@ -1015,9 +1203,9 @@ export function PackageCreatorForm({ packageId, onNavigateRequest }: PackageCrea
       handleNavigateWithWarning("/admin/packages");
     };
 
-    window.addEventListener('navigate-request', handleNavigateRequest);
+    window.addEventListener("navigate-request", handleNavigateRequest);
     return () => {
-      window.removeEventListener('navigate-request', handleNavigateRequest);
+      window.removeEventListener("navigate-request", handleNavigateRequest);
     };
   }, [hasUnsavedChanges]);
 
@@ -1033,37 +1221,46 @@ export function PackageCreatorForm({ packageId, onNavigateRequest }: PackageCrea
   }, []);
 
   const handleHotelSelectionChange = (selectedHotelIds: string[]) => {
-    console.log('🏨 HOTEL SELECTION CHANGED:', selectedHotelIds);
+    console.log("🏨 HOTEL SELECTION CHANGED:", selectedHotelIds);
     form.setValue("selectedHotels", selectedHotelIds);
     updateAvailableRooms(selectedHotelIds);
 
     // Force re-render by triggering form watch
     setTimeout(() => {
-      console.log('Current selectedHotels from form:', form.watch("selectedHotels"));
+      console.log(
+        "Current selectedHotels from form:",
+        form.watch("selectedHotels"),
+      );
     }, 100);
   };
 
   const updateAvailableRooms = (selectedHotelIds: string[]) => {
-    console.log('🏨 HOTEL SELECTION CHANGED:', selectedHotelIds);
-    console.log('📊 All rooms in database:', allRooms.length, 'rooms');
+    console.log("🏨 HOTEL SELECTION CHANGED:", selectedHotelIds);
+    console.log("📊 All rooms in database:", allRooms.length, "rooms");
 
     if (selectedHotelIds.length === 0) {
-      console.log('❌ No hotels selected - clearing available rooms');
+      console.log("❌ No hotels selected - clearing available rooms");
       setAvailableRooms([]);
       setFilteredRooms([]);
       return;
     }
 
-    const hotelRooms = allRooms.filter(room => {
+    const hotelRooms = allRooms.filter((room) => {
       // Handle both camelCase and snake_case field names
       const roomHotelId = room.hotelId || room.hotel_id;
       // Convert both to strings for comparison since hotels API returns string IDs
       const matches = selectedHotelIds.includes(String(roomHotelId));
-      console.log(`🏠 Room "${room.name}": hotel_id=${roomHotelId}, matches=${matches ? '✅' : '❌'}`);
+      console.log(
+        `🏠 Room "${room.name}": hotel_id=${roomHotelId}, matches=${matches ? "✅" : "❌"}`,
+      );
       return matches;
     });
 
-    console.log('🔄 Rooms for selected hotels:', hotelRooms.length, 'rooms found');
+    console.log(
+      "🔄 Rooms for selected hotels:",
+      hotelRooms.length,
+      "rooms found",
+    );
     setAvailableRooms(hotelRooms);
 
     const adultCount = form.getValues("adultCount") || 2;
@@ -1094,55 +1291,70 @@ export function PackageCreatorForm({ packageId, onNavigateRequest }: PackageCrea
     if (!tourSearchQuery.trim()) {
       // If empty query, return all tours sorted by ID (most recent first)
       return [...tours]
-        .filter(tour => tour && tour.id && tour.name) // Filter out invalid entries
+        .filter((tour) => tour && tour.id && tour.name) // Filter out invalid entries
         .sort((a, b) => (b.id || 0) - (a.id || 0))
         .slice(0, 10);
     }
 
     // Otherwise filter by name match
-    return tours.filter(tour => 
-      tour && tour.name && tour.name.toLowerCase().includes(tourSearchQuery.toLowerCase())
+    return tours.filter(
+      (tour) =>
+        tour &&
+        tour.name &&
+        tour.name.toLowerCase().includes(tourSearchQuery.toLowerCase()),
     );
   };
 
-  const filterRoomsByCapacity = (rooms: any[], adults: number, children: number, infants: number) => {
-    console.log('Filtering rooms by capacity:', { adults, children, infants });
-    console.log('Available rooms:', rooms);
+  const filterRoomsByCapacity = (
+    rooms: any[],
+    adults: number,
+    children: number,
+    infants: number,
+  ) => {
+    console.log("Filtering rooms by capacity:", { adults, children, infants });
+    console.log("Available rooms:", rooms);
 
     const totalGuests = adults + children + infants;
 
-    const filtered = rooms.filter(room => {
+    const filtered = rooms.filter((room) => {
       // Check different possible field names based on database schema
-      const roomCapacity = room.maxOccupancy || room.maxAdults || room.capacity || 2;
+      const roomCapacity =
+        room.maxOccupancy || room.maxAdults || room.capacity || 2;
       const meetsCapacity = roomCapacity >= totalGuests;
 
-      console.log(`Room ${room.name || room.id}: capacity=${roomCapacity}, totalGuests=${totalGuests}, meets=${meetsCapacity}`);
+      console.log(
+        `Room ${room.name || room.id}: capacity=${roomCapacity}, totalGuests=${totalGuests}, meets=${meetsCapacity}`,
+      );
 
       return meetsCapacity;
     });
 
-    console.log('Filtered rooms:', filtered);
+    console.log("Filtered rooms:", filtered);
     setFilteredRooms(filtered);
 
     // Clear selected rooms that no longer match criteria
     const currentSelectedRooms = form.getValues("rooms") || [];
-    const validRoomIds = filtered.map(room => room.id);
-    const validSelectedRooms = currentSelectedRooms.filter(
-      room => validRoomIds.includes(room.id)
+    const validRoomIds = filtered.map((room) => room.id);
+    const validSelectedRooms = currentSelectedRooms.filter((room) =>
+      validRoomIds.includes(room.id),
     );
     form.setValue("rooms", validSelectedRooms);
   };
 
-  const handlePricingRuleChange = (id: string, field: "value" | "percentage", value: number | boolean) => {
-    setPricingRules(prev => 
-      prev.map(rule => 
-        rule.id === id 
-          ? { 
-              ...rule, 
-              [field]: field === "percentage" ? value : Number(value)
-            } 
-          : rule
-      )
+  const handlePricingRuleChange = (
+    id: string,
+    field: "value" | "percentage",
+    value: number | boolean,
+  ) => {
+    setPricingRules((prev) =>
+      prev.map((rule) =>
+        rule.id === id
+          ? {
+              ...rule,
+              [field]: field === "percentage" ? value : Number(value),
+            }
+          : rule,
+      ),
     );
   };
 
@@ -1163,17 +1375,17 @@ export function PackageCreatorForm({ packageId, onNavigateRequest }: PackageCrea
       reader.onload = async () => {
         try {
           // Upload the image to the server
-          const response = await fetch('/api/upload-image', {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
+          const response = await fetch("/api/upload-image", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
             body: JSON.stringify({
               image: reader.result,
-              type: file.name.split('.').pop() || 'jpeg'
+              type: file.name.split(".").pop() || "jpeg",
             }),
           });
 
           if (!response.ok) {
-            throw new Error('Failed to upload image');
+            throw new Error("Failed to upload image");
           }
 
           const data = await response.json();
@@ -1187,15 +1399,15 @@ export function PackageCreatorForm({ packageId, onNavigateRequest }: PackageCrea
             id: Math.random().toString(36).substring(7),
             file: null, // We don't need to keep the file object anymore
             preview: serverUrl, // Use the server URL instead of blob URL
-            isMain: isFirstImage
+            isMain: isFirstImage,
           };
 
-          setImages(prev => [...prev, newImage]);
+          setImages((prev) => [...prev, newImage]);
 
           // Clean up the temporary blob URL
           URL.revokeObjectURL(tempPreview);
         } catch (error) {
-          console.error('Error uploading image:', error);
+          console.error("Error uploading image:", error);
           toast({
             title: "Error uploading image",
             description: "Failed to upload image to server",
@@ -1206,17 +1418,17 @@ export function PackageCreatorForm({ packageId, onNavigateRequest }: PackageCrea
 
       // Reset file input
       if (fileInputRef.current) {
-        fileInputRef.current.value = '';
+        fileInputRef.current.value = "";
       }
     }
   };
 
   const setMainImage = (id: string) => {
-    setImages(prev => 
-      prev.map(image => ({
+    setImages((prev) =>
+      prev.map((image) => ({
         ...image,
-        isMain: image.id === id
-      }))
+        isMain: image.id === id,
+      })),
     );
   };
 
@@ -1230,23 +1442,34 @@ export function PackageCreatorForm({ packageId, onNavigateRequest }: PackageCrea
   // Validation helper functions
   const validateFormFields = useCallback(() => {
     const formData = form.getValues();
-    const errors: {[key: string]: string[]} = {};
+    const errors: { [key: string]: string[] } = {};
 
     // Basic Info tab validation
     const basicErrors: string[] = [];
     if (!formData.name || formData.name.trim().length < 3) {
       basicErrors.push("Package Name");
     }
-    if (!formData.shortDescription || formData.shortDescription.trim().length < 5) {
+    if (
+      !formData.shortDescription ||
+      formData.shortDescription.trim().length < 5
+    ) {
       basicErrors.push("Short Description");
     }
-    if (!formData.countryId || formData.countryId === null || formData.countryId === 0) {
+    if (
+      !formData.countryId ||
+      formData.countryId === null ||
+      formData.countryId === 0
+    ) {
       basicErrors.push("Country");
     }
     if (!formData.cityId || formData.cityId === null || formData.cityId === 0) {
       basicErrors.push("City");
     }
-    if (!formData.categoryId || formData.categoryId === null || formData.categoryId === 0) {
+    if (
+      !formData.categoryId ||
+      formData.categoryId === null ||
+      formData.categoryId === 0
+    ) {
       basicErrors.push("Package Category");
     }
     if (!formData.overview || formData.overview.trim().length < 10) {
@@ -1274,17 +1497,30 @@ export function PackageCreatorForm({ packageId, onNavigateRequest }: PackageCrea
     return errors;
   }, [form]);
 
-  const getFirstTabWithErrors = (errors: {[key: string]: string[]}) => {
-    const tabOrder = ["basic", "pricing", "accommodation", "features", "itinerary", "packing", "route"];
+  const getFirstTabWithErrors = (errors: { [key: string]: string[] }) => {
+    const tabOrder = [
+      "basic",
+      "pricing",
+      "accommodation",
+      "features",
+      "itinerary",
+      "packing",
+      "route",
+    ];
     const errorTabs = Object.keys(errors);
 
     for (const tab of tabOrder) {
       if (tab === "basic" && errorTabs.includes("Basic Info")) return "basic";
-      if (tab === "pricing" && errorTabs.includes("Pricing Rules")) return "pricing";
-      if (tab === "accommodation" && errorTabs.includes("Hotel & Rooms")) return "accommodation";
-      if (tab === "features" && errorTabs.includes("Features")) return "features";
-      if (tab === "itinerary" && errorTabs.includes("Itinerary")) return "itinerary";
-      if (tab === "packing" && errorTabs.includes("What to Pack")) return "packing";
+      if (tab === "pricing" && errorTabs.includes("Pricing Rules"))
+        return "pricing";
+      if (tab === "accommodation" && errorTabs.includes("Hotel & Rooms"))
+        return "accommodation";
+      if (tab === "features" && errorTabs.includes("Features"))
+        return "features";
+      if (tab === "itinerary" && errorTabs.includes("Itinerary"))
+        return "itinerary";
+      if (tab === "packing" && errorTabs.includes("What to Pack"))
+        return "packing";
       if (tab === "route" && errorTabs.includes("Travel Route")) return "route";
     }
     return "basic";
@@ -1292,16 +1528,20 @@ export function PackageCreatorForm({ packageId, onNavigateRequest }: PackageCrea
 
   const removeImage = (id: string) => {
     // Find the image to remove
-    const imageToRemove = images.find(img => img.id === id);
+    const imageToRemove = images.find((img) => img.id === id);
     const wasMainImage = imageToRemove?.isMain || false;
 
     // Revoke object URL to prevent memory leaks
-    if (imageToRemove && imageToRemove.preview && !imageToRemove.preview.startsWith('https://placehold.co')) {
+    if (
+      imageToRemove &&
+      imageToRemove.preview &&
+      !imageToRemove.preview.startsWith("https://placehold.co")
+    ) {
       URL.revokeObjectURL(imageToRemove.preview);
     }
 
     // Remove from state
-    const updatedImages = images.filter(image => image.id !== id);
+    const updatedImages = images.filter((image) => image.id !== id);
 
     // If we removed the main image and there are other images, set the first one as main
     if (wasMainImage && updatedImages.length > 0) {
@@ -1313,32 +1553,40 @@ export function PackageCreatorForm({ packageId, onNavigateRequest }: PackageCrea
 
   return (
     <Form {...form}>
-      <form onSubmit={(e) => {
-        e.preventDefault();
-        e.stopPropagation();
+      <form
+        onSubmit={(e) => {
+          e.preventDefault();
+          e.stopPropagation();
 
-        if (!allowFormSubmission) {
-          console.log("🚫 BLOCKED: Form auto-submission prevented");
-          return false;
-        }
+          if (!allowFormSubmission) {
+            console.log("🚫 BLOCKED: Form auto-submission prevented");
+            return false;
+          }
 
-        console.log("✅ ALLOWED: Manual form submission proceeding");
-        onSubmit(form.getValues());
-      }} className="space-y-8">
+          console.log("✅ ALLOWED: Manual form submission proceeding");
+          onSubmit(form.getValues());
+        }}
+        className="space-y-8"
+      >
         <div className="mb-6">
           <FormRequiredFieldsNote />
           {packageMutation.isError && (
-            <FormValidationAlert 
-              status="error" 
-              title={isEditMode ? "Package Update Failed" : "Package Creation Failed"} 
-              message={packageMutation.error?.message || `An error occurred while ${isEditMode ? 'updating' : 'creating'} the package.`} 
+            <FormValidationAlert
+              status="error"
+              title={
+                isEditMode ? "Package Update Failed" : "Package Creation Failed"
+              }
+              message={
+                packageMutation.error?.message ||
+                `An error occurred while ${isEditMode ? "updating" : "creating"} the package.`
+              }
               className="mt-3"
             />
           )}
 
           {/* Enhanced Validation Requirements */}
           {showValidationHints && Object.keys(validationErrors).length > 0 && (
-            <FormRequirementsAlert 
+            <FormRequirementsAlert
               missingFields={validationErrors}
               className="mt-4"
             />
@@ -1363,13 +1611,15 @@ export function PackageCreatorForm({ packageId, onNavigateRequest }: PackageCrea
                 name="name"
                 render={({ field }) => (
                   <FormItem>
-                    <FormLabel>Package Name <span className="text-destructive">*</span></FormLabel>
+                    <FormLabel>
+                      Package Name <span className="text-destructive">*</span>
+                    </FormLabel>
                     <FormControl>
-                      <Input 
+                      <Input
                         id="package-name"
                         className="package-name-input admin-input"
-                        placeholder="Enter package name" 
-                        {...field} 
+                        placeholder="Enter package name"
+                        {...field}
                       />
                     </FormControl>
                     <FormMessage />
@@ -1383,17 +1633,21 @@ export function PackageCreatorForm({ packageId, onNavigateRequest }: PackageCrea
                 name="shortDescription"
                 render={({ field }) => (
                   <FormItem>
-                    <FormLabel>Short Description <span className="text-destructive">*</span></FormLabel>
+                    <FormLabel>
+                      Short Description{" "}
+                      <span className="text-destructive">*</span>
+                    </FormLabel>
                     <FormControl>
-                      <Input 
+                      <Input
                         id="package-short-description"
                         className="package-short-description-input admin-input"
-                        placeholder="Brief description for package listings" 
-                        {...field} 
+                        placeholder="Brief description for package listings"
+                        {...field}
                       />
                     </FormControl>
                     <FormDescription>
-                      A short summary that will appear in package listings (min 5 characters, max 200 characters).
+                      A short summary that will appear in package listings (min
+                      5 characters, max 200 characters).
                     </FormDescription>
                     <FormMessage />
                   </FormItem>
@@ -1407,24 +1661,32 @@ export function PackageCreatorForm({ packageId, onNavigateRequest }: PackageCrea
                 render={({ field }) => (
                   <FormItem>
                     <FormLabel>Country</FormLabel>
-                    <Select 
+                    <Select
                       onValueChange={(value) => {
                         const countryId = parseInt(value);
-                        console.log('Country selection changed to:', countryId);
+                        console.log("Country selection changed to:", countryId);
                         field.onChange(countryId);
                         setSelectedCountryId(countryId);
                         // Reset cityId when country changes
                         form.setValue("cityId", null as any);
 
                         // Log available cities for the selected country
-                        const filteredCities = Array.isArray(cities) ? 
-                          cities.filter(city => city.countryId === countryId) : [];
-                        console.log('Available cities for country', countryId, ':', filteredCities);
-                      }} 
+                        const filteredCities = Array.isArray(cities)
+                          ? cities.filter(
+                              (city) => city.countryId === countryId,
+                            )
+                          : [];
+                        console.log(
+                          "Available cities for country",
+                          countryId,
+                          ":",
+                          filteredCities,
+                        );
+                      }}
                       value={field.value?.toString()}
                     >
                       <FormControl>
-                        <SelectTrigger 
+                        <SelectTrigger
                           id="package-country"
                           className="country-select admin-select"
                         >
@@ -1433,7 +1695,10 @@ export function PackageCreatorForm({ packageId, onNavigateRequest }: PackageCrea
                       </FormControl>
                       <SelectContent>
                         {countries.map((country: any) => (
-                          <SelectItem key={country.id} value={country.id.toString()}>
+                          <SelectItem
+                            key={country.id}
+                            value={country.id.toString()}
+                          >
                             {country.name}
                           </SelectItem>
                         ))}
@@ -1451,30 +1716,42 @@ export function PackageCreatorForm({ packageId, onNavigateRequest }: PackageCrea
                 render={({ field }) => (
                   <FormItem>
                     <FormLabel>City</FormLabel>
-                    <Select 
+                    <Select
                       onValueChange={(value) => {
                         field.onChange(parseInt(value));
-                      }} 
+                      }}
                       value={field.value?.toString()}
                       disabled={!selectedCountryId}
                     >
                       <FormControl>
-                        <SelectTrigger 
+                        <SelectTrigger
                           id="package-city"
                           className="city-select admin-select"
                         >
-                          <SelectValue placeholder={selectedCountryId ? "Select a city" : "Select a country first"} />
+                          <SelectValue
+                            placeholder={
+                              selectedCountryId
+                                ? "Select a city"
+                                : "Select a country first"
+                            }
+                          />
                         </SelectTrigger>
                       </FormControl>
                       <SelectContent>
-                        {Array.isArray(cities) && cities
-                          .filter((city: any) => city.countryId === selectedCountryId)
-                          .map((city: any) => (
-                            <SelectItem key={city.id} value={city.id.toString()}>
-                              {city.name}
-                            </SelectItem>
-                          ))
-                        }
+                        {Array.isArray(cities) &&
+                          cities
+                            .filter(
+                              (city: any) =>
+                                city.countryId === selectedCountryId,
+                            )
+                            .map((city: any) => (
+                              <SelectItem
+                                key={city.id}
+                                value={city.id.toString()}
+                              >
+                                {city.name}
+                              </SelectItem>
+                            ))}
                       </SelectContent>
                     </Select>
                     <FormMessage />
@@ -1491,7 +1768,7 @@ export function PackageCreatorForm({ packageId, onNavigateRequest }: PackageCrea
                     <FormLabel>Destination</FormLabel>
                     <Select onValueChange={field.onChange} value={field.value}>
                       <FormControl>
-                        <SelectTrigger 
+                        <SelectTrigger
                           id="package-destination"
                           className="destination-select admin-select"
                         >
@@ -1500,7 +1777,10 @@ export function PackageCreatorForm({ packageId, onNavigateRequest }: PackageCrea
                       </FormControl>
                       <SelectContent>
                         {destinations.map((destination: any) => (
-                          <SelectItem key={destination.id} value={destination.id.toString()}>
+                          <SelectItem
+                            key={destination.id}
+                            value={destination.id.toString()}
+                          >
                             {destination.name}, {destination.country}
                           </SelectItem>
                         ))}
@@ -1519,13 +1799,16 @@ export function PackageCreatorForm({ packageId, onNavigateRequest }: PackageCrea
                 name="categoryId"
                 render={({ field }) => (
                   <FormItem>
-                    <FormLabel>Package Category <span className="text-destructive">*</span></FormLabel>
-                    <Select 
+                    <FormLabel>
+                      Package Category{" "}
+                      <span className="text-destructive">*</span>
+                    </FormLabel>
+                    <Select
                       onValueChange={(value) => field.onChange(parseInt(value))}
                       defaultValue={field.value?.toString()}
                     >
                       <FormControl>
-                        <SelectTrigger 
+                        <SelectTrigger
                           id="package-category"
                           className="category-select admin-select"
                         >
@@ -1534,7 +1817,10 @@ export function PackageCreatorForm({ packageId, onNavigateRequest }: PackageCrea
                       </FormControl>
                       <SelectContent>
                         {packageCategories.map((category) => (
-                          <SelectItem key={category.id} value={category.id.toString()}>
+                          <SelectItem
+                            key={category.id}
+                            value={category.id.toString()}
+                          >
                             {category.name}
                           </SelectItem>
                         ))}
@@ -1556,12 +1842,12 @@ export function PackageCreatorForm({ packageId, onNavigateRequest }: PackageCrea
                 <FormItem>
                   <FormLabel>Short Description</FormLabel>
                   <FormControl>
-                    <Textarea 
+                    <Textarea
                       id="package-short-description"
                       className="min-h-[80px] package-short-description-input admin-textarea"
-                      placeholder="Enter a brief description (min 5 characters, max 200 characters)" 
+                      placeholder="Enter a brief description (min 5 characters, max 200 characters)"
                       maxLength={200}
-                      {...field} 
+                      {...field}
                     />
                   </FormControl>
                   <FormDescription>
@@ -1579,11 +1865,11 @@ export function PackageCreatorForm({ packageId, onNavigateRequest }: PackageCrea
                 <FormItem>
                   <FormLabel>Overview</FormLabel>
                   <FormControl>
-                    <Textarea 
+                    <Textarea
                       id="package-overview"
                       className="min-h-[120px] package-description-input admin-textarea"
-                      placeholder="Enter package overview" 
-                      {...field} 
+                      placeholder="Enter package overview"
+                      {...field}
                     />
                   </FormControl>
                   <FormMessage />
@@ -1596,15 +1882,19 @@ export function PackageCreatorForm({ packageId, onNavigateRequest }: PackageCrea
               name="basePrice"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel>Base Price (EGP) <span className="text-destructive">*</span></FormLabel>
+                  <FormLabel>
+                    Base Price (EGP) <span className="text-destructive">*</span>
+                  </FormLabel>
                   <FormControl>
                     <div className="relative">
-                      <span className="absolute left-3 top-2.5 text-zinc-500">EGP</span>
-                      <Input 
+                      <span className="absolute left-3 top-2.5 text-zinc-500">
+                        EGP
+                      </span>
+                      <Input
                         id="package-base-price"
-                        className="pl-7 package-price-input admin-currency-input" 
-                        type="number" 
-                        {...field} 
+                        className="pl-7 package-price-input admin-currency-input"
+                        type="number"
+                        {...field}
                       />
                     </div>
                   </FormControl>
@@ -1623,8 +1913,8 @@ export function PackageCreatorForm({ packageId, onNavigateRequest }: PackageCrea
               render={({ field }) => (
                 <FormItem>
                   <FormLabel>Language</FormLabel>
-                  <Select 
-                    onValueChange={field.onChange} 
+                  <Select
+                    onValueChange={field.onChange}
                     defaultValue={field.value}
                   >
                     <FormControl>
@@ -1711,18 +2001,29 @@ export function PackageCreatorForm({ packageId, onNavigateRequest }: PackageCrea
                   <FormLabel>Ideal For</FormLabel>
                   <div className="space-y-2">
                     {travellerTypes.map((type) => (
-                      <div className="flex items-center space-x-2" key={type.id}>
+                      <div
+                        className="flex items-center space-x-2"
+                        key={type.id}
+                      >
                         <Checkbox
                           id={`ideal-for-${type.id}`}
                           checked={selectedTravellerTypes.includes(type.id)}
                           onCheckedChange={(checked) => {
                             if (checked) {
-                              setSelectedTravellerTypes([...selectedTravellerTypes, type.id]);
-                              form.setValue('idealFor', [...selectedTravellerTypes, type.id]);
+                              setSelectedTravellerTypes([
+                                ...selectedTravellerTypes,
+                                type.id,
+                              ]);
+                              form.setValue("idealFor", [
+                                ...selectedTravellerTypes,
+                                type.id,
+                              ]);
                             } else {
-                              const filtered = selectedTravellerTypes.filter(id => id !== type.id);
+                              const filtered = selectedTravellerTypes.filter(
+                                (id) => id !== type.id,
+                              );
                               setSelectedTravellerTypes(filtered);
-                              form.setValue('idealFor', filtered);
+                              form.setValue("idealFor", filtered);
                             }
                           }}
                         />
@@ -1756,7 +2057,7 @@ export function PackageCreatorForm({ packageId, onNavigateRequest }: PackageCrea
                             variant={"outline"}
                             className={cn(
                               "w-full pl-3 text-left font-normal",
-                              !field.value && "text-muted-foreground"
+                              !field.value && "text-muted-foreground",
                             )}
                           >
                             {field.value ? (
@@ -1786,7 +2087,8 @@ export function PackageCreatorForm({ packageId, onNavigateRequest }: PackageCrea
                 control={form.control}
                 name="endDate"
                 render={({ field }) => (
-                  <FormItem className="flex flex-col"><FormLabel>End Date</FormLabel>
+                  <FormItem className="flex flex-col">
+                    <FormLabel>End Date</FormLabel>
                     <Popover>
                       <PopoverTrigger asChild>
                         <FormControl>
@@ -1794,7 +2096,7 @@ export function PackageCreatorForm({ packageId, onNavigateRequest }: PackageCrea
                             variant={"outline"}
                             className={cn(
                               "w-full pl-3 text-left font-normal",
-                              !field.value && "text-muted-foreground"
+                              !field.value && "text-muted-foreground",
                             )}
                           >
                             {field.value ? (
@@ -1825,21 +2127,24 @@ export function PackageCreatorForm({ packageId, onNavigateRequest }: PackageCrea
               <h3 className="text-sm font-medium mb-3">Gallery Images</h3>
 
               {/* Hidden file input */}
-              <input 
-                type="file" 
+              <input
+                type="file"
                 ref={fileInputRef}
-                className="hidden" 
+                className="hidden"
                 accept="image/*"
                 onChange={handleImageUpload}
               />
 
               <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
-                {images.map(image => (
-                  <div key={image.id} className={`relative ${image.isMain ? 'ring-2 ring-primary' : ''}`}>
-                    <img 
-                      src={image.preview} 
-                      alt="Gallery preview" 
-                      className="w-full h-32 object-cover rounded-md border" 
+                {images.map((image) => (
+                  <div
+                    key={image.id}
+                    className={`relative ${image.isMain ? "ring-2 ring-primary" : ""}`}
+                  >
+                    <img
+                      src={image.preview}
+                      alt="Gallery preview"
+                      className="w-full h-32 object-cover rounded-md border"
                     />
                     <div className="absolute top-2 right-2 flex gap-1">
                       {!image.isMain && (
@@ -1886,14 +2191,18 @@ export function PackageCreatorForm({ packageId, onNavigateRequest }: PackageCrea
                     className="h-32 border-dashed flex flex-col items-center justify-center gap-2 bg-primary/5 hover:bg-primary/10"
                     onClick={() => {
                       // Get values from form
-                      const overview = form.getValues('overview');
-                      const cityName = cities.find(city => city.id === form.getValues('cityId'))?.name || 'Cairo';
+                      const overview = form.getValues("overview");
+                      const cityName =
+                        cities.find(
+                          (city) => city.id === form.getValues("cityId"),
+                        )?.name || "Cairo";
 
                       if (!overview || overview.length < 10) {
                         toast({
                           title: "Missing Information",
-                          description: "Please enter a package overview first (minimum 10 characters)",
-                          variant: "destructive"
+                          description:
+                            "Please enter a package overview first (minimum 10 characters)",
+                          variant: "destructive",
                         });
                         return;
                       }
@@ -1901,44 +2210,46 @@ export function PackageCreatorForm({ packageId, onNavigateRequest }: PackageCrea
                       setAiGenerating(true);
 
                       // Call the API
-                      fetch('/api/admin/packages/generate-image', {
-                        method: 'POST',
+                      fetch("/api/admin/packages/generate-image", {
+                        method: "POST",
                         headers: {
-                          'Content-Type': 'application/json',
+                          "Content-Type": "application/json",
                         },
                         body: JSON.stringify({ overview, city: cityName }),
                       })
-                        .then(response => {
+                        .then((response) => {
                           if (!response.ok) {
-                            throw new Error('Failed to generate image');
+                            throw new Error("Failed to generate image");
                           }
                           return response.json();
                         })
-                        .then(data => {
+                        .then((data) => {
                           if (data.imageUrl) {
                             // Create a new image object
                             const newImage = {
                               id: Math.random().toString(36).substring(7),
                               file: null, // AI generated images don't have a file
                               preview: data.imageUrl,
-                              isMain: images.length === 0 // Make it main if it's the first image
+                              isMain: images.length === 0, // Make it main if it's the first image
                             };
 
-                            setImages(prev => [...prev, newImage]);
+                            setImages((prev) => [...prev, newImage]);
 
                             toast({
                               title: "Image Generated",
-                              description: "AI has generated a new image for your package",
-                              variant: "default"
+                              description:
+                                "AI has generated a new image for your package",
+                              variant: "default",
                             });
                           }
                         })
-                        .catch(error => {
-                          console.error('Error generating image:', error);
+                        .catch((error) => {
+                          console.error("Error generating image:", error);
                           toast({
                             title: "Generation Failed",
-                            description: error.message || "Failed to generate image",
-                            variant: "destructive"
+                            description:
+                              error.message || "Failed to generate image",
+                            variant: "destructive",
                           });
                         })
                         .finally(() => {
@@ -1954,15 +2265,15 @@ export function PackageCreatorForm({ packageId, onNavigateRequest }: PackageCrea
                       </>
                     ) : (
                       <>
-                        <svg 
-                          xmlns="http://www.w3.org/2000/svg" 
-                          width="24" 
-                          height="24" 
-                          viewBox="0 0 24 24" 
-                          fill="none" 
-                          stroke="currentColor" 
-                          strokeWidth="2" 
-                          strokeLinecap="round" 
+                        <svg
+                          xmlns="http://www.w3.org/2000/svg"
+                          width="24"
+                          height="24"
+                          viewBox="0 0 24 24"
+                          fill="none"
+                          stroke="currentColor"
+                          strokeWidth="2"
+                          strokeLinecap="round"
                           strokeLinejoin="round"
                           className="text-primary"
                         >
@@ -2000,7 +2311,10 @@ export function PackageCreatorForm({ packageId, onNavigateRequest }: PackageCrea
                           onChange={() => field.onChange("per_booking")}
                           className="h-4 w-4 border-gray-300 text-blue-600 focus:ring-blue-500"
                         />
-                        <label htmlFor="per_booking" className="text-sm font-medium">
+                        <label
+                          htmlFor="per_booking"
+                          className="text-sm font-medium"
+                        >
                           Per Booking
                         </label>
                       </div>
@@ -2014,7 +2328,10 @@ export function PackageCreatorForm({ packageId, onNavigateRequest }: PackageCrea
                           onChange={() => field.onChange("per_percentage")}
                           className="h-4 w-4 border-gray-300 text-blue-600 focus:ring-blue-500"
                         />
-                        <label htmlFor="per_percentage" className="text-sm font-medium">
+                        <label
+                          htmlFor="per_percentage"
+                          className="text-sm font-medium"
+                        >
                           Per Percentage
                         </label>
                       </div>
@@ -2028,7 +2345,10 @@ export function PackageCreatorForm({ packageId, onNavigateRequest }: PackageCrea
                           onChange={() => field.onChange("per_amount")}
                           className="h-4 w-4 border-gray-300 text-blue-600 focus:ring-blue-500"
                         />
-                        <label htmlFor="per_amount" className="text-sm font-medium">
+                        <label
+                          htmlFor="per_amount"
+                          className="text-sm font-medium"
+                        >
                           Per Amount
                         </label>
                       </div>
@@ -2042,7 +2362,9 @@ export function PackageCreatorForm({ packageId, onNavigateRequest }: PackageCrea
             {/* Hotel Room Pricing Section */}
             {filteredRooms.length > 0 && (
               <div className="mb-6 border rounded-md p-4">
-                <h3 className="text-lg font-semibold mb-2">Hotel Room Pricing</h3>
+                <h3 className="text-lg font-semibold mb-2">
+                  Hotel Room Pricing
+                </h3>
                 <p className="text-sm text-muted-foreground mb-4">
                   Configure pricing for each selected room based on capacity
                 </p>
@@ -2080,9 +2402,12 @@ export function PackageCreatorForm({ packageId, onNavigateRequest }: PackageCrea
                             min="0"
                             defaultValue={room.price}
                             onChange={(e) => {
-                              const currentRooms = form.getValues("rooms") || [];
-                              const updatedRooms = currentRooms.map(r => 
-                                r.id === room.id ? {...r, price: Number(e.target.value)} : r
+                              const currentRooms =
+                                form.getValues("rooms") || [];
+                              const updatedRooms = currentRooms.map((r) =>
+                                r.id === room.id
+                                  ? { ...r, price: Number(e.target.value) }
+                                  : r,
                               );
                               form.setValue("rooms", updatedRooms);
                             }}
@@ -2095,7 +2420,9 @@ export function PackageCreatorForm({ packageId, onNavigateRequest }: PackageCrea
                 </Table>
 
                 <div className="text-sm text-muted-foreground mt-4">
-                  <span className="font-medium">Note:</span> Room prices will be adjusted based on the selected pricing mode and traveler rules below
+                  <span className="font-medium">Note:</span> Room prices will be
+                  adjusted based on the selected pricing mode and traveler rules
+                  below
                 </div>
               </div>
             )}
@@ -2103,8 +2430,13 @@ export function PackageCreatorForm({ packageId, onNavigateRequest }: PackageCrea
             <Card>
               <CardContent className="pt-6">
                 <div className="flex flex-col gap-2 mb-4">
-                  <h3 className="text-base font-medium">Traveler Pricing Rules</h3>
-                  <p className="text-sm text-muted-foreground">Set prices per traveler type using either a percentage of the base price or a fixed amount in L.E.</p>
+                  <h3 className="text-base font-medium">
+                    Traveler Pricing Rules
+                  </h3>
+                  <p className="text-sm text-muted-foreground">
+                    Set prices per traveler type using either a percentage of
+                    the base price or a fixed amount in L.E.
+                  </p>
                 </div>
                 <Table>
                   <TableHeader>
@@ -2117,14 +2449,18 @@ export function PackageCreatorForm({ packageId, onNavigateRequest }: PackageCrea
                   <TableBody>
                     {pricingRules.map((rule) => (
                       <TableRow key={rule.id}>
-                        <TableCell>
-                          {rule.name}
-                        </TableCell>
+                        <TableCell>{rule.name}</TableCell>
                         <TableCell>
                           <Input
                             type="number"
                             value={rule.value}
-                            onChange={(e) => handlePricingRuleChange(rule.id, "value", e.target.value ? parseInt(e.target.value) : 0)}
+                            onChange={(e) =>
+                              handlePricingRuleChange(
+                                rule.id,
+                                "value",
+                                e.target.value ? parseInt(e.target.value) : 0,
+                              )
+                            }
                             className="w-24"
                           />
                         </TableCell>
@@ -2133,15 +2469,21 @@ export function PackageCreatorForm({ packageId, onNavigateRequest }: PackageCrea
                             <div className="flex items-center gap-2">
                               <Switch
                                 checked={rule.percentage}
-                                onCheckedChange={(checked) => handlePricingRuleChange(rule.id, "percentage", checked)}
+                                onCheckedChange={(checked) =>
+                                  handlePricingRuleChange(
+                                    rule.id,
+                                    "percentage",
+                                    checked,
+                                  )
+                                }
                               />
                               <span className="text-sm font-medium">
                                 {rule.percentage ? "%" : "L.E"}
                               </span>
                             </div>
                             <div className="text-xs text-muted-foreground">
-                              {rule.percentage 
-                                ? `(${rule.value}% of base price)` 
+                              {rule.percentage
+                                ? `(${rule.value}% of base price)`
                                 : `(Fixed amount: ${rule.value} L.E)`}
                             </div>
                           </div>
@@ -2155,27 +2497,32 @@ export function PackageCreatorForm({ packageId, onNavigateRequest }: PackageCrea
                     type="button"
                     variant="outline"
                     size="sm"
-                    disabled={(filteredRooms?.length || 0) > 0 && (form.getValues("rooms")?.length || 0) > 0}
+                    disabled={
+                      (filteredRooms?.length || 0) > 0 &&
+                      (form.getValues("rooms")?.length || 0) > 0
+                    }
                     onClick={() => {
                       // In a real app, you would add a new pricing rule here
-                      const newRule = { 
-                        id: "infant", 
-                        value: 50, 
+                      const newRule = {
+                        id: "infant",
+                        value: 50,
                         percentage: true,
-                        name: "Infant Discount"
+                        name: "Infant Discount",
                       };
-                      setPricingRules(prev => [...prev, newRule]);
+                      setPricingRules((prev) => [...prev, newRule]);
                     }}
                   >
                     <Plus size={16} className="mr-2" />
                     Add Pricing Rule
                   </Button>
 
-                  {(filteredRooms?.length || 0) > 0 && (form.getValues("rooms")?.length || 0) > 0 && (
-                    <p className="text-xs text-amber-600 mt-2">
-                      Adding new pricing rules is disabled when room pricing is configured
-                    </p>
-                  )}
+                  {(filteredRooms?.length || 0) > 0 &&
+                    (form.getValues("rooms")?.length || 0) > 0 && (
+                      <p className="text-xs text-amber-600 mt-2">
+                        Adding new pricing rules is disabled when room pricing
+                        is configured
+                      </p>
+                    )}
                 </div>
               </CardContent>
             </Card>
@@ -2194,17 +2541,32 @@ export function PackageCreatorForm({ packageId, onNavigateRequest }: PackageCrea
                     <FormControl>
                       <div className="space-y-2">
                         {hotels.map((hotel) => (
-                          <div key={hotel.id} className="flex items-center space-x-2 p-2 border rounded">
+                          <div
+                            key={hotel.id}
+                            className="flex items-center space-x-2 p-2 border rounded"
+                          >
                             <Checkbox
                               id={`hotel-${hotel.id}`}
-                              checked={Array.isArray(field.value) && field.value.includes(hotel.id)}
+                              checked={
+                                Array.isArray(field.value) &&
+                                field.value.includes(hotel.id)
+                              }
                               onCheckedChange={(checked) => {
-                                const currentSelection = Array.isArray(field.value) ? field.value : [];
+                                const currentSelection = Array.isArray(
+                                  field.value,
+                                )
+                                  ? field.value
+                                  : [];
                                 let newSelection;
                                 if (checked) {
-                                  newSelection = [...currentSelection, hotel.id];
+                                  newSelection = [
+                                    ...currentSelection,
+                                    hotel.id,
+                                  ];
                                 } else {
-                                  newSelection = currentSelection.filter(id => id !== hotel.id);
+                                  newSelection = currentSelection.filter(
+                                    (id) => id !== hotel.id,
+                                  );
                                 }
                                 field.onChange(newSelection);
                                 handleHotelSelectionChange(newSelection);
@@ -2229,7 +2591,6 @@ export function PackageCreatorForm({ packageId, onNavigateRequest }: PackageCrea
               />
             </div>
 
-
             {/* Guest Breakdown */}
             <div className="space-y-4 border rounded-md p-4">
               <h3 className="text-lg font-semibold">Guest Breakdown</h3>
@@ -2241,14 +2602,15 @@ export function PackageCreatorForm({ packageId, onNavigateRequest }: PackageCrea
                     <FormItem>
                       <FormLabel>Adults (12+ years)</FormLabel>
                       <FormControl>
-                        <Input 
-                          type="number" 
-                          min="1" 
-                          {...field} 
+                        <Input
+                          type="number"
+                          min="1"
+                          {...field}
                           onChange={(e) => {
                             const value = parseInt(e.target.value);
                             field.onChange(value);
-                            const selectedHotels = form.getValues("selectedHotels") || [];
+                            const selectedHotels =
+                              form.getValues("selectedHotels") || [];
                             if (selectedHotels.length > 0) {
                               updateAvailableRooms(selectedHotels);
                             }
@@ -2267,14 +2629,15 @@ export function PackageCreatorForm({ packageId, onNavigateRequest }: PackageCrea
                     <FormItem>
                       <FormLabel>Children (2-11 years)</FormLabel>
                       <FormControl>
-                        <Input 
-                          type="number" 
-                          min="0" 
-                          {...field} 
+                        <Input
+                          type="number"
+                          min="0"
+                          {...field}
                           onChange={(e) => {
                             const value = parseInt(e.target.value);
                             field.onChange(value);
-                            const selectedHotels = form.getValues("selectedHotels") || [];
+                            const selectedHotels =
+                              form.getValues("selectedHotels") || [];
                             if (selectedHotels.length > 0) {
                               updateAvailableRooms(selectedHotels);
                             }
@@ -2293,14 +2656,15 @@ export function PackageCreatorForm({ packageId, onNavigateRequest }: PackageCrea
                     <FormItem>
                       <FormLabel>Infants (0-23 months)</FormLabel>
                       <FormControl>
-                        <Input 
-                          type="number" 
-                          min="0" 
-                          {...field} 
+                        <Input
+                          type="number"
+                          min="0"
+                          {...field}
                           onChange={(e) => {
                             const value = parseInt(e.target.value);
                             field.onChange(value);
-                            const selectedHotels = form.getValues("selectedHotels") || [];
+                            const selectedHotels =
+                              form.getValues("selectedHotels") || [];
                             if (selectedHotels.length > 0) {
                               updateAvailableRooms(selectedHotels);
                             }
@@ -2315,137 +2679,213 @@ export function PackageCreatorForm({ packageId, onNavigateRequest }: PackageCrea
             </div>
 
             {/* Available Rooms */}
-            {Array.isArray(form.watch("selectedHotels")) && (form.watch("selectedHotels")?.length || 0) > 0 && filteredRooms.length > 0 && (
-              <FormField
-                control={form.control}
-                name="rooms"
-                render={() => (
-                  <FormItem>
-                    <div className="mb-4">
-                      <h3 className="text-lg font-semibold">Available Rooms</h3>
-                      <FormDescription>
-                        Only rooms that can accommodate your specified guest count are shown.
-                      </FormDescription>
-                    </div>
-
-                    {filteredRooms.length === 0 ? (
-                      <div className="text-center p-8 border border-dashed rounded-md">
-                        <p className="text-muted-foreground">No rooms match the selected criteria. Try adjusting your guest count or selecting different hotels.</p>
+            {Array.isArray(form.watch("selectedHotels")) &&
+              (form.watch("selectedHotels")?.length || 0) > 0 &&
+              filteredRooms.length > 0 && (
+                <FormField
+                  control={form.control}
+                  name="rooms"
+                  render={() => (
+                    <FormItem>
+                      <div className="mb-4">
+                        <h3 className="text-lg font-semibold">
+                          Available Rooms
+                        </h3>
+                        <FormDescription>
+                          Only rooms that can accommodate your specified guest
+                          count are shown.
+                        </FormDescription>
                       </div>
-                    ) : (
-                      <div className="space-y-6">
-                        {hotels
-                          .filter(hotel => Array.isArray(form.watch("selectedHotels")) && form.watch("selectedHotels")?.includes(hotel.id))
-                          .map(hotel => (
-                            <div key={hotel.id} className="border rounded-md p-4">
-                              <h4 className="font-medium text-md mb-3">{hotel.name}</h4>
-                              <div className="grid grid-cols-1 gap-3">
-                                {filteredRooms
-                                  .filter(room => String(room.hotelId || room.hotel_id) === String(hotel.id))
-                                  .map((room) => (
-                                    <FormItem
-                                      key={room.id}
-                                      className="flex flex-col md:flex-row md:items-center space-y-3 md:space-y-0 md:space-x-3 rounded-md border p-4"
-                                    >
-                                      <div className="flex items-center space-x-3">
-                                        <FormControl>
-                                          <Checkbox
-                                            checked={Array.isArray(form.watch("rooms")) && form.watch("rooms")?.some(r => r.id === room.id)}
-                                            onCheckedChange={(checked) => {
-                                              const currentRooms = form.watch("rooms") || [];
-                                              if (checked) {
-                                                form.setValue("rooms", [...currentRooms, {
-                                                  id: room.id,
-                                                  name: room.name,
-                                                  hotelId: room.hotelId,
-                                                  hotelName: room.hotelName,
-                                                  price: room.price
-                                                }]);
-                                              } else {
-                                                form.setValue(
-                                                  "rooms",
-                                                  currentRooms.filter((r) => r.id !== room.id)
-                                                );
+
+                      {filteredRooms.length === 0 ? (
+                        <div className="text-center p-8 border border-dashed rounded-md">
+                          <p className="text-muted-foreground">
+                            No rooms match the selected criteria. Try adjusting
+                            your guest count or selecting different hotels.
+                          </p>
+                        </div>
+                      ) : (
+                        <div className="space-y-6">
+                          {hotels
+                            .filter(
+                              (hotel) =>
+                                Array.isArray(form.watch("selectedHotels")) &&
+                                form
+                                  .watch("selectedHotels")
+                                  ?.includes(hotel.id),
+                            )
+                            .map((hotel) => (
+                              <div
+                                key={hotel.id}
+                                className="border rounded-md p-4"
+                              >
+                                <h4 className="font-medium text-md mb-3">
+                                  {hotel.name}
+                                </h4>
+                                <div className="grid grid-cols-1 gap-3">
+                                  {filteredRooms
+                                    .filter(
+                                      (room) =>
+                                        String(
+                                          room.hotelId || room.hotel_id,
+                                        ) === String(hotel.id),
+                                    )
+                                    .map((room) => (
+                                      <FormItem
+                                        key={room.id}
+                                        className="flex flex-col md:flex-row md:items-center space-y-3 md:space-y-0 md:space-x-3 rounded-md border p-4"
+                                      >
+                                        <div className="flex items-center space-x-3">
+                                          <FormControl>
+                                            <Checkbox
+                                              checked={
+                                                Array.isArray(
+                                                  form.watch("rooms"),
+                                                ) &&
+                                                form
+                                                  .watch("rooms")
+                                                  ?.some(
+                                                    (r) => r.id === room.id,
+                                                  )
                                               }
-                                            }}
-                                          />
-                                        </FormControl>
-                                        <div>
-                                          <FormLabel className="font-medium cursor-pointer block">
-                                            {room.name}
-                                          </FormLabel>
-                                          <div className="flex gap-2 mt-1">
-                                            <Badge variant="outline" className="text-xs">
-                                              Max {room.maxOccupancy || room.maxAdults || room.capacity || 2} Guests
-                                            </Badge>
-                                            {room.type && (
-                                              <Badge variant="secondary" className="text-xs">
-                                                {room.type}
+                                              onCheckedChange={(checked) => {
+                                                const currentRooms =
+                                                  form.watch("rooms") || [];
+                                                if (checked) {
+                                                  form.setValue("rooms", [
+                                                    ...currentRooms,
+                                                    {
+                                                      id: room.id,
+                                                      name: room.name,
+                                                      hotelId: room.hotelId,
+                                                      hotelName: room.hotelName,
+                                                      price: room.price,
+                                                    },
+                                                  ]);
+                                                } else {
+                                                  form.setValue(
+                                                    "rooms",
+                                                    currentRooms.filter(
+                                                      (r) => r.id !== room.id,
+                                                    ),
+                                                  );
+                                                }
+                                              }}
+                                            />
+                                          </FormControl>
+                                          <div>
+                                            <FormLabel className="font-medium cursor-pointer block">
+                                              {room.name}
+                                            </FormLabel>
+                                            <div className="flex gap-2 mt-1">
+                                              <Badge
+                                                variant="outline"
+                                                className="text-xs"
+                                              >
+                                                Max{" "}
+                                                {room.maxOccupancy ||
+                                                  room.maxAdults ||
+                                                  room.capacity ||
+                                                  2}{" "}
+                                                Guests
                                               </Badge>
-                                            )}
-                                            {room.bedType && (
-                                              <Badge variant="outline" className="text-xs">
-                                                {room.bedType}
-                                              </Badge>
-                                            )}
-                                          </div>
-                                          <div className="text-sm text-muted-foreground mt-1">
-                                            Room pricing moved to Pricing Rules section
+                                              {room.type && (
+                                                <Badge
+                                                  variant="secondary"
+                                                  className="text-xs"
+                                                >
+                                                  {room.type}
+                                                </Badge>
+                                              )}
+                                              {room.bedType && (
+                                                <Badge
+                                                  variant="outline"
+                                                  className="text-xs"
+                                                >
+                                                  {room.bedType}
+                                                </Badge>
+                                              )}
+                                            </div>
+                                            <div className="text-sm text-muted-foreground mt-1">
+                                              Room pricing moved to Pricing
+                                              Rules section
+                                            </div>
                                           </div>
                                         </div>
-                                      </div>
 
-                                      <div className="ml-auto flex items-center space-x-4">
-                                        <FormItem className="flex items-center space-x-2 space-y-0">
-                                          <FormLabel>Price: </FormLabel>
-                                          <Input 
-                                            className="w-24"
-                                            type="number" 
-                                            min="0"
-                                            value={room.price}
-                                            onChange={(e) => {
-                                              // Update price in local rooms data
-                                              const newRooms = filteredRooms.map(r => {
-                                                if (r.id === room.id) {
-                                                  return {...r, price: parseInt(e.target.value)};
+                                        <div className="ml-auto flex items-center space-x-4">
+                                          <FormItem className="flex items-center space-x-2 space-y-0">
+                                            <FormLabel>Price: </FormLabel>
+                                            <Input
+                                              className="w-24"
+                                              type="number"
+                                              min="0"
+                                              value={room.price}
+                                              onChange={(e) => {
+                                                // Update price in local rooms data
+                                                const newRooms =
+                                                  filteredRooms.map((r) => {
+                                                    if (r.id === room.id) {
+                                                      return {
+                                                        ...r,
+                                                        price: parseInt(
+                                                          e.target.value,
+                                                        ),
+                                                      };
+                                                    }
+                                                    return r;
+                                                  });
+                                                setFilteredRooms(newRooms);
+
+                                                // If this room is already selected, update it in form
+                                                const currentRooms =
+                                                  form.getValues("rooms") || [];
+                                                const roomIndex =
+                                                  currentRooms.findIndex(
+                                                    (r) => r.id === room.id,
+                                                  );
+                                                if (roomIndex !== -1) {
+                                                  const updatedRooms = [
+                                                    ...currentRooms,
+                                                  ];
+                                                  updatedRooms[roomIndex] = {
+                                                    ...updatedRooms[roomIndex],
+                                                    price: parseInt(
+                                                      e.target.value,
+                                                    ),
+                                                  };
+                                                  form.setValue(
+                                                    "rooms",
+                                                    updatedRooms,
+                                                  );
                                                 }
-                                                return r;
-                                              });
-                                              setFilteredRooms(newRooms);
+                                              }}
+                                            />
+                                          </FormItem>
+                                        </div>
+                                      </FormItem>
+                                    ))}
 
-                                              // If this room is already selected, update it in form
-                                              const currentRooms = form.getValues("rooms") || [];
-                                              const roomIndex = currentRooms.findIndex(r => r.id === room.id);
-                                              if (roomIndex !== -1) {
-                                                const updatedRooms = [...currentRooms];
-                                                updatedRooms[roomIndex] = {
-                                                  ...updatedRooms[roomIndex],
-                                                  price: parseInt(e.target.value)
-                                                };
-                                                form.setValue("rooms", updatedRooms);
-                                              }
-                                            }}
-                                          />
-                                        </FormItem>
-                                      </div>
-                                    </FormItem>
-                                  ))}
-
-                                {filteredRooms.filter(room => room.hotelId === hotel.id).length === 0 && (
-                                  <div className="text-center p-4 border border-dashed rounded-md">
-                                    <p className="text-muted-foreground">No rooms in this hotel match the selected guest criteria.</p>
-                                  </div>
-                                )}
+                                  {filteredRooms.filter(
+                                    (room) => room.hotelId === hotel.id,
+                                  ).length === 0 && (
+                                    <div className="text-center p-4 border border-dashed rounded-md">
+                                      <p className="text-muted-foreground">
+                                        No rooms in this hotel match the
+                                        selected guest criteria.
+                                      </p>
+                                    </div>
+                                  )}
+                                </div>
                               </div>
-                            </div>
-                          ))}
-                      </div>
-                    )}
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
-            )}
+                            ))}
+                        </div>
+                      )}
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+              )}
           </TabsContent>
 
           {/* Features Tab */}
@@ -2475,7 +2915,8 @@ export function PackageCreatorForm({ packageId, onNavigateRequest }: PackageCrea
                   <div className="absolute z-10 w-full mt-1 max-h-60 overflow-auto bg-white border rounded-md shadow-lg">
                     {!tourSearchQuery.trim() && (
                       <div className="px-4 py-2 text-sm text-zinc-500 border-b">
-                        Showing {Math.min(tours.length, 10)} of {tours.length} available tours
+                        Showing {Math.min(tours.length, 10)} of {tours.length}{" "}
+                        available tours
                       </div>
                     )}
 
@@ -2489,7 +2930,9 @@ export function PackageCreatorForm({ packageId, onNavigateRequest }: PackageCrea
                           <div className="flex justify-between">
                             <span className="font-medium">{tour.name}</span>
                             <span className="text-sm font-semibold text-green-700">
-                              {tour.price ? `${tour.price.toLocaleString('ar-EG')} EGP` : 'Price TBD'}
+                              {tour.price
+                                ? `${tour.price.toLocaleString("ar-EG")} EGP`
+                                : "Price TBD"}
                             </span>
                           </div>
                           {tour.description && (
@@ -2501,7 +2944,9 @@ export function PackageCreatorForm({ packageId, onNavigateRequest }: PackageCrea
                       ))
                     ) : (
                       <div className="px-4 py-2 text-gray-500">
-                        {tours.length === 0 ? 'Loading tours...' : 'No tours found matching your search'}
+                        {tours.length === 0
+                          ? "Loading tours..."
+                          : "No tours found matching your search"}
                       </div>
                     )}
                   </div>
@@ -2512,8 +2957,12 @@ export function PackageCreatorForm({ packageId, onNavigateRequest }: PackageCrea
                 <div className="mt-6 p-4 border rounded-md bg-white shadow-sm">
                   <div className="flex justify-between items-start mb-3">
                     <div>
-                      <h4 className="font-semibold text-zinc-900 text-lg">{selectedTour.name}</h4>
-                      <p className="text-xs text-zinc-500 mt-1">Selected tour information (read-only)</p>
+                      <h4 className="font-semibold text-zinc-900 text-lg">
+                        {selectedTour.name}
+                      </h4>
+                      <p className="text-xs text-zinc-500 mt-1">
+                        Selected tour information (read-only)
+                      </p>
                     </div>
                     <Badge variant="secondary" className="text-sm">
                       ID: {selectedTour.id}
@@ -2521,34 +2970,46 @@ export function PackageCreatorForm({ packageId, onNavigateRequest }: PackageCrea
                   </div>
 
                   <div className="bg-zinc-50 p-3 rounded-md mt-3 border border-zinc-100">
-                    <h5 className="text-sm font-medium text-zinc-700 mb-2">Tour Description</h5>
-                    <p className="text-sm text-zinc-600">{selectedTour.description}</p>
+                    <h5 className="text-sm font-medium text-zinc-700 mb-2">
+                      Tour Description
+                    </h5>
+                    <p className="text-sm text-zinc-600">
+                      {selectedTour.description}
+                    </p>
                   </div>
 
                   <div className="grid grid-cols-2 gap-4 mt-4">
                     <div className="p-3 bg-zinc-50 rounded-md border border-zinc-100">
-                      <h5 className="text-xs font-medium text-zinc-700 mb-1">Base Price</h5>
+                      <h5 className="text-xs font-medium text-zinc-700 mb-1">
+                        Base Price
+                      </h5>
                       <p className="text-lg font-semibold text-emerald-600">
-                        {selectedTour.price ? `${selectedTour.price.toLocaleString('ar-EG')} EGP` : 'Price TBD'}
+                        {selectedTour.price
+                          ? `${selectedTour.price.toLocaleString("ar-EG")} EGP`
+                          : "Price TBD"}
                       </p>
                     </div>
 
                     <div className="p-3 bg-zinc-50 rounded-md border border-zinc-100">
-                      <h5 className="text-xs font-medium text-zinc-700 mb-1">Duration</h5>
+                      <h5 className="text-xs font-medium text-zinc-700 mb-1">
+                        Duration
+                      </h5>
                       <p className="text-lg font-semibold text-zinc-700">
-                        {selectedTour.duration ? `${selectedTour.duration} hours` : 'Not specified'}
+                        {selectedTour.duration
+                          ? `${selectedTour.duration} hours`
+                          : "Not specified"}
                       </p>
                     </div>
                   </div>
 
                   <div className="mt-4 flex justify-end">
-                    <Button 
-                      type="button" 
-                      variant="outline" 
+                    <Button
+                      type="button"
+                      variant="outline"
                       size="sm"
                       onClick={() => {
                         setSelectedTour(null);
-                        setTourSearchQuery('');
+                        setTourSearchQuery("");
                       }}
                     >
                       <X className="h-3 w-3 mr-1" />
@@ -2578,15 +3039,26 @@ export function PackageCreatorForm({ packageId, onNavigateRequest }: PackageCrea
                       >
                         <FormControl>
                           <Checkbox
-                            checked={Array.isArray(form.watch("includedFeatures")) && form.watch("includedFeatures")?.includes(feature.id)}
+                            checked={
+                              Array.isArray(form.watch("includedFeatures")) &&
+                              form
+                                .watch("includedFeatures")
+                                ?.includes(feature.id)
+                            }
                             onCheckedChange={(checked) => {
-                              const currentFeatures = form.watch("includedFeatures") || [];
+                              const currentFeatures =
+                                form.watch("includedFeatures") || [];
                               if (checked) {
-                                form.setValue("includedFeatures", [...currentFeatures, feature.id]);
+                                form.setValue("includedFeatures", [
+                                  ...currentFeatures,
+                                  feature.id,
+                                ]);
                               } else {
                                 form.setValue(
                                   "includedFeatures",
-                                  currentFeatures.filter((value) => value !== feature.id)
+                                  currentFeatures.filter(
+                                    (value) => value !== feature.id,
+                                  ),
                                 );
                               }
                             }}
@@ -2623,15 +3095,24 @@ export function PackageCreatorForm({ packageId, onNavigateRequest }: PackageCrea
                       >
                         <FormControl>
                           <Checkbox
-                            checked={Array.isArray(form.watch("excludedItems")) && form.watch("excludedItems")?.includes(item.id)}
+                            checked={
+                              Array.isArray(form.watch("excludedItems")) &&
+                              form.watch("excludedItems")?.includes(item.id)
+                            }
                             onCheckedChange={(checked) => {
-                              const currentItems = form.watch("excludedItems") || [];
+                              const currentItems =
+                                form.watch("excludedItems") || [];
                               if (checked) {
-                                form.setValue("excludedItems", [...currentItems, item.id]);
+                                form.setValue("excludedItems", [
+                                  ...currentItems,
+                                  item.id,
+                                ]);
                               } else {
                                 form.setValue(
                                   "excludedItems",
-                                  currentItems.filter((value) => value !== item.id)
+                                  currentItems.filter(
+                                    (value) => value !== item.id,
+                                  ),
                                 );
                               }
                             }}
@@ -2664,28 +3145,34 @@ export function PackageCreatorForm({ packageId, onNavigateRequest }: PackageCrea
                   <div key={index} className="border rounded-md p-4">
                     <div className="flex items-center justify-between mb-3">
                       <div className="flex items-center gap-2">
-                        <Badge variant="outline" className="bg-primary/10">Day {item.day}</Badge>
+                        <Badge variant="outline" className="bg-primary/10">
+                          Day {item.day}
+                        </Badge>
                         <h4 className="font-medium">{item.title}</h4>
                       </div>
-                      <Button 
-                        variant="ghost" 
-                        size="icon" 
+                      <Button
+                        variant="ghost"
+                        size="icon"
                         className="h-8 w-8"
                         type="button"
                         onClick={() => {
-                          const updatedItems = itineraryItems.filter((_, i) => i !== index);
+                          const updatedItems = itineraryItems.filter(
+                            (_, i) => i !== index,
+                          );
                           setItineraryItems(updatedItems);
-                          form.setValue('itinerary', updatedItems);
+                          form.setValue("itinerary", updatedItems);
                         }}
                       >
                         <X className="h-4 w-4" />
                       </Button>
                     </div>
-                    <p className="text-sm text-muted-foreground mb-2">{item.description}</p>
+                    <p className="text-sm text-muted-foreground mb-2">
+                      {item.description}
+                    </p>
                     {item.image && (
                       <div className="mt-2">
-                        <img 
-                          src={item.image} 
+                        <img
+                          src={item.image}
                           alt={`Day ${item.day}: ${item.title}`}
                           className="w-full h-48 object-cover rounded-md"
                         />
@@ -2700,51 +3187,75 @@ export function PackageCreatorForm({ packageId, onNavigateRequest }: PackageCrea
                 <div className="grid grid-cols-1 md:grid-cols-4 gap-4 mb-4">
                   <div>
                     <Label htmlFor="day-number">Day #</Label>
-                    <Input 
-                      id="day-number" 
+                    <Input
+                      id="day-number"
                       type="number"
                       min="1"
                       value={newItineraryDay.day}
-                      onChange={(e) => setNewItineraryDay({...newItineraryDay, day: parseInt(e.target.value) || 1})}
+                      onChange={(e) =>
+                        setNewItineraryDay({
+                          ...newItineraryDay,
+                          day: parseInt(e.target.value) || 1,
+                        })
+                      }
                     />
                   </div>
                   <div className="md:col-span-3">
                     <Label htmlFor="day-title">Title</Label>
-                    <Input 
-                      id="day-title" 
+                    <Input
+                      id="day-title"
                       value={newItineraryDay.title}
-                      onChange={(e) => setNewItineraryDay({...newItineraryDay, title: e.target.value})}
+                      onChange={(e) =>
+                        setNewItineraryDay({
+                          ...newItineraryDay,
+                          title: e.target.value,
+                        })
+                      }
                       placeholder="e.g., Arrival in Cairo"
                     />
                   </div>
                 </div>
                 <div className="mb-4">
                   <Label htmlFor="day-description">Description</Label>
-                  <Textarea 
-                    id="day-description" 
+                  <Textarea
+                    id="day-description"
                     value={newItineraryDay.description}
-                    onChange={(e) => setNewItineraryDay({...newItineraryDay, description: e.target.value})}
+                    onChange={(e) =>
+                      setNewItineraryDay({
+                        ...newItineraryDay,
+                        description: e.target.value,
+                      })
+                    }
                     placeholder="Describe the activities and experiences for this day..."
                     className="min-h-[100px]"
                   />
                 </div>
                 <div className="mb-4">
                   <Label htmlFor="day-image">Image URL (optional)</Label>
-                  <Input 
-                    id="day-image" 
+                  <Input
+                    id="day-image"
                     value={newItineraryDay.image}
-                    onChange={(e) => setNewItineraryDay({...newItineraryDay, image: e.target.value})}
+                    onChange={(e) =>
+                      setNewItineraryDay({
+                        ...newItineraryDay,
+                        image: e.target.value,
+                      })
+                    }
                     placeholder="https://example.com/image.jpg"
                   />
                 </div>
-                <Button 
+                <Button
                   type="button"
                   onClick={() => {
-                    if (!newItineraryDay.title || !newItineraryDay.description) {
+                    if (
+                      !newItineraryDay.title ||
+                      !newItineraryDay.description
+                    ) {
                       toast({
                         title: "Required fields missing",
-                        description: "Please enter a title and description for this day",
-                        variant: "destructive"
+                        description:
+                          "Please enter a title and description for this day",
+                        variant: "destructive",
                       });
                       return;
                     }
@@ -2754,14 +3265,16 @@ export function PackageCreatorForm({ packageId, onNavigateRequest }: PackageCrea
                     updatedItems.sort((a, b) => a.day - b.day);
 
                     setItineraryItems(updatedItems);
-                    form.setValue('itinerary', updatedItems);
+                    form.setValue("itinerary", updatedItems);
 
                     // Reset the new day form but increment the day number
-                    setNewItineraryDay({ 
-                      day: Math.max(...updatedItems.map(item => item.day, 0)) + 1, 
-                      title: "", 
-                      description: "", 
-                      image: "" 
+                    setNewItineraryDay({
+                      day:
+                        Math.max(...updatedItems.map((item) => item.day, 0)) +
+                        1,
+                      title: "",
+                      description: "",
+                      image: "",
                     });
                   }}
                 >
@@ -2783,24 +3296,37 @@ export function PackageCreatorForm({ packageId, onNavigateRequest }: PackageCrea
             <div className="space-y-4">
               <div className="grid grid-cols-1 gap-4">
                 {packItems.map((item, index) => (
-                  <div key={index} className="flex items-center gap-3 p-3 border rounded-md">
+                  <div
+                    key={index}
+                    className="flex items-center gap-3 p-3 border rounded-md"
+                  >
                     <div className="flex-shrink-0 w-10 h-10 rounded-full bg-primary/10 flex items-center justify-center">
                       {/* Use an icon component if available */}
-                      <LucideIcon name={item.icon} className="h-5 w-5 text-primary" fallback={<Package className="h-5 w-5 text-primary" />} />
+                      <LucideIcon
+                        name={item.icon}
+                        className="h-5 w-5 text-primary"
+                        fallback={<Package className="h-5 w-5 text-primary" />}
+                      />
                     </div>
                     <div className="flex-grow">
                       <h4 className="font-medium">{item.item}</h4>
-                      {item.tooltip && <p className="text-sm text-muted-foreground">{item.tooltip}</p>}
+                      {item.tooltip && (
+                        <p className="text-sm text-muted-foreground">
+                          {item.tooltip}
+                        </p>
+                      )}
                     </div>
-                    <Button 
-                      variant="ghost" 
-                      size="icon" 
+                    <Button
+                      variant="ghost"
+                      size="icon"
                       className="ml-auto"
                       type="button"
                       onClick={() => {
-                        const updatedItems = packItems.filter((_, i) => i !== index);
+                        const updatedItems = packItems.filter(
+                          (_, i) => i !== index,
+                        );
                         setPackItems(updatedItems);
-                        form.setValue('whatToPack', updatedItems);
+                        form.setValue("whatToPack", updatedItems);
                       }}
                     >
                       <X className="h-4 w-4" />
@@ -2812,59 +3338,65 @@ export function PackageCreatorForm({ packageId, onNavigateRequest }: PackageCrea
               <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
                 <div>
                   <Label htmlFor="item-name">Item Name</Label>
-                  <Input 
-                    id="item-name" 
+                  <Input
+                    id="item-name"
                     value={newPackItem.item}
-                    onChange={(e) => setNewPackItem({...newPackItem, item: e.target.value})}
+                    onChange={(e) =>
+                      setNewPackItem({ ...newPackItem, item: e.target.value })
+                    }
                     placeholder="e.g., Sunscreen"
                   />
                 </div>
                 <div>
-                  <Label htmlFor="item-icon">Icon</Label>
                   <FormField
-                control={form.control}
-                name="icon"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>Icon</FormLabel>
-                    <FormControl>
-                      <IconSelector
-                        value={field.value}
-                        onChange={field.onChange}
-                        placeholder="Select an icon"
-                      />
-                    </FormControl>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
+                    control={form.control}
+                    name="icon"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel>Icon</FormLabel>
+                        <FormControl>
+                          <IconSelector
+                            value={field.value}
+                            onChange={field.onChange}
+                            placeholder="Select an icon"
+                          />
+                        </FormControl>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
                 </div>
                 <div>
                   <Label htmlFor="item-tooltip">Tooltip/Description</Label>
-                  <Input 
-                    id="item-tooltip" 
+                  <Input
+                    id="item-tooltip"
                     value={newPackItem.tooltip}
-                    onChange={(e) => setNewPackItem({...newPackItem, tooltip: e.target.value})}
+                    onChange={(e) =>
+                      setNewPackItem({
+                        ...newPackItem,
+                        tooltip: e.target.value,
+                      })
+                    }
                     placeholder="e.g., SPF 30+ recommended"
                   />
                 </div>
               </div>
 
-              <Button 
+              <Button
                 type="button"
                 onClick={() => {
                   if (!newPackItem.item) {
                     toast({
                       title: "Item name required",
                       description: "Please enter a name for the item",
-                      variant: "destructive"
+                      variant: "destructive",
                     });
                     return;
                   }
 
                   const updatedItems = [...packItems, newPackItem];
                   setPackItems(updatedItems);
-                  form.setValue('whatToPack', updatedItems);
+                  form.setValue("whatToPack", updatedItems);
 
                   // Reset the new item form
                   setNewPackItem({ item: "", icon: "suitcase", tooltip: "" });
@@ -2890,8 +3422,9 @@ export function PackageCreatorForm({ packageId, onNavigateRequest }: PackageCrea
                   <MapIcon className="h-10 w-10 text-muted-foreground mx-auto mb-2" />
                   <h3 className="text-lg font-medium mb-1">Map Integration</h3>
                   <p className="text-sm text-muted-foreground max-w-md mx-auto">
-                    This section will display a map where the route can be pinned. 
-                    Integration with a mapping service (Google Maps, Mapbox, etc.) is required.
+                    This section will display a map where the route can be
+                    pinned. Integration with a mapping service (Google Maps,
+                    Mapbox, etc.) is required.
                   </p>
                 </div>
               </div>
@@ -2905,10 +3438,10 @@ export function PackageCreatorForm({ packageId, onNavigateRequest }: PackageCrea
                       <FormItem>
                         <FormLabel>Route Description</FormLabel>
                         <FormControl>
-                          <Textarea 
-                            placeholder="Describe the travel route (e.g., Cairo → Luxor → Aswan)" 
-                            className="min-h-[100px]" 
-                            {...field} 
+                          <Textarea
+                            placeholder="Describe the travel route (e.g., Cairo → Luxor → Aswan)"
+                            className="min-h-[100px]"
+                            {...field}
                           />
                         </FormControl>
                         <FormDescription>
@@ -2927,17 +3460,24 @@ export function PackageCreatorForm({ packageId, onNavigateRequest }: PackageCrea
                     render={({ field }) => (
                       <FormItem>
                         <FormLabel>Transportation Option</FormLabel>
-                        <Select 
+                        <Select
                           onValueChange={(value) => {
                             field.onChange(value);
                             setSelectedTransport(value);
 
                             // Update price based on selection
-                            const option = transportOptions.find(opt => opt.id === value);
+                            const option = transportOptions.find(
+                              (opt) => opt.id === value,
+                            );
                             if (option) {
-                              const basePrice = form.getValues('basePrice') || 0;
-                              const newPrice = basePrice * (option.priceMultiplier - 1);
-                              form.setValue('transportationPrice', Math.round(newPrice));
+                              const basePrice =
+                                form.getValues("basePrice") || 0;
+                              const newPrice =
+                                basePrice * (option.priceMultiplier - 1);
+                              form.setValue(
+                                "transportationPrice",
+                                Math.round(newPrice),
+                              );
                               setTransportPrice(Math.round(newPrice));
                             }
                           }}
@@ -2951,7 +3491,8 @@ export function PackageCreatorForm({ packageId, onNavigateRequest }: PackageCrea
                           <SelectContent>
                             {transportOptions.map((option) => (
                               <SelectItem key={option.id} value={option.id}>
-                                {option.label} {option.priceMultiplier > 1 ? "(Premium)" : ""}
+                                {option.label}{" "}
+                                {option.priceMultiplier > 1 ? "(Premium)" : ""}
                               </SelectItem>
                             ))}
                           </SelectContent>
@@ -2971,14 +3512,18 @@ export function PackageCreatorForm({ packageId, onNavigateRequest }: PackageCrea
                     name="transportationPrice"
                     render={({ field }) => (
                       <FormItem>
-                        <FormLabel>Transportation Price Adjustment (EGP)</FormLabel>
+                        <FormLabel>
+                          Transportation Price Adjustment (EGP)
+                        </FormLabel>
                         <FormControl>
                           <div className="relative">
-                            <span className="absolute left-3 top-2.5 text-zinc-500">EGP</span>
-                            <Input 
-                              className="pl-7" 
-                              type="number" 
-                              {...field} 
+                            <span className="absolute left-3 top-2.5 text-zinc-500">
+                              EGP
+                            </span>
+                            <Input
+                              className="pl-7"
+                              type="number"
+                              {...field}
                               onChange={(e) => {
                                 field.onChange(e);
                                 setTransportPrice(parseFloat(e.target.value));
@@ -3000,23 +3545,38 @@ export function PackageCreatorForm({ packageId, onNavigateRequest }: PackageCrea
                 <h4 className="font-medium mb-3">Accommodation Highlights</h4>
                 <div className="grid grid-cols-1 gap-4 mb-4">
                   {accommodationHighlights.map((highlight, index) => (
-                    <div key={index} className="flex items-start gap-3 p-3 border rounded-md">
+                    <div
+                      key={index}
+                      className="flex items-start gap-3 p-3 border rounded-md"
+                    >
                       <div className="flex-shrink-0 w-10 h-10 rounded-full bg-primary/10 flex items-center justify-center mt-1">
-                        <LucideIcon name={highlight.icon} className="h-5 w-5 text-primary" fallback={<Hotel className="h-5 w-5 text-primary" />} />
+                        <LucideIcon
+                          name={highlight.icon}
+                          className="h-5 w-5 text-primary"
+                          fallback={<Hotel className="h-5 w-5 text-primary" />}
+                        />
                       </div>
                       <div className="flex-grow">
                         <h4 className="font-medium">{highlight.title}</h4>
-                        <p className="text-sm text-muted-foreground">{highlight.description}</p>
+                        <p className="text-sm text-muted-foreground">
+                          {highlight.description}
+                        </p>
                       </div>
-                      <Button 
-                        variant="ghost" 
-                        size="icon" 
+                      <Button
+                        variant="ghost"
+                        size="icon"
                         className="ml-auto"
                         type="button"
                         onClick={() => {
-                          const updatedHighlights = accommodationHighlights.filter((_, i) => i !== index);
+                          const updatedHighlights =
+                            accommodationHighlights.filter(
+                              (_, i) => i !== index,
+                            );
                           setAccommodationHighlights(updatedHighlights);
-                          form.setValue('accommodationHighlights', updatedHighlights);
+                          form.setValue(
+                            "accommodationHighlights",
+                            updatedHighlights,
+                          );
                         }}
                       >
                         <X className="h-4 w-4" />
@@ -3027,63 +3587,84 @@ export function PackageCreatorForm({ packageId, onNavigateRequest }: PackageCrea
                   <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
                     <div>
                       <Label htmlFor="highlight-title">Title</Label>
-                      <Input 
-                        id="highlight-title" 
+                      <Input
+                        id="highlight-title"
                         value={newHighlight.title}
-                        onChange={(e) => setNewHighlight({...newHighlight, title: e.target.value})}
+                        onChange={(e) =>
+                          setNewHighlight({
+                            ...newHighlight,
+                            title: e.target.value,
+                          })
+                        }
                         placeholder="e.g., Luxury Hotels"
                       />
                     </div>
                     <div>
                       <Label htmlFor="highlight-icon">Icon</Label>
                       <FormField
-                control={form.control}
-                name="icon"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>Icon</FormLabel>
-                    <FormControl>
-                      <IconSelector
-                        value={field.value}
-                        onChange={field.onChange}
-                        placeholder="Select an icon"
+                        control={form.control}
+                        name="icon"
+                        render={({ field }) => (
+                          <FormItem>
+                            <FormLabel>Icon</FormLabel>
+                            <FormControl>
+                              <IconSelector
+                                value={field.value}
+                                onChange={field.onChange}
+                                placeholder="Select an icon"
+                              />
+                            </FormControl>
+                            <FormMessage />
+                          </FormItem>
+                        )}
                       />
-                    </FormControl>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
                     </div>
                     <div className="md:col-span-3">
                       <Label htmlFor="highlight-description">Description</Label>
-                      <Textarea 
-                        id="highlight-description" 
+                      <Textarea
+                        id="highlight-description"
                         value={newHighlight.description}
-                        onChange={(e) => setNewHighlight({...newHighlight, description: e.target.value})}
+                        onChange={(e) =>
+                          setNewHighlight({
+                            ...newHighlight,
+                            description: e.target.value,
+                          })
+                        }
                         placeholder="e.g., Stay at 5-star hotels with Nile views"
                         className="min-h-[80px]"
                       />
                     </div>
                   </div>
 
-                  <Button 
+                  <Button
                     type="button"
                     onClick={() => {
                       if (!newHighlight.title || !newHighlight.description) {
                         toast({
                           title: "Required fields missing",
-                          description: "Please enter a title and description for this highlight",
-                          variant: "destructive"
+                          description:
+                            "Please enter a title and description for this highlight",
+                          variant: "destructive",
                         });
                         return;
                       }
 
-                      const updatedHighlights = [...accommodationHighlights, newHighlight];
+                      const updatedHighlights = [
+                        ...accommodationHighlights,
+                        newHighlight,
+                      ];
                       setAccommodationHighlights(updatedHighlights);
-                      form.setValue('accommodationHighlights', updatedHighlights);
+                      form.setValue(
+                        "accommodationHighlights",
+                        updatedHighlights,
+                      );
 
                       // Reset the form
-                      setNewHighlight({ title: "", description: "", icon: "home" });
+                      setNewHighlight({
+                        title: "",
+                        description: "",
+                        icon: "home",
+                      });
                     }}
                   >
                     Add Accommodation Highlight
@@ -3096,15 +3677,15 @@ export function PackageCreatorForm({ packageId, onNavigateRequest }: PackageCrea
 
         <div className="flex flex-col gap-2">
           <div className="flex justify-end space-x-4 pt-4 border-t">
-            <Button 
-              type="button" 
+            <Button
+              type="button"
               variant="outline"
               onClick={() => handleNavigateWithWarning("/admin/packages")}
             >
               Cancel
             </Button>
-            <Button 
-              type="submit" 
+            <Button
+              type="submit"
               className="bg-blue-600 hover:bg-blue-700"
               disabled={packageMutation.isPending}
               onClick={() => setAllowFormSubmission(true)}
@@ -3114,14 +3695,20 @@ export function PackageCreatorForm({ packageId, onNavigateRequest }: PackageCrea
                   <Loader2 className="mr-2 h-4 w-4 animate-spin" />
                   {isEditMode ? "Updating..." : "Creating..."}
                 </>
-              ) : isEditMode ? "Update Package" : "Create Package"}
+              ) : isEditMode ? (
+                "Update Package"
+              ) : (
+                "Create Package"
+              )}
             </Button>
           </div>
 
           {packageMutation.isError && (
             <div className="text-sm text-destructive flex items-center gap-2 mt-2 justify-end">
               <AlertCircle className="h-4 w-4" />
-              <span>{packageMutation.error?.message || "An error occurred"}</span>
+              <span>
+                {packageMutation.error?.message || "An error occurred"}
+              </span>
             </div>
           )}
         </div>
