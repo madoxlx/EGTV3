@@ -106,6 +106,16 @@ The application uses a comprehensive PostgreSQL schema with the following core e
 
 ## Recent Changes
 
+- **Hotel Restaurant Data Persistence Issue Resolution (June 30, 2025)**: Fixed critical issue where restaurant data appeared as null in database despite proper form submission
+  - Identified root cause: JSON preprocessing in insertHotelSchema was filtering out valid array data with overly restrictive conditions
+  - Fixed schema validation by removing empty array checks that prevented restaurant data from persisting
+  - Updated API endpoint transformation logic to use direct pass-through for JSON fields instead of conditional filtering
+  - Enhanced debugging capabilities with comprehensive logging throughout data flow pipeline
+  - Verified database schema and Drizzle ORM work correctly - direct insertion test confirmed JSONB fields functional
+  - Restaurant data now properly saves to database and displays correctly in API responses
+  - All complex hotel data fields (restaurants, landmarks, faqs, roomTypes) now persist correctly through form submission
+  - System maintains data integrity from frontend form collection through database storage
+
 - **Hotel Creation Restaurant Form Fields Implementation (June 30, 2025)**: Successfully added comprehensive restaurant and landmark form fields to hotel creation
   - Added dynamic restaurant form section with useFieldArray for multiple restaurant management
   - Restaurant fields include name, cuisine type, and breakfast options with add/remove functionality

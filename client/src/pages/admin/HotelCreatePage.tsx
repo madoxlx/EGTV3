@@ -364,6 +364,8 @@ export default function HotelCreatePage() {
     mutationFn: async (data: HotelFormValues) => {
       console.log('Form data before submission:', data);
       console.log('Selected amenities:', selectedAmenities);
+      console.log('Restaurants data:', data.restaurants);
+      console.log('Landmarks data:', data.landmarks);
       
       // Map form fields to database schema with proper field mapping
       const formData = {

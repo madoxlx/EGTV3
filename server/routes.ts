@@ -2863,6 +2863,13 @@ export async function registerRoutes(app: Express): Promise<Server> {
       console.log('Session user:', sessionUser);
       console.log('Request user:', req.user);
       
+      // Debug JSON data before transformation
+      console.log('=== DEBUGGING RESTAURANT DATA ===');
+      console.log('Raw formData.restaurants:', formData.restaurants);
+      console.log('Type of restaurants:', typeof formData.restaurants);
+      console.log('Is restaurants array?', Array.isArray(formData.restaurants));
+      console.log('Restaurants length:', formData.restaurants?.length);
+      
       const transformedData = {
         name: formData.name,
         description: formData.description,
@@ -2900,14 +2907,24 @@ export async function registerRoutes(app: Express): Promise<Server> {
         accessibleFacilities: formData.accessibleFacilities || false,
         status: formData.status || "active",
         verificationStatus: formData.verificationStatus || "pending",
-        createdBy: currentUserId
+        createdBy: currentUserId,
+        // Add complex data fields (direct pass-through for proper JSON handling)
+        restaurants: formData.restaurants || null,
+        landmarks: formData.landmarks || null,
+        faqs: formData.faqs || null,
+        roomTypes: formData.roomTypes || null
       };
       
       console.log('Transformed hotel data:', transformedData);
+      console.log('Restaurant data before validation:', transformedData.restaurants);
+      console.log('Type of restaurants:', typeof transformedData.restaurants);
+      console.log('Is restaurants array:', Array.isArray(transformedData.restaurants));
       
       // For regular hotel creation, proceed with validation
       const validatedHotelData = insertHotelSchema.parse(transformedData);
       console.log('Validated hotel data:', validatedHotelData);
+      console.log('Restaurant data after validation:', validatedHotelData.restaurants);
+      console.log('Type after validation:', typeof validatedHotelData.restaurants);
       
       // Check if destination exists if destinationId is provided
       if (validatedHotelData.destinationId) {

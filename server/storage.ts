@@ -345,7 +345,21 @@ export class DatabaseStorage implements IStorage {
       console.log('Storage createHotel called with data:', hotel);
       console.log('Hotel data keys:', Object.keys(hotel));
 
-      const [created] = await db.insert(hotels).values(hotel).returning();
+      // Ensure JSON fields are properly serialized for JSONB columns
+      const processedHotel = {
+        ...hotel,
+        restaurants: hotel.restaurants || null,
+        landmarks: hotel.landmarks || null,
+        faqs: hotel.faqs || null,
+        roomTypes: hotel.roomTypes || null,
+        galleryUrls: hotel.galleryUrls || null,
+        amenities: hotel.amenities || null,
+        languages: hotel.languages || ["en"]
+      };
+
+      console.log('Processed hotel data for insertion:', processedHotel);
+
+      const [created] = await db.insert(hotels).values(processedHotel).returning();
       console.log('Hotel created successfully in storage:', created);
       return created;
     } catch (error) {

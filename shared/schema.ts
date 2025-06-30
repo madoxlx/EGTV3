@@ -1267,6 +1267,45 @@ export const insertHotelSchema = createInsertSchema(hotels).pick({
   petFriendly: true,
   accessibleFacilities: true,
   createdBy: true,
+  // Complex data fields
+  restaurants: true,
+  landmarks: true,
+  faqs: true,
+  roomTypes: true,
+}).extend({
+  // JSON preprocessing for complex data fields - allow valid arrays to pass through
+  restaurants: z.preprocess(
+    (val) => {
+      if (!val) return null;
+      if (Array.isArray(val)) return val; // Pass through arrays regardless of length
+      return val;
+    },
+    z.array(z.any()).nullable().optional()
+  ),
+  landmarks: z.preprocess(
+    (val) => {
+      if (!val) return null;
+      if (Array.isArray(val)) return val; // Pass through arrays regardless of length
+      return val;
+    },
+    z.array(z.any()).nullable().optional()
+  ),
+  faqs: z.preprocess(
+    (val) => {
+      if (!val) return null;
+      if (Array.isArray(val)) return val; // Pass through arrays regardless of length
+      return val;
+    },
+    z.array(z.any()).nullable().optional()
+  ),
+  roomTypes: z.preprocess(
+    (val) => {
+      if (!val) return null;
+      if (Array.isArray(val)) return val; // Pass through arrays regardless of length
+      return val;
+    },
+    z.array(z.any()).nullable().optional()
+  ),
 });
 
 // Hero slide schema types
