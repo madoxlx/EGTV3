@@ -106,6 +106,15 @@ The application uses a comprehensive PostgreSQL schema with the following core e
 
 ## Recent Changes
 
+- **Complete Pricing Display Fix for Rooms System (June 30, 2025)**: Fixed critical pricing display issues where room prices showed incorrect currency and magnitude
+  - Resolved database stored values in cents being displayed without proper conversion (e.g., 200000 cents = 2000 EGP)
+  - Fixed admin rooms page to display prices correctly by dividing stored values by 100 for display
+  - Fixed package creation form room selection to show proper EGP pricing instead of inflated amounts
+  - Enhanced price input handling to convert EGP amounts to cents for database storage (multiply by 100)
+  - Maintained data integrity with consistent price conversion: store in cents, display in EGP
+  - Fixed room price editing functionality to properly convert between user input (EGP) and database storage (cents)
+  - Eliminated confusing displays like $2000000.00 showing instead of 2000 EGP
+
 - **Hotel Name Display in Admin Rooms Management (June 30, 2025)**: Fixed admin rooms page to display actual hotel names instead of hotel IDs
   - Enhanced RoomsPage component to fetch and link hotel data from database
   - Rooms table now shows real hotel names in the Hotel column instead of numeric IDs

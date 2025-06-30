@@ -2400,7 +2400,7 @@ export function PackageCreatorForm({
                           <Input
                             type="number"
                             min="0"
-                            defaultValue={room.price}
+                            defaultValue={room.price ? room.price / 100 : 0}
                             onChange={(e) => {
                               const currentRooms =
                                 form.getValues("rooms") || [];
@@ -2888,7 +2888,7 @@ export function PackageCreatorForm({
                                               className="w-24"
                                               type="number"
                                               min="0"
-                                              value={room.price}
+                                              value={room.price ? room.price / 100 : 0}
                                               onChange={(e) => {
                                                 // Update price in local rooms data
                                                 const newRooms =
@@ -2898,7 +2898,7 @@ export function PackageCreatorForm({
                                                         ...r,
                                                         price: parseInt(
                                                           e.target.value,
-                                                        ),
+                                                        ) * 100, // Convert to cents
                                                       };
                                                     }
                                                     return r;
@@ -2920,7 +2920,7 @@ export function PackageCreatorForm({
                                                     ...updatedRooms[roomIndex],
                                                     price: parseInt(
                                                       e.target.value,
-                                                    ),
+                                                    ) * 100, // Convert to cents
                                                   };
                                                   form.setValue(
                                                     "rooms",

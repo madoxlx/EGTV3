@@ -362,7 +362,7 @@ export default function RoomsPage() {
                         </TableCell>
                         <TableCell>
                           <div className="font-medium">
-                            ${room.price.toFixed(2)}
+                            {room.price ? (room.price / 100).toLocaleString('ar-EG') : '0'} EGP
                           </div>
                           <div className="text-xs text-gray-500">per night</div>
                         </TableCell>
