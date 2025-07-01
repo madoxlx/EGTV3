@@ -119,6 +119,14 @@ The application uses a comprehensive PostgreSQL schema with the following core e
 
 ## Recent Changes
 
+- **Hotel Features Database Storage Fix Complete (July 1, 2025)**: Successfully resolved critical issue where hotel features weren't being saved to database
+  - Fixed missing 'features' field in insertHotelSchema .pick() selection that was stripping features during validation
+  - Added features field with proper Zod validation for feature objects containing name and icon properties
+  - Enhanced storage layer createHotel method to include features array in processedHotel object for database insertion
+  - Features now properly save to database as JSONB array of objects: [{"name":"coffee","icon":"Coffee"},{"name":"swim","icon":"Waves"}]
+  - Fixed complete data flow: form submission → schema validation → storage processing → database persistence
+  - Hotel features with icons now fully functional and persist correctly in PostgreSQL database
+
 - **Enhanced Hotel Features Objects System with Icon Support (July 1, 2025)**: Successfully upgraded hotel features to structured objects with name and icon properties
   - Enhanced features schema to support feature objects {name: "drink", icon: "wine-glass"} instead of simple strings
   - Updated form validation to handle feature objects with proper Zod schema validation

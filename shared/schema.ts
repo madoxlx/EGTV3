@@ -1273,6 +1273,7 @@ export const insertHotelSchema = createInsertSchema(hotels).pick({
   landmarks: true,
   faqs: true,
   roomTypes: true,
+  features: true, // Add features field for hotel feature objects
 }).extend({
   // JSON preprocessing for complex data fields - allow valid arrays to pass through
   restaurants: z.preprocess(
@@ -1306,6 +1307,17 @@ export const insertHotelSchema = createInsertSchema(hotels).pick({
       return val;
     },
     z.array(z.any()).nullable().optional()
+  ),
+  features: z.preprocess(
+    (val) => {
+      if (!val) return [];
+      if (Array.isArray(val)) return val; // Pass through feature object arrays
+      return [];
+    },
+    z.array(z.object({
+      name: z.string(),
+      icon: z.string(),
+    })).default([])
   ),
 });
 

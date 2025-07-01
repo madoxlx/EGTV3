@@ -447,6 +447,7 @@ export class DatabaseStorage implements IStorage {
         galleryUrls: hotel.galleryUrls,
         amenities: hotel.amenities || null,
         languages: hotel.languages || ["en"],
+        features: hotel.features || [], // Add features array for simplified storage
       };
 
       console.log("Processed hotel data for insertion:", processedHotel);
