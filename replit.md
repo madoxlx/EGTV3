@@ -106,6 +106,19 @@ The application uses a comprehensive PostgreSQL schema with the following core e
 
 ## Recent Changes
 
+- **Hotel Creation Image Upload Integration Fix (January 1, 2025)**: Successfully implemented comprehensive image upload functionality in hotel creation form
+  - Enhanced onSubmit handler to upload main image and gallery images before saving hotel data
+  - Images are now uploaded to /api/upload/image endpoint first, then URLs are saved to database
+  - Fixed null imageUrl and galleryUrls issue by ensuring proper image upload sequence
+  - Added detailed logging to track image upload process and success
+  - Main image upload: validates file upload success before proceeding
+  - Gallery images upload: processes multiple files individually with error handling
+  - Hotel data now contains actual image URLs instead of null values in database
+  - Upload process includes proper error handling and user feedback via toast notifications
+  - Maintains existing form functionality while adding robust image upload capabilities
+
+## Recent Changes
+
 - **Complete Pricing Display Fix for Rooms System (June 30, 2025)**: Fixed critical pricing display issues where room prices showed incorrect currency and magnitude
   - Resolved database stored values in cents being displayed without proper conversion (e.g., 200000 cents = 2000 EGP)
   - Fixed admin rooms page to display prices correctly by dividing stored values by 100 for display

@@ -600,43 +600,88 @@ export default function EnhancedHotelCreatePage() {
   // Form submission handler
   const onSubmit = async (data: HotelFormValues) => {
     try {
-      // Clean gallery URLs to remove blob URLs
-      const cleanGalleryUrls = galleryPreviews
-        .map(getCleanUrl)
-        .filter(Boolean) as string[];
+      console.log("Starting hotel creation with image upload...");
+      
+      // Upload main image if file is selected
+      let mainImageUrl = data.imageUrl || "";
+      if (mainImageFile) {
+        console.log("Uploading main image:", mainImageFile.name);
+        const formData = new FormData();
+        formData.append("image", mainImageFile);
+        
+        const response = await fetch("/api/upload/image", {
+          method: "POST",
+          body: formData,
+        });
+        
+        if (response.ok) {
+          const result = await response.json();
+          mainImageUrl = result.imageUrl;
+          console.log("Main image uploaded successfully:", mainImageUrl);
+        } else {
+          console.error("Failed to upload main image");
+          toast({
+            title: "Error",
+            description: "Failed to upload main image",
+            variant: "destructive",
+          });
+          return;
+        }
+      }
 
-      // Clean main image URL
-      const cleanMainImageUrl = getCleanUrl(
-        mainImagePreview || data.imageUrl || "",
-      );
+      // Upload gallery images
+      let galleryUrls: string[] = [];
+      if (galleryFiles.length > 0) {
+        console.log("Uploading gallery images:", galleryFiles.length, "files");
+        for (const file of galleryFiles) {
+          const formData = new FormData();
+          formData.append("image", file);
+          
+          const response = await fetch("/api/upload/image", {
+            method: "POST",
+            body: formData,
+          });
+          
+          if (response.ok) {
+            const result = await response.json();
+            galleryUrls.push(result.imageUrl);
+            console.log("Gallery image uploaded:", result.imageUrl);
+          } else {
+            console.error("Failed to upload gallery image:", file.name);
+          }
+        }
+        console.log("All gallery images uploaded. Total URLs:", galleryUrls.length);
+      }
 
-      // Prepare JSON data for submission
+      // Prepare hotel data with uploaded image URLs
       const hotelData = {
         ...data,
         // Add selected features
         facilityIds: selectedFacilities,
         highlightIds: selectedHighlights,
         cleanlinessFeatureIds: selectedCleanlinessFeatures,
-        // Include only clean server URLs
-        imageUrl: cleanMainImageUrl,
-        galleryUrls:
-          cleanGalleryUrls.length > 0 ? cleanGalleryUrls : data.galleryUrls,
-        // يمكنك إضافة أي تعديلات هنا
-        // مثال: تعديل الوصف أو إضافة حقول جديدة
-        // customField: "قيمة مخصصة",
-        // stars: data.stars || 3, // التأكد من وجود تقييم افتراضي
+        // Use uploaded image URLs
+        imageUrl: mainImageUrl,
+        galleryUrls: galleryUrls.length > 0 ? galleryUrls : (data.galleryUrls || []),
         stars: data.stars,
         guestRating: data.guestRating || 0,
-
-        // Add any other necessary fields or transformations here
       };
 
-      console.log("Submitting hotel data:", hotelData);
+      console.log("Submitting hotel data with uploaded images:", {
+        imageUrl: hotelData.imageUrl,
+        galleryUrls: hotelData.galleryUrls,
+        totalGalleryImages: hotelData.galleryUrls.length
+      });
 
       // Call the mutation with JSON data
       createHotelMutation.mutate(hotelData);
     } catch (error) {
       console.error("Error preparing form data:", error);
+      toast({
+        title: "Error",
+        description: "Failed to process hotel data",
+        variant: "destructive",
+      });
     }
   };
 
