@@ -119,6 +119,14 @@ The application uses a comprehensive PostgreSQL schema with the following core e
 
 ## Recent Changes
 
+- **Hotel Features Form Integration Fix (July 1, 2025)**: Fixed critical issue where hotel features weren't being saved to database during form submission
+  - Identified problem: addFeature function only updated local state (hotelFeatures) but not the form's features field
+  - Fixed addFeature and removeFeature functions to update both local state and form.setValue("features")  
+  - Fixed onSubmit function to use form's features data (data.features) instead of local hotelFeatures state
+  - Added comprehensive logging to track features during submission process
+  - Features now properly save to database with icon selector functionality intact
+  - Form data flow: UI state → form field → API submission → database storage
+
 - **Simplified Hotel Features System Implementation (July 1, 2025)**: Successfully replaced complex junction table system with direct JSON array storage for hotel features
   - Completely removed complex InlineFeatureManager and junction table relationships (hotel_to_facilities, hotel_to_highlights, hotel_to_cleanliness)
   - Added simple features column (JSONB array) directly to hotels table for streamlined data storage

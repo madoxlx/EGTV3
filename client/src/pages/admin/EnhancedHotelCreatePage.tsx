@@ -454,13 +454,25 @@ export default function EnhancedHotelCreatePage() {
   // Simple feature management functions
   const addFeature = () => {
     if (newFeature.trim() && !hotelFeatures.some(f => f.name === newFeature.trim())) {
-      setHotelFeatures((prev) => [...prev, { name: newFeature.trim(), icon: selectedIcon }]);
+      const newFeatureObj = { name: newFeature.trim(), icon: selectedIcon };
+      const updatedFeatures = [...hotelFeatures, newFeatureObj];
+      setHotelFeatures(updatedFeatures);
+      
+      // Also update the form's features field with just the names
+      const featureNames = updatedFeatures.map(f => f.name);
+      form.setValue("features", featureNames);
+      
       setNewFeature("");
     }
   };
 
   const removeFeature = (index: number) => {
-    setHotelFeatures((prev) => prev.filter((_, i) => i !== index));
+    const updatedFeatures = hotelFeatures.filter((_, i) => i !== index);
+    setHotelFeatures(updatedFeatures);
+    
+    // Also update the form's features field
+    const featureNames = updatedFeatures.map(f => f.name);
+    form.setValue("features", featureNames);
   };
 
   const getIconComponent = (iconName: string) => {
@@ -747,8 +759,8 @@ export default function EnhancedHotelCreatePage() {
       // Prepare hotel data with uploaded image URLs
       const hotelData = {
         ...data,
-        // Convert features objects to just the names for database compatibility
-        features: hotelFeatures.map(f => f.name),
+        // Use features from form data (already in correct format)
+        features: data.features || [],
         // Use uploaded image URLs
         imageUrl: mainImageUrl,
         galleryUrls: galleryUrls.length > 0 ? galleryUrls : (data.galleryUrls || []),
@@ -758,7 +770,9 @@ export default function EnhancedHotelCreatePage() {
       console.log("Submitting hotel data with uploaded images:", {
         imageUrl: hotelData.imageUrl,
         galleryUrls: hotelData.galleryUrls,
-        totalGalleryImages: hotelData.galleryUrls.length
+        totalGalleryImages: hotelData.galleryUrls.length,
+        features: hotelData.features,
+        featuresCount: hotelData.features.length
       });
 
       toast({
