@@ -214,8 +214,11 @@ const hotelFormSchema = z.object({
     .optional()
     .nullable(),
 
-  // Simple features storage (replacing complex junction tables)
-  features: z.array(z.string()).default([]),
+  // Enhanced features storage with name and icon properties
+  features: z.array(z.object({
+    name: z.string(),
+    icon: z.string()
+  })).default([]),
 
   // Transportation and amenities (direct fields in hotels table)
   parkingAvailable: z.boolean().default(false),
@@ -447,21 +450,20 @@ export default function EnhancedHotelCreatePage() {
     setGalleryPreviews((prev) => prev.filter((_, i) => i !== index));
   };
 
-  // Simple feature management functions
+  // Enhanced feature management functions - storing complete objects with name and icon
   const addFeature = () => {
     if (newFeature.trim() && !hotelFeatures.some(f => f.name === newFeature.trim())) {
       const newFeatureObj = { name: newFeature.trim(), icon: selectedIcon };
       const updatedFeatures = [...hotelFeatures, newFeatureObj];
       setHotelFeatures(updatedFeatures);
       
-      // Also update the form's features field with just the names
-      const featureNames = updatedFeatures.map(f => f.name);
-      form.setValue("features", featureNames);
+      // Update the form's features field with complete feature objects (name + icon)
+      form.setValue("features", updatedFeatures);
       
       console.log("✅ Feature added successfully:");
       console.log("- Feature name:", newFeature.trim());
+      console.log("- Feature icon:", selectedIcon);
       console.log("- Updated hotelFeatures:", updatedFeatures);
-      console.log("- Updated form features:", featureNames);
       console.log("- Current form value:", form.getValues("features"));
       
       setNewFeature("");
@@ -478,14 +480,12 @@ export default function EnhancedHotelCreatePage() {
     const updatedFeatures = hotelFeatures.filter((_, i) => i !== index);
     setHotelFeatures(updatedFeatures);
     
-    // Also update the form's features field
-    const featureNames = updatedFeatures.map(f => f.name);
-    form.setValue("features", featureNames);
+    // Update the form's features field with complete feature objects
+    form.setValue("features", updatedFeatures);
     
     console.log("🗑️ Feature removed:");
     console.log("- Removed feature:", featureToRemove?.name);
     console.log("- Updated hotelFeatures:", updatedFeatures);
-    console.log("- Updated form features:", featureNames);
     console.log("- Current form value:", form.getValues("features"));
   };
 
@@ -494,7 +494,31 @@ export default function EnhancedHotelCreatePage() {
     return iconOption ? iconOption.component : Star;
   };
 
-  // Form setup with default values
+  // Predefined feature objects for hotel creation
+  const predefinedFeatures = [
+    { name: "drink", icon: "wine-glass" },
+    { name: "meal", icon: "hamburger" },
+    { name: "wifi", icon: "wifi" },
+    { name: "parking", icon: "car" },
+    { name: "pool", icon: "swimming-pool" },
+    { name: "gym", icon: "dumbbell" },
+    { name: "spa", icon: "spa" },
+    { name: "restaurant", icon: "utensils" },
+    { name: "room service", icon: "concierge-bell" },
+    { name: "air conditioning", icon: "snowflake" },
+    { name: "laundry", icon: "tshirt" },
+    { name: "business center", icon: "briefcase" },
+    { name: "conference room", icon: "presentation-screen" },
+    { name: "elevator", icon: "elevator" },
+    { name: "balcony", icon: "balcony" },
+    { name: "kitchen", icon: "chef-hat" },
+    { name: "bar", icon: "martini-glass" },
+    { name: "garden", icon: "tree" },
+    { name: "beach access", icon: "umbrella-beach" },
+    { name: "pet friendly", icon: "dog" }
+  ];
+
+  // Form setup with default values including predefined features
   const form = useForm<HotelFormValues>({
     resolver: zodResolver(hotelFormSchema),
     defaultValues: {
@@ -509,14 +533,13 @@ export default function EnhancedHotelCreatePage() {
       email: "",
       website: "",
       stars: 3,
-      guestRating: undefined,
       checkInTime: "14:00",
       checkOutTime: "11:00",
       longitude: undefined,
       latitude: undefined,
       featured: false,
       status: "active",
-      features: [],
+      features: predefinedFeatures, // Start with predefined features
       parkingAvailable: false,
       airportTransferAvailable: false,
       carRentalAvailable: false,
@@ -1105,43 +1128,7 @@ export default function EnhancedHotelCreatePage() {
                         )}
                       />
 
-                      {/* Guest Rating */}
-                      <FormField
-                        control={form.control}
-                        name="guestRating"
-                        render={({ field }) => (
-                          <FormItem>
-                            <FormLabel>Guest Rating</FormLabel>
-                            <FormControl>
-                              <div className="relative">
-                                <Input
-                                  type="number"
-                                  placeholder="8.5"
-                                  min="0"
-                                  max="10"
-                                  step="0.1"
-                                  {...field}
-                                  value={
-                                    field.value === undefined ||
-                                    field.value === null
-                                      ? ""
-                                      : field.value
-                                  }
-                                  onChange={(e) =>
-                                    field.onChange(
-                                      e.target.value === ""
-                                        ? undefined
-                                        : parseFloat(e.target.value),
-                                    )
-                                  }
-                                />
-                              </div>
-                            </FormControl>
-                            <FormDescription>Rating out of 10</FormDescription>
-                            <FormMessage />
-                          </FormItem>
-                        )}
-                      />
+
                     </div>
 
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
@@ -2711,7 +2698,7 @@ export default function EnhancedHotelCreatePage() {
                             ...(formValues.accessibleFacilities ? ['wheelchair_accessible'] : []),
                           ],
                           stars: formValues.stars,
-                          guestRating: formValues.guestRating || 0,
+
                         };
                         
                         console.log("📊 Complete Hotel Data Object:", finalHotelData);

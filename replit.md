@@ -119,6 +119,17 @@ The application uses a comprehensive PostgreSQL schema with the following core e
 
 ## Recent Changes
 
+- **Enhanced Hotel Features Objects System with Icon Support (July 1, 2025)**: Successfully upgraded hotel features to structured objects with name and icon properties
+  - Enhanced features schema to support feature objects {name: "drink", icon: "wine-glass"} instead of simple strings
+  - Updated form validation to handle feature objects with proper Zod schema validation
+  - Added comprehensive predefined feature objects list for hotel creation (20 features with appropriate icons)
+  - Modified addFeature and removeFeature functions to work with complete feature objects
+  - Features now include visual icon support for enhanced presentation in UI
+  - Database verified working correctly with structured JSON objects containing name and icon properties
+  - Test script confirms features properly save, retrieve, and update as {name: "...", icon: "..."} objects
+  - Hotel creation form pre-populated with professional feature objects for immediate use
+  - Maintains simplified storage approach while adding enhanced object structure for better UI presentation
+
 - **Complete Simplified Hotel Features System Implementation (July 1, 2025)**: Successfully implemented and verified simplified hotel features functionality
   - Completely removed all remnants of complex InlineFeatureManager system and junction table relationships
   - Eliminated problematic toggle functions that were setting empty arrays and preventing feature persistence
