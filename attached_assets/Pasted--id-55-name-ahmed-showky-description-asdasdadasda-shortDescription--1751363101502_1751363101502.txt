@@ -1,0 +1,135 @@
+{
+  "id": "55",
+  "name": "ahmed showky",
+  "description": "asdasdadasda",
+  "shortDescription": null,
+  "destinationId": 6,
+  "countryId": 10,
+  "cityId": 21,
+  "categoryId": null,
+  "address": "9 masaken el iskandrya",
+  "city": "Cairo",
+  "country": "Egypt",
+  "postalCode": "11571",
+  "phone": "+201152117192",
+  "email": "mr.ahmedshowky@gmail.com",
+  "website": "https://citycenterhotel.com",
+  "imageUrl": "/uploads/image-1751362887702-793410731.png",
+  "galleryUrls": [
+    "/uploads/image-1751362888291-408571595.jpg",
+    "/uploads/image-1751362888555-415145253.jpg",
+    "/uploads/image-1751362888776-772953007.jpg",
+    "/uploads/image-1751362889008-358280057.jpg",
+    "/uploads/image-1751362889235-204724510.jpg"
+  ],
+  "stars": 3,
+  "amenities": null,
+  "checkInTime": "14:00",
+  "checkOutTime": "11:00",
+  "longitude": 212121,
+  "latitude": 121212,
+  "featured": false,
+  "rating": null,
+  "reviewCount": 0,
+  "guestRating": null,
+  "minStay": 1,
+  "maxStay": null,
+  "bookingLeadTime": 0,
+  "cancellationPolicy": null,
+  "parkingAvailable": false,
+  "airportTransferAvailable": true,
+  "carRentalAvailable": true,
+  "shuttleAvailable": false,
+  "wifiAvailable": true,
+  "petFriendly": false,
+  "accessibleFacilities": false,
+  "basePrice": null,
+  "currency": "EGP",
+  "taxIncluded": false,
+  "serviceChargeIncluded": false,
+  "languages": [
+    "en"
+  ],
+  "establishedYear": null,
+  "lastRenovatedYear": null,
+  "totalRooms": null,
+  "totalFloors": null,
+  "restaurants": [
+    {
+      "name": "sadasdas",
+      "cuisineType": "sawsada",
+      "breakfastOptions": [
+        "vegetarian",
+        "glutenFree"
+      ]
+    },
+    {
+      "name": "sadasdsq",
+      "cuisineType": "sadasd",
+      "breakfastOptions": [
+        "vegetarian",
+        "glutenFree"
+      ]
+    }
+  ],
+  "landmarks": [
+    {
+      "name": "Khan el-Khalili",
+      "placeId": "ChIJ9dSaz6s_WBQRam44QaRRdWQ",
+      "distance": "5.8 km",
+      "description": "Historic bazaar"
+    },
+    {
+      "name": "Egyptian Museum",
+      "placeId": "ChIJ5y7_47R7WBQRuLZMSJXnDzs",
+      "distance": "3.4 km",
+      "description": "History museum"
+    },
+    {
+      "name": "Great Pyramid of Giza",
+      "placeId": "ChIJN8F_47w7WBQRUJGUzM6Fsks",
+      "distance": "1.2 km",
+      "description": "Ancient Egyptian pyramid"
+    }
+  ],
+  "faqs": [
+    {
+      "answer": "dasdsdsadsadsdsa ",
+      "question": "asdasdsad ?"
+    }
+  ],
+  "roomTypes": [
+    {
+      "name": "sdsadsadsa",
+      "size": "212",
+      "type": "Single",
+      "view": "Garden View",
+      "price": 1212112,
+      "bedType": "Twin Beds",
+      "amenities": [
+        "minibar",
+        "hairDryer",
+        "desk"
+      ],
+      "available": true,
+      "maxAdults": 2,
+      "maxInfants": 1,
+      "description": "sdadasdsadasdasdasdas sdadasdsadasdasdasdas sdadasdsadasdasdasdas ",
+      "maxChildren": 2,
+      "maxOccupancy": 5,
+      "discountedPrice": 1212
+    }
+  ],
+  "status": "active",
+  "verificationStatus": "pending",
+  "createdAt": "2025-07-01T09:41:29.633Z",
+  "updatedAt": "2025-07-01T09:41:29.633Z",
+  "createdBy": 9,
+  "updatedBy": null,
+  "facilityIds": [],
+  "highlightIds": [],
+  "cleanlinessFeatureIds": [],
+  "facilities": [],
+  "highlights": [],
+  "cleanlinessFeatures": []
+}
