@@ -337,6 +337,30 @@ const featureIconOptions = [
   { name: "Package", component: Package },
 ];
 
+// Predefined feature objects for hotel creation
+const predefinedFeatures = [
+  { name: "drink", icon: "wine-glass" },
+  { name: "meal", icon: "hamburger" },
+  { name: "wifi", icon: "wifi" },
+  { name: "parking", icon: "car" },
+  { name: "pool", icon: "swimming-pool" },
+  { name: "gym", icon: "dumbbell" },
+  { name: "spa", icon: "spa" },
+  { name: "restaurant", icon: "utensils" },
+  { name: "room service", icon: "concierge-bell" },
+  { name: "air conditioning", icon: "snowflake" },
+  { name: "laundry", icon: "tshirt" },
+  { name: "business center", icon: "briefcase" },
+  { name: "conference room", icon: "presentation-screen" },
+  { name: "elevator", icon: "elevator" },
+  { name: "balcony", icon: "balcony" },
+  { name: "kitchen", icon: "chef-hat" },
+  { name: "bar", icon: "martini-glass" },
+  { name: "garden", icon: "tree" },
+  { name: "beach access", icon: "umbrella-beach" },
+  { name: "pet friendly", icon: "dog" }
+];
+
 export default function EnhancedHotelCreatePage() {
   const { t } = useLanguage();
   const [_, navigate] = useLocation();
@@ -358,7 +382,7 @@ export default function EnhancedHotelCreatePage() {
   const [isUploadingImages, setIsUploadingImages] = useState(false);
   const [galleryPreviews, setGalleryPreviews] = useState<string[]>([]);
 
-  // Simple feature management state
+  // Simple feature management state - Initialize empty, will be set after predefinedFeatures is defined
   const [newFeature, setNewFeature] = useState<string>("");
   const [hotelFeatures, setHotelFeatures] = useState<{ name: string; icon: string }[]>([]);
   const [selectedIcon, setSelectedIcon] = useState<string>("Star");
@@ -370,6 +394,11 @@ export default function EnhancedHotelCreatePage() {
   const { isLoaded } = useLoadScript({
     googleMapsApiKey: apiKey || "",
   });
+
+  // Initialize hotel features with predefined features after component mounts
+  useEffect(() => {
+    setHotelFeatures(predefinedFeatures);
+  }, []);
 
   // Load Google Maps API key
   useEffect(() => {
@@ -494,29 +523,7 @@ export default function EnhancedHotelCreatePage() {
     return iconOption ? iconOption.component : Star;
   };
 
-  // Predefined feature objects for hotel creation
-  const predefinedFeatures = [
-    { name: "drink", icon: "wine-glass" },
-    { name: "meal", icon: "hamburger" },
-    { name: "wifi", icon: "wifi" },
-    { name: "parking", icon: "car" },
-    { name: "pool", icon: "swimming-pool" },
-    { name: "gym", icon: "dumbbell" },
-    { name: "spa", icon: "spa" },
-    { name: "restaurant", icon: "utensils" },
-    { name: "room service", icon: "concierge-bell" },
-    { name: "air conditioning", icon: "snowflake" },
-    { name: "laundry", icon: "tshirt" },
-    { name: "business center", icon: "briefcase" },
-    { name: "conference room", icon: "presentation-screen" },
-    { name: "elevator", icon: "elevator" },
-    { name: "balcony", icon: "balcony" },
-    { name: "kitchen", icon: "chef-hat" },
-    { name: "bar", icon: "martini-glass" },
-    { name: "garden", icon: "tree" },
-    { name: "beach access", icon: "umbrella-beach" },
-    { name: "pet friendly", icon: "dog" }
-  ];
+
 
   // Form setup with default values including predefined features
   const form = useForm<HotelFormValues>({

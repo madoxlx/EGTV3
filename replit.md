@@ -106,6 +106,16 @@ The application uses a comprehensive PostgreSQL schema with the following core e
 
 ## Recent Changes
 
+- **Hotel Features Database Storage Fix Complete (July 1, 2025)**: Successfully resolved critical issue where hotel features weren't being saved to database
+  - Fixed missing 'languages' field in insertHotelSchema .pick() selection that was causing schema type mismatch
+  - Added languages field with proper validation to align schema expectations with storage layer requirements  
+  - Enhanced comprehensive testing methodology with isolated test scenarios for each pipeline component
+  - Confirmed data flow integrity: Frontend → Zod validation → Storage → Database all working correctly
+  - Features now properly save to database as JSONB array of objects: [{"name":"wifi","icon":"Wifi"},{"name":"pool","icon":"Waves"}]
+  - Fixed complete data flow: form submission → schema validation → storage processing → database persistence
+  - Hotel features with icons now fully functional and persist correctly in PostgreSQL database
+  - Created comprehensive debugging infrastructure and test scenarios for future troubleshooting
+
 - **Hotel Creation Image Upload Integration Fix (January 1, 2025)**: Successfully implemented comprehensive image upload functionality in hotel creation form
   - Enhanced onSubmit handler to upload main image and gallery images before saving hotel data
   - Images are now uploaded to /api/upload/image endpoint first, then URLs are saved to database

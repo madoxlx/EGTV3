@@ -1268,6 +1268,8 @@ export const insertHotelSchema = createInsertSchema(hotels).pick({
   petFriendly: true,
   accessibleFacilities: true,
   createdBy: true,
+  // Additional info fields
+  languages: true, // Add languages field to support multi-language hotels
   // Complex data fields
   restaurants: true,
   landmarks: true,

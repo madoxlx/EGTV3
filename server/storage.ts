@@ -436,6 +436,16 @@ export class DatabaseStorage implements IStorage {
     try {
       console.log("Storage createHotel called with data:", hotel);
       console.log("Hotel data keys:", Object.keys(hotel));
+      console.log("=== STORAGE FEATURES DEBUG ===");
+      console.log("Input hotel.features:", hotel.features);
+      console.log("Input features type:", typeof hotel.features);
+      console.log("Input features is array:", Array.isArray(hotel.features));
+      if (Array.isArray(hotel.features)) {
+        console.log("Input features length:", hotel.features.length);
+        hotel.features.forEach((feature, index) => {
+          console.log(`Input feature ${index}:`, JSON.stringify(feature));
+        });
+      }
 
       // Ensure JSON fields are properly serialized for JSONB columns
       const processedHotel = {
@@ -451,6 +461,16 @@ export class DatabaseStorage implements IStorage {
       };
 
       console.log("Processed hotel data for insertion:", processedHotel);
+      console.log("=== PROCESSED FEATURES DEBUG ===");
+      console.log("Processed hotel.features:", processedHotel.features);
+      console.log("Processed features type:", typeof processedHotel.features);
+      console.log("Processed features is array:", Array.isArray(processedHotel.features));
+      if (Array.isArray(processedHotel.features)) {
+        console.log("Processed features length:", processedHotel.features.length);
+        processedHotel.features.forEach((feature, index) => {
+          console.log(`Processed feature ${index}:`, JSON.stringify(feature));
+        });
+      }
 
       const [created] = await db
         .insert(hotels)

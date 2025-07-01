@@ -2957,7 +2957,15 @@ export async function registerRoutes(app: Express): Promise<Server> {
       const hotelFormData = formData;
       
       console.log('=== FEATURES EXTRACTION ===');
-      console.log('Features:', hotelFormData.features);
+      console.log('Raw features from form data:', hotelFormData.features);
+      console.log('Features type:', typeof hotelFormData.features);
+      console.log('Features is array:', Array.isArray(hotelFormData.features));
+      if (Array.isArray(hotelFormData.features)) {
+        console.log('Features length:', hotelFormData.features.length);
+        hotelFormData.features.forEach((feature, index) => {
+          console.log(`Feature ${index}:`, JSON.stringify(feature));
+        });
+      }
       
       // Get city and country names from IDs
       let cityName = hotelFormData.city || null;
@@ -3047,6 +3055,8 @@ export async function registerRoutes(app: Express): Promise<Server> {
       }
       
       // Create the hotel first
+      console.log('=== CALLING STORAGE.CREATEHOTEL ===');
+      console.log('Features being passed to storage:', JSON.stringify(validatedHotelData.features, null, 2));
       const newHotel = await storage.createHotel(validatedHotelData);
       console.log('Hotel created successfully:', newHotel);
       
