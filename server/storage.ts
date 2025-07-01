@@ -1,15 +1,38 @@
-import { 
-  users, User, InsertUser,
-  countries, Country, InsertCountry,
-  cities, City, InsertCity,
-  destinations, Destination, InsertDestination,
-  packages, Package, InsertPackage,
-  tours, Tour, InsertTour,
-  hotels, Hotel, InsertHotel,
-  rooms, Room, InsertRoom,
-  heroSlides, HeroSlide, InsertHeroSlide,
-  menus, Menu, InsertMenu,
-  hotelFacilities, hotelHighlights, cleanlinessFeatures, hotelCategories
+import {
+  users,
+  User,
+  InsertUser,
+  countries,
+  Country,
+  InsertCountry,
+  cities,
+  City,
+  InsertCity,
+  destinations,
+  Destination,
+  InsertDestination,
+  packages,
+  Package,
+  InsertPackage,
+  tours,
+  Tour,
+  InsertTour,
+  hotels,
+  Hotel,
+  InsertHotel,
+  rooms,
+  Room,
+  InsertRoom,
+  heroSlides,
+  HeroSlide,
+  InsertHeroSlide,
+  menus,
+  Menu,
+  InsertMenu,
+  hotelFacilities,
+  hotelHighlights,
+  cleanlinessFeatures,
+  hotelCategories,
 } from "@shared/schema";
 import { db, pool } from "./db";
 import { eq, and, desc, asc, sql } from "drizzle-orm";
@@ -46,13 +69,19 @@ export interface IStorage {
   getPackage(id: number): Promise<Package | undefined>;
   listPackages(active?: boolean): Promise<Package[]>;
   createPackage(pkg: InsertPackage): Promise<Package>;
-  updatePackage(id: number, pkg: Partial<InsertPackage>): Promise<Package | undefined>;
+  updatePackage(
+    id: number,
+    pkg: Partial<InsertPackage>,
+  ): Promise<Package | undefined>;
 
   // Hotels
   getHotel(id: number): Promise<Hotel | undefined>;
   listHotels(active?: boolean): Promise<Hotel[]>;
   createHotel(hotel: InsertHotel): Promise<Hotel>;
-  updateHotel(id: number, hotel: Partial<InsertHotel>): Promise<Hotel | undefined>;
+  updateHotel(
+    id: number,
+    hotel: Partial<InsertHotel>,
+  ): Promise<Hotel | undefined>;
 
   // Tours
   getTour(id: number): Promise<Tour | undefined>;
@@ -125,17 +154,20 @@ export class DatabaseStorage implements IStorage {
       const [user] = await db.select().from(users).where(eq(users.id, id));
       return user || undefined;
     } catch (error) {
-      console.error('Error getting user:', error);
+      console.error("Error getting user:", error);
       return undefined;
     }
   }
 
   async getUserByUsername(username: string): Promise<User | undefined> {
     try {
-      const [user] = await db.select().from(users).where(eq(users.username, username));
+      const [user] = await db
+        .select()
+        .from(users)
+        .where(eq(users.username, username));
       return user || undefined;
     } catch (error) {
-      console.error('Error getting user by username:', error);
+      console.error("Error getting user by username:", error);
       return undefined;
     }
   }
@@ -145,11 +177,18 @@ export class DatabaseStorage implements IStorage {
     return created;
   }
 
-  async updateUser(id: number, user: Partial<InsertUser>): Promise<User | undefined> {
-    const [updated] = await db.update(users).set({
-      ...user,
-      updatedAt: new Date()
-    }).where(eq(users.id, id)).returning();
+  async updateUser(
+    id: number,
+    user: Partial<InsertUser>,
+  ): Promise<User | undefined> {
+    const [updated] = await db
+      .update(users)
+      .set({
+        ...user,
+        updatedAt: new Date(),
+      })
+      .where(eq(users.id, id))
+      .returning();
     return updated || undefined;
   }
 
@@ -157,22 +196,28 @@ export class DatabaseStorage implements IStorage {
     try {
       return await db.select().from(users).orderBy(asc(users.id));
     } catch (error) {
-      console.error('Error listing users:', error);
+      console.error("Error listing users:", error);
       return [];
     }
   }
 
-  async verifyPassword(password: string, hashedPassword: string): Promise<boolean> {
+  async verifyPassword(
+    password: string,
+    hashedPassword: string,
+  ): Promise<boolean> {
     try {
-      const [storedHash, salt] = hashedPassword.split('.');
+      const [storedHash, salt] = hashedPassword.split(".");
       if (!salt) return false;
 
-      const buf = await scryptAsync(password, salt, 64) as Buffer;
-      const derivedKey = buf.toString('hex');
+      const buf = (await scryptAsync(password, salt, 64)) as Buffer;
+      const derivedKey = buf.toString("hex");
 
-      return timingSafeEqual(Buffer.from(storedHash, 'hex'), Buffer.from(derivedKey, 'hex'));
+      return timingSafeEqual(
+        Buffer.from(storedHash, "hex"),
+        Buffer.from(derivedKey, "hex"),
+      );
     } catch (error) {
-      console.error('Error verifying password:', error);
+      console.error("Error verifying password:", error);
       return false;
     }
   }
@@ -180,10 +225,13 @@ export class DatabaseStorage implements IStorage {
   // Countries
   async getCountry(id: number): Promise<Country | undefined> {
     try {
-      const [country] = await db.select().from(countries).where(eq(countries.id, id));
+      const [country] = await db
+        .select()
+        .from(countries)
+        .where(eq(countries.id, id));
       return country || undefined;
     } catch (error) {
-      console.error('Error getting country:', error);
+      console.error("Error getting country:", error);
       return undefined;
     }
   }
@@ -191,11 +239,15 @@ export class DatabaseStorage implements IStorage {
   async listCountries(active?: boolean): Promise<Country[]> {
     try {
       if (active !== undefined) {
-        return await db.select().from(countries).where(eq(countries.active, active)).orderBy(asc(countries.name));
+        return await db
+          .select()
+          .from(countries)
+          .where(eq(countries.active, active))
+          .orderBy(asc(countries.name));
       }
       return await db.select().from(countries).orderBy(asc(countries.name));
     } catch (error) {
-      console.error('Error listing countries:', error);
+      console.error("Error listing countries:", error);
       return [];
     }
   }
@@ -211,7 +263,7 @@ export class DatabaseStorage implements IStorage {
       const [city] = await db.select().from(cities).where(eq(cities.id, id));
       return city || undefined;
     } catch (error) {
-      console.error('Error getting city:', error);
+      console.error("Error getting city:", error);
       return undefined;
     }
   }
@@ -227,11 +279,15 @@ export class DatabaseStorage implements IStorage {
       }
 
       if (conditions.length > 0) {
-        return await db.select().from(cities).where(and(...conditions)).orderBy(asc(cities.name));
+        return await db
+          .select()
+          .from(cities)
+          .where(and(...conditions))
+          .orderBy(asc(cities.name));
       }
       return await db.select().from(cities).orderBy(asc(cities.name));
     } catch (error) {
-      console.error('Error listing cities:', error);
+      console.error("Error listing cities:", error);
       return [];
     }
   }
@@ -244,10 +300,13 @@ export class DatabaseStorage implements IStorage {
   // Destinations
   async getDestination(id: number): Promise<Destination | undefined> {
     try {
-      const [destination] = await db.select().from(destinations).where(eq(destinations.id, id));
+      const [destination] = await db
+        .select()
+        .from(destinations)
+        .where(eq(destinations.id, id));
       return destination || undefined;
     } catch (error) {
-      console.error('Error getting destination:', error);
+      console.error("Error getting destination:", error);
       return undefined;
     }
   }
@@ -255,17 +314,29 @@ export class DatabaseStorage implements IStorage {
   async listDestinations(active?: boolean): Promise<Destination[]> {
     try {
       if (active !== undefined) {
-        return await db.select().from(destinations).where(eq(destinations.featured, active)).orderBy(desc(destinations.createdAt));
+        return await db
+          .select()
+          .from(destinations)
+          .where(eq(destinations.featured, active))
+          .orderBy(desc(destinations.createdAt));
       }
-      return await db.select().from(destinations).orderBy(desc(destinations.createdAt));
+      return await db
+        .select()
+        .from(destinations)
+        .orderBy(desc(destinations.createdAt));
     } catch (error) {
-      console.error('Error listing destinations:', error);
+      console.error("Error listing destinations:", error);
       return [];
     }
   }
 
-  async createDestination(destination: InsertDestination): Promise<Destination> {
-    const [created] = await db.insert(destinations).values(destination).returning();
+  async createDestination(
+    destination: InsertDestination,
+  ): Promise<Destination> {
+    const [created] = await db
+      .insert(destinations)
+      .values(destination)
+      .returning();
     return created;
   }
 
@@ -275,7 +346,7 @@ export class DatabaseStorage implements IStorage {
       const [pkg] = await db.select().from(packages).where(eq(packages.id, id));
       return pkg || undefined;
     } catch (error) {
-      console.error('Error getting package:', error);
+      console.error("Error getting package:", error);
       return undefined;
     }
   }
@@ -283,11 +354,15 @@ export class DatabaseStorage implements IStorage {
   async listPackages(active?: boolean): Promise<Package[]> {
     try {
       if (active !== undefined) {
-        return await db.select().from(packages).where(eq(packages.featured, active)).orderBy(desc(packages.createdAt));
+        return await db
+          .select()
+          .from(packages)
+          .where(eq(packages.featured, active))
+          .orderBy(desc(packages.createdAt));
       }
       return await db.select().from(packages).orderBy(desc(packages.createdAt));
     } catch (error) {
-      console.error('Error listing packages:', error);
+      console.error("Error listing packages:", error);
       return [];
     }
   }
@@ -297,11 +372,18 @@ export class DatabaseStorage implements IStorage {
     return created;
   }
 
-  async updatePackage(id: number, pkg: Partial<InsertPackage>): Promise<Package | undefined> {
-    const [updated] = await db.update(packages).set({
-      ...pkg,
-      updatedAt: new Date()
-    }).where(eq(packages.id, id)).returning();
+  async updatePackage(
+    id: number,
+    pkg: Partial<InsertPackage>,
+  ): Promise<Package | undefined> {
+    const [updated] = await db
+      .update(packages)
+      .set({
+        ...pkg,
+        updatedAt: new Date(),
+      })
+      .where(eq(packages.id, id))
+      .returning();
     return updated || undefined;
   }
 
@@ -311,7 +393,7 @@ export class DatabaseStorage implements IStorage {
       const [hotel] = await db.select().from(hotels).where(eq(hotels.id, id));
       return hotel || undefined;
     } catch (error) {
-      console.error('Error getting hotel:', error);
+      console.error("Error getting hotel:", error);
       return undefined;
     }
   }
@@ -326,66 +408,79 @@ export class DatabaseStorage implements IStorage {
           ADD COLUMN IF NOT EXISTS country_id INTEGER REFERENCES countries(id)
         `);
       } catch (alterError) {
-        console.log('Country ID column may already exist or table structure issue:', alterError.message);
+        console.log(
+          "Country ID column may already exist or table structure issue:",
+          alterError.message,
+        );
       }
       client.release();
 
       if (active !== undefined) {
-        return await db.select().from(hotels).where(eq(hotels.status, active ? 'active' : 'inactive')).orderBy(desc(hotels.createdAt));
+        return await db
+          .select()
+          .from(hotels)
+          .where(eq(hotels.status, active ? "active" : "inactive"))
+          .orderBy(desc(hotels.createdAt));
       }
       return await db.select().from(hotels).orderBy(desc(hotels.createdAt));
     } catch (error) {
-      console.error('Error listing hotels:', error);
+      console.error("Error listing hotels:", error);
       return [];
     }
   }
 
   async createHotel(hotel: InsertHotel): Promise<Hotel> {
     try {
-      console.log('Storage createHotel called with data:', hotel);
-      console.log('Hotel data keys:', Object.keys(hotel));
+      console.log("Storage createHotel called with data:", hotel);
+      console.log("Hotel data keys:", Object.keys(hotel));
 
       // Ensure JSON fields are properly serialized for JSONB columns
       const processedHotel = {
         ...hotel,
         restaurants: hotel.restaurants || null,
         landmarks: hotel.landmarks || null,
-        faqs: hotel.faqs || null,
-        roomTypes: hotel.roomTypes || null,
-        galleryUrls: hotel.galleryUrls || null,
+        faqs: hotel.faqs,
+        roomTypes: hotel.roomTypes,
+        galleryUrls: hotel.galleryUrls,
         amenities: hotel.amenities || null,
-        languages: hotel.languages || ["en"]
+        languages: hotel.languages || ["en"],
       };
 
-      console.log('Processed hotel data for insertion:', processedHotel);
+      console.log("Processed hotel data for insertion:", processedHotel);
 
-      const [created] = await db.insert(hotels).values(processedHotel).returning();
-      console.log('Hotel created successfully in storage:', created);
+      const [created] = await db
+        .insert(hotels)
+        .values(processedHotel)
+        .returning();
+      console.log("Hotel created successfully in storage:", created);
       return created;
     } catch (error) {
-      console.error('Database error in createHotel:', error);
-      console.error('Hotel data that caused error:', hotel);
+      console.error("Database error in createHotel:", error);
+      console.error("Hotel data that caused error:", hotel);
       throw error;
     }
   }
 
-  async updateHotel(id: number, hotel: Partial<InsertHotel>): Promise<Hotel | undefined> {
+  async updateHotel(
+    id: number,
+    hotel: Partial<InsertHotel>,
+  ): Promise<Hotel | undefined> {
     try {
-      console.log('Storage updateHotel called for ID:', id);
-      console.log('Update data:', hotel);
+      console.log("Storage updateHotel called for ID:", id);
+      console.log("Update data:", hotel);
 
       const [updated] = await db
         .update(hotels)
         .set(hotel)
         .where(eq(hotels.id, id))
         .returning();
-      
-      console.log('Hotel updated successfully in storage:', updated);
+
+      console.log("Hotel updated successfully in storage:", updated);
       return updated;
     } catch (error) {
-      console.error('Database error in updateHotel:', error);
-      console.error('Hotel ID:', id);
-      console.error('Update data that caused error:', hotel);
+      console.error("Database error in updateHotel:", error);
+      console.error("Hotel ID:", id);
+      console.error("Update data that caused error:", hotel);
       throw error;
     }
   }
@@ -400,9 +495,18 @@ export class DatabaseStorage implements IStorage {
       }
 
       // Get associated features
-      const facilityIds = await this.getHotelFeatureAssociations(id, 'facilities');
-      const highlightIds = await this.getHotelFeatureAssociations(id, 'highlights');
-      const cleanlinessFeatureIds = await this.getHotelFeatureAssociations(id, 'cleanlinessFeatures');
+      const facilityIds = await this.getHotelFeatureAssociations(
+        id,
+        "facilities",
+      );
+      const highlightIds = await this.getHotelFeatureAssociations(
+        id,
+        "highlights",
+      );
+      const cleanlinessFeatureIds = await this.getHotelFeatureAssociations(
+        id,
+        "cleanlinessFeatures",
+      );
 
       // Get complex fields from hotel data
       let restaurants = [];
@@ -411,11 +515,11 @@ export class DatabaseStorage implements IStorage {
       let roomTypes = [];
 
       // Parse restaurants from hotel data if exists
-      if (hotel.restaurants && typeof hotel.restaurants === 'string') {
+      if (hotel.restaurants && typeof hotel.restaurants === "string") {
         try {
           restaurants = JSON.parse(hotel.restaurants);
         } catch (e) {
-          console.log('Error parsing restaurants:', e);
+          console.log("Error parsing restaurants:", e);
           restaurants = [];
         }
       } else if (Array.isArray(hotel.restaurants)) {
@@ -423,11 +527,11 @@ export class DatabaseStorage implements IStorage {
       }
 
       // Parse landmarks from hotel data if exists
-      if (hotel.landmarks && typeof hotel.landmarks === 'string') {
+      if (hotel.landmarks && typeof hotel.landmarks === "string") {
         try {
           landmarks = JSON.parse(hotel.landmarks);
         } catch (e) {
-          console.log('Error parsing landmarks:', e);
+          console.log("Error parsing landmarks:", e);
           landmarks = [];
         }
       } else if (Array.isArray(hotel.landmarks)) {
@@ -435,11 +539,11 @@ export class DatabaseStorage implements IStorage {
       }
 
       // Parse FAQs from hotel data if exists
-      if (hotel.faqs && typeof hotel.faqs === 'string') {
+      if (hotel.faqs && typeof hotel.faqs === "string") {
         try {
           faqs = JSON.parse(hotel.faqs);
         } catch (e) {
-          console.log('Error parsing faqs:', e);
+          console.log("Error parsing faqs:", e);
           faqs = [];
         }
       } else if (Array.isArray(hotel.faqs)) {
@@ -447,24 +551,24 @@ export class DatabaseStorage implements IStorage {
       }
 
       // Parse room types from hotel data if exists
-      if (hotel.roomTypes && typeof hotel.roomTypes === 'string') {
+      if (hotel.roomTypes && typeof hotel.roomTypes === "string") {
         try {
           roomTypes = JSON.parse(hotel.roomTypes);
         } catch (e) {
-          console.log('Error parsing room types:', e);
+          console.log("Error parsing room types:", e);
           roomTypes = [];
         }
       } else if (Array.isArray(hotel.roomTypes)) {
         roomTypes = hotel.roomTypes;
       }
 
-      console.log('Hotel with features loaded:', {
+      console.log("Hotel with features loaded:", {
         id: hotel.id,
         name: hotel.name,
         restaurantsCount: restaurants.length,
         landmarksCount: landmarks.length,
         faqsCount: faqs.length,
-        roomTypesCount: roomTypes.length
+        roomTypesCount: roomTypes.length,
       });
 
       return {
@@ -480,44 +584,47 @@ export class DatabaseStorage implements IStorage {
         restaurants,
         landmarks,
         faqs,
-        roomTypes
+        roomTypes,
       };
     } catch (error) {
-      console.error('Error fetching hotel with features:', error);
+      console.error("Error fetching hotel with features:", error);
       return await this.getHotel(id);
     }
   }
 
-  async getHotelFeatureAssociations(hotelId: number, featureType: string): Promise<number[]> {
+  async getHotelFeatureAssociations(
+    hotelId: number,
+    featureType: string,
+  ): Promise<number[]> {
     try {
       const client = await pool.connect();
       let result;
-      
+
       switch (featureType) {
-        case 'facilities':
+        case "facilities":
           result = await client.query(
-            'SELECT facility_id FROM hotel_to_facilities WHERE hotel_id = $1',
-            [hotelId]
+            "SELECT facility_id FROM hotel_to_facilities WHERE hotel_id = $1",
+            [hotelId],
           );
           client.release();
-          return result.rows.map(row => row.facility_id);
-          
-        case 'highlights':
+          return result.rows.map((row) => row.facility_id);
+
+        case "highlights":
           result = await client.query(
-            'SELECT highlight_id FROM hotel_to_highlights WHERE hotel_id = $1',
-            [hotelId]
+            "SELECT highlight_id FROM hotel_to_highlights WHERE hotel_id = $1",
+            [hotelId],
           );
           client.release();
-          return result.rows.map(row => row.highlight_id);
-          
-        case 'cleanlinessFeatures':
+          return result.rows.map((row) => row.highlight_id);
+
+        case "cleanlinessFeatures":
           result = await client.query(
-            'SELECT feature_id FROM hotel_to_cleanliness WHERE hotel_id = $1',
-            [hotelId]
+            "SELECT feature_id FROM hotel_to_cleanliness WHERE hotel_id = $1",
+            [hotelId],
           );
           client.release();
-          return result.rows.map(row => row.feature_id);
-          
+          return result.rows.map((row) => row.feature_id);
+
         default:
           client.release();
           return [];
@@ -528,9 +635,16 @@ export class DatabaseStorage implements IStorage {
     }
   }
 
-  async updateHotelFeatureAssociations(hotelId: number, featureType: string, featureIds: number[]): Promise<void> {
+  async updateHotelFeatureAssociations(
+    hotelId: number,
+    featureType: string,
+    featureIds: number[],
+  ): Promise<void> {
     try {
-      console.log(`Updating hotel ${featureType} for hotel ${hotelId}:`, featureIds);
+      console.log(
+        `Updating hotel ${featureType} for hotel ${hotelId}:`,
+        featureIds,
+      );
       // This is a placeholder - you'll need to implement based on your actual schema
       // For now, just log the operation
     } catch (error) {
@@ -544,7 +658,7 @@ export class DatabaseStorage implements IStorage {
       const [tour] = await db.select().from(tours).where(eq(tours.id, id));
       return tour || undefined;
     } catch (error) {
-      console.error('Error getting tour:', error);
+      console.error("Error getting tour:", error);
       return undefined;
     }
   }
@@ -552,11 +666,15 @@ export class DatabaseStorage implements IStorage {
   async listTours(active?: boolean): Promise<Tour[]> {
     try {
       if (active !== undefined) {
-        return await db.select().from(tours).where(eq(tours.active, active)).orderBy(desc(tours.createdAt));
+        return await db
+          .select()
+          .from(tours)
+          .where(eq(tours.active, active))
+          .orderBy(desc(tours.createdAt));
       }
       return await db.select().from(tours).orderBy(desc(tours.createdAt));
     } catch (error) {
-      console.error('Error listing tours:', error);
+      console.error("Error listing tours:", error);
       return [];
     }
   }
@@ -566,19 +684,22 @@ export class DatabaseStorage implements IStorage {
     return created;
   }
 
-  async updateTour(id: number, tour: Partial<InsertTour>): Promise<Tour | undefined> {
+  async updateTour(
+    id: number,
+    tour: Partial<InsertTour>,
+  ): Promise<Tour | undefined> {
     try {
       const [updatedTour] = await db
         .update(tours)
         .set({
           ...tour,
-          updatedAt: new Date()
+          updatedAt: new Date(),
         })
         .where(eq(tours.id, id))
         .returning();
       return updatedTour || undefined;
     } catch (error) {
-      console.error('Error updating tour:', error);
+      console.error("Error updating tour:", error);
       return undefined;
     }
   }
@@ -586,12 +707,16 @@ export class DatabaseStorage implements IStorage {
   // Hero Slides
   async getActiveHeroSlides(): Promise<HeroSlide[]> {
     try {
-      console.log('Storage: Attempting to fetch hero slides...');
-      const slides = await db.select().from(heroSlides).where(eq(heroSlides.active, true)).orderBy(asc(heroSlides.order));
-      console.log('Storage: Successfully fetched hero slides:', slides.length);
+      console.log("Storage: Attempting to fetch hero slides...");
+      const slides = await db
+        .select()
+        .from(heroSlides)
+        .where(eq(heroSlides.active, true))
+        .orderBy(asc(heroSlides.order));
+      console.log("Storage: Successfully fetched hero slides:", slides.length);
       return slides;
     } catch (error) {
-      console.error('Storage: Error getting active hero slides:', error);
+      console.error("Storage: Error getting active hero slides:", error);
       return []; // Return empty array instead of throwing to prevent API failures
     }
   }
@@ -604,10 +729,13 @@ export class DatabaseStorage implements IStorage {
   // Menus
   async getMenuByLocation(location: string): Promise<Menu | undefined> {
     try {
-      const [menu] = await db.select().from(menus).where(eq(menus.location, location));
+      const [menu] = await db
+        .select()
+        .from(menus)
+        .where(eq(menus.location, location));
       return menu || undefined;
     } catch (error) {
-      console.error('Error getting menu by location:', error);
+      console.error("Error getting menu by location:", error);
       return undefined;
     }
   }
@@ -616,7 +744,7 @@ export class DatabaseStorage implements IStorage {
     try {
       return await db.select().from(menus).orderBy(asc(menus.name));
     } catch (error) {
-      console.error('Error listing menus:', error);
+      console.error("Error listing menus:", error);
       return [];
     }
   }
@@ -630,11 +758,13 @@ export class DatabaseStorage implements IStorage {
   async listPackageCategories(active?: boolean): Promise<any[]> {
     try {
       const client = await pool.connect();
-      const result = await client.query('SELECT * FROM package_categories ORDER BY name');
+      const result = await client.query(
+        "SELECT * FROM package_categories ORDER BY name",
+      );
       client.release();
       return result.rows || [];
     } catch (error) {
-      console.error('Error listing package categories:', error);
+      console.error("Error listing package categories:", error);
       return [];
     }
   }
@@ -643,13 +773,17 @@ export class DatabaseStorage implements IStorage {
     try {
       const client = await pool.connect();
       const result = await client.query(
-        'INSERT INTO package_categories (name, description, active) VALUES ($1, $2, $3) RETURNING *',
-        [category.name, category.description || null, category.active !== false]
+        "INSERT INTO package_categories (name, description, active) VALUES ($1, $2, $3) RETURNING *",
+        [
+          category.name,
+          category.description || null,
+          category.active !== false,
+        ],
       );
       client.release();
       return result.rows[0] || null;
     } catch (error) {
-      console.error('Error creating package category:', error);
+      console.error("Error creating package category:", error);
       throw error;
     }
   }
@@ -660,14 +794,19 @@ export class DatabaseStorage implements IStorage {
       const client = await pool.connect();
       let result;
       if (menuId !== undefined) {
-        result = await client.query('SELECT * FROM menu_items WHERE menu_id = $1 ORDER BY "order"', [menuId]);
+        result = await client.query(
+          'SELECT * FROM menu_items WHERE menu_id = $1 ORDER BY "order"',
+          [menuId],
+        );
       } else {
-        result = await client.query('SELECT * FROM menu_items ORDER BY "order"');
+        result = await client.query(
+          'SELECT * FROM menu_items ORDER BY "order"',
+        );
       }
       client.release();
       return result.rows || [];
     } catch (error) {
-      console.error('Error listing menu items:', error);
+      console.error("Error listing menu items:", error);
       return [];
     }
   }
@@ -677,12 +816,19 @@ export class DatabaseStorage implements IStorage {
       const client = await pool.connect();
       const result = await client.query(
         'INSERT INTO menu_items (menu_id, title, url, icon, "order", active) VALUES ($1, $2, $3, $4, $5, $6) RETURNING *',
-        [item.menuId, item.title, item.url || null, item.icon || null, item.order || 0, item.active !== false]
+        [
+          item.menuId,
+          item.title,
+          item.url || null,
+          item.icon || null,
+          item.order || 0,
+          item.active !== false,
+        ],
       );
       client.release();
       return result.rows[0] || null;
     } catch (error) {
-      console.error('Error creating menu item:', error);
+      console.error("Error creating menu item:", error);
       throw error;
     }
   }
@@ -693,14 +839,19 @@ export class DatabaseStorage implements IStorage {
       const client = await pool.connect();
       let result;
       if (active !== undefined) {
-        result = await client.query('SELECT * FROM tour_categories WHERE active = $1 ORDER BY name', [active]);
+        result = await client.query(
+          "SELECT * FROM tour_categories WHERE active = $1 ORDER BY name",
+          [active],
+        );
       } else {
-        result = await client.query('SELECT * FROM tour_categories ORDER BY name');
+        result = await client.query(
+          "SELECT * FROM tour_categories ORDER BY name",
+        );
       }
       client.release();
       return result.rows || [];
     } catch (error) {
-      console.error('Error listing tour categories:', error);
+      console.error("Error listing tour categories:", error);
       return [];
     }
   }
@@ -709,31 +860,40 @@ export class DatabaseStorage implements IStorage {
     try {
       const client = await pool.connect();
       const result = await client.query(
-        'INSERT INTO tour_categories (name, description, active) VALUES ($1, $2, $3) RETURNING *',
-        [category.name, category.description || null, category.active !== false]
+        "INSERT INTO tour_categories (name, description, active) VALUES ($1, $2, $3) RETURNING *",
+        [
+          category.name,
+          category.description || null,
+          category.active !== false,
+        ],
       );
       client.release();
       return result.rows[0] || null;
     } catch (error) {
-      console.error('Error creating tour category:', error);
+      console.error("Error creating tour category:", error);
       throw error;
     }
   }
 
-  // Translations  
+  // Translations
   async listTranslations(language?: string): Promise<any[]> {
     try {
       const client = await pool.connect();
       let result;
       if (language !== undefined) {
-        result = await client.query('SELECT * FROM translations WHERE language = $1 ORDER BY "key"', [language]);
+        result = await client.query(
+          'SELECT * FROM translations WHERE language = $1 ORDER BY "key"',
+          [language],
+        );
       } else {
-        result = await client.query('SELECT * FROM translations ORDER BY "key"');
+        result = await client.query(
+          'SELECT * FROM translations ORDER BY "key"',
+        );
       }
       client.release();
       return result.rows || [];
     } catch (error) {
-      console.error('Error listing translations:', error);
+      console.error("Error listing translations:", error);
       return [];
     }
   }
@@ -743,12 +903,20 @@ export class DatabaseStorage implements IStorage {
       const client = await pool.connect();
       const result = await client.query(
         'INSERT INTO translations ("key", language, value, en_text, ar_text, context, category) VALUES ($1, $2, $3, $4, $5, $6, $7) RETURNING *',
-        [translation.key, translation.language || 'en', translation.value, translation.enText || translation.value, translation.arText, translation.context, translation.category]
+        [
+          translation.key,
+          translation.language || "en",
+          translation.value,
+          translation.enText || translation.value,
+          translation.arText,
+          translation.context,
+          translation.category,
+        ],
       );
       client.release();
       return result.rows[0] || null;
     } catch (error) {
-      console.error('Error creating translation:', error);
+      console.error("Error creating translation:", error);
       throw error;
     }
   }
@@ -757,11 +925,11 @@ export class DatabaseStorage implements IStorage {
   async getSiteLanguageSettings(): Promise<any[]> {
     try {
       const client = await pool.connect();
-      const result = await client.query('SELECT * FROM site_language_settings');
+      const result = await client.query("SELECT * FROM site_language_settings");
       client.release();
       return result.rows || [];
     } catch (error) {
-      console.error('Error getting site language settings:', error);
+      console.error("Error getting site language settings:", error);
       return [];
     }
   }
@@ -770,13 +938,13 @@ export class DatabaseStorage implements IStorage {
     try {
       const client = await pool.connect();
       const result = await client.query(
-        'UPDATE site_language_settings SET default_language = $1 WHERE id = 1 RETURNING *',
-        [settings.defaultLanguage || 'en']
+        "UPDATE site_language_settings SET default_language = $1 WHERE id = 1 RETURNING *",
+        [settings.defaultLanguage || "en"],
       );
       client.release();
       return result.rows[0] || null;
     } catch (error) {
-      console.error('Error updating site language settings:', error);
+      console.error("Error updating site language settings:", error);
       return undefined;
     }
   }
@@ -784,68 +952,72 @@ export class DatabaseStorage implements IStorage {
   // Rooms management
   async listRooms(hotelId?: number): Promise<any[]> {
     try {
-      console.log('🔍 Listing rooms with hotelId:', hotelId);
+      console.log("🔍 Listing rooms with hotelId:", hotelId);
 
       // Always use raw SQL for reliability
       const client = await pool.connect();
-      const sqlQuery = hotelId 
-        ? 'SELECT * FROM rooms WHERE hotel_id = $1 ORDER BY created_at DESC'
-        : 'SELECT * FROM rooms ORDER BY created_at DESC';
+      const sqlQuery = hotelId
+        ? "SELECT * FROM rooms WHERE hotel_id = $1 ORDER BY created_at DESC"
+        : "SELECT * FROM rooms ORDER BY created_at DESC";
 
       const params = hotelId ? [hotelId] : [];
       const result = await client.query(sqlQuery, params);
       client.release();
 
-      console.log('✅ Rooms query result:', result.rows.length, 'rooms found');
+      console.log("✅ Rooms query result:", result.rows.length, "rooms found");
       if (result.rows.length > 0) {
-        console.log('📋 Sample room:', {
+        console.log("📋 Sample room:", {
           id: result.rows[0].id,
           name: result.rows[0].name,
-          hotel_id: result.rows[0].hotel_id
+          hotel_id: result.rows[0].hotel_id,
         });
       }
 
       return result.rows || [];
     } catch (error) {
-      console.error('❌ Error listing rooms:', error);
+      console.error("❌ Error listing rooms:", error);
       return [];
     }
   }
 
   async createRoom(room: any): Promise<any> {
     try {
-      const [newRoom] = await db.insert(rooms).values({
-        name: room.name,
-        description: room.description,
-        hotelId: room.hotelId,
-        type: room.type,
-        maxOccupancy: room.maxOccupancy,
-        maxAdults: room.maxAdults,
-        maxChildren: room.maxChildren || 0,
-        maxInfants: room.maxInfants || 0,
-        price: room.price,
-        discountedPrice: room.discountedPrice,
-        currency: room.currency || 'EGP',
-        imageUrl: room.imageUrl,
-        size: room.size,
-        bedType: room.bedType,
-        amenities: room.amenities,
-        view: room.view,
-        available: room.available !== false,
-        status: room.status || 'active',
-        createdAt: new Date(),
-        updatedAt: new Date()
-      }).returning();
+      const [newRoom] = await db
+        .insert(rooms)
+        .values({
+          name: room.name,
+          description: room.description,
+          hotelId: room.hotelId,
+          type: room.type,
+          maxOccupancy: room.maxOccupancy,
+          maxAdults: room.maxAdults,
+          maxChildren: room.maxChildren || 0,
+          maxInfants: room.maxInfants || 0,
+          price: room.price,
+          discountedPrice: room.discountedPrice,
+          currency: room.currency || "EGP",
+          imageUrl: room.imageUrl,
+          size: room.size,
+          bedType: room.bedType,
+          amenities: room.amenities,
+          view: room.view,
+          available: room.available !== false,
+          status: room.status || "active",
+          createdAt: new Date(),
+          updatedAt: new Date(),
+        })
+        .returning();
       return newRoom;
     } catch (error) {
-      console.error('Error creating room:', error);
+      console.error("Error creating room:", error);
       throw error;
     }
   }
 
   async updateRoom(id: number, room: any): Promise<any> {
     try {
-      const [updatedRoom] = await db.update(rooms)
+      const [updatedRoom] = await db
+        .update(rooms)
         .set({
           name: room.name,
           description: room.description,
@@ -857,21 +1029,21 @@ export class DatabaseStorage implements IStorage {
           maxInfants: room.maxInfants || 0,
           price: room.price,
           discountedPrice: room.discountedPrice,
-          currency: room.currency || 'EGP',
+          currency: room.currency || "EGP",
           imageUrl: room.imageUrl,
           size: room.size,
           bedType: room.bedType,
           amenities: room.amenities,
           view: room.view,
           available: room.available !== false,
-          status: room.status || 'active',
-          updatedAt: new Date()
+          status: room.status || "active",
+          updatedAt: new Date(),
         })
         .where(eq(rooms.id, id))
         .returning();
       return updatedRoom;
     } catch (error) {
-      console.error('Error updating room:', error);
+      console.error("Error updating room:", error);
       throw error;
     }
   }
@@ -881,19 +1053,21 @@ export class DatabaseStorage implements IStorage {
       const [room] = await db.select().from(rooms).where(eq(rooms.id, id));
       return room;
     } catch (error) {
-      console.error('Error getting room:', error);
+      console.error("Error getting room:", error);
       return undefined;
     }
   }
 
   async getRoomsByHotel(hotelId: number): Promise<any[]> {
     try {
-      const result = await db.select().from(rooms)
+      const result = await db
+        .select()
+        .from(rooms)
         .where(eq(rooms.hotelId, hotelId))
         .orderBy(rooms.createdAt);
       return result || [];
     } catch (error) {
-      console.error('Error getting rooms by hotel:', error);
+      console.error("Error getting rooms by hotel:", error);
       return [];
     }
   }
@@ -903,7 +1077,7 @@ export class DatabaseStorage implements IStorage {
       await db.delete(rooms).where(eq(rooms.id, id));
       return true;
     } catch (error) {
-      console.error('Error deleting room:', error);
+      console.error("Error deleting room:", error);
       return false;
     }
   }
@@ -911,51 +1085,64 @@ export class DatabaseStorage implements IStorage {
   // Hotel Facilities methods
   async listHotelFacilities(): Promise<any[]> {
     try {
-      return await db.select().from(hotelFacilities).orderBy(hotelFacilities.name);
+      return await db
+        .select()
+        .from(hotelFacilities)
+        .orderBy(hotelFacilities.name);
     } catch (error) {
-      console.error('Error listing hotel facilities:', error);
+      console.error("Error listing hotel facilities:", error);
       return [];
     }
   }
 
   async getHotelFacility(id: number): Promise<any | undefined> {
     try {
-      const [facility] = await db.select().from(hotelFacilities).where(eq(hotelFacilities.id, id));
+      const [facility] = await db
+        .select()
+        .from(hotelFacilities)
+        .where(eq(hotelFacilities.id, id));
       return facility;
     } catch (error) {
-      console.error('Error getting hotel facility:', error);
+      console.error("Error getting hotel facility:", error);
       return undefined;
     }
   }
 
   async createHotelFacility(facility: any): Promise<any> {
     try {
-      const [newFacility] = await db.insert(hotelFacilities).values({
-        name: facility.name,
-        description: facility.description,
-        icon: facility.icon,
-        category: facility.category,
-        active: facility.active !== undefined ? facility.active : true,
-        createdAt: new Date(),
-        updatedAt: new Date()
-      }).returning();
+      const [newFacility] = await db
+        .insert(hotelFacilities)
+        .values({
+          name: facility.name,
+          description: facility.description,
+          icon: facility.icon,
+          category: facility.category,
+          active: facility.active !== undefined ? facility.active : true,
+          createdAt: new Date(),
+          updatedAt: new Date(),
+        })
+        .returning();
       return newFacility;
     } catch (error) {
-      console.error('Error creating hotel facility:', error);
+      console.error("Error creating hotel facility:", error);
       throw error;
     }
   }
 
-  async updateHotelFacility(id: number, facility: any): Promise<any | undefined> {
+  async updateHotelFacility(
+    id: number,
+    facility: any,
+  ): Promise<any | undefined> {
     try {
-      const [updatedFacility] = await db.update(hotelFacilities)
+      const [updatedFacility] = await db
+        .update(hotelFacilities)
         .set({
           name: facility.name,
           description: facility.description,
           icon: facility.icon,
           category: facility.category,
           active: facility.active,
-          updatedAt: new Date()
+          updatedAt: new Date(),
         })
         .where(eq(hotelFacilities.id, id))
         .returning();
@@ -979,49 +1166,62 @@ export class DatabaseStorage implements IStorage {
   // Hotel Highlights methods
   async listHotelHighlights(): Promise<any[]> {
     try {
-      return await db.select().from(hotelHighlights).orderBy(hotelHighlights.name);
+      return await db
+        .select()
+        .from(hotelHighlights)
+        .orderBy(hotelHighlights.name);
     } catch (error) {
-      console.error('Error listing hotel highlights:', error);
+      console.error("Error listing hotel highlights:", error);
       return [];
     }
   }
 
   async getHotelHighlight(id: number): Promise<any | undefined> {
     try {
-      const [highlight] = await db.select().from(hotelHighlights).where(eq(hotelHighlights.id, id));
+      const [highlight] = await db
+        .select()
+        .from(hotelHighlights)
+        .where(eq(hotelHighlights.id, id));
       return highlight;
     } catch (error) {
-      console.error('Error getting hotel highlight:', error);
+      console.error("Error getting hotel highlight:", error);
       return undefined;
     }
   }
 
   async createHotelHighlight(highlight: any): Promise<any> {
     try {
-      const [newHighlight] = await db.insert(hotelHighlights).values({
-        name: highlight.name,
-        description: highlight.description,
-        icon: highlight.icon,
-        active: highlight.active !== undefined ? highlight.active : true,
-        createdAt: new Date(),
-        updatedAt: new Date()
-      }).returning();
+      const [newHighlight] = await db
+        .insert(hotelHighlights)
+        .values({
+          name: highlight.name,
+          description: highlight.description,
+          icon: highlight.icon,
+          active: highlight.active !== undefined ? highlight.active : true,
+          createdAt: new Date(),
+          updatedAt: new Date(),
+        })
+        .returning();
       return newHighlight;
     } catch (error) {
-      console.error('Error creating hotel highlight:', error);
+      console.error("Error creating hotel highlight:", error);
       throw error;
     }
   }
 
-  async updateHotelHighlight(id: number, highlight: any): Promise<any | undefined> {
+  async updateHotelHighlight(
+    id: number,
+    highlight: any,
+  ): Promise<any | undefined> {
     try {
-      const [updatedHighlight] = await db.update(hotelHighlights)
+      const [updatedHighlight] = await db
+        .update(hotelHighlights)
         .set({
           name: highlight.name,
           description: highlight.description,
           icon: highlight.icon,
           active: highlight.active,
-          updatedAt: new Date()
+          updatedAt: new Date(),
         })
         .where(eq(hotelHighlights.id, id))
         .returning();
@@ -1045,49 +1245,62 @@ export class DatabaseStorage implements IStorage {
   // Cleanliness Features methods
   async listCleanlinessFeatures(): Promise<any[]> {
     try {
-      return await db.select().from(cleanlinessFeatures).orderBy(cleanlinessFeatures.name);
+      return await db
+        .select()
+        .from(cleanlinessFeatures)
+        .orderBy(cleanlinessFeatures.name);
     } catch (error) {
-      console.error('Error listing cleanliness features:', error);
+      console.error("Error listing cleanliness features:", error);
       return [];
     }
   }
 
   async getCleanlinessFeature(id: number): Promise<any | undefined> {
     try {
-      const [feature] = await db.select().from(cleanlinessFeatures).where(eq(cleanlinessFeatures.id, id));
+      const [feature] = await db
+        .select()
+        .from(cleanlinessFeatures)
+        .where(eq(cleanlinessFeatures.id, id));
       return feature;
     } catch (error) {
-      console.error('Error getting cleanliness feature:', error);
+      console.error("Error getting cleanliness feature:", error);
       return undefined;
     }
   }
 
   async createCleanlinessFeature(feature: any): Promise<any> {
     try {
-      const [newFeature] = await db.insert(cleanlinessFeatures).values({
-        name: feature.name,
-        description: feature.description,
-        icon: feature.icon,
-        active: feature.active !== undefined ? feature.active : true,
-        createdAt: new Date(),
-        updatedAt: new Date()
-      }).returning();
+      const [newFeature] = await db
+        .insert(cleanlinessFeatures)
+        .values({
+          name: feature.name,
+          description: feature.description,
+          icon: feature.icon,
+          active: feature.active !== undefined ? feature.active : true,
+          createdAt: new Date(),
+          updatedAt: new Date(),
+        })
+        .returning();
       return newFeature;
     } catch (error) {
-      console.error('Error creating cleanliness feature:', error);
+      console.error("Error creating cleanliness feature:", error);
       throw error;
     }
   }
 
-  async updateCleanlinessFeature(id: number, feature: any): Promise<any | undefined> {
+  async updateCleanlinessFeature(
+    id: number,
+    feature: any,
+  ): Promise<any | undefined> {
     try {
-      const [updatedFeature] = await db.update(cleanlinessFeatures)
+      const [updatedFeature] = await db
+        .update(cleanlinessFeatures)
         .set({
           name: feature.name,
           description: feature.description,
           icon: feature.icon,
           active: feature.active,
-          updatedAt: new Date()
+          updatedAt: new Date(),
         })
         .where(eq(cleanlinessFeatures.id, id))
         .returning();
@@ -1100,7 +1313,9 @@ export class DatabaseStorage implements IStorage {
 
   async deleteCleanlinessFeature(id: number): Promise<boolean> {
     try {
-      await db.delete(cleanlinessFeatures).where(eq(cleanlinessFeatures.id, id));
+      await db
+        .delete(cleanlinessFeatures)
+        .where(eq(cleanlinessFeatures.id, id));
       return true;
     } catch (error) {
       console.error(`Error deleting cleanliness feature with ID ${id}:`, error);
@@ -1117,51 +1332,61 @@ export class DatabaseStorage implements IStorage {
       }
       return await query.orderBy(hotelCategories.name);
     } catch (error) {
-      console.error('Error listing hotel categories:', error);
+      console.error("Error listing hotel categories:", error);
       return [];
     }
   }
 
   async getHotelCategory(id: number): Promise<any | undefined> {
     try {
-      const [category] = await db.select().from(hotelCategories).where(eq(hotelCategories.id, id));
+      const [category] = await db
+        .select()
+        .from(hotelCategories)
+        .where(eq(hotelCategories.id, id));
       return category;
     } catch (error) {
-      console.error('Error getting hotel category:', error);
+      console.error("Error getting hotel category:", error);
       return undefined;
     }
   }
 
   async createHotelCategory(category: any): Promise<any> {
     try {
-      const [newCategory] = await db.insert(hotelCategories).values({
-        name: category.name,
-        description: category.description,
-        active: category.active !== undefined ? category.active : true,
-        createdAt: new Date(),
-        updatedAt: new Date()
-      }).returning();
+      const [newCategory] = await db
+        .insert(hotelCategories)
+        .values({
+          name: category.name,
+          description: category.description,
+          active: category.active !== undefined ? category.active : true,
+          createdAt: new Date(),
+          updatedAt: new Date(),
+        })
+        .returning();
       return newCategory;
     } catch (error) {
-      console.error('Error creating hotel category:', error);
+      console.error("Error creating hotel category:", error);
       throw error;
     }
   }
 
-  async updateHotelCategory(id: number, category: any): Promise<any | undefined> {
+  async updateHotelCategory(
+    id: number,
+    category: any,
+  ): Promise<any | undefined> {
     try {
-      const [updatedCategory] = await db.update(hotelCategories)
+      const [updatedCategory] = await db
+        .update(hotelCategories)
         .set({
           name: category.name,
           description: category.description,
           active: category.active,
-          updatedAt: new Date()
+          updatedAt: new Date(),
         })
         .where(eq(hotelCategories.id, id))
         .returning();
       return updatedCategory;
     } catch (error) {
-      console.error('Error updating hotel category:', error);
+      console.error("Error updating hotel category:", error);
       throw error;
     }
   }

@@ -1,0 +1,94 @@
+Hotel JSON Response (ID: 53)
+{
+  "id": "53",
+  "name": "ahmed showky sh",
+  "description": "EDGWEEWEWEWEEW EDGWEEWEWEWEEW EDGWEEWEWEWEEW EDGWEEWEWEWEEW EDGWEEWEWEWEEW EDGWEEWEWEWEEW EDGWEEWEWEWEEW EDGWEEWEWEWEEW EDGWEEWEWEWEEW EDGWEEWEWEWEEW EDGWEEWEWEWEEW EDGWEEWEWEWEEW EDGWEEWEWEWEEW EDGWEEWEWEWEEW EDGWEEWEWEWEEW EDGWEEWEWEWEEW EDGWEEWEWEWEEW EDGWEDGWEEWEWEWEEW EEWEWEWEEW ",
+  "shortDescription": null,
+  "destinationId": 6,
+  "countryId": 10,
+  "cityId": 21,
+  "categoryId": null,
+  "address": "9 masaken el iskandrya",
+  "city": "Cairo",
+  "country": "Egypt",
+  "postalCode": "11571",
+  "phone": "+201152117192",
+  "email": "mr.ahmedshowky@gmail.com",
+  "website": "Https://egyptexpresstvl.com",
+  "imageUrl": "/uploads/image-1751359728753-328570860.png",
+  "galleryUrls": [
+    "/uploads/image-1751359733151-174137903.png",
+    "/uploads/image-1751359739754-422432313.png",
+    "/uploads/image-1751359743590-98446053.png"
+  ],
+  "stars": 5,
+  "amenities": null,
+  "checkInTime": "14:00",
+  "checkOutTime": "11:00",
+  "longitude": 232323232,
+  "latitude": 3232323232,
+  "featured": false,
+  "rating": null,
+  "reviewCount": 0,
+  "guestRating": null,
+  "minStay": 1,
+  "maxStay": null,
+  "bookingLeadTime": 0,
+  "cancellationPolicy": null,
+  "parkingAvailable": false,
+  "airportTransferAvailable": false,
+  "carRentalAvailable": false,
+  "shuttleAvailable": false,
+  "wifiAvailable": true,
+  "petFriendly": false,
+  "accessibleFacilities": false,
+  "basePrice": null,
+  "currency": "EGP",
+  "taxIncluded": false,
+  "serviceChargeIncluded": false,
+  "languages": [
+    "en"
+  ],
+  "establishedYear": null,
+  "lastRenovatedYear": null,
+  "totalRooms": null,
+  "totalFloors": null,
+  "restaurants": [],
+  "landmarks": [
+    {
+      "name": "Great Pyramid of Giza",
+      "placeId": "ChIJN8F_47w7WBQRUJGUzM6Fsks",
+      "distance": "1.2 km",
+      "description": "Ancient Egyptian pyramid"
+    },
+    {
+      "name": "Egyptian Museum",
+      "placeId": "ChIJ5y7_47R7WBQRuLZMSJXnDzs",
+      "distance": "3.4 km",
+      "description": "History museum"
+    }
+  ],
+  "faqs": [
+    {
+      "answer": "sadasdas",
+      "question": "What ?"
+    },
+    {
+      "answer": "sdasdasdas",
+      "question": "What ?"
+    }
+  ],
+  "roomTypes": [],
+  "status": "active",
+  "verificationStatus": "pending",
+  "createdAt": "2025-07-01T08:49:06.888Z",
+  "updatedAt": "2025-07-01T08:49:06.888Z",
+  "createdBy": 1,
+  "updatedBy": null,
+  "facilityIds": [],
+  "highlightIds": [],
+  "cleanlinessFeatureIds": [],
+  "facilities": [],
+  "highlights": [],
+  "cleanlinessFeatures": []
+}
