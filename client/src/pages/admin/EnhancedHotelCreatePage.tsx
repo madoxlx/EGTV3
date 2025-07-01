@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import { useLocation } from "wouter";
 import { useForm, useFieldArray, Controller } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
@@ -99,6 +99,19 @@ import {
   Image,
   Upload,
   Camera,
+  Wifi,
+  Waves,
+  Dumbbell,
+  Heart,
+  Sparkles,
+  Palette,
+  ShowerHead,
+  AirVent,
+  Tv,
+  Shield,
+  Users,
+  Package,
+  ChevronDown,
 } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 
@@ -297,6 +310,30 @@ const roomAmenityOptions = [
   { id: "soundproofing", label: "Soundproofing" },
 ];
 
+// Feature icon options
+const featureIconOptions = [
+  { name: "Star", component: Star },
+  { name: "Wifi", component: Wifi },
+  { name: "Waves", component: Waves },
+  { name: "Dumbbell", component: Dumbbell },
+  { name: "Coffee", component: Coffee },
+  { name: "Utensils", component: Utensils },
+  { name: "Car", component: Car },
+  { name: "Plane", component: Plane },
+  { name: "Bus", component: Bus },
+  { name: "Heart", component: Heart },
+  { name: "Sparkles", component: Sparkles },
+  { name: "ShowerHead", component: ShowerHead },
+  { name: "AirVent", component: AirVent },
+  { name: "Tv", component: Tv },
+  { name: "Shield", component: Shield },
+  { name: "Users", component: Users },
+  { name: "Building", component: Building },
+  { name: "MapPin", component: MapPin },
+  { name: "Clock", component: Clock },
+  { name: "Package", component: Package },
+];
+
 export default function EnhancedHotelCreatePage() {
   const { t } = useLanguage();
   const [_, navigate] = useLocation();
@@ -324,7 +361,10 @@ export default function EnhancedHotelCreatePage() {
 
   // Simple feature management state
   const [newFeature, setNewFeature] = useState<string>("");
-  const [hotelFeatures, setHotelFeatures] = useState<string[]>([]);
+  const [hotelFeatures, setHotelFeatures] = useState<{ name: string; icon: string }[]>([]);
+  const [selectedIcon, setSelectedIcon] = useState<string>("Star");
+  const [showIconSelector, setShowIconSelector] = useState<boolean>(false);
+  const iconSelectorRef = useRef<HTMLDivElement>(null);
 
   // Google Maps integration
   const [apiKey, setApiKey] = useState<string>("");
@@ -351,6 +391,23 @@ export default function EnhancedHotelCreatePage() {
 
     fetchApiKey();
   }, []);
+
+  // Handle click outside icon selector
+  useEffect(() => {
+    const handleClickOutside = (event: MouseEvent) => {
+      if (iconSelectorRef.current && !iconSelectorRef.current.contains(event.target as Node)) {
+        setShowIconSelector(false);
+      }
+    };
+
+    if (showIconSelector) {
+      document.addEventListener('mousedown', handleClickOutside);
+    }
+
+    return () => {
+      document.removeEventListener('mousedown', handleClickOutside);
+    };
+  }, [showIconSelector]);
 
   // Image handling functions
   const handleMainImageUpload = (
@@ -396,14 +453,19 @@ export default function EnhancedHotelCreatePage() {
 
   // Simple feature management functions
   const addFeature = () => {
-    if (newFeature.trim() && !hotelFeatures.includes(newFeature.trim())) {
-      setHotelFeatures((prev) => [...prev, newFeature.trim()]);
+    if (newFeature.trim() && !hotelFeatures.some(f => f.name === newFeature.trim())) {
+      setHotelFeatures((prev) => [...prev, { name: newFeature.trim(), icon: selectedIcon }]);
       setNewFeature("");
     }
   };
 
   const removeFeature = (index: number) => {
     setHotelFeatures((prev) => prev.filter((_, i) => i !== index));
+  };
+
+  const getIconComponent = (iconName: string) => {
+    const iconOption = featureIconOptions.find(option => option.name === iconName);
+    return iconOption ? iconOption.component : Star;
   };
 
   // Form setup with default values
@@ -685,13 +747,12 @@ export default function EnhancedHotelCreatePage() {
       // Prepare hotel data with uploaded image URLs
       const hotelData = {
         ...data,
-        // Add simple features array
-        features: hotelFeatures,
+        // Convert features objects to just the names for database compatibility
+        features: hotelFeatures.map(f => f.name),
         // Use uploaded image URLs
         imageUrl: mainImageUrl,
         galleryUrls: galleryUrls.length > 0 ? galleryUrls : (data.galleryUrls || []),
         stars: data.stars,
-        guestRating: data.guestRating || 0,
       };
 
       console.log("Submitting hotel data with uploaded images:", {
@@ -1633,6 +1694,45 @@ export default function EnhancedHotelCreatePage() {
                             }}
                           />
                         </div>
+                        
+                        {/* Icon Selector Button */}
+                        <div className="relative" ref={iconSelectorRef}>
+                          <Button
+                            type="button"
+                            variant="outline"
+                            size="sm"
+                            onClick={() => setShowIconSelector(!showIconSelector)}
+                            className="flex items-center gap-2 px-3 h-10"
+                          >
+                            {React.createElement(getIconComponent(selectedIcon), { className: "h-4 w-4" })}
+                            <ChevronDown className="h-3 w-3" />
+                          </Button>
+                          
+                          {/* Icon Selector Dropdown */}
+                          {showIconSelector && (
+                            <div className="absolute top-full left-0 mt-1 bg-white border rounded-lg shadow-lg z-50 p-2">
+                              <div className="grid grid-cols-4 gap-2 w-48">
+                                {featureIconOptions.map((iconOption) => (
+                                  <button
+                                    key={iconOption.name}
+                                    type="button"
+                                    onClick={() => {
+                                      setSelectedIcon(iconOption.name);
+                                      setShowIconSelector(false);
+                                    }}
+                                    className={`p-2 rounded-md hover:bg-gray-100 flex items-center justify-center transition-colors ${
+                                      selectedIcon === iconOption.name ? 'bg-blue-100 border border-blue-300' : ''
+                                    }`}
+                                    title={iconOption.name}
+                                  >
+                                    {React.createElement(iconOption.component, { className: "h-4 w-4" })}
+                                  </button>
+                                ))}
+                              </div>
+                            </div>
+                          )}
+                        </div>
+                        
                         <Button
                           type="button"
                           onClick={addFeature}
@@ -1652,7 +1752,10 @@ export default function EnhancedHotelCreatePage() {
                         <div className="grid grid-cols-1 md:grid-cols-2 gap-2">
                           {hotelFeatures.map((feature, index) => (
                             <div key={index} className="flex items-center justify-between p-3 bg-muted rounded-md">
-                              <span className="text-sm">{feature}</span>
+                              <div className="flex items-center gap-2">
+                                {React.createElement(getIconComponent(feature.icon), { className: "h-4 w-4 text-blue-600" })}
+                                <span className="text-sm">{feature.name}</span>
+                              </div>
                               <Button
                                 type="button"
                                 variant="ghost"
