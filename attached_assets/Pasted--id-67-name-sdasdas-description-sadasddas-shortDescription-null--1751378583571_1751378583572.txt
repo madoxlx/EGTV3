@@ -1,0 +1,101 @@
+{
+  "id": "67",
+  "name": "sdasdas",
+  "description": "sadasddas",
+  "shortDescription": null,
+  "destinationId": 6,
+  "countryId": 10,
+  "cityId": 21,
+  "categoryId": null,
+  "address": "12121sdswdsdasdas",
+  "city": "Cairo",
+  "country": "Egypt",
+  "postalCode": "1212",
+  "phone": "+201152117192",
+  "email": "mr.ahmedshowky@gmail.com",
+  "website": "https://citycenterhotel.com",
+  "imageUrl": "",
+  "galleryUrls": [],
+  "stars": 3,
+  "amenities": null,
+  "checkInTime": "14:00",
+  "checkOutTime": "11:00",
+  "longitude": 12121,
+  "latitude": 12211,
+  "featured": false,
+  "rating": null,
+  "reviewCount": 0,
+  "guestRating": null,
+  "minStay": 1,
+  "maxStay": null,
+  "bookingLeadTime": 0,
+  "cancellationPolicy": null,
+  "parkingAvailable": true,
+  "airportTransferAvailable": false,
+  "carRentalAvailable": true,
+  "shuttleAvailable": false,
+  "wifiAvailable": true,
+  "petFriendly": false,
+  "accessibleFacilities": false,
+  "basePrice": null,
+  "currency": "EGP",
+  "taxIncluded": false,
+  "serviceChargeIncluded": false,
+  "languages": [
+    "en"
+  ],
+  "establishedYear": null,
+  "lastRenovatedYear": null,
+  "totalRooms": null,
+  "totalFloors": null,
+  "restaurants": [
+    {
+      "name": "sadsad",
+      "cuisineType": "sdsad",
+      "breakfastOptions": [
+        "vegetarian",
+        "glutenFree"
+      ]
+    }
+  ],
+  "landmarks": [
+    {
+      "name": "Khan el-Khalili",
+      "placeId": "ChIJ9dSaz6s_WBQRam44QaRRdWQ",
+      "distance": "5.8 km",
+      "description": "Historic bazaar"
+    },
+    {
+      "name": "Egyptian Museum",
+      "placeId": "ChIJ5y7_47R7WBQRuLZMSJXnDzs",
+      "distance": "3.4 km",
+      "description": "History museum"
+    },
+    {
+      "name": "Great Pyramid of Giza",
+      "placeId": "ChIJN8F_47w7WBQRUJGUzM6Fsks",
+      "distance": "1.2 km",
+      "description": "Ancient Egyptian pyramid"
+    }
+  ],
+  "faqs": [
+    {
+      "answer": "sdsadsadsa",
+      "question": "sadsadsadsad?"
+    }
+  ],
+  "roomTypes": [],
+  "features": [],
+  "status": "active",
+  "verificationStatus": "pending",
+  "createdAt": "2025-07-01T14:02:20.403Z",
+  "updatedAt": "2025-07-01T14:02:20.403Z",
+  "createdBy": 9,
+  "updatedBy": null,
+  "facilityIds": [],
+  "highlightIds": [],
+  "cleanlinessFeatureIds": [],
+  "facilities": [],
+  "highlights": [],
+  "cleanlinessFeatures": []
+}
