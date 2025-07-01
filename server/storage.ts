@@ -33,6 +33,9 @@ import {
   hotelHighlights,
   cleanlinessFeatures,
   hotelCategories,
+  hotelToFacilities,
+  hotelToHighlights,
+  hotelToCleanlinessFeatures,
 } from "@shared/schema";
 import { db, pool } from "./db";
 import { eq, and, desc, asc, sql } from "drizzle-orm";
@@ -645,10 +648,50 @@ export class DatabaseStorage implements IStorage {
         `Updating hotel ${featureType} for hotel ${hotelId}:`,
         featureIds,
       );
-      // This is a placeholder - you'll need to implement based on your actual schema
-      // For now, just log the operation
+
+      // Delete existing associations first
+      switch (featureType) {
+        case "facilities":
+          await db.delete(hotelToFacilities).where(eq(hotelToFacilities.hotelId, hotelId));
+          if (featureIds.length > 0) {
+            const values = featureIds.map(facilityId => ({
+              hotelId,
+              facilityId
+            }));
+            await db.insert(hotelToFacilities).values(values);
+          }
+          break;
+
+        case "highlights":
+          await db.delete(hotelToHighlights).where(eq(hotelToHighlights.hotelId, hotelId));
+          if (featureIds.length > 0) {
+            const values = featureIds.map(highlightId => ({
+              hotelId,
+              highlightId
+            }));
+            await db.insert(hotelToHighlights).values(values);
+          }
+          break;
+
+        case "cleanlinessFeatures":
+          await db.delete(hotelToCleanlinessFeatures).where(eq(hotelToCleanlinessFeatures.hotelId, hotelId));
+          if (featureIds.length > 0) {
+            const values = featureIds.map(featureId => ({
+              hotelId,
+              featureId
+            }));
+            await db.insert(hotelToCleanlinessFeatures).values(values);
+          }
+          break;
+
+        default:
+          console.warn(`Unknown feature type: ${featureType}`);
+      }
+
+      console.log(`Successfully updated ${featureType} associations for hotel ${hotelId}`);
     } catch (error) {
       console.error(`Error updating hotel ${featureType}:`, error);
+      throw error;
     }
   }
 

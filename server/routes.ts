@@ -2953,20 +2953,28 @@ export async function registerRoutes(app: Express): Promise<Server> {
       const formData = req.body;
       console.log('Raw form data received:', JSON.stringify(formData, null, 2));
       
-      // Get city and country names from IDs
-      let cityName = formData.city || null;
-      let countryName = formData.country || null;
+      // Extract feature arrays from form data
+      const { facilityIds, highlightIds, cleanlinessFeatureIds, ...hotelFormData } = formData;
       
-      if (formData.cityId) {
-        const cityData = await storage.getCity(parseInt(formData.cityId.toString()));
+      console.log('=== FEATURE ARRAYS EXTRACTION ===');
+      console.log('Facility IDs:', facilityIds);
+      console.log('Highlight IDs:', highlightIds);
+      console.log('Cleanliness Feature IDs:', cleanlinessFeatureIds);
+      
+      // Get city and country names from IDs
+      let cityName = hotelFormData.city || null;
+      let countryName = hotelFormData.country || null;
+      
+      if (hotelFormData.cityId) {
+        const cityData = await storage.getCity(parseInt(hotelFormData.cityId.toString()));
         if (cityData) {
           cityName = cityData.name;
           console.log('Fetched city name:', cityName);
         }
       }
       
-      if (formData.countryId) {
-        const countryData = await storage.getCountry(parseInt(formData.countryId.toString()));
+      if (hotelFormData.countryId) {
+        const countryData = await storage.getCountry(parseInt(hotelFormData.countryId.toString()));
         if (countryData) {
           countryName = countryData.name;
           console.log('Fetched country name:', countryName);
@@ -2978,71 +2986,57 @@ export async function registerRoutes(app: Express): Promise<Server> {
       const rawUserId = sessionUser?.id || req.user?.id || null;
       const currentUserId = rawUserId ? parseInt(rawUserId.toString()) : null;
       console.log('Current user ID for created_by:', currentUserId);
-      console.log('Session user:', sessionUser);
-      console.log('Request user:', req.user);
-      
-      // Debug JSON data before transformation
-      console.log('=== DEBUGGING RESTAURANT DATA ===');
-      console.log('Raw formData.restaurants:', formData.restaurants);
-      console.log('Type of restaurants:', typeof formData.restaurants);
-      console.log('Is restaurants array?', Array.isArray(formData.restaurants));
-      console.log('Restaurants length:', formData.restaurants?.length);
       
       const transformedData = {
-        name: formData.name,
-        description: formData.description,
-        shortDescription: formData.shortDescription,
-        destinationId: formData.destinationId,
-        countryId: formData.countryId ? parseInt(formData.countryId.toString()) : null,
-        cityId: formData.cityId ? parseInt(formData.cityId.toString()) : null,
-        categoryId: formData.categoryId ? parseInt(formData.categoryId.toString()) : null,
-        address: formData.address,
+        name: hotelFormData.name,
+        description: hotelFormData.description,
+        shortDescription: hotelFormData.shortDescription,
+        destinationId: hotelFormData.destinationId,
+        countryId: hotelFormData.countryId ? parseInt(hotelFormData.countryId.toString()) : null,
+        cityId: hotelFormData.cityId ? parseInt(hotelFormData.cityId.toString()) : null,
+        categoryId: hotelFormData.categoryId ? parseInt(hotelFormData.categoryId.toString()) : null,
+        address: hotelFormData.address,
         city: cityName,
         country: countryName,
-        postalCode: formData.postalCode,
-        phone: formData.phone,
-        email: formData.email,
-        website: formData.website,
-        imageUrl: formData.imageUrl,
-        galleryUrls: formData.galleryUrls,
-        stars: formData.stars ? parseInt(formData.stars.toString()) : null,
-        amenities: formData.amenities,
-        checkInTime: formData.checkInTime || "15:00",
-        checkOutTime: formData.checkOutTime || "11:00",
-        longitude: formData.longitude,
-        latitude: formData.latitude,
-        featured: formData.featured || false,
-        rating: formData.rating ? parseFloat(formData.rating) : null,
-        guestRating: formData.guestRating ? parseFloat(formData.guestRating) : null,
-        basePrice: formData.basePrice ? parseInt(formData.basePrice.toString()) : null,
-        currency: formData.currency || "EGP",
-        parkingAvailable: formData.parkingAvailable || false,
-        airportTransferAvailable: formData.airportTransferAvailable || false,
-        carRentalAvailable: formData.carRentalAvailable || false,
-        shuttleAvailable: formData.shuttleAvailable || false,
-        wifiAvailable: formData.wifiAvailable !== false,
-        petFriendly: formData.petFriendly || false,
-        accessibleFacilities: formData.accessibleFacilities || false,
-        status: formData.status || "active",
-        verificationStatus: formData.verificationStatus || "pending",
+        postalCode: hotelFormData.postalCode,
+        phone: hotelFormData.phone,
+        email: hotelFormData.email,
+        website: hotelFormData.website,
+        imageUrl: hotelFormData.imageUrl,
+        galleryUrls: hotelFormData.galleryUrls,
+        stars: hotelFormData.stars ? parseInt(hotelFormData.stars.toString()) : null,
+        amenities: hotelFormData.amenities,
+        checkInTime: hotelFormData.checkInTime || "15:00",
+        checkOutTime: hotelFormData.checkOutTime || "11:00",
+        longitude: hotelFormData.longitude,
+        latitude: hotelFormData.latitude,
+        featured: hotelFormData.featured || false,
+        rating: hotelFormData.rating ? parseFloat(hotelFormData.rating) : null,
+        guestRating: hotelFormData.guestRating ? parseFloat(hotelFormData.guestRating) : null,
+        basePrice: hotelFormData.basePrice ? parseInt(hotelFormData.basePrice.toString()) : null,
+        currency: hotelFormData.currency || "EGP",
+        parkingAvailable: hotelFormData.parkingAvailable || false,
+        airportTransferAvailable: hotelFormData.airportTransferAvailable || false,
+        carRentalAvailable: hotelFormData.carRentalAvailable || false,
+        shuttleAvailable: hotelFormData.shuttleAvailable || false,
+        wifiAvailable: hotelFormData.wifiAvailable !== false,
+        petFriendly: hotelFormData.petFriendly || false,
+        accessibleFacilities: hotelFormData.accessibleFacilities || false,
+        status: hotelFormData.status || "active",
+        verificationStatus: hotelFormData.verificationStatus || "pending",
         createdBy: currentUserId,
         // Add complex data fields (direct pass-through for proper JSON handling)
-        restaurants: formData.restaurants || null,
-        landmarks: formData.landmarks || null,
-        faqs: formData.faqs || null,
-        roomTypes: formData.roomTypes || null
+        restaurants: hotelFormData.restaurants || null,
+        landmarks: hotelFormData.landmarks || null,
+        faqs: hotelFormData.faqs || null,
+        roomTypes: hotelFormData.roomTypes || null
       };
       
       console.log('Transformed hotel data:', transformedData);
-      console.log('Restaurant data before validation:', transformedData.restaurants);
-      console.log('Type of restaurants:', typeof transformedData.restaurants);
-      console.log('Is restaurants array:', Array.isArray(transformedData.restaurants));
       
       // For regular hotel creation, proceed with validation
       const validatedHotelData = insertHotelSchema.parse(transformedData);
       console.log('Validated hotel data:', validatedHotelData);
-      console.log('Restaurant data after validation:', validatedHotelData.restaurants);
-      console.log('Type after validation:', typeof validatedHotelData.restaurants);
       
       // Check if destination exists if destinationId is provided
       if (validatedHotelData.destinationId) {
@@ -3052,8 +3046,35 @@ export async function registerRoutes(app: Express): Promise<Server> {
         }
       }
       
+      // Create the hotel first
       const newHotel = await storage.createHotel(validatedHotelData);
       console.log('Hotel created successfully:', newHotel);
+      
+      // Now save the feature associations if hotel was created successfully
+      if (newHotel.id) {
+        console.log('=== SAVING FEATURE ASSOCIATIONS ===');
+        
+        // Save facility associations
+        if (facilityIds && Array.isArray(facilityIds) && facilityIds.length > 0) {
+          console.log('Saving facility associations:', facilityIds);
+          await storage.updateHotelFeatureAssociations(newHotel.id, 'facilities', facilityIds);
+        }
+        
+        // Save highlight associations
+        if (highlightIds && Array.isArray(highlightIds) && highlightIds.length > 0) {
+          console.log('Saving highlight associations:', highlightIds);
+          await storage.updateHotelFeatureAssociations(newHotel.id, 'highlights', highlightIds);
+        }
+        
+        // Save cleanliness feature associations
+        if (cleanlinessFeatureIds && Array.isArray(cleanlinessFeatureIds) && cleanlinessFeatureIds.length > 0) {
+          console.log('Saving cleanliness feature associations:', cleanlinessFeatureIds);
+          await storage.updateHotelFeatureAssociations(newHotel.id, 'cleanlinessFeatures', cleanlinessFeatureIds);
+        }
+        
+        console.log('All feature associations saved successfully');
+      }
+      
       res.status(201).json(newHotel);
     } catch (error) {
       if (error instanceof z.ZodError) {
