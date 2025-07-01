@@ -341,10 +341,6 @@ export default function EnhancedHotelCreatePage() {
   const queryClient = useQueryClient();
 
   // State for selections
-  const [selectedFacilities, setSelectedFacilities] = useState<number[]>([]);
-  const [selectedHighlights, setSelectedHighlights] = useState<number[]>([]);
-  const [selectedCleanlinessFeatures, setSelectedCleanlinessFeatures] =
-    useState<number[]>([]);
   const [selectedCountryId, setSelectedCountryId] = useState<number | null>(
     null,
   );
@@ -462,17 +458,35 @@ export default function EnhancedHotelCreatePage() {
       const featureNames = updatedFeatures.map(f => f.name);
       form.setValue("features", featureNames);
       
+      console.log("✅ Feature added successfully:");
+      console.log("- Feature name:", newFeature.trim());
+      console.log("- Updated hotelFeatures:", updatedFeatures);
+      console.log("- Updated form features:", featureNames);
+      console.log("- Current form value:", form.getValues("features"));
+      
       setNewFeature("");
+    } else {
+      console.log("❌ Failed to add feature:");
+      console.log("- Feature name:", newFeature.trim());
+      console.log("- Already exists:", hotelFeatures.some(f => f.name === newFeature.trim()));
+      console.log("- Current features:", hotelFeatures.map(f => f.name));
     }
   };
 
   const removeFeature = (index: number) => {
+    const featureToRemove = hotelFeatures[index];
     const updatedFeatures = hotelFeatures.filter((_, i) => i !== index);
     setHotelFeatures(updatedFeatures);
     
     // Also update the form's features field
     const featureNames = updatedFeatures.map(f => f.name);
     form.setValue("features", featureNames);
+    
+    console.log("🗑️ Feature removed:");
+    console.log("- Removed feature:", featureToRemove?.name);
+    console.log("- Updated hotelFeatures:", updatedFeatures);
+    console.log("- Updated form features:", featureNames);
+    console.log("- Current form value:", form.getValues("features"));
   };
 
   const getIconComponent = (iconName: string) => {
@@ -575,18 +589,7 @@ export default function EnhancedHotelCreatePage() {
     queryFn: getQueryFn(),
   });
 
-  // Effect to update form when selections change
-  // Update form values when selections change
-  useEffect(() => {
-    form.setValue("facilityIds", selectedFacilities);
-    form.setValue("highlightIds", selectedHighlights);
-    form.setValue("cleanlinessFeatureIds", selectedCleanlinessFeatures);
-  }, [
-    selectedFacilities,
-    selectedHighlights,
-    selectedCleanlinessFeatures,
-    form,
-  ]);
+
 
   // Function to search nearby landmarks with Google Places API
   const searchNearbyLandmarks = () => {
@@ -688,7 +691,14 @@ export default function EnhancedHotelCreatePage() {
   const onSubmit = async (data: HotelFormValues) => {
     try {
       setIsUploadingImages(true);
-      console.log("Starting hotel creation with image upload...");
+      console.log("🚀 Starting hotel creation with image upload...");
+      console.log("📝 FORM SUBMISSION DEBUG:");
+      console.log("- Raw form data:", data);
+      console.log("- Features from form:", data.features);
+      console.log("- Features count:", data.features?.length || 0);
+      console.log("- Local hotelFeatures state:", hotelFeatures);
+      console.log("- Local hotelFeatures count:", hotelFeatures.length);
+      console.log("- Current form features value:", form.getValues("features"));
       
       // Upload main image if file is selected
       let mainImageUrl = data.imageUrl || "";
@@ -796,41 +806,7 @@ export default function EnhancedHotelCreatePage() {
     }
   };
 
-  // Toggle facility selection
-  const toggleFacility = (facilityId: number) => {
-    if (selectedFacilities.includes(facilityId)) {
-      setSelectedFacilities(
-        selectedFacilities.filter((id) => id !== facilityId),
-      );
-    } else {
-      setSelectedFacilities([...selectedFacilities, facilityId]);
-    }
-  };
 
-  // Toggle highlight selection
-  const toggleHighlight = (highlightId: number) => {
-    if (selectedHighlights.includes(highlightId)) {
-      setSelectedHighlights(
-        selectedHighlights.filter((id) => id !== highlightId),
-      );
-    } else {
-      setSelectedHighlights([...selectedHighlights, highlightId]);
-    }
-  };
-
-  // Toggle cleanliness feature selection
-  const toggleCleanlinessFeature = (featureId: number) => {
-    if (selectedCleanlinessFeatures.includes(featureId)) {
-      setSelectedCleanlinessFeatures(
-        selectedCleanlinessFeatures.filter((id) => id !== featureId),
-      );
-    } else {
-      setSelectedCleanlinessFeatures([
-        ...selectedCleanlinessFeatures,
-        featureId,
-      ]);
-    }
-  };
 
   return (
     <div>
@@ -2672,9 +2648,7 @@ export default function EnhancedHotelCreatePage() {
                         
                         // Features Analysis
                         console.group("✨ Features & Amenities");
-                        console.log("Selected Highlights:", selectedHighlights.length > 0 ? selectedHighlights : "⚠️ None selected");
-                        console.log("Selected Facilities:", selectedFacilities.length > 0 ? selectedFacilities : "⚠️ None selected");
-                        console.log("Selected Cleanliness Features:", selectedCleanlinessFeatures.length > 0 ? selectedCleanlinessFeatures : "⚠️ None selected");
+                        console.log("Simplified Features:", formValues.features?.length > 0 ? formValues.features : "⚠️ None selected");
                         console.groupEnd();
                         
                         // Transportation Analysis
@@ -2724,9 +2698,7 @@ export default function EnhancedHotelCreatePage() {
                         
                         const finalHotelData = {
                           ...formValues,
-                          facilityIds: selectedFacilities,
-                          highlightIds: selectedHighlights,
-                          cleanlinessFeatureIds: selectedCleanlinessFeatures,
+                          // Note: Using simplified features array instead of complex junction tables
                           imageUrl: cleanMainImageUrl,
                           galleryUrls: cleanGalleryUrls.length > 0 ? cleanGalleryUrls : formValues.galleryUrls,
                           amenities: [
