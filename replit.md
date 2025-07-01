@@ -119,6 +119,16 @@ The application uses a comprehensive PostgreSQL schema with the following core e
 
 ## Recent Changes
 
+- **Hotel Creation Image Upload Integration Fix (January 1, 2025)**: Successfully resolved hotel image upload issue where images appeared as null in database
+  - Fixed async/await flow in onSubmit function to properly wait for image uploads before saving hotel data
+  - Enhanced form submission to upload images first, then save hotel data with actual URLs instead of null values
+  - Added proper upload state tracking with isUploadingImages state and loading indicators
+  - Updated Save Hotel button to show progress states: "Uploading Images..." → "Creating Hotel..." → "Save Hotel"
+  - Replaced createHotelMutation.mutate() with await createHotelMutation.mutateAsync() for proper promise handling
+  - Added comprehensive error handling and toast notifications throughout upload process
+  - Hotel creation now properly saves actual image URLs to database instead of null values
+  - System maintains data integrity with sequential upload process ensuring URLs are available before database insertion
+
 - **Complete Pricing Display Fix for Rooms System (June 30, 2025)**: Fixed critical pricing display issues where room prices showed incorrect currency and magnitude
   - Resolved database stored values in cents being displayed without proper conversion (e.g., 200000 cents = 2000 EGP)
   - Fixed admin rooms page to display prices correctly by dividing stored values by 100 for display

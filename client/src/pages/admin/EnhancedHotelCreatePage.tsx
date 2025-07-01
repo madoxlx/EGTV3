@@ -321,6 +321,7 @@ export default function EnhancedHotelCreatePage() {
   const [mainImageFile, setMainImageFile] = useState<File | null>(null);
   const [mainImagePreview, setMainImagePreview] = useState<string>("");
   const [galleryFiles, setGalleryFiles] = useState<File[]>([]);
+  const [isUploadingImages, setIsUploadingImages] = useState(false);
   const [galleryPreviews, setGalleryPreviews] = useState<string[]>([]);
 
   // Google Maps integration
@@ -600,12 +601,18 @@ export default function EnhancedHotelCreatePage() {
   // Form submission handler
   const onSubmit = async (data: HotelFormValues) => {
     try {
+      setIsUploadingImages(true);
       console.log("Starting hotel creation with image upload...");
       
       // Upload main image if file is selected
       let mainImageUrl = data.imageUrl || "";
       if (mainImageFile) {
         console.log("Uploading main image:", mainImageFile.name);
+        toast({
+          title: "Uploading Images",
+          description: "Uploading main image...",
+        });
+        
         const formData = new FormData();
         formData.append("image", mainImageFile);
         
@@ -620,6 +627,7 @@ export default function EnhancedHotelCreatePage() {
           console.log("Main image uploaded successfully:", mainImageUrl);
         } else {
           console.error("Failed to upload main image");
+          setIsUploadingImages(false);
           toast({
             title: "Error",
             description: "Failed to upload main image",
@@ -633,7 +641,15 @@ export default function EnhancedHotelCreatePage() {
       let galleryUrls: string[] = [];
       if (galleryFiles.length > 0) {
         console.log("Uploading gallery images:", galleryFiles.length, "files");
-        for (const file of galleryFiles) {
+        toast({
+          title: "Uploading Images",
+          description: `Uploading ${galleryFiles.length} gallery images...`,
+        });
+        
+        for (let i = 0; i < galleryFiles.length; i++) {
+          const file = galleryFiles[i];
+          console.log(`Uploading gallery image ${i + 1}/${galleryFiles.length}:`, file.name);
+          
           const formData = new FormData();
           formData.append("image", file);
           
@@ -645,12 +661,13 @@ export default function EnhancedHotelCreatePage() {
           if (response.ok) {
             const result = await response.json();
             galleryUrls.push(result.imageUrl);
-            console.log("Gallery image uploaded:", result.imageUrl);
+            console.log(`Gallery image ${i + 1} uploaded:`, result.imageUrl);
           } else {
             console.error("Failed to upload gallery image:", file.name);
+            // Continue with other images even if one fails
           }
         }
-        console.log("All gallery images uploaded. Total URLs:", galleryUrls.length);
+        console.log("All gallery images processed. Total URLs:", galleryUrls.length);
       }
 
       // Prepare hotel data with uploaded image URLs
@@ -673,9 +690,18 @@ export default function EnhancedHotelCreatePage() {
         totalGalleryImages: hotelData.galleryUrls.length
       });
 
-      // Call the mutation with JSON data
-      createHotelMutation.mutate(hotelData);
+      toast({
+        title: "Creating Hotel",
+        description: "Saving hotel data to database...",
+      });
+
+      // Call the mutation with JSON data and wait for completion
+      await createHotelMutation.mutateAsync(hotelData);
+      
+      setIsUploadingImages(false);
+      console.log("Hotel created successfully with images!");
     } catch (error) {
+      setIsUploadingImages(false);
       console.error("Error preparing form data:", error);
       toast({
         title: "Error",
@@ -2637,14 +2663,14 @@ export default function EnhancedHotelCreatePage() {
                   </Button>
                   <Button
                     type="submit"
-                    disabled={createHotelMutation.isPending}
+                    disabled={createHotelMutation.isPending || isUploadingImages}
                     className="gap-1"
                   >
-                    {createHotelMutation.isPending && (
+                    {(createHotelMutation.isPending || isUploadingImages) && (
                       <RefreshCw className="h-4 w-4 animate-spin" />
                     )}
                     <Save className="h-4 w-4 mr-1" />
-                    Save Hotel
+                    {isUploadingImages ? "Uploading Images..." : createHotelMutation.isPending ? "Creating Hotel..." : "Save Hotel"}
                   </Button>
                 </div>
               </form>
