@@ -2417,7 +2417,62 @@ export async function registerRoutes(app: Express): Promise<Server> {
   // Create a new tour (admin only)
   app.post('/api/admin/tours', isAdmin, async (req, res) => {
     try {
-      const tourData = insertTourSchema.parse(req.body);
+      console.log('Tour creation request received:', JSON.stringify(req.body, null, 2));
+      
+      // Process the data before validation - fix image data handling
+      const processedData = { ...req.body };
+      
+      // Ensure galleryUrls is properly formatted as JSON array
+      if (processedData.galleryUrls) {
+        if (typeof processedData.galleryUrls === 'string') {
+          try {
+            processedData.galleryUrls = JSON.parse(processedData.galleryUrls);
+          } catch (e) {
+            console.log('Failed to parse galleryUrls string, treating as single URL');
+            processedData.galleryUrls = [processedData.galleryUrls];
+          }
+        }
+        // Filter out blob URLs and empty strings
+        if (Array.isArray(processedData.galleryUrls)) {
+          processedData.galleryUrls = processedData.galleryUrls.filter(url => 
+            url && 
+            typeof url === 'string' && 
+            url.trim() !== '' && 
+            !url.includes('blob:')
+          );
+        }
+      }
+      
+      // Handle other JSON fields that might need processing
+      const jsonFields = ['included', 'excluded', 'includedAr', 'excludedAr'];
+      for (const field of jsonFields) {
+        if (processedData[field] && Array.isArray(processedData[field])) {
+          // Keep as array - database schema expects JSON arrays
+          continue;
+        } else if (processedData[field] && typeof processedData[field] === 'string') {
+          try {
+            processedData[field] = JSON.parse(processedData[field]);
+          } catch (e) {
+            // If parsing fails, convert string to array
+            processedData[field] = [processedData[field]];
+          }
+        }
+      }
+      
+      // Handle date fields
+      if (processedData.startDate && typeof processedData.startDate === 'string') {
+        processedData.startDate = new Date(processedData.startDate);
+      }
+      if (processedData.endDate && typeof processedData.endDate === 'string') {
+        processedData.endDate = new Date(processedData.endDate);
+      }
+      if (processedData.date && typeof processedData.date === 'string') {
+        processedData.date = new Date(processedData.date);
+      }
+      
+      console.log('Processed tour data:', JSON.stringify(processedData, null, 2));
+      
+      const tourData = insertTourSchema.parse(processedData);
       
       // Check if destination exists if destinationId is provided
       if (tourData.destinationId) {
@@ -2434,10 +2489,14 @@ export async function registerRoutes(app: Express): Promise<Server> {
         updatedBy: req.user?.id || null
       };
       
+      console.log('Final tour data to be saved:', JSON.stringify(tourDataWithUser, null, 2));
+      
       const newTour = await storage.createTour(tourDataWithUser);
+      console.log('Tour created successfully:', JSON.stringify(newTour, null, 2));
       res.status(201).json(newTour);
     } catch (error) {
       if (error instanceof z.ZodError) {
+        console.error('Validation errors:', error.errors);
         return res.status(400).json({ message: 'Invalid tour data', errors: error.errors });
       }
       console.error('Error creating tour:', error);
@@ -2459,8 +2518,63 @@ export async function registerRoutes(app: Express): Promise<Server> {
         return res.status(404).json({ message: 'Tour not found' });
       }
       
+      console.log('Tour update request received for ID:', id, JSON.stringify(req.body, null, 2));
+      
+      // Process the data before validation - fix image data handling
+      const processedData = { ...req.body };
+      
+      // Ensure galleryUrls is properly formatted as JSON array
+      if (processedData.galleryUrls) {
+        if (typeof processedData.galleryUrls === 'string') {
+          try {
+            processedData.galleryUrls = JSON.parse(processedData.galleryUrls);
+          } catch (e) {
+            console.log('Failed to parse galleryUrls string, treating as single URL');
+            processedData.galleryUrls = [processedData.galleryUrls];
+          }
+        }
+        // Filter out blob URLs and empty strings
+        if (Array.isArray(processedData.galleryUrls)) {
+          processedData.galleryUrls = processedData.galleryUrls.filter(url => 
+            url && 
+            typeof url === 'string' && 
+            url.trim() !== '' && 
+            !url.includes('blob:')
+          );
+        }
+      }
+      
+      // Handle other JSON fields that might need processing
+      const jsonFields = ['included', 'excluded', 'includedAr', 'excludedAr'];
+      for (const field of jsonFields) {
+        if (processedData[field] && Array.isArray(processedData[field])) {
+          // Keep as array - database schema expects JSON arrays
+          continue;
+        } else if (processedData[field] && typeof processedData[field] === 'string') {
+          try {
+            processedData[field] = JSON.parse(processedData[field]);
+          } catch (e) {
+            // If parsing fails, convert string to array
+            processedData[field] = [processedData[field]];
+          }
+        }
+      }
+      
+      // Handle date fields
+      if (processedData.startDate && typeof processedData.startDate === 'string') {
+        processedData.startDate = new Date(processedData.startDate);
+      }
+      if (processedData.endDate && typeof processedData.endDate === 'string') {
+        processedData.endDate = new Date(processedData.endDate);
+      }
+      if (processedData.date && typeof processedData.date === 'string') {
+        processedData.date = new Date(processedData.date);
+      }
+      
+      console.log('Processed tour update data:', JSON.stringify(processedData, null, 2));
+      
       // Validate the update data
-      const updateData = insertTourSchema.parse(req.body);
+      const updateData = insertTourSchema.parse(processedData);
       
       // Check if destination exists if destinationId is provided
       if (updateData.destinationId) {
@@ -2476,11 +2590,15 @@ export async function registerRoutes(app: Express): Promise<Server> {
         updatedBy: req.user?.id || null
       };
       
+      console.log('Final tour update data to be saved:', JSON.stringify(updateDataWithUser, null, 2));
+      
       // Perform the update
       const updatedTour = await storage.updateTour(id, updateDataWithUser);
+      console.log('Tour updated successfully:', JSON.stringify(updatedTour, null, 2));
       res.json(updatedTour);
     } catch (error) {
       if (error instanceof z.ZodError) {
+        console.error('Validation errors:', error.errors);
         return res.status(400).json({ message: 'Invalid tour data', errors: error.errors });
       }
       console.error('Error updating tour:', error);
