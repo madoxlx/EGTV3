@@ -1,0 +1,110 @@
+{
+  "id": "59",
+  "name": "ahmed showky sadasd",
+  "description": "sadsadasd @#@#@!@#@!#@!#@!#!#!",
+  "shortDescription": null,
+  "destinationId": 6,
+  "countryId": 10,
+  "cityId": null,
+  "categoryId": null,
+  "address": "9 masaken el iskandrya",
+  "city": null,
+  "country": "Egypt",
+  "postalCode": "AL3 8QE",
+  "phone": "+201152117192",
+  "email": "mr.ahmedshowky@gmail.com",
+  "website": "https://citycenterhotel.com",
+  "imageUrl": "/uploads/image-1751373819206-765401668.png",
+  "galleryUrls": [
+    "/uploads/image-1751373820627-87152639.png",
+    "/uploads/image-1751373827129-22218920.jpg",
+    "/uploads/image-1751373827347-260560789.jpeg"
+  ],
+  "stars": 3,
+  "amenities": null,
+  "checkInTime": "14:00",
+  "checkOutTime": "11:00",
+  "longitude": 1212,
+  "latitude": 12121,
+  "featured": false,
+  "rating": null,
+  "reviewCount": 0,
+  "guestRating": null,
+  "minStay": 1,
+  "maxStay": null,
+  "bookingLeadTime": 0,
+  "cancellationPolicy": null,
+  "parkingAvailable": true,
+  "airportTransferAvailable": true,
+  "carRentalAvailable": true,
+  "shuttleAvailable": true,
+  "wifiAvailable": true,
+  "petFriendly": false,
+  "accessibleFacilities": false,
+  "basePrice": null,
+  "currency": "EGP",
+  "taxIncluded": false,
+  "serviceChargeIncluded": false,
+  "languages": [
+    "en"
+  ],
+  "establishedYear": null,
+  "lastRenovatedYear": null,
+  "totalRooms": null,
+  "totalFloors": null,
+  "restaurants": [
+    {
+      "name": "sadsadsadas",
+      "cuisineType": "sadsaddas",
+      "breakfastOptions": [
+        "vegetarian",
+        "glutenFree",
+        "american",
+        "buffet",
+        "continental",
+        "vegan",
+        "halal"
+      ]
+    }
+  ],
+  "landmarks": [
+    {
+      "name": "Great Pyramid of Giza",
+      "placeId": "ChIJN8F_47w7WBQRUJGUzM6Fsks",
+      "distance": "1.2 km",
+      "description": "Ancient Egyptian pyramid"
+    },
+    {
+      "name": "21321321",
+      "placeId": "",
+      "distance": "12",
+      "description": "12321"
+    },
+    {
+      "name": "Khan el-Khalili",
+      "placeId": "ChIJ9dSaz6s_WBQRam44QaRRdWQ",
+      "distance": "5.8 km",
+      "description": "Historic bazaar"
+    }
+  ],
+  "faqs": [
+    {
+      "answer": "sadsadas",
+      "question": "sadasdasasd"
+    }
+  ],
+  "roomTypes": [],
+  "features": [],
+  "status": "active",
+  "verificationStatus": "pending",
+  "createdAt": "2025-07-01T12:43:47.631Z",
+  "updatedAt": "2025-07-01T12:43:47.631Z",
+  "createdBy": 9,
+  "updatedBy": null,
+  "facilityIds": [],
+  "highlightIds": [],
+  "cleanlinessFeatureIds": [],
+  "facilities": [],
+  "highlights": [],
+  "cleanlinessFeatures": []
+}
