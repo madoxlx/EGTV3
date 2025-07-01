@@ -1,0 +1,137 @@
+{
+  "id": "57",
+  "name": "ahmed showky",
+  "description": "Eroup Eroup Eroup Eroup Eroup Eroup Eroup Eroup Eroup Eroup Eroup Eroup Eroup Eroup Eroup Eroup Eroup Eroup Eroup Eroup Eroup Eroup Eroup Eroup Eroup Eroup Eroup Eroup Eroup Eroup Eroup Eroup Eroup Eroup Eroup Eroup Eroup Eroup Eroup Eroup Eroup Eroup Eroup Eroup Eroup Eroup Eroup Eroup Eroup Eroup Eroup Eroup Eroup ",
+  "shortDescription": null,
+  "destinationId": 6,
+  "countryId": 10,
+  "cityId": 21,
+  "categoryId": null,
+  "address": "9 masaken el iskandrya",
+  "city": "Cairo",
+  "country": "Egypt",
+  "postalCode": "11571",
+  "phone": "+201152117192",
+  "email": "mr.ahmedshowky@gmail.com",
+  "website": "https://citycenterhotel.com",
+  "imageUrl": "/uploads/image-1751372060684-143768555.png",
+  "galleryUrls": [
+    "/uploads/image-1751372064945-868777387.png",
+    "/uploads/image-1751372086882-621988105.jpg",
+    "/uploads/image-1751372087231-297104246.jpeg"
+  ],
+  "stars": 3,
+  "amenities": null,
+  "checkInTime": "14:00",
+  "checkOutTime": "11:00",
+  "longitude": 2312321,
+  "latitude": 21312321312,
+  "featured": false,
+  "rating": null,
+  "reviewCount": 0,
+  "guestRating": null,
+  "minStay": 1,
+  "maxStay": null,
+  "bookingLeadTime": 0,
+  "cancellationPolicy": null,
+  "parkingAvailable": true,
+  "airportTransferAvailable": true,
+  "carRentalAvailable": true,
+  "shuttleAvailable": true,
+  "wifiAvailable": true,
+  "petFriendly": false,
+  "accessibleFacilities": false,
+  "basePrice": null,
+  "currency": "EGP",
+  "taxIncluded": false,
+  "serviceChargeIncluded": false,
+  "languages": [
+    "en"
+  ],
+  "establishedYear": null,
+  "lastRenovatedYear": null,
+  "totalRooms": null,
+  "totalFloors": null,
+  "restaurants": [
+    {
+      "name": "sadsasda",
+      "cuisineType": "sadasdas",
+      "breakfastOptions": [
+        "vegetarian",
+        "glutenFree"
+      ]
+    },
+    {
+      "name": "asdsada",
+      "cuisineType": "sadasdas",
+      "breakfastOptions": [
+        "glutenFree",
+        "vegetarian",
+        "halal"
+      ]
+    }
+  ],
+  "landmarks": [
+    {
+      "name": "Great Pyramid of Giza",
+      "placeId": "ChIJN8F_47w7WBQRUJGUzM6Fsks",
+      "distance": "1.2 km",
+      "description": "Ancient Egyptian pyramid"
+    },
+    {
+      "name": "Egyptian Museums",
+      "placeId": "ChIJ5y7_47R7WBQRuLZMSJXnDzs",
+      "distance": "3.4 km",
+      "description": "History museum"
+    },
+    {
+      "name": "Khan el-Khalili",
+      "placeId": "ChIJ9dSaz6s_WBQRam44QaRRdWQ",
+      "distance": "5.8 km",
+      "description": "Historic bazaar"
+    }
+  ],
+  "faqs": [
+    {
+      "answer": "asdsadsadasda",
+      "question": "sadsadasdsa?"
+    }
+  ],
+  "roomTypes": [
+    {
+      "name": "sdsadasda",
+      "size": "212",
+      "type": "Double",
+      "view": "City View",
+      "price": 2323232,
+      "bedType": "Single Bed",
+      "amenities": [
+        "airConditioning",
+        "safe",
+        "blackoutCurtains",
+        "hairDryer",
+        "desk"
+      ],
+      "available": true,
+      "maxAdults": 2,
+      "maxInfants": 0,
+      "description": "123321321312312",
+      "maxChildren": 0,
+      "maxOccupancy": 2,
+      "discountedPrice": 232321
+    }
+  ],
+  "features": [],
+  "status": "active",
+  "verificationStatus": "pending",
+  "createdAt": "2025-07-01T12:14:47.887Z",
+  "updatedAt": "2025-07-01T12:14:47.887Z",
+  "createdBy": 1,
+  "updatedBy": null,
+  "facilityIds": [],
+  "highlightIds": [],
+  "cleanlinessFeatureIds": [],
+  "facilities": [],
+  "highlights": [],
+  "cleanlinessFeatures": []
+}

@@ -2953,13 +2953,11 @@ export async function registerRoutes(app: Express): Promise<Server> {
       const formData = req.body;
       console.log('Raw form data received:', JSON.stringify(formData, null, 2));
       
-      // Extract feature arrays from form data
-      const { facilityIds, highlightIds, cleanlinessFeatureIds, ...hotelFormData } = formData;
+      // Extract features array from form data (simplified system)
+      const hotelFormData = formData;
       
-      console.log('=== FEATURE ARRAYS EXTRACTION ===');
-      console.log('Facility IDs:', facilityIds);
-      console.log('Highlight IDs:', highlightIds);
-      console.log('Cleanliness Feature IDs:', cleanlinessFeatureIds);
+      console.log('=== FEATURES EXTRACTION ===');
+      console.log('Features:', hotelFormData.features);
       
       // Get city and country names from IDs
       let cityName = hotelFormData.city || null;
@@ -3029,7 +3027,9 @@ export async function registerRoutes(app: Express): Promise<Server> {
         restaurants: hotelFormData.restaurants || null,
         landmarks: hotelFormData.landmarks || null,
         faqs: hotelFormData.faqs || null,
-        roomTypes: hotelFormData.roomTypes || null
+        roomTypes: hotelFormData.roomTypes || null,
+        // Add features array (simplified system)
+        features: hotelFormData.features || []
       };
       
       console.log('Transformed hotel data:', transformedData);
@@ -3050,30 +3050,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
       const newHotel = await storage.createHotel(validatedHotelData);
       console.log('Hotel created successfully:', newHotel);
       
-      // Now save the feature associations if hotel was created successfully
-      if (newHotel.id) {
-        console.log('=== SAVING FEATURE ASSOCIATIONS ===');
-        
-        // Save facility associations
-        if (facilityIds && Array.isArray(facilityIds) && facilityIds.length > 0) {
-          console.log('Saving facility associations:', facilityIds);
-          await storage.updateHotelFeatureAssociations(newHotel.id, 'facilities', facilityIds);
-        }
-        
-        // Save highlight associations
-        if (highlightIds && Array.isArray(highlightIds) && highlightIds.length > 0) {
-          console.log('Saving highlight associations:', highlightIds);
-          await storage.updateHotelFeatureAssociations(newHotel.id, 'highlights', highlightIds);
-        }
-        
-        // Save cleanliness feature associations
-        if (cleanlinessFeatureIds && Array.isArray(cleanlinessFeatureIds) && cleanlinessFeatureIds.length > 0) {
-          console.log('Saving cleanliness feature associations:', cleanlinessFeatureIds);
-          await storage.updateHotelFeatureAssociations(newHotel.id, 'cleanlinessFeatures', cleanlinessFeatureIds);
-        }
-        
-        console.log('All feature associations saved successfully');
-      }
+      console.log('Hotel created with features:', newHotel.features);
       
       res.status(201).json(newHotel);
     } catch (error) {
