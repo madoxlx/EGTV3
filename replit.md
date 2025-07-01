@@ -119,6 +119,17 @@ The application uses a comprehensive PostgreSQL schema with the following core e
 
 ## Recent Changes
 
+- **Simplified Hotel Features System Implementation (July 1, 2025)**: Successfully replaced complex junction table system with direct JSON array storage for hotel features
+  - Completely removed complex InlineFeatureManager and junction table relationships (hotel_to_facilities, hotel_to_highlights, hotel_to_cleanliness)
+  - Added simple features column (JSONB array) directly to hotels table for streamlined data storage
+  - Implemented basic feature input interface: text field + ADD button for direct feature entry
+  - Features now stored as simple string arrays in database instead of complex relational data
+  - Enhanced form submission to handle features as direct JSON arrays rather than foreign key relationships
+  - System now matches simple approach similar to photo management - direct storage without complex relationships
+  - Hotel creation form displays features in clean list format with individual removal options
+  - Eliminates need for separate feature management pages and complex API endpoints
+  - Provides immediate feature addition/removal without database joins or complex queries
+
 - **Hotel Features Array Integration Complete (July 1, 2025)**: Successfully implemented comprehensive hotel feature array storage system
   - Enhanced hotel creation API endpoint to extract and handle facilityIds, highlightIds, cleanlinessFeatureIds arrays from frontend
   - Implemented complete hotel feature association management in storage layer with proper database operations

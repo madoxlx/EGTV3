@@ -6,7 +6,7 @@ import { z } from "zod";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { GoogleMap, useLoadScript, Marker } from "@react-google-maps/api";
 import { apiRequest, getQueryFn } from "@/lib/queryClient";
-import InlineFeatureManager from "@/components/hotel/InlineFeatureManager";
+
 import { useToast } from "@/hooks/use-toast";
 import { useLanguage } from "@/hooks/use-language";
 import {
@@ -201,10 +201,8 @@ const hotelFormSchema = z.object({
     .optional()
     .nullable(),
 
-  // General Highlights, Facilities, and Cleanliness Features (using IDs for Many-to-Many)
-  highlightIds: z.array(z.number()).default([]),
-  facilityIds: z.array(z.number()).default([]),
-  cleanlinessFeatureIds: z.array(z.number()).default([]),
+  // Simple features storage (replacing complex junction tables)
+  features: z.array(z.string()).default([]),
 
   // Transportation and amenities (direct fields in hotels table)
   parkingAvailable: z.boolean().default(false),
@@ -324,6 +322,10 @@ export default function EnhancedHotelCreatePage() {
   const [isUploadingImages, setIsUploadingImages] = useState(false);
   const [galleryPreviews, setGalleryPreviews] = useState<string[]>([]);
 
+  // Simple feature management state
+  const [newFeature, setNewFeature] = useState<string>("");
+  const [hotelFeatures, setHotelFeatures] = useState<string[]>([]);
+
   // Google Maps integration
   const [apiKey, setApiKey] = useState<string>("");
   const { isLoaded } = useLoadScript({
@@ -392,6 +394,18 @@ export default function EnhancedHotelCreatePage() {
     setGalleryPreviews((prev) => prev.filter((_, i) => i !== index));
   };
 
+  // Simple feature management functions
+  const addFeature = () => {
+    if (newFeature.trim() && !hotelFeatures.includes(newFeature.trim())) {
+      setHotelFeatures((prev) => [...prev, newFeature.trim()]);
+      setNewFeature("");
+    }
+  };
+
+  const removeFeature = (index: number) => {
+    setHotelFeatures((prev) => prev.filter((_, i) => i !== index));
+  };
+
   // Form setup with default values
   const form = useForm<HotelFormValues>({
     resolver: zodResolver(hotelFormSchema),
@@ -414,9 +428,7 @@ export default function EnhancedHotelCreatePage() {
       latitude: undefined,
       featured: false,
       status: "active",
-      highlightIds: [],
-      facilityIds: [],
-      cleanlinessFeatureIds: [],
+      features: [],
       parkingAvailable: false,
       airportTransferAvailable: false,
       carRentalAvailable: false,
@@ -673,10 +685,8 @@ export default function EnhancedHotelCreatePage() {
       // Prepare hotel data with uploaded image URLs
       const hotelData = {
         ...data,
-        // Add selected features
-        facilityIds: selectedFacilities,
-        highlightIds: selectedHighlights,
-        cleanlinessFeatureIds: selectedCleanlinessFeatures,
+        // Add simple features array
+        features: hotelFeatures,
         // Use uploaded image URLs
         imageUrl: mainImageUrl,
         galleryUrls: galleryUrls.length > 0 ? galleryUrls : (data.galleryUrls || []),
@@ -1594,30 +1604,75 @@ export default function EnhancedHotelCreatePage() {
 
                   {/* Features Tab */}
                   <TabsContent value="features" className="space-y-6">
-                    <InlineFeatureManager
-                      featureType="highlights"
-                      selectedFeatures={selectedHighlights}
-                      onSelectionChange={setSelectedHighlights}
-                      label="Hotel Highlights"
-                    />
+                    <h3 className="text-lg font-semibold flex items-center gap-2">
+                      <Star className="h-5 w-5" />
+                      Hotel Features
+                    </h3>
+                    <FormDescription>
+                      Add features that describe what your hotel offers to guests.
+                    </FormDescription>
 
-                    <Separator />
+                    {/* Simple Feature Addition */}
+                    <div className="border rounded-lg p-4 space-y-4">
+                      <h4 className="font-medium flex items-center gap-2">
+                        <Plus className="h-4 w-4" />
+                        Add Hotel Features
+                      </h4>
+                      
+                      <div className="flex items-center gap-4">
+                        <div className="flex-1">
+                          <Input
+                            placeholder="Enter feature name (e.g., Free WiFi, Swimming Pool, Restaurant)"
+                            value={newFeature}
+                            onChange={(e) => setNewFeature(e.target.value)}
+                            onKeyPress={(e) => {
+                              if (e.key === 'Enter') {
+                                e.preventDefault();
+                                addFeature();
+                              }
+                            }}
+                          />
+                        </div>
+                        <Button
+                          type="button"
+                          onClick={addFeature}
+                          disabled={!newFeature.trim()}
+                          className="bg-blue-500 hover:bg-blue-600 text-white px-6"
+                        >
+                          ADD
+                        </Button>
+                      </div>
+                    </div>
 
-                    <InlineFeatureManager
-                      featureType="facilities"
-                      selectedFeatures={selectedFacilities}
-                      onSelectionChange={setSelectedFacilities}
-                      label="Facilities & Services"
-                    />
-
-                    <Separator />
-
-                    <InlineFeatureManager
-                      featureType="cleanliness-features"
-                      selectedFeatures={selectedCleanlinessFeatures}
-                      onSelectionChange={setSelectedCleanlinessFeatures}
-                      label="Cleanliness & Safety"
-                    />
+                    {/* Display Added Features */}
+                    <div className="border rounded-lg p-4 space-y-4">
+                      <h4 className="font-medium">Added Features</h4>
+                      
+                      {hotelFeatures.length > 0 ? (
+                        <div className="grid grid-cols-1 md:grid-cols-2 gap-2">
+                          {hotelFeatures.map((feature, index) => (
+                            <div key={index} className="flex items-center justify-between p-3 bg-muted rounded-md">
+                              <span className="text-sm">{feature}</span>
+                              <Button
+                                type="button"
+                                variant="ghost"
+                                size="sm"
+                                onClick={() => removeFeature(index)}
+                                className="h-6 w-6 p-0 text-red-500 hover:text-red-700"
+                              >
+                                <X className="h-3 w-3" />
+                              </Button>
+                            </div>
+                          ))}
+                        </div>
+                      ) : (
+                        <div className="text-center py-8 text-muted-foreground">
+                          <Star className="h-8 w-8 mx-auto mb-2 opacity-50" />
+                          <p>No features added yet</p>
+                          <p className="text-sm">Add features like "Free WiFi", "Pool", "Restaurant" etc.</p>
+                        </div>
+                      )}
+                    </div>
                   </TabsContent>
 
                   {/* Transportation Tab */}

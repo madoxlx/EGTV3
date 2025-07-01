@@ -351,6 +351,7 @@ export const hotels = pgTable("hotels", {
   landmarks: json("landmarks"),
   faqs: json("faqs"),
   roomTypes: json("room_types"),
+  features: json("features").default([]), // Simple feature array storage
   status: text("status").default("active"),
   verificationStatus: text("verification_status").default("pending"),
   createdAt: timestamp("created_at").notNull().defaultNow(),
