@@ -1,0 +1,170 @@
+{
+  "id": "82",
+  "name": "ahmed showkysd",
+  "description": "sdsadasdasdasd sdsadasdasdasd sdsadasdasdasd sdsadasdasdasd sdsadasdasdasd sdsadasdasdasd ",
+  "shortDescription": null,
+  "destinationId": 6,
+  "countryId": 10,
+  "cityId": 21,
+  "categoryId": null,
+  "address": "9 masaken el iskandrya",
+  "city": "Cairo",
+  "country": "Egypt",
+  "postalCode": "AL3 8QE",
+  "phone": "+201152117192",
+  "email": "mr.ahmedshowky@gmail.com",
+  "website": "https://citycenterhotel.com",
+  "imageUrl": "",
+  "galleryUrls": [],
+  "stars": 5,
+  "amenities": null,
+  "checkInTime": "14:00",
+  "checkOutTime": "11:00",
+  "longitude": 7876867,
+  "latitude": 6876867,
+  "featured": false,
+  "rating": null,
+  "reviewCount": 0,
+  "guestRating": null,
+  "minStay": 1,
+  "maxStay": null,
+  "bookingLeadTime": 0,
+  "cancellationPolicy": null,
+  "parkingAvailable": false,
+  "airportTransferAvailable": false,
+  "carRentalAvailable": true,
+  "shuttleAvailable": false,
+  "wifiAvailable": true,
+  "petFriendly": false,
+  "accessibleFacilities": false,
+  "basePrice": null,
+  "currency": "EGP",
+  "taxIncluded": false,
+  "serviceChargeIncluded": false,
+  "languages": [
+    "en"
+  ],
+  "establishedYear": null,
+  "lastRenovatedYear": null,
+  "totalRooms": null,
+  "totalFloors": null,
+  "restaurants": [],
+  "landmarks": [
+    {
+      "name": "Great Pyramid of Giza",
+      "placeId": "ChIJN8F_47w7WBQRUJGUzM6Fsks",
+      "distance": "1.2 km",
+      "description": "Ancient Egyptian pyramid"
+    },
+    {
+      "name": "Egyptian Museum",
+      "placeId": "ChIJ5y7_47R7WBQRuLZMSJXnDzs",
+      "distance": "3.4 km",
+      "description": "History museum"
+    }
+  ],
+  "faqs": [],
+  "roomTypes": [],
+  "features": [
+    {
+      "icon": "wine-glass",
+      "name": "drink"
+    },
+    {
+      "icon": "hamburger",
+      "name": "meal"
+    },
+    {
+      "icon": "wifi",
+      "name": "wifi"
+    },
+    {
+      "icon": "car",
+      "name": "parking"
+    },
+    {
+      "icon": "swimming-pool",
+      "name": "pool"
+    },
+    {
+      "icon": "dumbbell",
+      "name": "gym"
+    },
+    {
+      "icon": "spa",
+      "name": "spa"
+    },
+    {
+      "icon": "utensils",
+      "name": "restaurant"
+    },
+    {
+      "icon": "concierge-bell",
+      "name": "room service"
+    },
+    {
+      "icon": "snowflake",
+      "name": "air conditioning"
+    },
+    {
+      "icon": "tshirt",
+      "name": "laundry"
+    },
+    {
+      "icon": "briefcase",
+      "name": "business center"
+    },
+    {
+      "icon": "presentation-screen",
+      "name": "conference room"
+    },
+    {
+      "icon": "elevator",
+      "name": "elevator"
+    },
+    {
+      "icon": "balcony",
+      "name": "balcony"
+    },
+    {
+      "icon": "chef-hat",
+      "name": "kitchen"
+    },
+    {
+      "icon": "martini-glass",
+      "name": "bar"
+    },
+    {
+      "icon": "tree",
+      "name": "garden"
+    },
+    {
+      "icon": "umbrella-beach",
+      "name": "beach access"
+    },
+    {
+      "icon": "dog",
+      "name": "pet friendly"
+    },
+    {
+      "icon": "Star",
+      "name": "sadsad"
+    },
+    {
+      "icon": "Star",
+      "name": "sadsadsad"
+    }
+  ],
+  "status": "active",
+  "verificationStatus": "pending",
+  "createdAt": "2025-07-01T14:51:33.801Z",
+  "updatedAt": "2025-07-01T14:51:33.801Z",
+  "createdBy": 9,
+  "updatedBy": null,
+  "facilityIds": [],
+  "highlightIds": [],
+  "cleanlinessFeatureIds": [],
+  "facilities": [],
+  "highlights": [],
+  "cleanlinessFeatures": []
+}

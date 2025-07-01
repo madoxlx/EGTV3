@@ -480,7 +480,26 @@ export default function EnhancedHotelCreatePage() {
   };
 
   // Enhanced feature management functions - storing complete objects with name and icon
-  const addFeature = () => {
+  const toggleFeature = (feature: { name: string; icon: string }) => {
+    const isSelected = hotelFeatures.some(f => f.name === feature.name);
+    let updatedFeatures;
+    
+    if (isSelected) {
+      // Remove feature
+      updatedFeatures = hotelFeatures.filter(f => f.name !== feature.name);
+    } else {
+      // Add feature
+      updatedFeatures = [...hotelFeatures, feature];
+    }
+    
+    setHotelFeatures(updatedFeatures);
+    form.setValue("features", updatedFeatures);
+    
+    console.log(`${isSelected ? '🗑️' : '✅'} Feature ${isSelected ? 'removed' : 'added'}:`, feature.name);
+    console.log("- Updated hotelFeatures:", updatedFeatures);
+  };
+
+  const addCustomFeature = () => {
     if (newFeature.trim() && !hotelFeatures.some(f => f.name === newFeature.trim())) {
       const newFeatureObj = { name: newFeature.trim(), icon: selectedIcon };
       const updatedFeatures = [...hotelFeatures, newFeatureObj];
@@ -489,18 +508,16 @@ export default function EnhancedHotelCreatePage() {
       // Update the form's features field with complete feature objects (name + icon)
       form.setValue("features", updatedFeatures);
       
-      console.log("✅ Feature added successfully:");
+      console.log("✅ Custom feature added successfully:");
       console.log("- Feature name:", newFeature.trim());
       console.log("- Feature icon:", selectedIcon);
       console.log("- Updated hotelFeatures:", updatedFeatures);
-      console.log("- Current form value:", form.getValues("features"));
       
       setNewFeature("");
     } else {
-      console.log("❌ Failed to add feature:");
+      console.log("❌ Failed to add custom feature:");
       console.log("- Feature name:", newFeature.trim());
       console.log("- Already exists:", hotelFeatures.some(f => f.name === newFeature.trim()));
-      console.log("- Current features:", hotelFeatures.map(f => f.name));
     }
   };
 
@@ -515,7 +532,6 @@ export default function EnhancedHotelCreatePage() {
     console.log("🗑️ Feature removed:");
     console.log("- Removed feature:", featureToRemove?.name);
     console.log("- Updated hotelFeatures:", updatedFeatures);
-    console.log("- Current form value:", form.getValues("features"));
   };
 
   const getIconComponent = (iconName: string) => {
@@ -1654,26 +1670,67 @@ export default function EnhancedHotelCreatePage() {
                       Hotel Features
                     </h3>
                     <FormDescription>
-                      Add features that describe what your hotel offers to guests.
+                      Select the features that your hotel offers to guests.
                     </FormDescription>
 
-                    {/* Simple Feature Addition */}
+                    {/* Available Features Grid */}
+                    <div className="border rounded-lg p-4 space-y-4">
+                      <h4 className="font-medium flex items-center gap-2">
+                        <Check className="h-4 w-4" />
+                        Available Features
+                      </h4>
+                      
+                      <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-3">
+                        {predefinedFeatures.map((feature, index) => {
+                          const isSelected = hotelFeatures.some(f => f.name === feature.name);
+                          return (
+                            <div 
+                              key={index}
+                              className={`flex items-center gap-3 p-3 border rounded-lg cursor-pointer transition-all hover:shadow-sm ${
+                                isSelected 
+                                  ? 'bg-blue-50 border-blue-200 shadow-sm' 
+                                  : 'bg-white border-gray-200 hover:border-gray-300'
+                              }`}
+                              onClick={() => toggleFeature(feature)}
+                            >
+                              <Checkbox
+                                checked={isSelected}
+                                onChange={() => toggleFeature(feature)}
+                                className="pointer-events-none"
+                              />
+                              <div className="flex items-center gap-2 flex-1 min-w-0">
+                                {React.createElement(getIconComponent(feature.icon), { 
+                                  className: `h-4 w-4 flex-shrink-0 ${isSelected ? 'text-blue-600' : 'text-gray-500'}` 
+                                })}
+                                <span className={`text-sm capitalize truncate ${
+                                  isSelected ? 'text-blue-900 font-medium' : 'text-gray-700'
+                                }`}>
+                                  {feature.name}
+                                </span>
+                              </div>
+                            </div>
+                          );
+                        })}
+                      </div>
+                    </div>
+
+                    {/* Custom Feature Addition */}
                     <div className="border rounded-lg p-4 space-y-4">
                       <h4 className="font-medium flex items-center gap-2">
                         <Plus className="h-4 w-4" />
-                        Add Hotel Features
+                        Add Custom Feature
                       </h4>
                       
                       <div className="flex items-center gap-4">
                         <div className="flex-1">
                           <Input
-                            placeholder="Enter feature name (e.g., Free WiFi, Swimming Pool, Restaurant)"
+                            placeholder="Enter custom feature name"
                             value={newFeature}
                             onChange={(e) => setNewFeature(e.target.value)}
                             onKeyPress={(e) => {
                               if (e.key === 'Enter') {
                                 e.preventDefault();
-                                addFeature();
+                                addCustomFeature();
                               }
                             }}
                           />
@@ -1719,7 +1776,7 @@ export default function EnhancedHotelCreatePage() {
                         
                         <Button
                           type="button"
-                          onClick={addFeature}
+                          onClick={addCustomFeature}
                           disabled={!newFeature.trim()}
                           className="bg-blue-500 hover:bg-blue-600 text-white px-6"
                         >
@@ -1728,17 +1785,22 @@ export default function EnhancedHotelCreatePage() {
                       </div>
                     </div>
 
-                    {/* Display Added Features */}
+                    {/* Selected Features Summary */}
                     <div className="border rounded-lg p-4 space-y-4">
-                      <h4 className="font-medium">Added Features</h4>
+                      <div className="flex items-center justify-between">
+                        <h4 className="font-medium">Selected Features</h4>
+                        <span className="text-sm text-muted-foreground">
+                          {hotelFeatures.length} feature{hotelFeatures.length !== 1 ? 's' : ''} selected
+                        </span>
+                      </div>
                       
                       {hotelFeatures.length > 0 ? (
                         <div className="grid grid-cols-1 md:grid-cols-2 gap-2">
                           {hotelFeatures.map((feature, index) => (
-                            <div key={index} className="flex items-center justify-between p-3 bg-muted rounded-md">
+                            <div key={index} className="flex items-center justify-between p-3 bg-green-50 border border-green-200 rounded-md">
                               <div className="flex items-center gap-2">
-                                {React.createElement(getIconComponent(feature.icon), { className: "h-4 w-4 text-blue-600" })}
-                                <span className="text-sm">{feature.name}</span>
+                                {React.createElement(getIconComponent(feature.icon), { className: "h-4 w-4 text-green-600" })}
+                                <span className="text-sm capitalize text-green-800 font-medium">{feature.name}</span>
                               </div>
                               <Button
                                 type="button"
@@ -1755,8 +1817,8 @@ export default function EnhancedHotelCreatePage() {
                       ) : (
                         <div className="text-center py-8 text-muted-foreground">
                           <Star className="h-8 w-8 mx-auto mb-2 opacity-50" />
-                          <p>No features added yet</p>
-                          <p className="text-sm">Add features like "Free WiFi", "Pool", "Restaurant" etc.</p>
+                          <p>No features selected yet</p>
+                          <p className="text-sm">Click on features above to select them for your hotel</p>
                         </div>
                       )}
                     </div>
