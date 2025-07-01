@@ -120,6 +120,8 @@ The application uses a comprehensive PostgreSQL schema with the following core e
 ## Recent Changes
 
 - **Hotel Creation Image Upload Integration Fix (January 1, 2025)**: Successfully resolved hotel image upload issue where images appeared as null in database
+  - Fixed frontend/backend API response mismatch: server returns `result.url` but frontend was looking for `result.imageUrl`
+  - Updated EnhancedHotelCreatePage to use `result.url` for both main image and gallery image uploads
   - Fixed async/await flow in onSubmit function to properly wait for image uploads before saving hotel data
   - Enhanced form submission to upload images first, then save hotel data with actual URLs instead of null values
   - Added proper upload state tracking with isUploadingImages state and loading indicators

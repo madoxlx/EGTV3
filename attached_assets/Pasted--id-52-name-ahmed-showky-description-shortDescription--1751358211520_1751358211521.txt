@@ -1,0 +1,106 @@
+{
+  "id": "52",
+  "name": "ahmed showky",
+  "description": "شسيسشيشسيشسي",
+  "shortDescription": null,
+  "destinationId": 6,
+  "countryId": 10,
+  "cityId": 21,
+  "categoryId": null,
+  "address": "9 masaken el iskandrya",
+  "city": "Cairo",
+  "country": "Egypt",
+  "postalCode": "11571",
+  "phone": "+201152117192",
+  "email": "mr.ahmedshowky@gmail.com",
+  "website": "https://citycenterhotel.com",
+  "imageUrl": null,
+  "galleryUrls": [
+    null,
+    null,
+    null
+  ],
+  "stars": 5,
+  "amenities": null,
+  "checkInTime": "14:00",
+  "checkOutTime": "11:00",
+  "longitude": 121223221,
+  "latitude": 121212,
+  "featured": false,
+  "rating": null,
+  "reviewCount": 0,
+  "guestRating": null,
+  "minStay": 1,
+  "maxStay": null,
+  "bookingLeadTime": 0,
+  "cancellationPolicy": null,
+  "parkingAvailable": false,
+  "airportTransferAvailable": true,
+  "carRentalAvailable": false,
+  "shuttleAvailable": false,
+  "wifiAvailable": true,
+  "petFriendly": false,
+  "accessibleFacilities": false,
+  "basePrice": null,
+  "currency": "EGP",
+  "taxIncluded": false,
+  "serviceChargeIncluded": false,
+  "languages": [
+    "en"
+  ],
+  "establishedYear": null,
+  "lastRenovatedYear": null,
+  "totalRooms": null,
+  "totalFloors": null,
+  "restaurants": [
+    {
+      "name": "سشيشسيشسيش",
+      "cuisineType": "سشيسشيشس",
+      "breakfastOptions": [
+        "halal",
+        "vegetarian"
+      ]
+    },
+    {
+      "name": "سشيسشيسش",
+      "cuisineType": "سيشسيشس",
+      "breakfastOptions": [
+        "vegetarian",
+        "vegan"
+      ]
+    }
+  ],
+  "landmarks": [
+    {
+      "name": "Great Pyramid of Giza",
+      "placeId": "ChIJN8F_47w7WBQRUJGUzM6Fsks",
+      "distance": "1.2 km",
+      "description": "Ancient Egyptian pyramid"
+    },
+    {
+      "name": "Khan el-Khalili",
+      "placeId": "ChIJ9dSaz6s_WBQRam44QaRRdWQ",
+      "distance": "5.8 km",
+      "description": "Historic bazaar"
+    }
+  ],
+  "faqs": [
+    {
+      "answer": "سشييسشيشسي",
+      "question": "يسشيسشيشس؟"
+    }
+  ],
+  "roomTypes": [],
+  "status": "active",
+  "verificationStatus": "pending",
+  "createdAt": "2025-07-01T08:23:09.486Z",
+  "updatedAt": "2025-07-01T08:23:09.486Z",
+  "createdBy": 1,
+  "updatedBy": null,
+  "facilityIds": [],
+  "highlightIds": [],
+  "cleanlinessFeatureIds": [],
+  "facilities": [],
+  "highlights": [],
+  "cleanlinessFeatures": []
+}

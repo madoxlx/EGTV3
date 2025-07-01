@@ -623,7 +623,7 @@ export default function EnhancedHotelCreatePage() {
         
         if (response.ok) {
           const result = await response.json();
-          mainImageUrl = result.imageUrl;
+          mainImageUrl = result.url;
           console.log("Main image uploaded successfully:", mainImageUrl);
         } else {
           console.error("Failed to upload main image");
@@ -660,8 +660,8 @@ export default function EnhancedHotelCreatePage() {
           
           if (response.ok) {
             const result = await response.json();
-            galleryUrls.push(result.imageUrl);
-            console.log(`Gallery image ${i + 1} uploaded:`, result.imageUrl);
+            galleryUrls.push(result.url);
+            console.log(`Gallery image ${i + 1} uploaded:`, result.url);
           } else {
             console.error("Failed to upload gallery image:", file.name);
             // Continue with other images even if one fails
