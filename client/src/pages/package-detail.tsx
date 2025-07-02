@@ -107,9 +107,17 @@ export default function PackageDetail() {
   });
   
   // Find the package matching either slug or ID
-  const packageData = allPackages.find(p => 
-    p.slug === packageSlug || p.id.toString() === packageSlug
-  );
+  const packageData = allPackages.find(p => {
+    // First try to match by slug if it exists
+    if (p.slug && p.slug === packageSlug) {
+      return true;
+    }
+    // Then try to match by ID
+    if (p.id.toString() === packageSlug) {
+      return true;
+    }
+    return false;
+  });
 
   // Fetch destinations to get destination info
   const { data: destinations = [], isLoading: isLoadingDestinations } = useQuery<Destination[]>({
