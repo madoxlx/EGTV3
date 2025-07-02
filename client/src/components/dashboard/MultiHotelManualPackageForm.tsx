@@ -1065,7 +1065,7 @@ export function MultiHotelManualPackageForm() {
                     onChange={handleImageUpload}
                   />
                   <FormDescription>
-                    Upload images for the package. The first image or starred image will be used as the main image.
+                    <span className="text-destructive">*</span> Upload images for the package. At least one image is required. The first image or starred image will be used as the main image.
                   </FormDescription>
                 </div>
               </div>

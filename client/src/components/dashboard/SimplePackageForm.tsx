@@ -224,6 +224,15 @@ const packageFormSchema = z.object({
   // Status
   featured: z.boolean().default(false),
   slug: z.string().optional(),
+}).refine((data) => {
+  // Require at least one image: either imageUrl or at least one URL in galleryUrls
+  const hasMainImage = data.imageUrl && data.imageUrl.trim() !== '';
+  const hasGalleryImages = data.galleryUrls && Array.isArray(data.galleryUrls) && data.galleryUrls.length > 0;
+  
+  return hasMainImage || hasGalleryImages;
+}, {
+  message: "At least one image is required. Please provide either a main image or add images to the gallery.",
+  path: ["imageUrl"] // This will show the error on the imageUrl field
 });
 
 type PackageFormValues = z.infer<typeof packageFormSchema>;
@@ -2124,7 +2133,12 @@ export function PackageCreatorForm({
             </div>
 
             <div>
-              <h3 className="text-sm font-medium mb-3">Gallery Images</h3>
+              <h3 className="text-sm font-medium mb-3">
+                Gallery Images <span className="text-destructive">*</span>
+              </h3>
+              <p className="text-sm text-muted-foreground mb-3">
+                <span className="text-destructive">*</span> At least one image is required. Upload images for the package gallery. The first image or starred image will be used as the main image.
+              </p>
 
               {/* Hidden file input */}
               <input

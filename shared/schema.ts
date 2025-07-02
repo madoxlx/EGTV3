@@ -1140,6 +1140,15 @@ export const insertPackageSchema = createInsertSchema(packages).pick({
   type: true,
   inclusions: true,
   slug: true,
+}).refine((data) => {
+  // Require at least one image: either imageUrl or at least one URL in galleryUrls
+  const hasMainImage = data.imageUrl && data.imageUrl.trim() !== '';
+  const hasGalleryImages = data.galleryUrls && Array.isArray(data.galleryUrls) && data.galleryUrls.length > 0;
+  
+  return hasMainImage || hasGalleryImages;
+}, {
+  message: "At least one image is required. Please provide either a main image or add images to the gallery.",
+  path: ["imageUrl"] // This will show the error on the imageUrl field
 });
 
 export const insertBookingSchema = createInsertSchema(bookings).pick({
