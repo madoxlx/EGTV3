@@ -259,7 +259,7 @@ app.use((req, res, next) => {
 
     // Cart endpoints are handled in routes.ts - no duplicate needed here
 
-    // Add API route debugging middleware
+    // Add API route debugging middleware BEFORE Vite setup
     app.use('/api/*', (req, res, next) => {
       console.log(`📍 API Route Hit: ${req.method} ${req.path}`);
       next();

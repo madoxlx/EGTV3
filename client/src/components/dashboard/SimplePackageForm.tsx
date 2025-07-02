@@ -499,21 +499,23 @@ export function PackageCreatorForm({
   // Fetch the package data if in edit mode
   const { data: existingPackageData, isLoading: isLoadingPackage } =
     useQuery<any>({
-      queryKey: ["/api/packages"],
-      select: (packages) => {
-        // Find the package with matching ID from the packages array
-        if (packageId && Array.isArray(packages)) {
-          console.log("Finding package with ID:", packageId);
-          // Compare as strings since API returns string IDs
-          const pkg = packages.find(
-            (p) => p.id === packageId || p.id === parseInt(packageId),
-          );
-          console.log("Found package:", pkg);
-          return pkg;
+      queryKey: ["/api-admin/packages", packageId],
+      queryFn: async () => {
+        if (!packageId) return null;
+        try {
+          const response = await fetch(`/api-admin/packages/${packageId}`);
+          if (!response.ok) {
+            throw new Error(`Failed to fetch package: ${response.statusText}`);
+          }
+          const data = await response.json();
+          console.log("Fetched package data:", data);
+          return data;
+        } catch (error) {
+          console.error("Error fetching package:", error);
+          throw error;
         }
-        return undefined;
       },
-      enabled: isEditMode,
+      enabled: isEditMode && !!packageId,
     });
 
   // Handle click outside tour search dropdown
@@ -741,8 +743,8 @@ export function PackageCreatorForm({
       // Determine if this is an update or create
       const isUpdate = isEditMode && packageId;
       const url = isUpdate
-        ? `/api/admin/packages/${packageId}`
-        : "/api/admin/packages";
+        ? `/api-admin/packages/${packageId}`
+        : "/api-admin/packages";
 
       const method = isUpdate ? "PUT" : "POST";
 
@@ -764,6 +766,7 @@ export function PackageCreatorForm({
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["/api/packages"] });
+      queryClient.invalidateQueries({ queryKey: ["/api-admin/packages"] });
 
       // Show success message
       const action = isEditMode ? "Updated" : "Created";
@@ -854,24 +857,24 @@ export function PackageCreatorForm({
       const requiredFieldsValid = validateRequiredFields(
         data,
         [
-          "name",
-          "overview",
+          "title",
+          "description",
           "countryId",
           "cityId",
           "category",
           "startDate",
           "endDate",
-          "basePrice",
+          "price",
         ],
         {
-          name: "Package Name",
-          overview: "Overview",
+          title: "Package Name",
+          description: "Description",
           countryId: "Country",
           cityId: "City",
           category: "Destination",
           startDate: "Start Date",
           endDate: "End Date",
-          basePrice: "Base Price",
+          price: "Base Price",
         },
       );
 
@@ -879,7 +882,7 @@ export function PackageCreatorForm({
 
       // 2. Numeric fields validation
       const numericFieldsValid = validateNumericFields(data, [
-        { field: "basePrice", label: "Base Price", min: 0.01 },
+        { field: "price", label: "Base Price", min: 0.01 },
         { field: "adultCount", label: "Adult Count", min: 1, integer: true },
         {
           field: "childrenCount",

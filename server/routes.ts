@@ -2120,6 +2120,57 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
+  // Get all packages (admin only)
+  app.get('/api/admin/packages', isAdmin, async (req, res) => {
+    try {
+      const packages = await storage.listPackages();
+      res.json(packages);
+    } catch (error) {
+      console.error('Error fetching packages:', error);
+      res.status(500).json({ message: 'Failed to fetch packages' });
+    }
+  });
+
+  // Get a specific package by ID (admin only)
+  app.get('/api/admin/packages/:id', isAdmin, async (req, res) => {
+    try {
+      const id = parseInt(req.params.id);
+      if (isNaN(id)) {
+        return res.status(400).json({ message: 'Invalid package ID' });
+      }
+
+      const pkg = await storage.getPackage(id);
+      if (!pkg) {
+        return res.status(404).json({ message: 'Package not found' });
+      }
+
+      res.json(pkg);
+    } catch (error) {
+      console.error('Error fetching package:', error);
+      res.status(500).json({ message: 'Failed to fetch package' });
+    }
+  });
+
+  // Alternative endpoint to bypass Vite middleware interception
+  app.get('/api-admin/packages/:id', isAdmin, async (req, res) => {
+    try {
+      const id = parseInt(req.params.id);
+      if (isNaN(id)) {
+        return res.status(400).json({ message: 'Invalid package ID' });
+      }
+
+      const pkg = await storage.getPackage(id);
+      if (!pkg) {
+        return res.status(404).json({ message: 'Package not found' });
+      }
+
+      res.json(pkg);
+    } catch (error) {
+      console.error('Error fetching package:', error);
+      res.status(500).json({ message: 'Failed to fetch package' });
+    }
+  });
+
   // Create a new package (admin only)
   app.post('/api/admin/packages', isAdmin, async (req, res) => {
     try {
@@ -2215,6 +2266,57 @@ export async function registerRoutes(app: Express): Promise<Server> {
       console.error('Error creating package:', error);
       console.error('Error details:', error?.message || 'Unknown error');
       console.error('Error stack:', error?.stack);
+      
+      // Log the processed data in a scoped way
+      try {
+        console.error('Processed data that caused error:', JSON.stringify(req.body, null, 2));
+      } catch (logError) {
+        console.error('Failed to log processed data:', logError);
+      }
+      
+      res.status(500).json({ message: 'Failed to create package', error: error?.message || 'Unknown error' });
+    }
+  });
+
+  // Alternative endpoint to bypass Vite middleware interception - Create a new package
+  app.post('/api-admin/packages', isAdmin, async (req, res) => {
+    try {
+      console.log('Package creation request received (alt endpoint):', JSON.stringify(req.body));
+      
+      // Process JSON fields before validation
+      const processedData = { ...req.body };
+      
+      // Handle JSON fields - convert arrays to JSON strings for storage
+      const jsonFields = [
+        'galleryUrls', 'inclusions', 'idealFor', 'tourSelection', 
+        'includedFeatures', 'optionalExcursions', 'excludedFeatures', 
+        'itinerary', 'whatToPack', 'travelRoute', 'accommodationHighlights',
+        'transportationDetails'
+      ];
+      
+      for (const field of jsonFields) {
+        if (processedData[field] && Array.isArray(processedData[field])) {
+          processedData[field] = JSON.stringify(processedData[field]);
+        }
+      }
+
+      // Handle date fields
+      if (processedData.startDate) {
+        processedData.startDate = new Date(processedData.startDate);
+      }
+      if (processedData.endDate) {
+        processedData.endDate = new Date(processedData.endDate);
+      }
+      
+      console.log('Creating package with processed data...');
+      
+      // Use the storage layer to create the package
+      const newPackage = await storage.createPackage(processedData);
+      
+      console.log('Package created successfully:', newPackage.id);
+      res.status(201).json(newPackage);
+    } catch (error: any) {
+      console.error('Error creating package (alt endpoint):', error);
       
       // Log the processed data in a scoped way
       try {
@@ -2366,6 +2468,92 @@ export async function registerRoutes(app: Express): Promise<Server> {
       res.json(updatedPackage);
     } catch (error: any) {
       console.error('Error updating package:', error);
+      console.error('Error details:', error.message);
+      console.error('Processed data that caused error:', JSON.stringify(req.body));
+      res.status(500).json({ message: 'Failed to update package', error: error.message });
+    }
+  });
+
+  // Alternative endpoint to bypass Vite middleware interception - Update a package
+  app.put('/api-admin/packages/:id', isAdmin, async (req, res) => {
+    try {
+      const id = parseInt(req.params.id);
+      if (isNaN(id)) {
+        return res.status(400).json({ message: 'Invalid package ID' });
+      }
+
+      // Log the raw request body for debugging
+      console.log('Package update request received for ID (alt endpoint):', id);
+      console.log('Request body:', JSON.stringify(req.body));
+
+      // Check if the package exists
+      const existingPackage = await storage.getPackage(id);
+      if (!existingPackage) {
+        return res.status(404).json({ message: 'Package not found' });
+      }
+
+      // Process JSON fields before validation
+      const processedData = { ...req.body };
+      
+      // Handle JSON fields - convert arrays to JSON strings for storage if they're arrays
+      const jsonFields = [
+        'galleryUrls', 'inclusions', 'idealFor', 'tourSelection', 
+        'includedFeatures', 'optionalExcursions', 'excludedFeatures', 
+        'itinerary', 'whatToPack', 'travelRoute', 'accommodationHighlights',
+        'transportationDetails'
+      ];
+      
+      for (const field of jsonFields) {
+        if (processedData[field] && Array.isArray(processedData[field])) {
+          processedData[field] = JSON.stringify(processedData[field]);
+        }
+      }
+
+      // Handle date fields
+      if (processedData.startDate) {
+        processedData.startDate = new Date(processedData.startDate);
+      }
+      if (processedData.endDate) {
+        processedData.endDate = new Date(processedData.endDate);
+      }
+
+      // Convert string numeric fields to numbers
+      if (processedData.price) {
+        processedData.price = parseFloat(processedData.price) || 0;
+      }
+      if (processedData.adultCount) {
+        processedData.adultCount = parseInt(processedData.adultCount) || 2;
+      }
+      if (processedData.childrenCount) {
+        processedData.childrenCount = parseInt(processedData.childrenCount) || 0;
+      }
+      if (processedData.infantCount) {
+        processedData.infantCount = parseInt(processedData.infantCount) || 0;
+      }
+      if (processedData.duration) {
+        processedData.duration = parseInt(processedData.duration) || 7;
+      }
+
+      // Remove validation-only fields that shouldn't be stored
+      delete processedData.allowFormSubmission;
+
+      console.log('Processed update data (alt endpoint):', JSON.stringify(processedData));
+      
+      // If destinationId is being updated, verify the new destination exists
+      if (processedData.destinationId && processedData.destinationId !== existingPackage.destinationId) {
+        const destination = await storage.getDestination(processedData.destinationId);
+        if (!destination) {
+          return res.status(404).json({ message: 'Destination not found' });
+        }
+      }
+      
+      // Perform the update operation with processed data
+      const updatedPackage = await storage.updatePackage(id, processedData);
+      console.log('Updated package result (alt endpoint):', JSON.stringify(updatedPackage));
+      
+      res.json(updatedPackage);
+    } catch (error: any) {
+      console.error('Error updating package (alt endpoint):', error);
       console.error('Error details:', error.message);
       console.error('Processed data that caused error:', JSON.stringify(req.body));
       res.status(500).json({ message: 'Failed to update package', error: error.message });
