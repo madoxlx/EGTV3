@@ -1,0 +1,58 @@
+✅ Database initialization complete!
+Cart GET request - userId: undefined
+9:42:37 AM [express] GET /api/cart 401 in 4ms :: {"message":"Authentication required to access cart"}
+9:42:37 AM [express] GET /api/hero-slides/active 304 in 1ms :: [{"id":1,"title":"Welcome to Sahara Journeys","subtitle":"Discover the Magic of the Middle East","descrip…
+9:42:37 AM [express] GET /api/cities 304 in 33ms :: [{"id":29,"name":"Abu Dhabi","countryId":13,"description":"Capital of UAE","imageUrl":null,"active":true,"createdAt"…
+9:42:37 AM [express] GET /api/tour-categories 304 in 43ms :: [{"id":11,"name":"Adventure Tours","description":"Exciting outdoor adventures","slug":null,"created_at":"20…
+9:42:37 AM [express] GET /api/countries 304 in 145ms :: [{"id":10,"name":"Egypt","code":"EG","description":"شسيسشيشسيشسيشس","imageUrl":"","active":true,"createdAt":"202…
+9:42:37 AM [express] GET /api/destinations 304 in 159ms :: [{"id":"6","name":"Cairo & Giza","country":"Egypt","countryId":1,"cityId":null,"description":"Explore the pyr…
+9:42:37 AM [express] GET /api/packages 304 in 84ms :: [{"id":"5","title":"ahmed sh شسسشسي","description":"Within a short time, experience the luxury of Dubai! A weekend…
+9:42:37 AM [express] GET /api/menus/location/footer 304 in 96ms :: {"menu":{"id":1,"name":"Footer Menu","location":"footer","description":null,"active":true,"createdAt"…
+📍 API Route Hit: GET /
+9:42:46 AM [express] GET /api/admin/dashboard-stats 200 in 3ms
+9:42:46 AM [express] GET /api/user 200 in 0ms
+📍 API Route Hit: GET /
+9:42:46 AM [express] GET /api/user 304 in 1ms
+9:42:46 AM [express] GET /api/admin/dashboard-stats 200 in 5ms
+🔍 Admin check - Session user: undefined
+🔍 Admin check - Request path: /api/admin/tours
+⚠️ No session user found, using temporary admin access for development
+🔑 Temporary admin panel access granted
+9:42:53 AM [express] GET /api/package-categories 304 in 135ms :: [{"id":6,"name":"Adventure","description":"Thrilling adventure packages for adrenaline seekers","slug":…
+9:42:53 AM [express] GET /api/admin/tours 304 in 141ms :: [{"id":18,"name":"Alexandria Day Trip from Cairo","description":"Full day excursion to the Mediterranean coast…
+🔍 Admin check - Session user: undefined
+🔍 Admin check - Request path: /api/admin/rooms
+⚠️ No session user found, using temporary admin access for development
+🔑 Temporary admin panel access granted
+Admin rooms endpoint called
+🔍 Listing rooms with hotelId: undefined
+✅ Rooms query result: 5 rooms found
+📋 Sample room: { id: 5, name: 'sadasdasd', hotel_id: 48 }
+Rooms returned from storage: 5 rooms
+9:42:53 AM [express] GET /api/admin/rooms 304 in 35ms :: [{"id":5,"name":"sadasdasd","description":"asdasdasasdasdasdsadasdd","hotel_id":48,"type":"standard","max_occup…
+9:42:53 AM [express] GET /api/admin/hotels 304 in 105ms :: [{"id":"83","name":"ahmed sh","description":"ahmed","shortDescription":null,"destinationId":6,"countryId":10,…
+9:42:54 AM [express] GET /api/user 304 in 0ms
+🔍 Admin check - Session user: undefined
+🔍 Admin check - Request path: /api/upload-image
+9:43:03 AM [express] POST /api/upload-image 401 in 1ms :: {"message":"Authentication required","redirectTo":"/admin/login"}
+🔍 Admin check - Session user: undefined
+🔍 Admin check - Request path: /api/upload-image
+9:43:04 AM [express] POST /api/upload-image 401 in 1ms :: {"message":"Authentication required","redirectTo":"/admin/login"}
+🔍 Admin check - Session user: undefined
+🔍 Admin check - Request path: /api/upload-image
+9:43:04 AM [express] POST /api/upload-image 401 in 1ms :: {"message":"Authentication required","redirectTo":"/admin/login"}
+🔍 Admin check - Session user: undefined
+🔍 Admin check - Request path: /api/upload-image
+9:43:04 AM [express] POST /api/upload-image 401 in 1ms :: {"message":"Authentication required","redirectTo":"/admin/login"}
+🔍 Admin check - Session user: undefined
+🔍 Admin check - Request path: /api/upload-image
+9:43:04 AM [express] POST /api/upload-image 401 in 1ms :: {"message":"Authentication required","redirectTo":"/admin/login"}
+🔍 Admin check - Session user: undefined
+🔍 Admin check - Request path: /api/upload-image
+9:43:04 AM [express] POST /api/upload-image 401 in 1ms :: {"message":"Authentication required","redirectTo":"/admin/login"}
+🔍 Admin check - Session user: undefined
+🔍 Admin check - Request path: /api/upload-image
+9:43:04 AM [express] POST /api/upload-image 401 in 1ms :: {"message":"Authentication required","redirectTo":"/admin/login"}
+🔍 Admin check - Session user: undefined
+🔍 Admin check - Request path: /api/upload-image
+9:43:05 AM [express] POST /api/upload-image 401 in 1ms :: {"message":"Authentication required","redirectTo":"/admin/login"}
