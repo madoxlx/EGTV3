@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useRef } from "react";
+import React, { useState, useEffect, useRef, useCallback } from "react";
 import { useLocation } from "wouter";
 import { useForm, useFieldArray, Controller } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
@@ -479,25 +479,7 @@ export default function EnhancedHotelCreatePage() {
     setGalleryPreviews((prev) => prev.filter((_, i) => i !== index));
   };
 
-  // Enhanced feature management functions - storing complete objects with name and icon
-  const toggleFeature = (feature: { name: string; icon: string }) => {
-    const isSelected = hotelFeatures.some(f => f.name === feature.name);
-    let updatedFeatures;
-    
-    if (isSelected) {
-      // Remove feature
-      updatedFeatures = hotelFeatures.filter(f => f.name !== feature.name);
-    } else {
-      // Add feature
-      updatedFeatures = [...hotelFeatures, feature];
-    }
-    
-    setHotelFeatures(updatedFeatures);
-    form.setValue("features", updatedFeatures);
-    
-    console.log(`${isSelected ? '🗑️' : '✅'} Feature ${isSelected ? 'removed' : 'added'}:`, feature.name);
-    console.log("- Updated hotelFeatures:", updatedFeatures);
-  };
+  // Placeholder for toggleFeature - will be defined after form initialization
 
   const addCustomFeature = () => {
     if (newFeature.trim() && !hotelFeatures.some(f => f.name === newFeature.trim())) {
@@ -573,6 +555,30 @@ export default function EnhancedHotelCreatePage() {
       roomTypes: [],
     },
   });
+
+  // Enhanced feature management functions - storing complete objects with name and icon
+  const toggleFeature = useCallback((feature: { name: string; icon: string }) => {
+    setHotelFeatures(currentFeatures => {
+      const isSelected = currentFeatures.some(f => f.name === feature.name);
+      let updatedFeatures;
+      
+      if (isSelected) {
+        // Remove feature
+        updatedFeatures = currentFeatures.filter(f => f.name !== feature.name);
+      } else {
+        // Add feature
+        updatedFeatures = [...currentFeatures, feature];
+      }
+      
+      // Update form value
+      form.setValue("features", updatedFeatures);
+      
+      console.log(`${isSelected ? '🗑️' : '✅'} Feature ${isSelected ? 'removed' : 'added'}:`, feature.name);
+      console.log("- Updated hotelFeatures:", updatedFeatures);
+      
+      return updatedFeatures;
+    });
+  }, [form]);
 
   // Setup field arrays for related items
   const landmarksFieldArray = useFieldArray({
@@ -1693,10 +1699,13 @@ export default function EnhancedHotelCreatePage() {
                               }`}
                               onClick={() => toggleFeature(feature)}
                             >
-                              <Checkbox
-                                checked={isSelected}
-                                className="pointer-events-none"
-                              />
+                              <div className={`w-5 h-5 rounded border-2 flex items-center justify-center ${
+                                isSelected 
+                                  ? 'bg-blue-500 border-blue-500' 
+                                  : 'border-gray-300'
+                              }`}>
+                                {isSelected && <Check className="h-3 w-3 text-white" />}
+                              </div>
                               <div className="flex items-center gap-2 flex-1 min-w-0">
                                 {React.createElement(getIconComponent(feature.icon), { 
                                   className: `h-4 w-4 flex-shrink-0 ${isSelected ? 'text-blue-600' : 'text-gray-500'}` 
