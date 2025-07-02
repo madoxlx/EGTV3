@@ -395,9 +395,9 @@ export default function EnhancedHotelCreatePage() {
     googleMapsApiKey: apiKey || "",
   });
 
-  // Initialize hotel features with predefined features after component mounts
+  // Initialize hotel features as empty - users will select what they want
   useEffect(() => {
-    setHotelFeatures(predefinedFeatures);
+    setHotelFeatures([]);
   }, []);
 
   // Load Google Maps API key
@@ -562,7 +562,7 @@ export default function EnhancedHotelCreatePage() {
       latitude: undefined,
       featured: false,
       status: "active",
-      features: predefinedFeatures, // Start with predefined features
+      features: [], // Start with empty features - users select what they want
       parkingAvailable: false,
       airportTransferAvailable: false,
       carRentalAvailable: false,
@@ -1685,7 +1685,7 @@ export default function EnhancedHotelCreatePage() {
                           const isSelected = hotelFeatures.some(f => f.name === feature.name);
                           return (
                             <div 
-                              key={index}
+                              key={`feature-${index}-${feature.name}`}
                               className={`flex items-center gap-3 p-3 border rounded-lg cursor-pointer transition-all hover:shadow-sm ${
                                 isSelected 
                                   ? 'bg-blue-50 border-blue-200 shadow-sm' 
@@ -1695,7 +1695,6 @@ export default function EnhancedHotelCreatePage() {
                             >
                               <Checkbox
                                 checked={isSelected}
-                                onChange={() => toggleFeature(feature)}
                                 className="pointer-events-none"
                               />
                               <div className="flex items-center gap-2 flex-1 min-w-0">
