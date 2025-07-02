@@ -115,6 +115,8 @@ The application uses a comprehensive PostgreSQL schema with the following core e
   - Gallery image upload now functional across all package creation forms (SimplePackageForm, ManualPackageCreatorForm, MultiHotelManualPackageForm)
   - Upload endpoint returns proper JSON response: `{"imageUrl": "/uploads/image-timestamp.jpeg"}`
   - Fixed authentication middleware conflicts that were preventing image uploads in package creation workflow
+  - Updated error messages to Arabic for better user experience: "يجب رفع صورة واحدة على الأقل"
+  - Added clear Arabic instructions for image upload requirements across all package creation forms
 
 - **Package Creation Image Requirement Implementation (July 2, 2025)**: Successfully implemented comprehensive image requirement validation for all package creation forms
   - Added Zod schema refinement requiring at least one image (either `imageUrl` or at least one item in `galleryUrls`)

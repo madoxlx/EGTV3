@@ -930,7 +930,7 @@ export function ManualPackageCreatorForm() {
                     onChange={handleImageUpload}
                   />
                   <FormDescription>
-                    <span className="text-destructive">*</span> Upload images for the package. At least one image is required. The first image or starred image will be used as the main image.
+                    <span className="text-destructive">*</span> ارفع صور الحزمة. يجب رفع صورة واحدة على الأقل. الصورة الأولى أو المميزة ستُستخدم كصورة رئيسية.
                   </FormDescription>
                 </div>
               </div>

@@ -231,7 +231,7 @@ const packageFormSchema = z.object({
   
   return hasMainImage || hasGalleryImages;
 }, {
-  message: "At least one image is required. Please provide either a main image or add images to the gallery.",
+  message: "يجب رفع صورة واحدة على الأقل. الرجاء رفع صورة رئيسية أو إضافة صور إلى المعرض قبل إنشاء الحزمة.",
   path: ["imageUrl"] // This will show the error on the imageUrl field
 });
 
@@ -2140,7 +2140,7 @@ export function PackageCreatorForm({
                 Gallery Images <span className="text-destructive">*</span>
               </h3>
               <p className="text-sm text-muted-foreground mb-3">
-                <span className="text-destructive">*</span> At least one image is required. Upload images for the package gallery. The first image or starred image will be used as the main image.
+                <span className="text-destructive">*</span> يجب رفع صورة واحدة على الأقل. ارفع الصور لمعرض الحزمة. الصورة الأولى أو المميزة ستُستخدم كصورة رئيسية.
               </p>
 
               {/* Hidden file input */}
