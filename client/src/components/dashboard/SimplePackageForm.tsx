@@ -1372,58 +1372,61 @@ export function PackageCreatorForm({
 
   const handleImageUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
     if (e.target.files && e.target.files.length > 0) {
-      const file = e.target.files[0];
+      const files = Array.from(e.target.files);
+      
+      // Process each file
+      for (const file of files) {
+        // Create a temporary URL for preview until upload completes
+        const tempPreview = URL.createObjectURL(file);
 
-      // Create a temporary URL for preview until upload completes
-      const tempPreview = URL.createObjectURL(file);
+        // Read the file as base64
+        const reader = new FileReader();
+        reader.readAsDataURL(file);
 
-      // Read the file as base64
-      const reader = new FileReader();
-      reader.readAsDataURL(file);
+        reader.onload = async () => {
+          try {
+            // Upload the image to the server
+            const response = await fetch("/api/upload-image", {
+              method: "POST",
+              headers: { "Content-Type": "application/json" },
+              body: JSON.stringify({
+                image: reader.result,
+                type: file.name.split(".").pop() || "jpeg",
+              }),
+            });
 
-      reader.onload = async () => {
-        try {
-          // Upload the image to the server
-          const response = await fetch("/api/upload-image", {
-            method: "POST",
-            headers: { "Content-Type": "application/json" },
-            body: JSON.stringify({
-              image: reader.result,
-              type: file.name.split(".").pop() || "jpeg",
-            }),
-          });
+            if (!response.ok) {
+              throw new Error("Failed to upload image");
+            }
 
-          if (!response.ok) {
-            throw new Error("Failed to upload image");
+            const data = await response.json();
+            const serverUrl = data.imageUrl; // URL to the uploaded image on the server
+
+            // Set as main image if this is the first image
+            const isFirstImage = images.length === 0;
+
+            // Add to images array with the permanent server URL
+            const newImage = {
+              id: Math.random().toString(36).substring(7),
+              file: null, // We don't need to keep the file object anymore
+              preview: serverUrl, // Use the server URL instead of blob URL
+              isMain: isFirstImage,
+            };
+
+            setImages((prev) => [...prev, newImage]);
+
+            // Clean up the temporary blob URL
+            URL.revokeObjectURL(tempPreview);
+          } catch (error) {
+            console.error("Error uploading image:", error);
+            toast({
+              title: "Error uploading image",
+              description: `Failed to upload ${file.name} to server`,
+              variant: "destructive",
+            });
           }
-
-          const data = await response.json();
-          const serverUrl = data.imageUrl; // URL to the uploaded image on the server
-
-          // Set as main image if this is the first image
-          const isFirstImage = images.length === 0;
-
-          // Add to images array with the permanent server URL
-          const newImage = {
-            id: Math.random().toString(36).substring(7),
-            file: null, // We don't need to keep the file object anymore
-            preview: serverUrl, // Use the server URL instead of blob URL
-            isMain: isFirstImage,
-          };
-
-          setImages((prev) => [...prev, newImage]);
-
-          // Clean up the temporary blob URL
-          URL.revokeObjectURL(tempPreview);
-        } catch (error) {
-          console.error("Error uploading image:", error);
-          toast({
-            title: "Error uploading image",
-            description: "Failed to upload image to server",
-            variant: "destructive",
-          });
-        }
-      };
+        };
+      }
 
       // Reset file input
       if (fileInputRef.current) {
@@ -2146,6 +2149,7 @@ export function PackageCreatorForm({
                 ref={fileInputRef}
                 className="hidden"
                 accept="image/*"
+                multiple
                 onChange={handleImageUpload}
               />
 
@@ -2196,7 +2200,7 @@ export function PackageCreatorForm({
                     className="h-32 border-dashed flex flex-col items-center justify-center gap-2"
                   >
                     <ImagePlus size={24} />
-                    <span className="text-sm">Add Image</span>
+                    <span className="text-sm">Add Images</span>
                   </Button>
 
                   <Button
