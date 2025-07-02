@@ -4,6 +4,7 @@ import { useForm, useFieldArray } from "react-hook-form";
 import { useMutation, useQuery } from "@tanstack/react-query";
 import { z } from "zod";
 import { useLocation } from "wouter";
+import { useLanguage } from "@/hooks/use-language";
 import {
   Form,
   FormControl,
@@ -64,6 +65,7 @@ type ManualPackageFormValues = z.infer<typeof manualPackageFormSchema>;
 
 export function MultiHotelManualPackageForm() {
   const { toast } = useToast();
+  const { t } = useLanguage();
   const [_, navigate] = useLocation();
   const [images, setImages] = useState<{ id: string; file: File | null; preview: string; isMain: boolean }[]>([]);
   const [newInclusion, setNewInclusion] = useState("");
@@ -1025,7 +1027,7 @@ export function MultiHotelManualPackageForm() {
                             )}
                             onClick={() => setMainImage(image.id)}
                           >
-                            <Star className="h-3.5 w-3.5" />
+                            <Star className={`h-3.5 w-3.5 ${image.isMain ? "fill-amber-500" : ""}`} />
                             <span className="sr-only">Set as main image</span>
                           </Button>
                           <Button
@@ -1041,7 +1043,7 @@ export function MultiHotelManualPackageForm() {
                         </div>
                         {image.isMain && (
                           <div className="absolute bottom-1 left-1 bg-primary text-primary-foreground text-xs px-2 py-1 rounded-full">
-                            Main Image
+                            {t("main_image", "Main Image")}
                           </div>
                         )}
                       </div>
@@ -1053,7 +1055,7 @@ export function MultiHotelManualPackageForm() {
                     >
                       <div className="flex flex-col items-center gap-1">
                         <ImagePlus className="h-6 w-6 text-muted-foreground" />
-                        <span className="text-xs text-muted-foreground">Add Image</span>
+                        <span className="text-xs text-muted-foreground">{t("add_image", "Add Image")}</span>
                       </div>
                     </button>
                   </div>

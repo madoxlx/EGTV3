@@ -92,6 +92,7 @@ import {
 import { cn } from "@/lib/utils";
 import { useToast } from "@/hooks/use-toast";
 import { queryClient } from "@/lib/queryClient";
+import { useLanguage } from "@/hooks/use-language";
 import {
   validateForm,
   validateRequiredFields,
@@ -231,7 +232,7 @@ const packageFormSchema = z.object({
   
   return hasMainImage || hasGalleryImages;
 }, {
-  message: "يجب رفع صورة واحدة على الأقل. الرجاء رفع صورة رئيسية أو إضافة صور إلى المعرض قبل إنشاء الحزمة.",
+  message: "At least one image is required. Please provide either a main image or add images to the gallery.",
   path: ["imageUrl"] // This will show the error on the imageUrl field
 });
 
@@ -329,6 +330,7 @@ export function PackageCreatorForm({
   const [, setLocation] = useLocation();
 
   const { toast } = useToast();
+  const { t } = useLanguage();
   const [pricingRules, setPricingRules] = useState([
     { id: "adult", value: 100, percentage: true, name: "Adult (12+ years)" },
     { id: "child", value: 75, percentage: true, name: "Child (2-11 years)" },
@@ -2137,10 +2139,10 @@ export function PackageCreatorForm({
 
             <div>
               <h3 className="text-sm font-medium mb-3">
-                Gallery Images <span className="text-destructive">*</span>
+                {t("gallery_images", "Gallery Images")} <span className="text-destructive">*</span>
               </h3>
               <p className="text-sm text-muted-foreground mb-3">
-                <span className="text-destructive">*</span> يجب رفع صورة واحدة على الأقل. ارفع الصور لمعرض الحزمة. الصورة الأولى أو المميزة ستُستخدم كصورة رئيسية.
+                <span className="text-destructive">*</span> {t("gallery_images_required", "At least one image is required. Upload images to the package gallery. The first or featured image will be used as the main image.")}
               </p>
 
               {/* Hidden file input */}
@@ -2165,17 +2167,18 @@ export function PackageCreatorForm({
                       className="w-full h-32 object-cover rounded-md border"
                     />
                     <div className="absolute top-2 right-2 flex gap-1">
-                      {!image.isMain && (
-                        <Button
-                          variant="secondary"
-                          size="icon"
-                          className="h-6 w-6 rounded-full bg-white"
-                          onClick={() => setMainImage(image.id)}
-                          title="Set as main image"
-                        >
-                          <Star size={14} className="text-amber-500" />
-                        </Button>
-                      )}
+                      <Button
+                        variant="secondary"
+                        size="icon"
+                        className="h-6 w-6 rounded-full bg-white"
+                        onClick={() => setMainImage(image.id)}
+                        title={image.isMain ? "Main image" : "Set as main image"}
+                      >
+                        <Star 
+                          size={14} 
+                          className={image.isMain ? "text-amber-500 fill-amber-500" : "text-amber-500"} 
+                        />
+                      </Button>
                       <Button
                         variant="destructive"
                         size="icon"
@@ -2187,7 +2190,7 @@ export function PackageCreatorForm({
                     </div>
                     {image.isMain && (
                       <div className="absolute bottom-2 left-2 bg-primary text-white text-xs px-2 py-1 rounded-md">
-                        Main Photo
+                        {t("main_photo", "Main Photo")}
                       </div>
                     )}
                   </div>

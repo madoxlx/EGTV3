@@ -28,6 +28,7 @@ import { Badge } from "@/components/ui/badge";
 import { ImagePlus, Loader2, Plus, Trash, Star, X } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { useToast } from "@/hooks/use-toast";
+import { useLanguage } from "@/hooks/use-language";
 import { queryClient } from "@/lib/queryClient";
 import { validateForm, validateRequiredFields, validateNumericFields } from "@/lib/validateForm";
 import { FormRequiredFieldsNote, FormValidationAlert } from "@/components/dashboard/FormValidationAlert";
@@ -62,6 +63,7 @@ type ManualPackageFormValues = z.infer<typeof manualPackageFormSchema>;
 
 export function ManualPackageCreatorForm() {
   const { toast } = useToast();
+  const { t } = useLanguage();
   const [images, setImages] = useState<{ id: string; file: File | null; preview: string; isMain: boolean }[]>([]);
   const [newInclusion, setNewInclusion] = useState("");
   
@@ -890,7 +892,7 @@ export function ManualPackageCreatorForm() {
                             )}
                             onClick={() => setMainImage(image.id)}
                           >
-                            <Star className="h-3.5 w-3.5" />
+                            <Star className={`h-3.5 w-3.5 ${image.isMain ? "fill-amber-500" : ""}`} />
                             <span className="sr-only">Set as main image</span>
                           </Button>
                           <Button
@@ -906,7 +908,7 @@ export function ManualPackageCreatorForm() {
                         </div>
                         {image.isMain && (
                           <div className="absolute bottom-1 left-1 bg-primary text-primary-foreground text-xs px-2 py-1 rounded-full">
-                            Main Image
+                            {t("main_image", "Main Image")}
                           </div>
                         )}
                       </div>
