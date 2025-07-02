@@ -1,6 +1,6 @@
 import React, { useEffect } from "react";
 import { useLocation, useParams } from "wouter";
-import { PackageCreatorForm } from "@/components/dashboard/PackageCreatorForm";
+import { SimplifiedPackageForm } from "@/components/dashboard/SimplifiedPackageForm";
 import { Breadcrumb, BreadcrumbItem, BreadcrumbLink } from "@/components/ui/breadcrumb";
 import { Button } from "@/components/ui/button";
 import { IconSelector } from "@/components/ui/IconSelector";
@@ -62,9 +62,9 @@ export default function PackageCreatorPage() {
             <span>Back to Packages</span>
           </Button>
         </div>
-        <PackageCreatorForm 
+        <SimplifiedPackageForm 
           packageId={packageId} 
-          onNavigateRequest={() => setLocation("/admin/packages")}
+          onSuccess={() => setLocation("/admin/packages")}
         />
       </div>
     </div>
