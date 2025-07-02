@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useCallback } from "react";
 import { useLocation, useRoute } from "wouter";
 import { useForm, useFieldArray, Controller } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
@@ -99,15 +99,71 @@ import {
   Image,
   Upload,
   Camera,
+  Wifi,
+  Waves,
+  Dumbbell,
+  Heart,
+  Sparkles,
+  Palette,
+  ShowerHead,
+  AirVent,
+  Tv,
+  Shield,
+  Users,
+  Package,
+  ChevronDown,
   Home,
   PencilLine,
   Loader2,
   Pencil,
   Tag,
-  Sparkles,
   Hotel,
 } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
+
+// Predefined features with icons that match the hotel creation form
+const predefinedFeatures = [
+  { name: "wifi", icon: "Wifi" },
+  { name: "pool", icon: "Waves" },
+  { name: "gym", icon: "Dumbbell" },
+  { name: "spa", icon: "Heart" },
+  { name: "restaurant", icon: "Utensils" },
+  { name: "parking", icon: "Car" },
+  { name: "bar", icon: "Coffee" },
+  { name: "room service", icon: "Bed" },
+  { name: "concierge", icon: "Users" },
+  { name: "tv", icon: "Tv" },
+  { name: "air conditioning", icon: "AirVent" },
+  { name: "balcony", icon: "Building" },
+  { name: "garden", icon: "Sparkles" },
+  { name: "breakfast", icon: "Coffee" },
+  { name: "laundry", icon: "ShowerHead" },
+  { name: "business center", icon: "Building" },
+  { name: "meeting rooms", icon: "Users" },
+  { name: "elevator", icon: "Package" },
+  { name: "security", icon: "Shield" },
+  { name: "meal", icon: "Utensils" }
+];
+
+// Icon mapping for feature display
+const featureIconOptions = [
+  { name: "Wifi", component: Wifi },
+  { name: "Waves", component: Waves },
+  { name: "Dumbbell", component: Dumbbell },
+  { name: "Heart", component: Heart },
+  { name: "Utensils", component: Utensils },
+  { name: "Car", component: Car },
+  { name: "Coffee", component: Coffee },
+  { name: "Bed", component: Bed },
+  { name: "Users", component: Users },
+  { name: "Tv", component: Tv },
+  { name: "AirVent", component: AirVent },
+  { name: "Building", component: Building },
+  { name: "Sparkles", component: Sparkles },
+  { name: "ShowerHead", component: ShowerHead },
+  { name: "Package", component: Package },
+  { name: "Shield", component: Shield }
+];
 
 // Define schema for nearby landmark
 const landmarkSchema = z.object({
@@ -200,10 +256,11 @@ const hotelFormSchema = z.object({
     .optional()
     .nullable(),
 
-  // General Highlights, Facilities, and Cleanliness Features (using IDs for Many-to-Many)
-  highlightIds: z.array(z.number()).default([]),
-  facilityIds: z.array(z.number()).default([]),
-  cleanlinessFeatureIds: z.array(z.number()).default([]),
+  // Features stored as JSONB array with name and icon
+  features: z.array(z.object({
+    name: z.string(),
+    icon: z.string(),
+  })).default([]),
 
   // Transportation and amenities (direct fields in hotels table)
   parkingAvailable: z.boolean().default(false),
@@ -289,13 +346,14 @@ export default function EnhancedHotelEditPage() {
   const queryClient = useQueryClient();
 
   // State for selections
-  const [selectedFacilities, setSelectedFacilities] = useState<number[]>([]);
-  const [selectedHighlights, setSelectedHighlights] = useState<number[]>([]);
-  const [selectedCleanlinessFeatures, setSelectedCleanlinessFeatures] =
-    useState<number[]>([]);
   const [selectedCountryId, setSelectedCountryId] = useState<number | null>(
     null,
   );
+  
+  // Features state for the new visual grid interface
+  const [hotelFeatures, setHotelFeatures] = useState<{ name: string; icon: string }[]>([]);
+  const [customFeatureName, setCustomFeatureName] = useState("");
+  const [customFeatureIcon, setCustomFeatureIcon] = useState("Star");
   const [locationSearchQuery, setLocationSearchQuery] = useState("");
   const [isSearchingLandmarks, setIsSearchingLandmarks] = useState(false);
   const [suggestedLandmarks, setSuggestedLandmarks] = useState<any[]>([]);
@@ -437,9 +495,7 @@ export default function EnhancedHotelEditPage() {
       status: "active",
       checkInTime: "",
       checkOutTime: "",
-      highlightIds: [],
-      facilityIds: [],
-      cleanlinessFeatureIds: [],
+      features: [],
       parkingAvailable: false,
       airportTransferAvailable: false,
       carRentalAvailable: false,
@@ -492,6 +548,47 @@ export default function EnhancedHotelEditPage() {
     control: form.control,
     name: "roomTypes",
   });
+
+  // Feature management functions using useCallback to prevent infinite loops
+  const addFeature = useCallback((featureName: string, featureIcon: string) => {
+    const newFeature = { name: featureName, icon: featureIcon };
+    setHotelFeatures(prev => {
+      if (prev.some(f => f.name === featureName)) return prev;
+      const newFeatures = [...prev, newFeature];
+      // Update form field immediately
+      form.setValue("features", newFeatures);
+      return newFeatures;
+    });
+  }, [form]);
+
+  const removeFeature = useCallback((featureName: string) => {
+    setHotelFeatures(prev => {
+      const filtered = prev.filter(f => f.name !== featureName);
+      // Update form field immediately  
+      form.setValue("features", filtered);
+      return filtered;
+    });
+  }, [form]);
+
+  const isFeatureSelected = useCallback((featureName: string) => {
+    return hotelFeatures.some(f => f.name === featureName);
+  }, [hotelFeatures]);
+
+  const togglePredefinedFeature = useCallback((feature: { name: string; icon: string }) => {
+    if (isFeatureSelected(feature.name)) {
+      removeFeature(feature.name);
+    } else {
+      addFeature(feature.name, feature.icon);
+    }
+  }, [isFeatureSelected, removeFeature, addFeature]);
+
+  const handleAddCustomFeature = useCallback(() => {
+    if (customFeatureName.trim() && !isFeatureSelected(customFeatureName.trim())) {
+      addFeature(customFeatureName.trim(), customFeatureIcon);
+      setCustomFeatureName("");
+      setCustomFeatureIcon("Star");
+    }
+  }, [customFeatureName, customFeatureIcon, isFeatureSelected, addFeature]);
 
   // Load hotel data into form when it's available
   useEffect(() => {
@@ -591,23 +688,17 @@ export default function EnhancedHotelEditPage() {
         accessibleFacilities: hotel.accessibleFacilities || false,
         imageUrl: hotel.imageUrl || "",
         galleryUrls: hotel.galleryUrls || [],
-        highlightIds: hotel.highlightIds || [],
-        facilityIds: hotel.facilityIds || [],
-        cleanlinessFeatureIds: hotel.cleanlinessFeatureIds || [],
+        features: hotel.features || [],
         landmarks: hotel.landmarks || [],
         restaurants: hotel.restaurants || [],
         faqs: hotel.faqs || [],
         roomTypes: hotel.roomTypes || [],
       };
 
-      // Set selected features
-      console.log("Setting facilities:", hotel.facilityIds);
-      console.log("Setting highlights:", hotel.highlightIds);
-      console.log("Setting cleanliness features:", hotel.cleanlinessFeatureIds);
-
-      setSelectedFacilities(hotel.facilityIds || []);
-      setSelectedHighlights(hotel.highlightIds || []);
-      setSelectedCleanlinessFeatures(hotel.cleanlinessFeatureIds || []);
+      // Set hotel features for visual grid interface
+      if (hotel.features && Array.isArray(hotel.features)) {
+        setHotelFeatures(hotel.features);
+      }
       setSelectedCountryId(hotel.countryId || null);
 
       // Set images
@@ -696,10 +787,7 @@ export default function EnhancedHotelEditPage() {
       // Prepare JSON data for submission
       const hotelData = {
         ...data,
-        // Add selected features
-        facilityIds: selectedFacilities,
-        highlightIds: selectedHighlights,
-        cleanlinessFeatureIds: selectedCleanlinessFeatures,
+        // Features are already in data.features from form
         // Include only clean server URLs
         imageUrl: cleanMainImageUrl,
         galleryUrls:
@@ -722,41 +810,7 @@ export default function EnhancedHotelEditPage() {
     }
   };
 
-  // Toggle facility selection
-  const toggleFacility = (facilityId: number) => {
-    if (selectedFacilities.includes(facilityId)) {
-      setSelectedFacilities(
-        selectedFacilities.filter((id) => id !== facilityId),
-      );
-    } else {
-      setSelectedFacilities([...selectedFacilities, facilityId]);
-    }
-  };
 
-  // Toggle highlight selection
-  const toggleHighlight = (highlightId: number) => {
-    if (selectedHighlights.includes(highlightId)) {
-      setSelectedHighlights(
-        selectedHighlights.filter((id) => id !== highlightId),
-      );
-    } else {
-      setSelectedHighlights([...selectedHighlights, highlightId]);
-    }
-  };
-
-  // Toggle cleanliness feature selection
-  const toggleCleanlinessFeature = (featureId: number) => {
-    if (selectedCleanlinessFeatures.includes(featureId)) {
-      setSelectedCleanlinessFeatures(
-        selectedCleanlinessFeatures.filter((id) => id !== featureId),
-      );
-    } else {
-      setSelectedCleanlinessFeatures([
-        ...selectedCleanlinessFeatures,
-        featureId,
-      ]);
-    }
-  };
 
   // Image management functions
   const handleMainImageChange = (
@@ -1443,47 +1497,130 @@ export default function EnhancedHotelEditPage() {
                   Hotel Features & Amenities
                 </h3>
 
-                {/* Hotel Highlights */}
-                <div className="space-y-4">
-                  <h4 className="text-md font-semibold flex items-center gap-2">
-                    <Sparkles className="h-4 w-4" />
-                    Hotel Highlights
+                {/* Available Features Grid */}
+                <div className="border rounded-lg p-4 space-y-4">
+                  <h4 className="font-medium flex items-center gap-2">
+                    <Check className="h-4 w-4" />
+                    Available Features
                   </h4>
-                  <InlineFeatureManager
-                    featureType="highlights"
-                    selectedFeatures={selectedHighlights}
-                    onSelectionChange={setSelectedHighlights}
-                    label="Hotel Highlights"
-                  />
+                  
+                  <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-3">
+                    {predefinedFeatures.map((feature, index) => {
+                      const isSelected = hotelFeatures.some(f => f.name === feature.name);
+                      return (
+                        <div 
+                          key={`feature-${index}-${feature.name}`}
+                          className={`flex items-center gap-3 p-3 border rounded-lg cursor-pointer transition-all hover:shadow-sm ${
+                            isSelected 
+                              ? 'bg-blue-50 border-blue-200 shadow-sm' 
+                              : 'bg-white border-gray-200 hover:border-gray-300'
+                          }`}
+                          onClick={() => togglePredefinedFeature(feature)}
+                        >
+                          <div className={`w-5 h-5 rounded border-2 flex items-center justify-center ${
+                            isSelected 
+                              ? 'bg-blue-500 border-blue-500' 
+                              : 'border-gray-300'
+                          }`}>
+                            {isSelected && <Check className="h-3 w-3 text-white" />}
+                          </div>
+                          
+                          <div className="flex items-center gap-2 flex-1">
+                            {(() => {
+                              const IconComponent = featureIconOptions.find(option => option.name === feature.icon)?.component;
+                              return IconComponent ? <IconComponent className="h-4 w-4 text-gray-600" /> : <Star className="h-4 w-4 text-gray-600" />;
+                            })()}
+                            <span className="text-sm font-medium capitalize">{feature.name}</span>
+                          </div>
+                        </div>
+                      );
+                    })}
+                  </div>
                 </div>
 
-                {/* Hotel Facilities */}
-                <div className="space-y-4">
-                  <h4 className="text-md font-semibold flex items-center gap-2">
-                    <Building className="h-4 w-4" />
-                    Hotel Facilities
+                {/* Custom Features Section */}
+                <div className="border rounded-lg p-4 space-y-4">
+                  <h4 className="font-medium flex items-center gap-2">
+                    <Plus className="h-4 w-4" />
+                    Add Custom Feature
                   </h4>
-                  <InlineFeatureManager
-                    featureType="facilities"
-                    selectedFeatures={selectedFacilities}
-                    onSelectionChange={setSelectedFacilities}
-                    label="Hotel Facilities"
-                  />
+                  
+                  <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                    <div className="space-y-2">
+                      <label className="text-sm font-medium">Feature Name</label>
+                      <Input
+                        value={customFeatureName}
+                        onChange={(e) => setCustomFeatureName(e.target.value)}
+                        placeholder="Enter feature name"
+                      />
+                    </div>
+                    
+                    <div className="space-y-2">
+                      <label className="text-sm font-medium">Icon</label>
+                      <Select value={customFeatureIcon} onValueChange={setCustomFeatureIcon}>
+                        <SelectTrigger>
+                          <SelectValue />
+                        </SelectTrigger>
+                        <SelectContent>
+                          {featureIconOptions.map((option) => (
+                            <SelectItem key={option.name} value={option.name}>
+                              <div className="flex items-center gap-2">
+                                <option.component className="h-4 w-4" />
+                                {option.name}
+                              </div>
+                            </SelectItem>
+                          ))}
+                        </SelectContent>
+                      </Select>
+                    </div>
+                    
+                    <div className="flex items-end">
+                      <Button
+                        type="button"
+                        onClick={handleAddCustomFeature}
+                        disabled={!customFeatureName.trim()}
+                        className="w-full"
+                      >
+                        <Plus className="h-4 w-4 mr-2" />
+                        Add Feature
+                      </Button>
+                    </div>
+                  </div>
                 </div>
 
-                {/* Cleanliness Features */}
-                <div className="space-y-4">
-                  <h4 className="text-md font-semibold flex items-center gap-2">
-                    <ShieldCheck className="h-4 w-4" />
-                    Health & Safety Features
-                  </h4>
-                  <InlineFeatureManager
-                    featureType="cleanliness-features"
-                    selectedFeatures={selectedCleanlinessFeatures}
-                    onSelectionChange={setSelectedCleanlinessFeatures}
-                    label="Health & Safety Features"
-                  />
-                </div>
+                {/* Selected Features Summary */}
+                {hotelFeatures.length > 0 && (
+                  <div className="border rounded-lg p-4 space-y-4">
+                    <h4 className="font-medium flex items-center gap-2">
+                      <Badge className="bg-blue-100 text-blue-800 text-xs">
+                        {hotelFeatures.length}
+                      </Badge>
+                      Selected Features
+                    </h4>
+                    
+                    <div className="flex flex-wrap gap-2">
+                      {hotelFeatures.map((feature, index) => (
+                        <div
+                          key={`selected-${index}-${feature.name}`}
+                          className="flex items-center gap-2 bg-blue-50 border border-blue-200 rounded-lg px-3 py-2"
+                        >
+                          {(() => {
+                            const IconComponent = featureIconOptions.find(option => option.name === feature.icon)?.component;
+                            return IconComponent ? <IconComponent className="h-4 w-4 text-blue-600" /> : <Star className="h-4 w-4 text-blue-600" />;
+                          })()}
+                          <span className="text-sm font-medium text-blue-800 capitalize">{feature.name}</span>
+                          <button
+                            type="button"
+                            onClick={() => removeFeature(feature.name)}
+                            className="text-blue-600 hover:text-blue-800"
+                          >
+                            <X className="h-3 w-3" />
+                          </button>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                )}
 
                 {/* Basic Amenities */}
                 <div className="space-y-4">
