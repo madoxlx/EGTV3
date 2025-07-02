@@ -994,13 +994,13 @@ export function PackageCreatorForm({
         galleryUrls = [existingPackageData.imageUrl];
       }
 
-      // Make sure the main image is included inthe gallery
-      if (mainImageUrl && !galleryUrls.includes(mainImageUrl)) {
-        galleryUrls.unshift(mainImageUrl);
+      // Make sure the main image is included in the gallery  
+      if (existingPackageData.imageUrl && !galleryUrls.includes(existingPackageData.imageUrl)) {
+        galleryUrls.unshift(existingPackageData.imageUrl);
       }
 
       // Log image information for debugging
-      console.log("Package main image URL:", mainImageUrl);
+      console.log("Package main image URL:", existingPackageData.imageUrl);
       console.log("Gallery URLs:", galleryUrls);
 
       // Create image objects from galleryUrls
@@ -1008,7 +1008,7 @@ export function PackageCreatorForm({
         id: `existing-${index}`,
         file: null,
         preview: url,
-        isMain: url === mainImageUrl, // Set main image flag
+        isMain: url === existingPackageData.imageUrl, // Set main image flag
       }));
 
       // Ensure at least one image is marked as main
@@ -1042,6 +1042,11 @@ export function PackageCreatorForm({
 
       // Try to detect city ID based on the destination name matching a city name
       let cityId = existingPackageData.cityId;
+      let countryId = existingPackageData.countryId;
+      
+      // Find the destination data for this package
+      const destination = destinations.find(d => d.id === existingPackageData.destinationId);
+      
       if (!cityId && destination) {
         if (destination.city_id) {
           cityId = destination.city_id;
