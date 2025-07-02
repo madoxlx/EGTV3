@@ -577,24 +577,24 @@ export function PackageCreatorForm({
   // Package mutation (handles both create and update)
   const packageMutation = useMutation({
     mutationFn: async (formData: PackageFormValues) => {
-      // Get the main image URL - only accept uploaded images, not URLs
+      // Get the main image URL (or a default if none is set)
       const mainImage = images.find((img) => img.isMain);
-      let mainImageUrl = "";
-      
-      if (mainImage) {
-        // Only use server URLs (uploaded images), not blob URLs or external URLs
-        if (mainImage.preview && mainImage.preview.startsWith("/uploads/")) {
-          mainImageUrl = mainImage.preview;
-        } else if (isEditMode && existingPackageData && existingPackageData.imageUrl && existingPackageData.imageUrl.startsWith("/uploads/")) {
-          // For edit mode, keep existing uploaded image
+      // If the preview URL is a blob URL, use a placeholder or existing image
+      let mainImageUrl = mainImage
+        ? mainImage.preview
+        : "https://images.unsplash.com/photo-1540541338287-41700207dee6?q=80&w=800";
+      if (mainImageUrl && mainImageUrl.startsWith("blob:")) {
+        // For edit mode, if we have existing data, use the existing image URL
+        if (isEditMode && existingPackageData && existingPackageData.imageUrl) {
           mainImageUrl = existingPackageData.imageUrl;
+        } else {
+          // Otherwise use placeholder
+          mainImageUrl =
+            "https://images.unsplash.com/photo-1540541338287-41700207dee6?q=80&w=800";
         }
-      } else if (isEditMode && existingPackageData && existingPackageData.imageUrl && existingPackageData.imageUrl.startsWith("/uploads/")) {
-        // For edit mode without selected main image, keep existing uploaded image
-        mainImageUrl = existingPackageData.imageUrl;
       }
 
-      // Handle gallery URLs - only accept uploaded images
+      // Handle gallery URLs
       let galleryUrls: string[] = [];
 
       if (
@@ -983,16 +983,13 @@ export function PackageCreatorForm({
         galleryUrls = [existingPackageData.imageUrl];
       }
 
-      // Get the main image URL from the existing data
-      const existingMainImageUrl = existingPackageData?.imageUrl || "";
-      
-      // Make sure the main image is included in the gallery if it exists
-      if (existingMainImageUrl && existingMainImageUrl.startsWith("/uploads/") && !galleryUrls.includes(existingMainImageUrl)) {
-        galleryUrls.unshift(existingMainImageUrl);
+      // Make sure the main image is included inthe gallery
+      if (mainImageUrl && !galleryUrls.includes(mainImageUrl)) {
+        galleryUrls.unshift(mainImageUrl);
       }
 
       // Log image information for debugging
-      console.log("Package main image URL:", existingMainImageUrl);
+      console.log("Package main image URL:", mainImageUrl);
       console.log("Gallery URLs:", galleryUrls);
 
       // Create image objects from galleryUrls
@@ -1000,7 +997,7 @@ export function PackageCreatorForm({
         id: `existing-${index}`,
         file: null,
         preview: url,
-        isMain: url === existingMainImageUrl, // Set main image flag
+        isMain: url === mainImageUrl, // Set main image flag
       }));
 
       // Ensure at least one image is marked as main
@@ -1033,7 +1030,6 @@ export function PackageCreatorForm({
       ); // Default to 1 week duration
 
       // Try to detect city ID based on the destination name matching a city name
-      let countryId = existingPackageData.countryId;
       let cityId = existingPackageData.cityId;
       if (!cityId && destination) {
         if (destination.city_id) {

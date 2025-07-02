@@ -1,18 +1,8 @@
 import React from 'react';
-import { SimplifiedPackageForm } from './SimplifiedPackageForm';
-
-interface PackageCreatorFormProps {
-  packageId?: string;
-  onNavigateRequest?: () => void;
-}
+import { PackageCreatorForm as SimpleForm, PackageCreatorFormProps } from './SimplePackageForm';
 
 export type { PackageCreatorFormProps };
 
-export function PackageCreatorForm({ packageId, onNavigateRequest }: PackageCreatorFormProps) {
-  return (
-    <SimplifiedPackageForm 
-      packageId={packageId} 
-      onSuccess={onNavigateRequest}
-    />
-  );
+export function PackageCreatorForm(props: PackageCreatorFormProps) {
+  return <SimpleForm {...props} />;
 }
