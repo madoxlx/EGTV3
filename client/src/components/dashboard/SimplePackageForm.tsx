@@ -174,6 +174,7 @@ const packageFormSchema = z.object({
   inclusions: z.array(z.string()).optional(),
   includedFeatures: z.array(z.string()).optional(),
   excludedFeatures: z.array(z.string()).optional(),
+  excludedItems: z.array(z.string()).optional(),
   optionalExcursions: z.array(z.string()).optional(),
   travelRoute: z.array(z.string()).optional(),
   accommodationHighlights: z
@@ -645,9 +646,9 @@ export function PackageCreatorForm({
       // Transform the form data to match the API schema
       // Log current form values for debugging
       console.log("Form submission values:", {
-        name: formData.name,
-        overview: formData.overview,
-        basePrice: formData.basePrice,
+        title: formData.title,
+        description: formData.description,
+        price: formData.price,
         countryId: formData.countryId,
         cityId: formData.cityId,
         category: formData.category,
@@ -662,14 +663,12 @@ export function PackageCreatorForm({
 
       const packagePayload = {
         // Basic package information
-        name: formData.name, // Map to title on server
-        title: formData.name,
+        title: formData.title,
         shortDescription: formData.shortDescription || "",
-        overview: formData.overview, // Map to description on server
-        description: formData.overview,
-        basePrice: formData.basePrice || 0, // Map to price on server
-        price: formData.basePrice || 0,
-        discountedPrice: Math.round((formData.basePrice || 0) * 0.9),
+        description: formData.description,
+        overview: formData.overview || formData.description,
+        price: formData.price || 0,
+        discountedPrice: formData.discountedPrice || Math.round((formData.price || 0) * 0.9),
 
         // Media
         imageUrl: mainImageUrl,
@@ -1151,14 +1150,21 @@ export function PackageCreatorForm({
           }
         }
 
-        // Set form values
+        // Set form values with correct field names matching schema
         form.reset({
-          name: existingPackageData.title || "",
+          title: existingPackageData.title || "",
+          description: existingPackageData.description || "",
           shortDescription: parsedShortDescription,
-          overview: existingPackageData.description || "",
-          basePrice: existingPackageData.price || 0,
+          overview: existingPackageData.overview || existingPackageData.description || "",
+          price: existingPackageData.price || 0,
+          discountedPrice: existingPackageData.discountedPrice || null,
+          currency: existingPackageData.currency || "EGP",
+          imageUrl: existingPackageData.imageUrl || "",
+          galleryUrls: galleryUrls,
+          duration: existingPackageData.duration || 7,
           countryId: countryId,
           cityId: cityId,
+          destinationId: existingPackageData.destinationId,
           category: existingPackageData.destinationId?.toString() || undefined,
           categoryId: parsedCategoryId,
           route: parsedRoute,
@@ -1173,9 +1179,12 @@ export function PackageCreatorForm({
           itinerary: parsedItinerary,
           accommodationHighlights: parsedAccommodationHighlights,
           selectedTourId: existingPackageData.selectedTourId,
-          adultCount: 2,
-          childrenCount: 0,
-          infantCount: 0,
+          adultCount: existingPackageData.adultCount || 2,
+          childrenCount: existingPackageData.childrenCount || 0,
+          infantCount: existingPackageData.infantCount || 0,
+          maxGroupSize: existingPackageData.maxGroupSize || 15,
+          featured: existingPackageData.featured || false,
+          slug: existingPackageData.slug || "",
         });
 
         // Force update the form control values directly as a backup
@@ -1184,6 +1193,12 @@ export function PackageCreatorForm({
         form.setValue("categoryId", parsedCategoryId);
         form.setValue("shortDescription", parsedShortDescription);
         form.setValue("route", parsedRoute);
+        
+        // Update the selected country state to enable city filtering
+        if (countryId) {
+          setSelectedCountryId(countryId);
+          console.log("Updated selectedCountryId state to:", countryId);
+        }
 
         // Set initial form data for change tracking
         const currentFormData = form.getValues();
@@ -1465,7 +1480,7 @@ export function PackageCreatorForm({
 
     // Basic Info tab validation
     const basicErrors: string[] = [];
-    if (!formData.name || formData.name.trim().length < 3) {
+    if (!formData.title || formData.title.trim().length < 3) {
       basicErrors.push("Package Name");
     }
     if (
@@ -1500,7 +1515,7 @@ export function PackageCreatorForm({
 
     // Pricing Rules tab validation
     const pricingErrors: string[] = [];
-    if (!formData.basePrice || formData.basePrice <= 0) {
+    if (!formData.price || formData.price <= 0) {
       pricingErrors.push("Base Price");
     }
     if (!formData.startDate) {
@@ -1627,7 +1642,7 @@ export function PackageCreatorForm({
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
               <FormField
                 control={form.control}
-                name="name"
+                name="title"
                 render={({ field }) => (
                   <FormItem>
                     <FormLabel>
@@ -1635,8 +1650,8 @@ export function PackageCreatorForm({
                     </FormLabel>
                     <FormControl>
                       <Input
-                        id="package-name"
-                        className="package-name-input admin-input"
+                        id="package-title"
+                        className="package-title-input admin-input"
                         placeholder="Enter package name"
                         {...field}
                       />
@@ -1824,7 +1839,7 @@ export function PackageCreatorForm({
                     </FormLabel>
                     <Select
                       onValueChange={(value) => field.onChange(parseInt(value))}
-                      defaultValue={field.value?.toString()}
+                      value={field.value?.toString()}
                     >
                       <FormControl>
                         <SelectTrigger
@@ -1898,7 +1913,7 @@ export function PackageCreatorForm({
 
             <FormField
               control={form.control}
-              name="basePrice"
+              name="price"
               render={({ field }) => (
                 <FormItem>
                   <FormLabel>
@@ -1910,7 +1925,7 @@ export function PackageCreatorForm({
                         EGP
                       </span>
                       <Input
-                        id="package-base-price"
+                        id="package-price"
                         className="pl-7 package-price-input admin-currency-input"
                         type="number"
                         {...field}
