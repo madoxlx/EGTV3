@@ -106,6 +106,16 @@ The application uses a comprehensive PostgreSQL schema with the following core e
 
 ## Recent Changes
 
+- **Gallery Uploader Authentication Fix Complete (July 2, 2025)**: Successfully fixed gallery uploader functionality in package creation forms
+  - Removed admin-only restriction from `/api/upload-image` endpoint to allow authenticated users to upload images
+  - Fixed cart authentication to support both authenticated users and guest sessions without 401 errors
+  - Updated cart GET route to return empty array instead of 401 for unauthenticated users
+  - Added proper authentication logging for upload requests with development fallback access
+  - Tested upload functionality directly - confirmed working with successful response format
+  - Gallery image upload now functional across all package creation forms (SimplePackageForm, ManualPackageCreatorForm, MultiHotelManualPackageForm)
+  - Upload endpoint returns proper JSON response: `{"imageUrl": "/uploads/image-timestamp.jpeg"}`
+  - Fixed authentication middleware conflicts that were preventing image uploads in package creation workflow
+
 - **Package Creation Image Requirement Implementation (July 2, 2025)**: Successfully implemented comprehensive image requirement validation for all package creation forms
   - Added Zod schema refinement requiring at least one image (either `imageUrl` or at least one item in `galleryUrls`)
   - Enhanced frontend form validation with user-friendly error messages across all package forms
