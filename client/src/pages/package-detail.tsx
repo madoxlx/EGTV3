@@ -5,6 +5,8 @@ import PackageLayout from "@/components/PackageLayout";
 import { Button } from "@/components/ui/button";
 import BookPackageButton from "@/components/BookPackageButton";
 import AvailableTours from "@/components/AvailableTours";
+import RoomDistributionWithStars from "@/components/RoomDistributionWithStars";
+import EnhancedPriceCalculation from "@/components/EnhancedPriceCalculation";
 import { Separator } from "@/components/ui/separator";
 import { Badge } from "@/components/ui/badge";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
@@ -995,7 +997,7 @@ export default function PackageDetail() {
                           <RoomDistributionWithStars 
                             packageId={packageData.id}
                             selectedRoom={roomDistribution}
-                            onRoomSelect={(room) => {
+                            onRoomSelect={(room: string) => {
                               setRoomDistribution(room);
                               clearValidationError("room");
                             }}
