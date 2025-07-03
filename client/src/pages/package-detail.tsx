@@ -4,7 +4,7 @@ import { useParams, useLocation } from "wouter";
 import PackageLayout from "@/components/PackageLayout";
 import { Button } from "@/components/ui/button";
 import BookPackageButton from "@/components/BookPackageButton";
-import AvailableTours from "@/components/AvailableTours";
+import IncludedTours from "@/components/IncludedTours";
 import RoomDistributionWithStars from "@/components/RoomDistributionWithStars";
 import EnhancedPriceCalculation from "@/components/EnhancedPriceCalculation";
 import { Separator } from "@/components/ui/separator";
@@ -981,12 +981,12 @@ export default function PackageDetail() {
                           </div>
                         </div>
 
-                        {/* Available Tours */}
+                        {/* Included Tours */}
                         <div>
                           <label className="text-sm font-medium mb-1 block">
-                            Available Tours
+                            Tours Included in Package
                           </label>
-                          <AvailableTours packageId={packageData.id} />
+                          <IncludedTours packageData={packageData} />
                         </div>
 
                         {/* Room Distribution with Star Ratings */}
