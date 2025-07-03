@@ -49,6 +49,22 @@ type Package = {
   rating?: number;
   reviewCount?: number;
   slug?: string;
+  // Real data fields from database
+  itinerary?: Array<{
+    day: number;
+    title: string;
+    description: string;
+    image?: string;
+  }> | null;
+  includedFeatures?: string[] | null;
+  excludedFeatures?: string[] | null;
+  idealFor?: string[] | null;
+  bestTimeToVisit?: string | null;
+  whatToPack?: Array<{
+    item: string;
+    icon?: string;
+    tooltip?: string;
+  }> | null;
 };
 
 type Destination = {
@@ -450,165 +466,74 @@ export default function PackageDetail() {
                           Best Time to Visit
                         </h3>
                         <p className="text-xs text-neutral-600">
-                          October to April, when temperatures are mild
+                          {packageData.bestTimeToVisit || "Available year-round"}
                         </p>
                       </div>
                       <div className="bg-white border border-[#F1F1F1] p-4 rounded-lg flex flex-col items-center text-center shadow-inner shadow-[inset_0_0_20px_rgba(0,0,0,0.1)] hover:shadow-[inset_0_0_30px_rgba(0,0,0,0.15)] transition-all duration-200">
                         <Users className="h-6 w-6 text-primary mb-2" />
                         <h3 className="font-medium text-sm mb-1">Ideal For</h3>
                         <p className="text-xs text-neutral-600">
-                          Couples, families, history enthusiasts, photographers
+                          {packageData.idealFor && packageData.idealFor.length > 0 
+                            ? packageData.idealFor.join(', ') 
+                            : "All traveler types"}
                         </p>
                       </div>
                       <div className="bg-white border border-[#F1F1F1] p-4 rounded-lg flex flex-col items-center text-center shadow-inner shadow-[inset_0_0_20px_rgba(0,0,0,0.1)] hover:shadow-[inset_0_0_30px_rgba(0,0,0,0.15)] transition-all duration-200">
                         <Globe className="h-6 w-6 text-primary mb-2" />
                         <h3 className="font-medium text-sm mb-1">What to Pack</h3>
                         <p className="text-xs text-neutral-600">
-                          Light clothing, sun protection, comfortable walking
-                          shoes
+                          {packageData.whatToPack && packageData.whatToPack.length > 0
+                            ? packageData.whatToPack.map(item => item.item).join(', ')
+                            : "Standard travel essentials"}
                         </p>
                       </div>
                     </div>
                   </div>
                 </section>
 
-                {/* Itinerary Section with Tabs */}
+                {/* Itinerary Section with Real Data */}
                 <section className="bg-white rounded-xl shadow-md overflow-hidden">
                   <div className="p-6">
                     <h2 className="text-2xl font-bold mb-4">Package Itinerary</h2>
-                    <Tabs defaultValue="day1">
-                      <TabsList className="grid w-full grid-cols-3 text-xs sm:text-sm">
-                        <TabsTrigger value="day1">Day 1-2</TabsTrigger>
-                        <TabsTrigger value="day3">Day 3-5</TabsTrigger>
-                        <TabsTrigger value="day6">Day 6-7</TabsTrigger>
-                      </TabsList>
-                      <TabsContent value="day1" className="p-3 sm:p-4">
-                        <div className="space-y-4">
-                          <div>
-                            <h3 className="font-bold text-lg">Day 1: Arrival</h3>
-                            <ul className="mt-2 space-y-2">
-                              <li className="flex items-start">
-                                <span className="text-primary font-bold mr-2">•</span>
-                                <span>Arrive at your destination and transfer to your hotel</span>
-                              </li>
-                              <li className="flex items-start">
-                                <span className="text-primary font-bold mr-2">•</span>
-                                <span>Welcome dinner and orientation</span>
-                              </li>
-                              <li className="flex items-start">
-                                <span className="text-primary font-bold mr-2">•</span>
-                                <span>Overnight at hotel</span>
-                              </li>
-                            </ul>
+                    {packageData.itinerary && packageData.itinerary.length > 0 ? (
+                      <div className="space-y-6">
+                        {packageData.itinerary.map((day, index) => (
+                          <div key={index} className="border-b border-gray-100 pb-4 last:border-b-0">
+                            <div className="flex items-start gap-4">
+                              <div className="flex-shrink-0 w-12 h-12 bg-primary text-white rounded-full flex items-center justify-center font-bold">
+                                {day.day}
+                              </div>
+                              <div className="flex-1">
+                                <h3 className="font-bold text-lg mb-2">{day.title}</h3>
+                                <p className="text-neutral-700 leading-relaxed">{day.description}</p>
+                                {day.image && (
+                                  <div className="mt-3">
+                                    <img
+                                      src={day.image}
+                                      alt={day.title}
+                                      className="w-full max-w-md h-32 object-cover rounded-lg"
+                                    />
+                                  </div>
+                                )}
+                              </div>
+                            </div>
                           </div>
-                          <div>
-                            <h3 className="font-bold text-lg">Day 2: City Tour</h3>
-                            <ul className="mt-2 space-y-2">
-                              <li className="flex items-start">
-                                <span className="text-primary font-bold mr-2">•</span>
-                                <span>Breakfast at hotel</span>
-                              </li>
-                              <li className="flex items-start">
-                                <span className="text-primary font-bold mr-2">•</span>
-                                <span>Full day guided tour of main attractions</span>
-                              </li>
-                              <li className="flex items-start">
-                                <span className="text-primary font-bold mr-2">•</span>
-                                <span>Lunch at local restaurant</span>
-                              </li>
-                              <li className="flex items-start">
-                                <span className="text-primary font-bold mr-2">•</span>
-                                <span>Evening leisure time</span>
-                              </li>
-                              <li className="flex items-start">
-                                <span className="text-primary font-bold mr-2">•</span>
-                                <span>Overnight at hotel</span>
-                              </li>
-                            </ul>
-                          </div>
-                        </div>
-                      </TabsContent>
-                      <TabsContent value="day3" className="p-3 sm:p-4">
-                        <div className="space-y-4">
-                          <div>
-                            <h3 className="font-bold text-lg">Day 3-4: Exploration</h3>
-                            <ul className="mt-2 space-y-2">
-                              <li className="flex items-start">
-                                <span className="text-primary font-bold mr-2">•</span>
-                                <span>Visit to historical sites and monuments</span>
-                              </li>
-                              <li className="flex items-start">
-                                <span className="text-primary font-bold mr-2">•</span>
-                                <span>Cultural experiences and workshops</span>
-                              </li>
-                              <li className="flex items-start">
-                                <span className="text-primary font-bold mr-2">•</span>
-                                <span>Meals included as per itinerary</span>
-                              </li>
-                            </ul>
-                          </div>
-                          <div>
-                            <h3 className="font-bold text-lg">Day 5: Adventure Day</h3>
-                            <ul className="mt-2 space-y-2">
-                              <li className="flex items-start">
-                                <span className="text-primary font-bold mr-2">•</span>
-                                <span>Outdoor activities based on destination</span>
-                              </li>
-                              <li className="flex items-start">
-                                <span className="text-primary font-bold mr-2">•</span>
-                                <span>Scenic views and photo opportunities</span>
-                              </li>
-                              <li className="flex items-start">
-                                <span className="text-primary font-bold mr-2">•</span>
-                                <span>Special dinner experience</span>
-                              </li>
-                            </ul>
-                          </div>
-                        </div>
-                      </TabsContent>
-                      <TabsContent value="day6" className="p-3 sm:p-4">
-                        <div className="space-y-4">
-                          <div>
-                            <h3 className="font-bold text-lg">Day 6: Leisure Day</h3>
-                            <ul className="mt-2 space-y-2">
-                              <li className="flex items-start">
-                                <span className="text-primary font-bold mr-2">•</span>
-                                <span>Free time to explore or relax</span>
-                              </li>
-                              <li className="flex items-start">
-                                <span className="text-primary font-bold mr-2">•</span>
-                                <span>Optional activities available</span>
-                              </li>
-                              <li className="flex items-start">
-                                <span className="text-primary font-bold mr-2">•</span>
-                                <span>Farewell dinner</span>
-                              </li>
-                            </ul>
-                          </div>
-                          <div>
-                            <h3 className="font-bold text-lg">Day 7: Departure</h3>
-                            <ul className="mt-2 space-y-2">
-                              <li className="flex items-start">
-                                <span className="text-primary font-bold mr-2">•</span>
-                                <span>Breakfast at hotel</span>
-                              </li>
-                              <li className="flex items-start">
-                                <span className="text-primary font-bold mr-2">•</span>
-                                <span>Transfer to airport</span>
-                              </li>
-                              <li className="flex items-start">
-                                <span className="text-primary font-bold mr-2">•</span>
-                                <span>Departure with fond memories</span>
-                              </li>
-                            </ul>
-                          </div>
-                        </div>
-                      </TabsContent>
-                    </Tabs>
+                        ))}
+                      </div>
+                    ) : (
+                      <div className="bg-gray-50 rounded-lg p-8 text-center">
+                        <Calendar className="h-12 w-12 text-gray-400 mx-auto mb-4" />
+                        <h3 className="text-lg font-medium text-gray-900 mb-2">Detailed Itinerary Coming Soon</h3>
+                        <p className="text-gray-600">
+                          Our team is preparing a comprehensive day-by-day itinerary for this package. 
+                          Please contact us for more details about the planned activities.
+                        </p>
+                      </div>
+                    )}
                   </div>
                 </section>
 
-                {/* What's Included/Excluded */}
+                {/* What's Included/Excluded - Real Data */}
                 <section className="bg-white rounded-xl shadow-md overflow-hidden">
                   <div className="p-6">
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
@@ -617,7 +542,14 @@ export default function PackageDetail() {
                           What's Included
                         </h2>
                         <ul className="space-y-3">
-                          {packageData.inclusions && packageData.inclusions.length > 0 ? (
+                          {packageData.includedFeatures && packageData.includedFeatures.length > 0 ? (
+                            packageData.includedFeatures.map((feature, index) => (
+                              <li key={index} className="flex items-start">
+                                <Check className="h-5 w-5 text-green-500 mr-2 mt-0.5 flex-shrink-0" />
+                                <span>{feature}</span>
+                              </li>
+                            ))
+                          ) : packageData.inclusions && packageData.inclusions.length > 0 ? (
                             packageData.inclusions.map((inclusion, index) => (
                               <li key={index} className="flex items-start">
                                 <Check className="h-5 w-5 text-green-500 mr-2 mt-0.5 flex-shrink-0" />
@@ -625,54 +557,37 @@ export default function PackageDetail() {
                               </li>
                             ))
                           ) : (
-                            <>
-                              <li className="flex items-start">
-                                <Check className="h-5 w-5 text-green-500 mr-2 mt-0.5 flex-shrink-0" />
-                                <span>Accommodation as per itinerary</span>
-                              </li>
-                              <li className="flex items-start">
-                                <Check className="h-5 w-5 text-green-500 mr-2 mt-0.5 flex-shrink-0" />
-                                <span>Meals mentioned in the itinerary</span>
-                              </li>
-                              <li className="flex items-start">
-                                <Check className="h-5 w-5 text-green-500 mr-2 mt-0.5 flex-shrink-0" />
-                                <span>Professional English-speaking guide</span>
-                              </li>
-                              <li className="flex items-start">
-                                <Check className="h-5 w-5 text-green-500 mr-2 mt-0.5 flex-shrink-0" />
-                                <span>Transportation in an air-conditioned vehicle</span>
-                              </li>
-                              <li className="flex items-start">
-                                <Check className="h-5 w-5 text-green-500 mr-2 mt-0.5 flex-shrink-0" />
-                                <span>Entrance fees to attractions</span>
-                              </li>
-                            </>
+                            <li className="flex items-center justify-center py-8">
+                              <div className="text-center">
+                                <Check className="h-12 w-12 text-gray-300 mx-auto mb-3" />
+                                <p className="text-gray-500">
+                                  Inclusion details will be provided upon inquiry
+                                </p>
+                              </div>
+                            </li>
                           )}
                         </ul>
                       </div>
                       <div>
                         <h2 className="text-xl font-bold mb-4">What's Excluded</h2>
                         <ul className="space-y-3">
-                          <li className="flex items-start">
-                            <X className="h-5 w-5 text-red-500 mr-2 mt-0.5 flex-shrink-0" />
-                            <span>International/domestic flights</span>
-                          </li>
-                          <li className="flex items-start">
-                            <X className="h-5 w-5 text-red-500 mr-2 mt-0.5 flex-shrink-0" />
-                            <span>Travel insurance</span>
-                          </li>
-                          <li className="flex items-start">
-                            <X className="h-5 w-5 text-red-500 mr-2 mt-0.5 flex-shrink-0" />
-                            <span>Personal expenses</span>
-                          </li>
-                          <li className="flex items-start">
-                            <X className="h-5 w-5 text-red-500 mr-2 mt-0.5 flex-shrink-0" />
-                            <span>Optional activities</span>
-                          </li>
-                          <li className="flex items-start">
-                            <X className="h-5 w-5 text-red-500 mr-2 mt-0.5 flex-shrink-0" />
-                            <span>Gratuities for guides and drivers</span>
-                          </li>
+                          {packageData.excludedFeatures && packageData.excludedFeatures.length > 0 ? (
+                            packageData.excludedFeatures.map((feature, index) => (
+                              <li key={index} className="flex items-start">
+                                <X className="h-5 w-5 text-red-500 mr-2 mt-0.5 flex-shrink-0" />
+                                <span>{feature}</span>
+                              </li>
+                            ))
+                          ) : (
+                            <li className="flex items-center justify-center py-8">
+                              <div className="text-center">
+                                <X className="h-12 w-12 text-gray-300 mx-auto mb-3" />
+                                <p className="text-gray-500">
+                                  Exclusion details will be provided upon inquiry
+                                </p>
+                              </div>
+                            </li>
+                          )}
                         </ul>
                       </div>
                     </div>
