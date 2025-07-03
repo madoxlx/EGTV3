@@ -2760,42 +2760,44 @@ export function PackageCreatorForm({
                         {getFilteredHotels().map((hotel) => (
                           <div
                             key={hotel.id}
-                            className="flex items-center space-x-2 p-2 border rounded"
+                            className="flex items-center justify-between p-2 border rounded"
                           >
-                            <Checkbox
-                              id={`hotel-${hotel.id}`}
-                              checked={
-                                Array.isArray(field.value) &&
-                                field.value.includes(hotel.id)
-                              }
-                              onCheckedChange={(checked) => {
-                                const currentSelection = Array.isArray(
-                                  field.value,
-                                )
-                                  ? field.value
-                                  : [];
-                                let newSelection;
-                                if (checked) {
-                                  newSelection = [
-                                    ...currentSelection,
-                                    hotel.id,
-                                  ];
-                                } else {
-                                  newSelection = currentSelection.filter(
-                                    (id) => id !== hotel.id,
-                                  );
+                            <div className="flex items-center space-x-2">
+                              <Checkbox
+                                id={`hotel-${hotel.id}`}
+                                checked={
+                                  Array.isArray(field.value) &&
+                                  field.value.includes(hotel.id)
                                 }
-                                field.onChange(newSelection);
-                                handleHotelSelectionChange(newSelection);
-                              }}
-                            />
-                            <label
-                              htmlFor={`hotel-${hotel.id}`}
-                              className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70"
-                            >
-                              {hotel.name}
-                            </label>
-                            <div className="ml-auto flex flex-col items-end">
+                                onCheckedChange={(checked) => {
+                                  const currentSelection = Array.isArray(
+                                    field.value,
+                                  )
+                                    ? field.value
+                                    : [];
+                                  let newSelection;
+                                  if (checked) {
+                                    newSelection = [
+                                      ...currentSelection,
+                                      hotel.id,
+                                    ];
+                                  } else {
+                                    newSelection = currentSelection.filter(
+                                      (id) => id !== hotel.id,
+                                    );
+                                  }
+                                  field.onChange(newSelection);
+                                  handleHotelSelectionChange(newSelection);
+                                }}
+                              />
+                              <label
+                                htmlFor={`hotel-${hotel.id}`}
+                                className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70"
+                              >
+                                {hotel.name}
+                              </label>
+                            </div>
+                            <div className="flex flex-col items-end">
                               <div className="flex items-center gap-1 mb-1">
                                 {Array.from({ length: 5 }, (_, i) => (
                                   <span
