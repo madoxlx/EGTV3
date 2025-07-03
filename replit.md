@@ -106,6 +106,15 @@ The application uses a comprehensive PostgreSQL schema with the following core e
 
 ## Recent Changes
 
+- **Hotel Room Display Fix Complete (July 3, 2025)**: Successfully resolved critical issue where multiple rooms for the same hotel weren't displaying in package creation forms
+  - Fixed room filtering logic in SimplePackageForm.tsx to properly validate individual capacity constraints (adults, children, infants)
+  - Replaced total occupancy validation with detailed capacity checking for each guest type
+  - Enhanced filterRoomsByCapacity function with comprehensive debugging logs showing detailed capacity validation
+  - Hotel "Ahmed sh" (ID: 83) now correctly displays both rooms: "ahmed showky" and "غرفة ثلاثية"
+  - Fixed capacity validation to check: adults <= max_adults, children <= max_children, infants <= max_infants, and total <= max_occupancy
+  - All rooms meeting capacity requirements now properly appear in package editor with visual confirmation
+  - System maintains data integrity while providing accurate room availability based on guest count requirements
+
 - **Session Authentication Fix Complete (July 3, 2025)**: Successfully resolved session authentication issues affecting admin package editing functionality
   - Fixed ES module import syntax error for memorystore package preventing server startup
   - Implemented proper MemoryStore configuration with express-session for development environment

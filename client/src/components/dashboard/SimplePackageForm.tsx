@@ -1348,16 +1348,23 @@ export function PackageCreatorForm({
     console.log("Filtering rooms by capacity:", { adults, children, infants });
     console.log("Available rooms:", rooms);
 
-    const totalGuests = adults + children + infants;
-
     const filtered = rooms.filter((room) => {
-      // Check different possible field names based on database schema
-      const roomCapacity =
-        room.maxOccupancy || room.maxAdults || room.capacity || 2;
-      const meetsCapacity = roomCapacity >= totalGuests;
+      // Check detailed capacity constraints
+      const maxAdults = room.max_adults || room.maxAdults || 2;
+      const maxChildren = room.max_children || room.maxChildren || 0;
+      const maxInfants = room.max_infants || room.maxInfants || 0;
+      const maxOccupancy = room.max_occupancy || room.maxOccupancy || 2;
+
+      // Check if room can accommodate the specific guest types
+      const canAccommodateAdults = adults <= maxAdults;
+      const canAccommodateChildren = children <= maxChildren;
+      const canAccommodateInfants = infants <= maxInfants;
+      const canAccommodateTotal = (adults + children + infants) <= maxOccupancy;
+
+      const meetsCapacity = canAccommodateAdults && canAccommodateChildren && canAccommodateInfants && canAccommodateTotal;
 
       console.log(
-        `Room ${room.name || room.id}: capacity=${roomCapacity}, totalGuests=${totalGuests}, meets=${meetsCapacity}`,
+        `Room "${room.name}": adults=${adults}/${maxAdults}(${canAccommodateAdults}), children=${children}/${maxChildren}(${canAccommodateChildren}), infants=${infants}/${maxInfants}(${canAccommodateInfants}), total=${adults + children + infants}/${maxOccupancy}(${canAccommodateTotal}), meets=${meetsCapacity ? "✅" : "❌"}`,
       );
 
       return meetsCapacity;
