@@ -244,7 +244,7 @@ export default function RoomDistributionWithStars({
                             id={`room-${room.id}`}
                             checked={isSelected}
                             onCheckedChange={() => handleRoomSelection(room)}
-                            className="mt-1 border-green-400 data-[state=checked]:bg-green-600 data-[state=checked]:border-green-600"
+                            className="mt-1 border-green-400 data-[state=checked]:bg-green-600 data-[state=checked]:border-green-600 bg-[#ffffff]"
                           />
                           <div className="flex-1">
                             <div className="flex items-center gap-2 mb-1">
