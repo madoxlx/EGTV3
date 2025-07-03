@@ -2,7 +2,7 @@ import React from 'react';
 import { useQuery } from '@tanstack/react-query';
 import { Card, CardContent } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
-import { Star, Users, Bed } from 'lucide-react';
+import { Star, Users, Bed, CheckCircle2 } from 'lucide-react';
 
 type Room = {
   id: number;
@@ -15,6 +15,13 @@ type Room = {
   price: number;
   hotel_id: number;
   description?: string;
+  customPrice?: number;
+  maxOccupancy?: number;
+  maxAdults?: number;
+  maxChildren?: number;
+  maxInfants?: number;
+  originalPrice?: number;
+  amenities?: string[] | string;
 };
 
 type Hotel = {
@@ -25,21 +32,27 @@ type Hotel = {
   country: string;
 };
 
+type Package = {
+  id: number;
+  selectedHotels?: number[] | string | null;
+  rooms?: Room[] | string | null;
+};
+
 interface RoomDistributionWithStarsProps {
-  packageId: number;
+  packageData: Package;
   selectedRoom: string;
   onRoomSelect: (room: string) => void;
   validationError?: string;
 }
 
 export default function RoomDistributionWithStars({ 
-  packageId, 
+  packageData, 
   selectedRoom, 
   onRoomSelect, 
   validationError 
 }: RoomDistributionWithStarsProps) {
-  // Fetch rooms data
-  const { data: rooms = [], isLoading: isLoadingRooms } = useQuery<Room[]>({
+  // Fetch all rooms data
+  const { data: allRooms = [], isLoading: isLoadingRooms } = useQuery<Room[]>({
     queryKey: ['/api/admin/rooms'],
     retry: 1,
   });
@@ -49,6 +62,80 @@ export default function RoomDistributionWithStars({
     queryKey: ['/api/admin/hotels'],
     retry: 1,
   });
+
+  // Get package included hotels
+  const getIncludedHotels = (): number[] => {
+    if (!packageData.selectedHotels) return [];
+    
+    if (typeof packageData.selectedHotels === 'string') {
+      try {
+        const parsed = JSON.parse(packageData.selectedHotels);
+        return Array.isArray(parsed) ? parsed.map(h => Number(h)) : [];
+      } catch (e) {
+        console.log('Could not parse selectedHotels:', packageData.selectedHotels);
+        return [];
+      }
+    }
+    
+    return Array.isArray(packageData.selectedHotels) ? 
+      packageData.selectedHotels.map(h => Number(h)) : [];
+  };
+
+  // Get package included rooms
+  const getIncludedRooms = (): Room[] => {
+    if (!packageData.rooms) return [];
+    
+    let packageRooms: Room[] = [];
+    
+    if (typeof packageData.rooms === 'string') {
+      try {
+        packageRooms = JSON.parse(packageData.rooms);
+      } catch (e) {
+        console.log('Could not parse rooms:', packageData.rooms);
+        return [];
+      }
+    } else if (Array.isArray(packageData.rooms)) {
+      packageRooms = packageData.rooms;
+    }
+
+    if (!Array.isArray(packageRooms) || packageRooms.length === 0) {
+      return [];
+    }
+
+    // Filter allRooms to include only those specified in package
+    const packageRoomIds = packageRooms.map(room => room.id);
+    const filteredRooms = allRooms.filter(room => packageRoomIds.includes(room.id));
+    
+    // Merge room data with package customizations
+    return filteredRooms.map(room => {
+      const packageRoom = packageRooms.find(pr => pr.id === room.id);
+      return {
+        ...room,
+        customPrice: packageRoom?.customPrice || packageRoom?.price,
+        originalPrice: room.price,
+        ...(packageRoom && packageRoom)
+      };
+    });
+  };
+
+  // Get final rooms to display - either from package rooms or from package hotels
+  const getDisplayRooms = (): Room[] => {
+    const packageRooms = getIncludedRooms();
+    
+    if (packageRooms.length > 0) {
+      return packageRooms;
+    }
+
+    // Fallback: show rooms from package hotels
+    const includedHotelIds = getIncludedHotels();
+    if (includedHotelIds.length > 0) {
+      return allRooms.filter(room => includedHotelIds.includes(room.hotel_id));
+    }
+
+    return [];
+  };
+
+  const rooms = getDisplayRooms();
 
   // Get hotel info for a room
   const getHotelInfo = (hotelId: number) => {
@@ -100,6 +187,17 @@ export default function RoomDistributionWithStars({
         <div className="text-sm text-red-500 mb-2">{validationError}</div>
       )}
 
+      {/* Header indicating included rooms */}
+      {rooms.length > 0 && (
+        <div className="flex items-center gap-2 mb-3">
+          <CheckCircle2 className="w-4 h-4 text-green-600" />
+          <span className="text-sm font-medium text-green-800">Included Rooms</span>
+          <Badge variant="outline" className="text-xs text-green-700 border-green-300">
+            {rooms.length} room{rooms.length !== 1 ? 's' : ''} available
+          </Badge>
+        </div>
+      )}
+
       {Object.entries(roomsByHotel).map(([hotelId, hotelRooms]) => {
         const hotel = getHotelInfo(Number(hotelId));
         
@@ -107,11 +205,11 @@ export default function RoomDistributionWithStars({
           <div key={hotelId} className="space-y-2">
             {hotel && (
               <div className="flex items-center gap-2 mb-2">
-                <h4 className="font-medium text-sm">{hotel.name}</h4>
+                <h4 className="font-medium text-sm text-green-800">{hotel.name}</h4>
                 <div className="flex items-center gap-1">
                   {renderStars(hotel.stars || 0)}
                 </div>
-                <Badge variant="outline" className="text-xs">
+                <Badge variant="outline" className="text-xs border-green-300 text-green-700">
                   {hotel.city}, {hotel.country}
                 </Badge>
               </div>
@@ -121,12 +219,13 @@ export default function RoomDistributionWithStars({
               {hotelRooms.map((room) => {
                 const roomInfo = `${room.name} - ${room.max_adults} adults, ${room.max_children} children`;
                 const isSelected = selectedRoom === roomInfo;
+                const displayPrice = room.customPrice || room.price;
 
                 return (
                   <Card 
                     key={room.id} 
-                    className={`cursor-pointer transition-all hover:shadow-md ${
-                      isSelected ? 'ring-2 ring-primary bg-primary/5' : ''
+                    className={`cursor-pointer transition-all hover:shadow-md border-green-200 bg-green-50/50 ${
+                      isSelected ? 'ring-2 ring-green-500 bg-green-100/70' : ''
                     }`}
                     onClick={() => handleRoomSelection(room)}
                   >
@@ -134,37 +233,45 @@ export default function RoomDistributionWithStars({
                       <div className="flex justify-between items-start">
                         <div className="flex-1">
                           <div className="flex items-center gap-2 mb-1">
-                            <h5 className="font-medium text-sm">{room.name}</h5>
-                            <Badge variant="secondary" className="text-xs">
+                            <h5 className="font-medium text-sm text-green-800">{room.name}</h5>
+                            <Badge variant="outline" className="text-xs text-green-700 border-green-300">
                               {room.type}
+                            </Badge>
+                            <Badge variant="outline" className="text-xs text-green-700 border-green-300">
+                              Included
                             </Badge>
                           </div>
                           
-                          <div className="flex items-center gap-4 text-xs text-gray-600 mb-2">
+                          <div className="flex items-center gap-4 text-xs text-green-700 mb-2">
                             <div className="flex items-center gap-1">
                               <Bed className="w-3 h-3" />
-                              <span>Max {room.max_occupancy}</span>
+                              <span>Max {room.max_occupancy || room.maxOccupancy}</span>
                             </div>
                             <div className="flex items-center gap-1">
                               <Users className="w-3 h-3" />
-                              <span>{room.max_adults}A</span>
-                              {room.max_children > 0 && <span>, {room.max_children}C</span>}
-                              {room.max_infants > 0 && <span>, {room.max_infants}I</span>}
+                              <span>{room.max_adults || room.maxAdults}A</span>
+                              {(room.max_children || room.maxChildren || 0) > 0 && <span>, {room.max_children || room.maxChildren}C</span>}
+                              {(room.max_infants || room.maxInfants || 0) > 0 && <span>, {room.max_infants || room.maxInfants}I</span>}
                             </div>
                           </div>
 
                           {room.description && (
-                            <p className="text-xs text-gray-500 line-clamp-1 mb-2">
+                            <p className="text-xs text-green-600 line-clamp-1 mb-2">
                               {room.description}
                             </p>
                           )}
                         </div>
 
                         <div className="text-right">
-                          <div className="font-medium text-sm text-primary">
-                            {(room.price / 100).toLocaleString('en-US')} EGP
+                          <div className="font-medium text-sm text-green-800">
+                            {displayPrice ? (displayPrice / 100).toLocaleString('en-US') : '0'} EGP
                           </div>
-                          <div className="text-xs text-gray-500">per night</div>
+                          <div className="text-xs text-green-600">per night</div>
+                          {room.customPrice && room.originalPrice && room.customPrice !== room.originalPrice && (
+                            <div className="text-xs text-gray-500 line-through">
+                              {(room.originalPrice / 100).toLocaleString('en-US')} EGP
+                            </div>
+                          )}
                         </div>
                       </div>
                     </CardContent>
@@ -177,8 +284,22 @@ export default function RoomDistributionWithStars({
       })}
 
       {Object.keys(roomsByHotel).length === 0 && (
-        <div className="text-center py-8 text-gray-500">
-          <p className="text-sm">No rooms available for this package.</p>
+        <div className="bg-blue-50 border border-blue-200 rounded-lg p-4">
+          <div className="flex items-center gap-2 mb-2">
+            <CheckCircle2 className="w-4 h-4 text-blue-600" />
+            <span className="text-sm font-medium text-blue-800">Package Includes Accommodation</span>
+          </div>
+          <p className="text-sm text-blue-700">
+            Room selection and accommodation details will be confirmed during booking. 
+            Your package includes hotel accommodation as specified in the package description.
+          </p>
+        </div>
+      )}
+      
+      {rooms.length > 0 && (
+        <div className="text-xs text-gray-600 bg-gray-50 rounded p-2">
+          <span className="font-medium">Note:</span> These rooms are included in your package price. 
+          Room assignments will be confirmed based on availability at the time of booking.
         </div>
       )}
     </div>

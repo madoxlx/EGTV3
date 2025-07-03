@@ -106,16 +106,18 @@ The application uses a comprehensive PostgreSQL schema with the following core e
 
 ## Recent Changes
 
-- **Complete Package Detail Page Component Error Resolution with Included Tours (July 3, 2025)**: Successfully resolved all JavaScript runtime errors and enhanced tour display functionality
+- **Complete Package Detail Page Component Error Resolution with Included Tours and Rooms (July 3, 2025)**: Successfully resolved all JavaScript runtime errors and enhanced tour/room display functionality
   - Fixed "AvailableTours is not defined" error that was causing React component crashes
   - Fixed "RoomDistributionWithStars is not defined" error preventing booking form functionality  
   - Created IncludedTours component specifically showing tours included in the package with green-themed design to distinguish from additional options
-  - Created RoomDistributionWithStars component for hotel room selection with star ratings and capacity information
+  - Enhanced RoomDistributionWithStars component to display only package-included rooms instead of all available rooms
   - Created EnhancedPriceCalculation component providing detailed pricing breakdown with VAT, service fees, and savings calculations
   - Replaced generic "Available Tours" with package-specific "Tours Included in Package" section in booking form
+  - Updated "Room Distribution" to show only rooms included in package with green-themed cards and "Included" badges
   - IncludedTours component intelligently displays tours based on selectedTourId, tourSelection data, or relevant inclusions from package
-  - Components fetch real data from database APIs and display in responsive card formats with appropriate styling
-  - Enhanced booking experience by clearly showing what tours are included vs. additional optional tours
+  - RoomDistributionWithStars filters rooms based on package's selectedHotels and rooms JSON fields for accurate display
+  - Components fetch real data from database APIs and display in responsive card formats with appropriate green styling
+  - Enhanced booking experience by clearly showing what tours and rooms are included vs. additional optional items
   - Package detail pages now load completely without JavaScript errors and display comprehensive booking functionality
   - Fixed TypeScript parameter type errors for improved code quality and maintainability
 

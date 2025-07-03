@@ -995,7 +995,7 @@ export default function PackageDetail() {
                             Room Distribution *
                           </label>
                           <RoomDistributionWithStars 
-                            packageId={packageData.id}
+                            packageData={packageData}
                             selectedRoom={roomDistribution}
                             onRoomSelect={(room: string) => {
                               setRoomDistribution(room);
