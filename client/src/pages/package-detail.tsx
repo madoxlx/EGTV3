@@ -978,54 +978,28 @@ export default function PackageDetail() {
                           </div>
                         </div>
 
-                        {/* Room Distribution */}
+                        {/* Available Tours */}
+                        <div>
+                          <label className="text-sm font-medium mb-1 block">
+                            Available Tours
+                          </label>
+                          <AvailableTours packageId={packageData.id} />
+                        </div>
+
+                        {/* Room Distribution with Star Ratings */}
                         <div>
                           <label className="text-sm font-medium mb-1 block">
                             Room Distribution *
                           </label>
-                          <div className="grid grid-cols-2 gap-2">
-                            <div
-                              className={`border rounded-md p-2 cursor-pointer transition-colors ${
-                                roomDistribution === "single"
-                                  ? "border-primary bg-primary/10"
-                                  : validationErrors.room
-                                    ? "border-red-300 hover:border-red-400"
-                                    : "hover:bg-muted"
-                              }`}
-                              onClick={() => {
-                                setRoomDistribution("single");
-                                clearValidationError("room");
-                              }}
-                            >
-                              <p className="text-sm font-medium">Single Room</p>
-                              <p className="text-xs text-muted-foreground">
-                                1 person per room
-                              </p>
-                            </div>
-                            <div
-                              className={`border rounded-md p-2 cursor-pointer transition-colors ${
-                                roomDistribution === "double"
-                                  ? "border-primary bg-primary/10"
-                                  : validationErrors.room
-                                    ? "border-red-300 hover:border-red-400"
-                                    : "hover:bg-muted"
-                              }`}
-                              onClick={() => {
-                                setRoomDistribution("double");
-                                clearValidationError("room");
-                              }}
-                            >
-                              <p className="text-sm font-medium">Double Room</p>
-                              <p className="text-xs text-muted-foreground">
-                                2 people per room
-                              </p>
-                            </div>
-                          </div>
-                          {validationErrors.room && (
-                            <p className="text-red-500 text-xs mt-1">
-                              {validationErrors.room}
-                            </p>
-                          )}
+                          <RoomDistributionWithStars 
+                            packageId={packageData.id}
+                            selectedRoom={roomDistribution}
+                            onRoomSelect={(room) => {
+                              setRoomDistribution(room);
+                              clearValidationError("room");
+                            }}
+                            validationError={validationErrors.room}
+                          />
                         </div>
 
                         {/* Hotel Package */}
@@ -1079,73 +1053,15 @@ export default function PackageDetail() {
 
                         <Separator />
 
-                        {/* Price Calculation */}
-                        <div className="space-y-2">
-                          <div className="flex justify-between">
-                            <span className="text-sm">
-                              Base price ({adults + children} travelers)
-                            </span>
-                            <span className="text-sm">
-                              {(hotelPackage === "standard"
-                                ? packageData.price * (adults + children)
-                                : Math.round(packageData.price * 1.3) *
-                                  (adults + children)
-                              ).toLocaleString("en-US")}{" "}
-                              EGP
-                            </span>
-                          </div>
-
-                          {roomDistribution === "single" && adults > 1 && (
-                            <div className="flex justify-between">
-                              <span className="text-sm">
-                                Single room supplement
-                              </span>
-                              <span className="text-sm">+10,000 EGP</span>
-                            </div>
-                          )}
-
-                          {packageData.discountedPrice &&
-                            packageData.discountedPrice < packageData.price && (
-                              <div className="flex justify-between">
-                                <span className="text-sm text-green-600">
-                                  Discount
-                                </span>
-                                <span className="text-sm text-green-600">
-                                  -
-                                  {(
-                                    (packageData.price -
-                                      packageData.discountedPrice) *
-                                    (adults + children)
-                                  ).toLocaleString("en-US")}{" "}
-                                  EGP
-                                </span>
-                              </div>
-                            )}
-
-                          <Separator />
-
-                          <div className="flex justify-between font-bold">
-                            <span>Total price</span>
-                            <span>
-                              {(packageData.discountedPrice &&
-                              packageData.discountedPrice < packageData.price
-                                ? packageData.discountedPrice *
-                                    (adults + children) +
-                                  (roomDistribution === "single" && adults > 1
-                                    ? 10000
-                                    : 0)
-                                : (hotelPackage === "standard"
-                                    ? packageData.price
-                                    : Math.round(packageData.price * 1.3)) *
-                                    (adults + children) +
-                                  (roomDistribution === "single" && adults > 1
-                                    ? 10000
-                                    : 0)
-                              ).toLocaleString("en-US")}{" "}
-                              EGP
-                            </span>
-                          </div>
-                        </div>
+                        {/* Enhanced Price Calculation */}
+                        <EnhancedPriceCalculation 
+                          packageData={packageData}
+                          adults={adults}
+                          children={children}
+                          infants={infants}
+                          hotelPackage={hotelPackage}
+                          roomDistribution={roomDistribution}
+                        />
 
                         <BookPackageButton
                           package={packageData}
