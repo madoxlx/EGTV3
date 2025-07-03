@@ -197,12 +197,8 @@ export default function RoomDistributionWithStars({
 
       {/* Header indicating included rooms */}
       {rooms.length > 0 && (
-        <div className="flex items-center gap-2 mb-3">
-          <CheckCircle2 className="w-4 h-4 text-green-600" />
-          <span className="text-sm font-medium text-green-800">Included Rooms</span>
-          <Badge variant="outline" className="text-xs text-green-700 border-green-300">
-            {rooms.length} room{rooms.length !== 1 ? 's' : ''} available
-          </Badge>
+        <div className="mb-4">
+          <h3 className="text-lg font-semibold text-gray-900 mb-2">Hotel Package</h3>
         </div>
       )}
 
@@ -212,14 +208,14 @@ export default function RoomDistributionWithStars({
         return (
           <div key={hotelId} className="space-y-2">
             {hotel && (
-              <div className="flex items-center gap-2 mb-2">
-                <h4 className="font-medium text-sm text-green-800">{hotel.name}</h4>
-                <div className="flex items-center gap-1">
-                  {renderStars(hotel.stars || 0)}
+              <div className="mb-3">
+                <h4 className="font-medium text-gray-900 mb-1">{hotel.name}</h4>
+                <div className="flex items-center gap-2">
+                  <div className="flex items-center gap-1">
+                    {renderStars(hotel.stars || 0)}
+                  </div>
+                  <span className="text-sm text-gray-600">{hotel.city}, {hotel.country}</span>
                 </div>
-                <Badge variant="outline" className="text-xs border-green-300 text-green-700">
-                  {hotel.city}, {hotel.country}
-                </Badge>
               </div>
             )}
 
@@ -230,68 +226,40 @@ export default function RoomDistributionWithStars({
                 const displayPrice = room.customPrice || room.price;
 
                 return (
-                  <Card 
+                  <div 
                     key={room.id} 
-                    className={`cursor-pointer transition-all hover:shadow-md border-green-200 bg-green-50/50 ${
-                      isSelected ? 'ring-2 ring-green-500 bg-green-100/70' : ''
+                    className={`cursor-pointer transition-all hover:shadow-sm border rounded-lg p-4 ${
+                      isSelected ? 'border-blue-500 bg-blue-50' : 'border-gray-200 bg-white hover:border-gray-300'
                     }`}
                     onClick={() => handleRoomSelection(room)}
                   >
-                    <CardContent className="p-3">
-                      <div className="flex justify-between items-start">
-                        <div className="flex items-start gap-3 flex-1">
-                          <Checkbox
-                            id={`room-${room.id}`}
-                            checked={isSelected}
-                            onCheckedChange={() => handleRoomSelection(room)}
-                            className="mt-1 border-green-400 data-[state=checked]:bg-green-600 data-[state=checked]:border-green-600 bg-[#ffffff]"
-                          />
-                          <div className="flex-1">
-                            <div className="flex items-center gap-2 mb-1">
-                              <h5 className="font-medium text-sm text-green-800">{room.name}</h5>
-                              <Badge variant="outline" className="text-xs text-green-700 border-green-300">
-                                {room.type}
-                              </Badge>
-                              <Badge variant="outline" className="text-xs text-green-700 border-green-300">
-                                Included
-                              </Badge>
-                            </div>
-                          
-                          <div className="flex items-center gap-4 text-xs text-green-700 mb-2">
-                            <div className="flex items-center gap-1">
-                              <Bed className="w-3 h-3" />
-                              <span>Max {room.max_occupancy || room.maxOccupancy}</span>
-                            </div>
-                            <div className="flex items-center gap-1">
-                              <Users className="w-3 h-3" />
-                              <span>{room.max_adults || room.maxAdults}A</span>
-                              {(room.max_children || room.maxChildren || 0) > 0 && <span>, {room.max_children || room.maxChildren}C</span>}
-                              {(room.max_infants || room.maxInfants || 0) > 0 && <span>, {room.max_infants || room.maxInfants}I</span>}
-                            </div>
+                    <div className="flex justify-between items-center">
+                      <div className="flex items-center gap-3">
+                        <Checkbox
+                          id={`room-${room.id}`}
+                          checked={isSelected}
+                          onCheckedChange={() => handleRoomSelection(room)}
+                          className="border-gray-400 data-[state=checked]:bg-blue-600 data-[state=checked]:border-blue-600"
+                        />
+                        <div>
+                          <div className="font-medium text-gray-900 mb-1">{room.name}</div>
+                          <div className="text-sm text-gray-600">
+                            {room.max_adults || room.maxAdults}-star accommodation
                           </div>
-
-                          {room.description && (
-                            <p className="text-xs text-green-600 line-clamp-1 mb-2">
-                              {room.description}
-                            </p>
-                          )}
-                          </div>
-                        </div>
-
-                        <div className="text-right">
-                          <div className="font-medium text-sm text-green-800">
-                            {displayPrice ? (displayPrice / 100).toLocaleString('en-US') : '0'} EGP
-                          </div>
-                          <div className="text-xs text-green-600">per night</div>
-                          {room.customPrice && room.originalPrice && room.customPrice !== room.originalPrice && (
-                            <div className="text-xs text-gray-500 line-through">
-                              {(room.originalPrice / 100).toLocaleString('en-US')} EGP
-                            </div>
-                          )}
                         </div>
                       </div>
-                    </CardContent>
-                  </Card>
+                      <div className="text-right">
+                        <div className="font-semibold text-gray-900">
+                          {displayPrice ? (displayPrice / 100).toLocaleString('en-US') : '0'} EGP
+                        </div>
+                        {room.customPrice && room.originalPrice && room.customPrice !== room.originalPrice && (
+                          <div className="text-sm text-gray-500 line-through">
+                            {(room.originalPrice / 100).toLocaleString('en-US')} EGP
+                          </div>
+                        )}
+                      </div>
+                    </div>
+                  </div>
                 );
               })}
             </div>
@@ -300,22 +268,15 @@ export default function RoomDistributionWithStars({
       })}
 
       {Object.keys(roomsByHotel).length === 0 && (
-        <div className="bg-blue-50 border border-blue-200 rounded-lg p-4">
+        <div className="bg-gray-50 border border-gray-200 rounded-lg p-4">
           <div className="flex items-center gap-2 mb-2">
-            <CheckCircle2 className="w-4 h-4 text-blue-600" />
-            <span className="text-sm font-medium text-blue-800">Package Includes Accommodation</span>
+            <CheckCircle2 className="w-4 h-4 text-gray-600" />
+            <span className="text-sm font-medium text-gray-900">Package Includes Accommodation</span>
           </div>
-          <p className="text-sm text-blue-700">
+          <p className="text-sm text-gray-600">
             Room selection and accommodation details will be confirmed during booking. 
             Your package includes hotel accommodation as specified in the package description.
           </p>
-        </div>
-      )}
-      
-      {rooms.length > 0 && (
-        <div className="text-xs text-gray-600 bg-gray-50 rounded p-2">
-          <span className="font-medium">Note:</span> These rooms are included in your package price. 
-          Room assignments will be confirmed based on availability at the time of booking.
         </div>
       )}
     </div>
