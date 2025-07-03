@@ -4,6 +4,7 @@ import { useParams, useLocation } from "wouter";
 import PackageLayout from "@/components/PackageLayout";
 import { Button } from "@/components/ui/button";
 import BookPackageButton from "@/components/BookPackageButton";
+import AvailableTours from "@/components/AvailableTours";
 import { Separator } from "@/components/ui/separator";
 import { Badge } from "@/components/ui/badge";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
