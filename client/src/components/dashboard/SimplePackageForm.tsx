@@ -137,6 +137,7 @@ const packageFormSchema = z.object({
   // Date fields
   startDate: z.date().optional(),
   endDate: z.date().optional(),
+  validUntil: z.date().optional(),
 
   // Route and metadata
   route: z.string().optional(),
@@ -566,6 +567,7 @@ export function PackageCreatorForm({
       category: "",
       startDate: new Date(),
       endDate: new Date(new Date().setDate(new Date().getDate() + 1)),
+      validUntil: new Date(new Date().setMonth(new Date().getMonth() + 6)), // Default to 6 months from now
       route: "",
       type: "",
       maxGroupSize: 15,
@@ -708,6 +710,9 @@ export function PackageCreatorForm({
         endDate:
           formData.endDate?.toISOString() ||
           new Date(Date.now() + 7 * 24 * 60 * 60 * 1000).toISOString(),
+        validUntil:
+          formData.validUntil?.toISOString() ||
+          new Date(Date.now() + 6 * 30 * 24 * 60 * 60 * 1000).toISOString(), // Default to 6 months from now
 
         // Traveler information
         idealFor: selectedTravellerTypes,
@@ -1229,6 +1234,7 @@ export function PackageCreatorForm({
           // Set dates with sensible defaults
           startDate: startDate,
           endDate: endDate,
+          validUntil: existingPackageData.validUntil ? new Date(existingPackageData.validUntil) : new Date(new Date().setMonth(new Date().getMonth() + 6)),
           pricingMode: "per_booking", // Default if not available
           includedFeatures: inclusions,
           excludedItems: parsedExcludedItems,
@@ -2226,6 +2232,47 @@ export function PackageCreatorForm({
                 render={({ field }) => (
                   <FormItem className="flex flex-col">
                     <FormLabel>End Date</FormLabel>
+                    <Popover>
+                      <PopoverTrigger asChild>
+                        <FormControl>
+                          <Button
+                            variant={"outline"}
+                            className={cn(
+                              "w-full pl-3 text-left font-normal",
+                              !field.value && "text-muted-foreground",
+                            )}
+                          >
+                            {field.value ? (
+                              format(field.value, "PPP")
+                            ) : (
+                              <span>Pick a date</span>
+                            )}
+                            <CalendarIcon className="ml-auto h-4 w-4 opacity-50" />
+                          </Button>
+                        </FormControl>
+                      </PopoverTrigger>
+                      <PopoverContent className="w-auto p-0" align="start">
+                        <Calendar
+                          mode="single"
+                          selected={field.value}
+                          onSelect={field.onChange}
+                          initialFocus
+                        />
+                      </PopoverContent>
+                    </Popover>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+              <FormField
+                control={form.control}
+                name="validUntil"
+                render={({ field }) => (
+                  <FormItem className="flex flex-col">
+                    <FormLabel>Package Valid Until</FormLabel>
+                    <FormDescription>
+                      This package can be booked until this date
+                    </FormDescription>
                     <Popover>
                       <PopoverTrigger asChild>
                         <FormControl>

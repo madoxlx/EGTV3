@@ -195,6 +195,7 @@ export const packages = pgTable("packages", {
   // Date fields
   startDate: timestamp("start_date"),
   endDate: timestamp("end_date"),
+  validUntil: timestamp("valid_until"), // Package validity date
 
   // Traveler counts
   adultCount: integer("adult_count").default(2),
@@ -1234,7 +1235,7 @@ export const insertDestinationSchema = createInsertSchema(destinations).omit({
 export const insertPackageSchema = createInsertSchema(packages)
   .pick({
     title: true,
-    description: false,
+    description: true,
     shortDescription: true,
     overview: true,
     price: true,
@@ -1252,6 +1253,9 @@ export const insertPackageSchema = createInsertSchema(packages)
     type: true,
     inclusions: true,
     slug: true,
+    startDate: true,
+    endDate: true,
+    validUntil: true,
   })
   .refine(
     (data) => {

@@ -239,7 +239,7 @@ export default function RoomDistributionWithStars({
                           id={`room-${room.id}`}
                           checked={isSelected}
                           onCheckedChange={() => handleRoomSelection(room)}
-                          className="border-gray-400 data-[state=checked]:bg-blue-600 data-[state=checked]:border-blue-600"
+                          className="peer h-4 w-4 shrink-0 rounded-sm border ring-offset-background focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50 data-[state=checked]:text-primary-foreground mt-1 border-green-400 data-[state=checked]:bg-green-600 data-[state=checked]:border-green-600 bg-[#ffffff]"
                         />
                         <div>
                           <div className="font-medium text-gray-900 mb-1">{room.name}</div>
