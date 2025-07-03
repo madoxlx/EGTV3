@@ -1,0 +1,67 @@
+8:20:54 AM [express] GET /api/user 304 in 1ms
+🔍 Admin check - Session user: undefined
+🔍 Admin check - Request path: /api/admin/rooms
+⚠️ No session user found, using temporary admin access for development
+🔑 Temporary admin panel access granted
+Admin rooms endpoint called
+🔍 Listing rooms with hotelId: undefined
+✅ Rooms query result: 5 rooms found
+📋 Sample room: { id: 5, name: 'sadasdasd', hotel_id: 48 }
+Rooms returned from storage: 5 rooms
+8:21:16 AM [express] GET /api/admin/rooms 304 in 308ms :: [{"id":5,"name":"sadasdasd","description":"asdasdasasdasdasdsadasdd","hotel_id":48,"type":"standard","max_occu…
+8:21:16 AM [express] GET /api/admin/hotels 304 in 499ms :: [{"id":"83","name":"ahmed sh","description":"ahmed","shortDescription":null,"destinationId":6,"countryId":10,…
+8:21:16 AM [express] GET /api/user 304 in 0ms
+🔍 Admin check - Session user: undefined
+🔍 Admin check - Request path: /api/admin/rooms/4
+⚠️ No session user found, using temporary admin access for development
+🔑 Temporary admin panel access granted
+8:21:31 AM [express] GET /api/admin/rooms/4 200 in 305ms :: {"id":4,"name":"غرفة ثلاثية","description":"DescRiption for this room DescRiption for this room DescRiption …
+8:21:33 AM [express] GET /api/user 304 in 0ms
+🔍 Admin check - Session user: undefined
+🔍 Admin check - Request path: /api/admin/rooms/4
+⚠️ No session user found, using temporary admin access for development
+🔑 Temporary admin panel access granted
+8:21:40 AM [express] PUT /api/admin/rooms/4 200 in 233ms :: {"id":4,"name":"غرفة ثلاثية","description":"DescRiption for this room DescRiption for this room DescRiption …
+🔍 Admin check - Session user: undefined
+🔍 Admin check - Request path: /api/admin/rooms
+⚠️ No session user found, using temporary admin access for development
+🔑 Temporary admin panel access granted
+Admin rooms endpoint called
+🔍 Listing rooms with hotelId: undefined
+✅ Rooms query result: 5 rooms found
+📋 Sample room: { id: 5, name: 'sadasdasd', hotel_id: 48 }
+Rooms returned from storage: 5 rooms
+8:21:40 AM [express] GET /api/admin/rooms 200 in 74ms :: [{"id":5,"name":"sadasdasd","description":"asdasdasasdasdasdsadasdd","hotel_id":48,"type":"standard","max_occup…
+8:21:41 AM [express] GET /api/admin/hotels 304 in 498ms :: [{"id":"83","name":"ahmed sh","description":"ahmed","shortDescription":null,"destinationId":6,"countryId":10,…
+8:21:41 AM [express] GET /api/user 304 in 1ms
+🔍 Admin check - Session user: undefined
+🔍 Admin check - Request path: /api/admin/rooms/1
+⚠️ No session user found, using temporary admin access for development
+🔑 Temporary admin panel access granted
+8:21:53 AM [express] GET /api/admin/rooms/1 200 in 295ms :: {"id":1,"name":"Test Room","description":"Test description","hotelId":15,"type":"standard","maxOccupancy":2,…
+8:21:53 AM [express] GET /api/user 304 in 0ms
+🔍 Admin check - Session user: undefined
+🔍 Admin check - Request path: /api/admin/rooms/1
+⚠️ No session user found, using temporary admin access for development
+🔑 Temporary admin panel access granted
+8:22:11 AM [express] PUT /api/admin/rooms/1 200 in 441ms :: {"id":1,"name":"Test Room","description":"Test description","hotelId":15,"type":"standard","maxOccupancy":2,…
+🔍 Admin check - Session user: undefined
+🔍 Admin check - Request path: /api/admin/rooms
+⚠️ No session user found, using temporary admin access for development
+🔑 Temporary admin panel access granted
+Admin rooms endpoint called
+🔍 Listing rooms with hotelId: undefined
+✅ Rooms query result: 5 rooms found
+📋 Sample room: { id: 5, name: 'sadasdasd', hotel_id: 48 }
+Rooms returned from storage: 5 rooms
+8:22:12 AM [express] GET /api/admin/rooms 200 in 73ms :: [{"id":5,"name":"sadasdasd","description":"asdasdasasdasdasdsadasdd","hotel_id":48,"type":"standard","max_occup…
+8:22:12 AM [express] GET /api/admin/hotels 304 in 508ms :: [{"id":"83","name":"ahmed sh","description":"ahmed","shortDescription":null,"destinationId":6,"countryId":10,…
+8:22:13 AM [express] GET /api/user 304 in 1ms
+8:22:26 AM [express] GET /api/user 304 in 0ms
+🔍 Admin check - Session user: undefined
+🔍 Admin check - Request path: /api-admin/packages/7
+8:22:28 AM [express] GET /api-admin/packages/7 401 in 0ms :: {"message":"Authentication required","redirectTo":"/admin/login"}
+🔍 Admin check - Session user: undefined
+🔍 Admin check - Request path: /api-admin/packages/7
+8:22:29 AM [express] GET /api-admin/packages/7 401 in 0ms :: {"message":"Authentication required","redirectTo":"/admin/login"}
+8:22:29 AM [express] GET /api/user 304 in 1ms
