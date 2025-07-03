@@ -11,6 +11,7 @@ import { setupAdmin } from './admin-setup';
 import { setupUnifiedAuth } from './unified-auth';
 import { setupHeroSlidesRoutes } from './hero-slides-routes';
 import { setupUploadRoutes } from './upload-routes';
+import MemoryStoreFactory from 'memorystore';
 
 // Load environment variables first
 dotenv.config();
@@ -31,9 +32,14 @@ app.use(cors({
 app.use(express.json({ limit: '25mb' }));
 app.use(express.urlencoded({ extended: false, limit: '25mb' }));
 
-// Session configuration
+// Session configuration with memory store for development
+const MemoryStore = MemoryStoreFactory(session);
+
 app.use(session({
   secret: process.env.SESSION_SECRET || 'your-secret-key-change-in-production',
+  store: new MemoryStore({
+    checkPeriod: 86400000 // prune expired entries every 24h
+  }),
   resave: false,
   saveUninitialized: false,
   cookie: {
