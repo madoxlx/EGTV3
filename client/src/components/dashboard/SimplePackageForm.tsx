@@ -2795,8 +2795,27 @@ export function PackageCreatorForm({
                             >
                               {hotel.name}
                             </label>
-                            <div className="ml-auto text-xs text-muted-foreground">
-                              {hotel.city}, {hotel.country}
+                            <div className="ml-auto flex flex-col items-end">
+                              <div className="flex items-center gap-1 mb-1">
+                                {Array.from({ length: 5 }, (_, i) => (
+                                  <span
+                                    key={i}
+                                    className={`text-xs ${
+                                      i < (hotel.stars || 0)
+                                        ? "text-yellow-500"
+                                        : "text-gray-300"
+                                    }`}
+                                  >
+                                    ★
+                                  </span>
+                                ))}
+                                <span className="text-xs text-muted-foreground ml-1">
+                                  ({hotel.stars || 0})
+                                </span>
+                              </div>
+                              <div className="text-xs text-muted-foreground">
+                                {hotel.city}, {hotel.country}
+                              </div>
                             </div>
                           </div>
                         ))}
@@ -3098,9 +3117,28 @@ export function PackageCreatorForm({
                                 key={hotel.id}
                                 className="border rounded-md p-4"
                               >
-                                <h4 className="font-medium text-md mb-3">
-                                  {hotel.name}
-                                </h4>
+                                <div className="flex items-center justify-between mb-3">
+                                  <h4 className="font-medium text-md">
+                                    {hotel.name}
+                                  </h4>
+                                  <div className="flex items-center gap-1">
+                                    {Array.from({ length: 5 }, (_, i) => (
+                                      <span
+                                        key={i}
+                                        className={`text-sm ${
+                                          i < (hotel.stars || 0)
+                                            ? "text-yellow-500"
+                                            : "text-gray-300"
+                                        }`}
+                                      >
+                                        ★
+                                      </span>
+                                    ))}
+                                    <span className="text-sm text-muted-foreground ml-1">
+                                      ({hotel.stars || 0} stars)
+                                    </span>
+                                  </div>
+                                </div>
                                 <div className="grid grid-cols-1 gap-3">
                                   {filteredRooms
                                     .filter(
