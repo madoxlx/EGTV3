@@ -665,7 +665,10 @@ export default function PackageDetail() {
                               <div className="text-center">
                                 <X className="h-12 w-12 text-gray-300 mx-auto mb-3" />
                                 <p className="text-gray-500">
-                                  Exclusion details will be provided upon inquiry
+                                  {userData?.role === 'admin' 
+                                    ? 'Exclusion details will be provided upon inquiry'
+                                    : 'No exclusions available.'
+                                  }
                                 </p>
                               </div>
                             </li>
