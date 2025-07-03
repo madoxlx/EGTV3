@@ -856,7 +856,8 @@ export function PackageCreatorForm({
         data,
         [
           "title",
-          "description",
+          "shortDescription",
+          "overview",
           "countryId",
           "cityId",
           "category",
@@ -866,7 +867,8 @@ export function PackageCreatorForm({
         ],
         {
           title: "Package Name",
-          description: "Description",
+          shortDescription: "Short Description", 
+          overview: "Overview",
           countryId: "Country",
           cityId: "City",
           category: "Destination",

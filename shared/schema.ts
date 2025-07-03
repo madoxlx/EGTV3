@@ -1,4 +1,14 @@
-import { pgTable, text, integer, serial, primaryKey, doublePrecision, boolean, timestamp, json } from "drizzle-orm/pg-core";
+import {
+  pgTable,
+  text,
+  integer,
+  serial,
+  primaryKey,
+  doublePrecision,
+  boolean,
+  timestamp,
+  json,
+} from "drizzle-orm/pg-core";
 import { relations } from "drizzle-orm";
 import { createInsertSchema } from "drizzle-zod";
 import { z } from "zod";
@@ -21,7 +31,9 @@ export const countries = pgTable("countries", {
 export const cities = pgTable("cities", {
   id: serial("id").primaryKey(),
   name: text("name").notNull(),
-  countryId: integer("country_id").notNull().references(() => countries.id),
+  countryId: integer("country_id")
+    .notNull()
+    .references(() => countries.id),
   description: text("description"),
   imageUrl: text("image_url"),
   active: boolean("active").default(true),
@@ -35,7 +47,9 @@ export const cities = pgTable("cities", {
 export const airports = pgTable("airports", {
   id: serial("id").primaryKey(),
   name: text("name").notNull(),
-  cityId: integer("city_id").notNull().references(() => cities.id),
+  cityId: integer("city_id")
+    .notNull()
+    .references(() => cities.id),
   code: text("code"), // IATA code (optional)
   description: text("description"),
   imageUrl: text("image_url"),
@@ -160,7 +174,7 @@ export const packages = pgTable("packages", {
   type: text("type"),
   inclusions: json("inclusions"), // Using native JSON in PostgreSQL
   slug: text("slug").unique(), // Friendly URL slug
-  
+
   // New complex fields for comprehensive package management
   route: text("route"), // Route/Location information
   idealFor: json("ideal_for"), // Array of ideal traveler types
@@ -177,25 +191,25 @@ export const packages = pgTable("packages", {
   transportation: text("transportation"),
   transportationPrice: integer("transportation_price"),
   pricingMode: text("pricing_mode").default("per_booking"), // Pricing structure
-  
+
   // Date fields
   startDate: timestamp("start_date"),
   endDate: timestamp("end_date"),
-  
+
   // Traveler counts
   adultCount: integer("adult_count").default(2),
   childrenCount: integer("children_count").default(0),
   infantCount: integer("infant_count").default(0),
-  
+
   // Additional metadata
   maxGroupSize: integer("max_group_size").default(15),
   language: text("language").default("english"),
   bestTimeToVisit: text("best_time_to_visit"),
-  
+
   // Hotel and room selections
   selectedHotels: json("selected_hotels"),
   rooms: json("rooms"),
-  
+
   // Audit fields
   createdAt: timestamp("created_at").notNull().defaultNow(),
   updatedAt: timestamp("updated_at").defaultNow(),
@@ -238,18 +252,26 @@ export const bookings = pgTable("bookings", {
 });
 
 // User favorites
-export const favorites = pgTable("favorites", {
-  userId: integer("user_id").notNull().references(() => users.id),
-  destinationId: integer("destination_id").notNull().references(() => destinations.id),
-  createdAt: timestamp("created_at").notNull().defaultNow(),
-  updatedAt: timestamp("updated_at").defaultNow(),
-  createdBy: integer("created_by").references(() => users.id),
-  updatedBy: integer("updated_by").references(() => users.id),
-}, (table) => {
-  return {
-    pk: primaryKey({ columns: [table.userId, table.destinationId] }),
-  };
-});
+export const favorites = pgTable(
+  "favorites",
+  {
+    userId: integer("user_id")
+      .notNull()
+      .references(() => users.id),
+    destinationId: integer("destination_id")
+      .notNull()
+      .references(() => destinations.id),
+    createdAt: timestamp("created_at").notNull().defaultNow(),
+    updatedAt: timestamp("updated_at").defaultNow(),
+    createdBy: integer("created_by").references(() => users.id),
+    updatedBy: integer("updated_by").references(() => users.id),
+  },
+  (table) => {
+    return {
+      pk: primaryKey({ columns: [table.userId, table.destinationId] }),
+    };
+  },
+);
 
 // Tours table
 export const tours = pgTable("tours", {
@@ -329,7 +351,9 @@ export const hotels = pgTable("hotels", {
   cancellationPolicy: text("cancellation_policy"),
   // Services and facilities
   parkingAvailable: boolean("parking_available").default(false),
-  airportTransferAvailable: boolean("airport_transfer_available").default(false),
+  airportTransferAvailable: boolean("airport_transfer_available").default(
+    false,
+  ),
   carRentalAvailable: boolean("car_rental_available").default(false),
   shuttleAvailable: boolean("shuttle_available").default(false),
   wifiAvailable: boolean("wifi_available").default(true),
@@ -365,7 +389,9 @@ export const rooms = pgTable("rooms", {
   id: serial("id").primaryKey(),
   name: text("name").notNull(),
   description: text("description"),
-  hotelId: integer("hotel_id").references(() => hotels.id).notNull(),
+  hotelId: integer("hotel_id")
+    .references(() => hotels.id)
+    .notNull(),
   type: text("type").notNull(),
   maxOccupancy: integer("max_occupancy").notNull(),
   maxAdults: integer("max_adults").notNull(),
@@ -390,7 +416,9 @@ export const rooms = pgTable("rooms", {
 // Room Combinations table
 export const roomCombinations = pgTable("room_combinations", {
   id: serial("id").primaryKey(),
-  roomId: integer("room_id").references(() => rooms.id).notNull(),
+  roomId: integer("room_id")
+    .references(() => rooms.id)
+    .notNull(),
   adultsCount: integer("adults_count").notNull(),
   childrenCount: integer("children_count").notNull().default(0),
   infantsCount: integer("infants_count").notNull().default(0),
@@ -419,7 +447,9 @@ export const menus = pgTable("menus", {
 // Menu Items table for storing menu items
 export const menuItems = pgTable("menu_items", {
   id: serial("id").primaryKey(),
-  menuId: integer("menu_id").references(() => menus.id).notNull(),
+  menuId: integer("menu_id")
+    .references(() => menus.id)
+    .notNull(),
   parentId: integer("parent_id"),
   title: text("title").notNull(),
   url: text("url"), // URL is now optional
@@ -444,12 +474,15 @@ export const roomsRelations = relations(rooms, ({ many, one }) => ({
   }),
 }));
 
-export const roomCombinationsRelations = relations(roomCombinations, ({ one }) => ({
-  room: one(rooms, {
-    fields: [roomCombinations.roomId],
-    references: [rooms.id],
+export const roomCombinationsRelations = relations(
+  roomCombinations,
+  ({ one }) => ({
+    room: one(rooms, {
+      fields: [roomCombinations.roomId],
+      references: [rooms.id],
+    }),
   }),
-}));
+);
 
 // Define minimal relation for hotels first - we'll extend this later
 export const hotelsRelations = relations(hotels, ({ many, one }) => ({
@@ -509,7 +542,9 @@ export const visas = pgTable("visas", {
   id: serial("id").primaryKey(),
   title: text("title").notNull(),
   description: text("description"),
-  targetCountryId: integer("target_country_id").references(() => countries.id).notNull(),
+  targetCountryId: integer("target_country_id")
+    .references(() => countries.id)
+    .notNull(),
   imageUrl: text("image_url"),
   price: integer("price"),
   currency: text("currency").default("EGP").notNull(),
@@ -525,21 +560,28 @@ export const visas = pgTable("visas", {
 });
 
 // Nationality-specific visa requirements
-export const nationalityVisaRequirements = pgTable("nationality_visa_requirements", {
-  id: serial("id").primaryKey(),
-  visaId: integer("visa_id").references(() => visas.id).notNull(),
-  nationalityId: integer("nationality_id").references(() => nationalities.id).notNull(),
-  requirementDetails: text("requirement_details"),
-  additionalDocuments: json("additional_documents"), // Using native JSON in PostgreSQL
-  fees: integer("fees"),
-  processingTime: text("processing_time"),
-  notes: text("notes"),
-  active: boolean("active").default(true),
-  createdAt: timestamp("created_at").notNull().defaultNow(),
-  updatedAt: timestamp("updated_at").defaultNow(),
-  createdBy: integer("created_by").references(() => users.id),
-  updatedBy: integer("updated_by").references(() => users.id),
-});
+export const nationalityVisaRequirements = pgTable(
+  "nationality_visa_requirements",
+  {
+    id: serial("id").primaryKey(),
+    visaId: integer("visa_id")
+      .references(() => visas.id)
+      .notNull(),
+    nationalityId: integer("nationality_id")
+      .references(() => nationalities.id)
+      .notNull(),
+    requirementDetails: text("requirement_details"),
+    additionalDocuments: json("additional_documents"), // Using native JSON in PostgreSQL
+    fees: integer("fees"),
+    processingTime: text("processing_time"),
+    notes: text("notes"),
+    active: boolean("active").default(true),
+    createdAt: timestamp("created_at").notNull().defaultNow(),
+    updatedAt: timestamp("updated_at").defaultNow(),
+    createdBy: integer("created_by").references(() => users.id),
+    updatedBy: integer("updated_by").references(() => users.id),
+  },
+);
 
 // Define relations for visas and nationalities
 export const visasRelations = relations(visas, ({ one, many }) => ({
@@ -554,31 +596,36 @@ export const nationalitiesRelations = relations(nationalities, ({ many }) => ({
   visaRequirements: many(nationalityVisaRequirements),
 }));
 
-export const nationalityVisaRequirementsRelations = relations(nationalityVisaRequirements, ({ one }) => ({
-  visa: one(visas, {
-    fields: [nationalityVisaRequirements.visaId],
-    references: [visas.id],
+export const nationalityVisaRequirementsRelations = relations(
+  nationalityVisaRequirements,
+  ({ one }) => ({
+    visa: one(visas, {
+      fields: [nationalityVisaRequirements.visaId],
+      references: [visas.id],
+    }),
+    nationality: one(nationalities, {
+      fields: [nationalityVisaRequirements.nationalityId],
+      references: [nationalities.id],
+    }),
   }),
-  nationality: one(nationalities, {
-    fields: [nationalityVisaRequirements.nationalityId],
-    references: [nationalities.id],
-  }),
-}));
+);
 
 // Create insert schemas
-export const insertNationalitySchema = createInsertSchema(nationalities).omit({ 
+export const insertNationalitySchema = createInsertSchema(nationalities).omit({
   id: true,
   createdAt: true,
   updatedAt: true,
 });
 
-export const insertVisaSchema = createInsertSchema(visas).omit({ 
+export const insertVisaSchema = createInsertSchema(visas).omit({
   id: true,
   createdAt: true,
   updatedAt: true,
 });
 
-export const insertNationalityVisaRequirementSchema = createInsertSchema(nationalityVisaRequirements).omit({ 
+export const insertNationalityVisaRequirementSchema = createInsertSchema(
+  nationalityVisaRequirements,
+).omit({
   id: true,
   createdAt: true,
   updatedAt: true,
@@ -587,12 +634,15 @@ export const insertNationalityVisaRequirementSchema = createInsertSchema(nationa
 // Define types for tables
 export type Nationality = typeof nationalities.$inferSelect;
 export type Visa = typeof visas.$inferSelect;
-export type NationalityVisaRequirement = typeof nationalityVisaRequirements.$inferSelect;
+export type NationalityVisaRequirement =
+  typeof nationalityVisaRequirements.$inferSelect;
 
 // Define types for inserts
 export type InsertNationality = z.infer<typeof insertNationalitySchema>;
 export type InsertVisa = z.infer<typeof insertVisaSchema>;
-export type InsertNationalityVisaRequirement = z.infer<typeof insertNationalityVisaRequirementSchema>;
+export type InsertNationalityVisaRequirement = z.infer<
+  typeof insertNationalityVisaRequirementSchema
+>;
 
 // Cart system tables
 export const cartItems = pgTable("cart_items", {
@@ -641,7 +691,9 @@ export const orders = pgTable("orders", {
 
 export const orderItems = pgTable("order_items", {
   id: serial("id").primaryKey(),
-  orderId: integer("order_id").references(() => orders.id).notNull(),
+  orderId: integer("order_id")
+    .references(() => orders.id)
+    .notNull(),
   itemType: text("item_type").notNull(), // 'flight', 'hotel', 'room', 'tour', 'package', 'visa', 'transportation'
   itemId: integer("item_id").notNull(),
   itemName: text("item_name").notNull(),
@@ -687,48 +739,41 @@ export const orderItemsRelations = relations(orderItems, ({ one }) => ({
 }));
 
 // Cart and Order insert schemas
-export const insertCartItemSchema = createInsertSchema(cartItems).omit({
-  id: true,
-  createdAt: true,
-  updatedAt: true,
-}).extend({
-  travelDate: z.preprocess(
-    (val) => {
+export const insertCartItemSchema = createInsertSchema(cartItems)
+  .omit({
+    id: true,
+    createdAt: true,
+    updatedAt: true,
+  })
+  .extend({
+    travelDate: z.preprocess((val) => {
       if (!val) return null;
       if (val instanceof Date) return val;
-      if (typeof val === 'string') {
+      if (typeof val === "string") {
         const date = new Date(val);
         return isNaN(date.getTime()) ? null : date;
       }
       return null;
-    },
-    z.date().nullable().optional()
-  ),
-  checkInDate: z.preprocess(
-    (val) => {
+    }, z.date().nullable().optional()),
+    checkInDate: z.preprocess((val) => {
       if (!val) return null;
       if (val instanceof Date) return val;
-      if (typeof val === 'string') {
+      if (typeof val === "string") {
         const date = new Date(val);
         return isNaN(date.getTime()) ? null : date;
       }
       return null;
-    },
-    z.date().nullable().optional()
-  ),
-  checkOutDate: z.preprocess(
-    (val) => {
+    }, z.date().nullable().optional()),
+    checkOutDate: z.preprocess((val) => {
       if (!val) return null;
       if (val instanceof Date) return val;
-      if (typeof val === 'string') {
+      if (typeof val === "string") {
         const date = new Date(val);
         return isNaN(date.getTime()) ? null : date;
       }
       return null;
-    },
-    z.date().nullable().optional()
-  ),
-});
+    }, z.date().nullable().optional()),
+  });
 
 export const insertOrderSchema = createInsertSchema(orders).omit({
   id: true,
@@ -839,8 +884,12 @@ export const transportation = pgTable("transportation", {
   description: text("description"),
   typeId: integer("type_id").references(() => transportTypes.id),
   destinationId: integer("destination_id").references(() => destinations.id),
-  fromLocationId: integer("from_location_id").references(() => transportLocations.id),
-  toLocationId: integer("to_location_id").references(() => transportLocations.id),
+  fromLocationId: integer("from_location_id").references(
+    () => transportLocations.id,
+  ),
+  toLocationId: integer("to_location_id").references(
+    () => transportLocations.id,
+  ),
   durationId: integer("duration_id").references(() => transportDurations.id),
   passengerCapacity: integer("passenger_capacity").notNull(),
   baggageCapacity: integer("baggage_capacity").notNull(),
@@ -875,14 +924,22 @@ export const tourCategories = pgTable("tour_categories", {
 });
 
 // Tour to Category Relationship
-export const tourToCategory = pgTable("tour_to_category", {
-  tourId: integer("tour_id").notNull().references(() => tours.id),
-  categoryId: integer("category_id").notNull().references(() => tourCategories.id),
-}, (table) => {
-  return {
-    pk: primaryKey({ columns: [table.tourId, table.categoryId] }),
-  };
-});
+export const tourToCategory = pgTable(
+  "tour_to_category",
+  {
+    tourId: integer("tour_id")
+      .notNull()
+      .references(() => tours.id),
+    categoryId: integer("category_id")
+      .notNull()
+      .references(() => tourCategories.id),
+  },
+  (table) => {
+    return {
+      pk: primaryKey({ columns: [table.tourId, table.categoryId] }),
+    };
+  },
+);
 
 // Hotel Categories
 export const hotelCategories = pgTable("hotel_categories", {
@@ -897,14 +954,22 @@ export const hotelCategories = pgTable("hotel_categories", {
 });
 
 // Hotel to Category Relationship
-export const hotelToCategory = pgTable("hotel_to_category", {
-  hotelId: integer("hotel_id").notNull().references(() => hotels.id),
-  categoryId: integer("category_id").notNull().references(() => hotelCategories.id),
-}, (table) => {
-  return {
-    pk: primaryKey({ columns: [table.hotelId, table.categoryId] }),
-  };
-});
+export const hotelToCategory = pgTable(
+  "hotel_to_category",
+  {
+    hotelId: integer("hotel_id")
+      .notNull()
+      .references(() => hotels.id),
+    categoryId: integer("category_id")
+      .notNull()
+      .references(() => hotelCategories.id),
+  },
+  (table) => {
+    return {
+      pk: primaryKey({ columns: [table.hotelId, table.categoryId] }),
+    };
+  },
+);
 
 // Hotel Facilities
 export const hotelFacilities = pgTable("hotel_facilities", {
@@ -921,14 +986,22 @@ export const hotelFacilities = pgTable("hotel_facilities", {
 });
 
 // Hotel to Facilities Relationship
-export const hotelToFacilities = pgTable("hotel_to_facilities", {
-  hotelId: integer("hotel_id").notNull().references(() => hotels.id),
-  facilityId: integer("facility_id").notNull().references(() => hotelFacilities.id),
-}, (table) => {
-  return {
-    pk: primaryKey({ columns: [table.hotelId, table.facilityId] }),
-  };
-});
+export const hotelToFacilities = pgTable(
+  "hotel_to_facilities",
+  {
+    hotelId: integer("hotel_id")
+      .notNull()
+      .references(() => hotels.id),
+    facilityId: integer("facility_id")
+      .notNull()
+      .references(() => hotelFacilities.id),
+  },
+  (table) => {
+    return {
+      pk: primaryKey({ columns: [table.hotelId, table.facilityId] }),
+    };
+  },
+);
 
 // Hotel Cleanliness Features
 export const cleanlinessFeatures = pgTable("cleanliness_features", {
@@ -944,19 +1017,29 @@ export const cleanlinessFeatures = pgTable("cleanliness_features", {
 });
 
 // Hotel to Cleanliness Features Relationship
-export const hotelToCleanlinessFeatures = pgTable("hotel_to_cleanliness", {
-  hotelId: integer("hotel_id").notNull().references(() => hotels.id),
-  featureId: integer("feature_id").notNull().references(() => cleanlinessFeatures.id),
-}, (table) => {
-  return {
-    pk: primaryKey({ columns: [table.hotelId, table.featureId] }),
-  };
-});
+export const hotelToCleanlinessFeatures = pgTable(
+  "hotel_to_cleanliness",
+  {
+    hotelId: integer("hotel_id")
+      .notNull()
+      .references(() => hotels.id),
+    featureId: integer("feature_id")
+      .notNull()
+      .references(() => cleanlinessFeatures.id),
+  },
+  (table) => {
+    return {
+      pk: primaryKey({ columns: [table.hotelId, table.featureId] }),
+    };
+  },
+);
 
 // Hotel Landmarks
 export const hotelLandmarks = pgTable("hotel_landmarks", {
   id: serial("id").primaryKey(),
-  hotelId: integer("hotel_id").notNull().references(() => hotels.id),
+  hotelId: integer("hotel_id")
+    .notNull()
+    .references(() => hotels.id),
   name: text("name").notNull(),
   description: text("description"),
   distance: text("distance"), // E.g. "500m", "2.4km"
@@ -987,19 +1070,29 @@ export const hotelHighlights = pgTable("hotel_highlights", {
 });
 
 // Hotel to Highlights Relationship
-export const hotelToHighlights = pgTable("hotel_to_highlights", {
-  hotelId: integer("hotel_id").notNull().references(() => hotels.id),
-  highlightId: integer("highlight_id").notNull().references(() => hotelHighlights.id),
-}, (table) => {
-  return {
-    pk: primaryKey({ columns: [table.hotelId, table.highlightId] }),
-  };
-});
+export const hotelToHighlights = pgTable(
+  "hotel_to_highlights",
+  {
+    hotelId: integer("hotel_id")
+      .notNull()
+      .references(() => hotels.id),
+    highlightId: integer("highlight_id")
+      .notNull()
+      .references(() => hotelHighlights.id),
+  },
+  (table) => {
+    return {
+      pk: primaryKey({ columns: [table.hotelId, table.highlightId] }),
+    };
+  },
+);
 
 // Hotel FAQs
 export const hotelFaqs = pgTable("hotel_faqs", {
   id: serial("id").primaryKey(),
-  hotelId: integer("hotel_id").notNull().references(() => hotels.id),
+  hotelId: integer("hotel_id")
+    .notNull()
+    .references(() => hotels.id),
   question: text("question").notNull(),
   answer: text("answer").notNull(),
   order: integer("order").default(0),
@@ -1013,7 +1106,9 @@ export const hotelFaqs = pgTable("hotel_faqs", {
 // Hotel Restaurants
 export const hotelRestaurants = pgTable("hotel_restaurants", {
   id: serial("id").primaryKey(),
-  hotelId: integer("hotel_id").notNull().references(() => hotels.id),
+  hotelId: integer("hotel_id")
+    .notNull()
+    .references(() => hotels.id),
   name: text("name").notNull(),
   description: text("description"),
   cuisine: text("cuisine"), // E.g. "Italian", "International", "Halal"
@@ -1040,14 +1135,22 @@ export const roomCategories = pgTable("room_categories", {
 });
 
 // Room to Category Relationship
-export const roomToCategory = pgTable("room_to_category", {
-  roomId: integer("room_id").notNull().references(() => rooms.id),
-  categoryId: integer("category_id").notNull().references(() => roomCategories.id),
-}, (table) => {
-  return {
-    pk: primaryKey({ columns: [table.roomId, table.categoryId] }),
-  };
-});
+export const roomToCategory = pgTable(
+  "room_to_category",
+  {
+    roomId: integer("room_id")
+      .notNull()
+      .references(() => rooms.id),
+    categoryId: integer("category_id")
+      .notNull()
+      .references(() => roomCategories.id),
+  },
+  (table) => {
+    return {
+      pk: primaryKey({ columns: [table.roomId, table.categoryId] }),
+    };
+  },
+);
 
 // Package Categories
 export const packageCategories = pgTable("package_categories", {
@@ -1062,14 +1165,22 @@ export const packageCategories = pgTable("package_categories", {
 });
 
 // Package to Category Relationship
-export const packageToCategory = pgTable("package_to_category", {
-  packageId: integer("package_id").notNull().references(() => packages.id),
-  categoryId: integer("category_id").notNull().references(() => packageCategories.id),
-}, (table) => {
-  return {
-    pk: primaryKey({ columns: [table.packageId, table.categoryId] }),
-  };
-});
+export const packageToCategory = pgTable(
+  "package_to_category",
+  {
+    packageId: integer("package_id")
+      .notNull()
+      .references(() => packages.id),
+    categoryId: integer("category_id")
+      .notNull()
+      .references(() => packageCategories.id),
+  },
+  (table) => {
+    return {
+      pk: primaryKey({ columns: [table.packageId, table.categoryId] }),
+    };
+  },
+);
 
 // Insert schemas
 export const insertCountrySchema = createInsertSchema(countries).pick({
@@ -1120,36 +1231,45 @@ export const insertDestinationSchema = createInsertSchema(destinations).omit({
   updatedBy: true,
 });
 
-export const insertPackageSchema = createInsertSchema(packages).pick({
-  title: true,
-  description: true,
-  shortDescription: true,
-  overview: true,
-  price: true,
-  discountedPrice: true,
-  imageUrl: true,
-  galleryUrls: true,
-  duration: true,
-  rating: true,
-  destinationId: true,
-  countryId: true,
-  cityId: true,
-  categoryId: true,
-  category: true,
-  featured: true,
-  type: true,
-  inclusions: true,
-  slug: true,
-}).refine((data) => {
-  // Require at least one image: either imageUrl or at least one URL in galleryUrls
-  const hasMainImage = data.imageUrl && data.imageUrl.trim() !== '';
-  const hasGalleryImages = data.galleryUrls && Array.isArray(data.galleryUrls) && data.galleryUrls.length > 0;
-  
-  return hasMainImage || hasGalleryImages;
-}, {
-  message: "At least one image is required. Please provide either a main image or add images to the gallery.",
-  path: ["imageUrl"] // This will show the error on the imageUrl field
-});
+export const insertPackageSchema = createInsertSchema(packages)
+  .pick({
+    title: true,
+    description: false,
+    shortDescription: true,
+    overview: true,
+    price: true,
+    discountedPrice: true,
+    imageUrl: true,
+    galleryUrls: true,
+    duration: true,
+    rating: true,
+    destinationId: true,
+    countryId: true,
+    cityId: true,
+    categoryId: true,
+    category: true,
+    featured: true,
+    type: true,
+    inclusions: true,
+    slug: true,
+  })
+  .refine(
+    (data) => {
+      // Require at least one image: either imageUrl or at least one URL in galleryUrls
+      const hasMainImage = data.imageUrl && data.imageUrl.trim() !== "";
+      const hasGalleryImages =
+        data.galleryUrls &&
+        Array.isArray(data.galleryUrls) &&
+        data.galleryUrls.length > 0;
+
+      return hasMainImage || hasGalleryImages;
+    },
+    {
+      message:
+        "At least one image is required. Please provide either a main image or add images to the gallery.",
+      path: ["imageUrl"], // This will show the error on the imageUrl field
+    },
+  );
 
 export const insertBookingSchema = createInsertSchema(bookings).pick({
   userId: true,
@@ -1201,136 +1321,121 @@ export const insertTourSchema = createInsertSchema(tours)
     date: true,
   })
   .extend({
-    date: z.preprocess(
-      (val) => {
-        if (!val) return null;
-        if (val instanceof Date) return val;
-        if (typeof val === 'string') {
-          const date = new Date(val);
-          return isNaN(date.getTime()) ? null : date;
-        }
-        return null;
-      },
-      z.date().nullable().optional()
-    ),
-    startDate: z.preprocess(
-      (val) => {
-        if (!val) return null;
-        if (val instanceof Date) return val;
-        if (typeof val === 'string') {
-          const date = new Date(val);
-          return isNaN(date.getTime()) ? null : date;
-        }
-        return null;
-      },
-      z.date().nullable().optional()
-    ),
-    endDate: z.preprocess(
-      (val) => {
-        if (!val) return null;
-        if (val instanceof Date) return val;
-        if (typeof val === 'string') {
-          const date = new Date(val);
-          return isNaN(date.getTime()) ? null : date;
-        }
-        return null;
-      },
-      z.date().nullable().optional()
-    ),
+    date: z.preprocess((val) => {
+      if (!val) return null;
+      if (val instanceof Date) return val;
+      if (typeof val === "string") {
+        const date = new Date(val);
+        return isNaN(date.getTime()) ? null : date;
+      }
+      return null;
+    }, z.date().nullable().optional()),
+    startDate: z.preprocess((val) => {
+      if (!val) return null;
+      if (val instanceof Date) return val;
+      if (typeof val === "string") {
+        const date = new Date(val);
+        return isNaN(date.getTime()) ? null : date;
+      }
+      return null;
+    }, z.date().nullable().optional()),
+    endDate: z.preprocess((val) => {
+      if (!val) return null;
+      if (val instanceof Date) return val;
+      if (typeof val === "string") {
+        const date = new Date(val);
+        return isNaN(date.getTime()) ? null : date;
+      }
+      return null;
+    }, z.date().nullable().optional()),
   });
 
-export const insertHotelSchema = createInsertSchema(hotels).pick({
-  name: true,
-  description: true,
-  shortDescription: true,
-  destinationId: true,
-  countryId: true,
-  cityId: true,
-  categoryId: true,
-  address: true,
-  city: true,
-  country: true,
-  postalCode: true,
-  phone: true,
-  email: true,
-  website: true,
-  imageUrl: true,
-  galleryUrls: true,
-  stars: true,
-  basePrice: true,
-  currency: true,
-  amenities: true,
-  checkInTime: true,
-  checkOutTime: true,
-  longitude: true,
-  latitude: true,
-  featured: true,
-  rating: true,
-  guestRating: true,
-  status: true,
-  verificationStatus: true,
-  parkingAvailable: true,
-  airportTransferAvailable: true,
-  carRentalAvailable: true,
-  shuttleAvailable: true,
-  wifiAvailable: true,
-  petFriendly: true,
-  accessibleFacilities: true,
-  createdBy: true,
-  // Additional info fields
-  languages: true, // Add languages field to support multi-language hotels
-  // Complex data fields
-  restaurants: true,
-  landmarks: true,
-  faqs: true,
-  roomTypes: true,
-  features: true, // Add features field for hotel feature objects
-}).extend({
-  // JSON preprocessing for complex data fields - allow valid arrays to pass through
-  restaurants: z.preprocess(
-    (val) => {
+export const insertHotelSchema = createInsertSchema(hotels)
+  .pick({
+    name: true,
+    description: true,
+    shortDescription: true,
+    destinationId: true,
+    countryId: true,
+    cityId: true,
+    categoryId: true,
+    address: true,
+    city: true,
+    country: true,
+    postalCode: true,
+    phone: true,
+    email: true,
+    website: true,
+    imageUrl: true,
+    galleryUrls: true,
+    stars: true,
+    basePrice: true,
+    currency: true,
+    amenities: true,
+    checkInTime: true,
+    checkOutTime: true,
+    longitude: true,
+    latitude: true,
+    featured: true,
+    rating: true,
+    guestRating: true,
+    status: true,
+    verificationStatus: true,
+    parkingAvailable: true,
+    airportTransferAvailable: true,
+    carRentalAvailable: true,
+    shuttleAvailable: true,
+    wifiAvailable: true,
+    petFriendly: true,
+    accessibleFacilities: true,
+    createdBy: true,
+    // Additional info fields
+    languages: true, // Add languages field to support multi-language hotels
+    // Complex data fields
+    restaurants: true,
+    landmarks: true,
+    faqs: true,
+    roomTypes: true,
+    features: true, // Add features field for hotel feature objects
+  })
+  .extend({
+    // JSON preprocessing for complex data fields - allow valid arrays to pass through
+    restaurants: z.preprocess((val) => {
       if (!val) return null;
       if (Array.isArray(val)) return val; // Pass through arrays regardless of length
       return val;
-    },
-    z.array(z.any()).nullable().optional()
-  ),
-  landmarks: z.preprocess(
-    (val) => {
+    }, z.array(z.any()).nullable().optional()),
+    landmarks: z.preprocess((val) => {
       if (!val) return null;
       if (Array.isArray(val)) return val; // Pass through arrays regardless of length
       return val;
-    },
-    z.array(z.any()).nullable().optional()
-  ),
-  faqs: z.preprocess(
-    (val) => {
+    }, z.array(z.any()).nullable().optional()),
+    faqs: z.preprocess((val) => {
       if (!val) return null;
       if (Array.isArray(val)) return val; // Pass through arrays regardless of length
       return val;
-    },
-    z.array(z.any()).nullable().optional()
-  ),
-  roomTypes: z.preprocess(
-    (val) => {
+    }, z.array(z.any()).nullable().optional()),
+    roomTypes: z.preprocess((val) => {
       if (!val) return null;
       if (Array.isArray(val)) return val; // Pass through arrays regardless of length
       return val;
-    },
-    z.array(z.any()).nullable().optional()
-  ),
-  features: z.preprocess(
-    (val) => {
-      if (!val) return [];
-      if (Array.isArray(val)) return val; // Pass through feature object arrays
-      return [];
-    },
-    z.array(z.object({
-      name: z.string(),
-      icon: z.string(),
-    })).default([])
-  ),
-});
+    }, z.array(z.any()).nullable().optional()),
+    features: z.preprocess(
+      (val) => {
+        if (!val) return [];
+        if (Array.isArray(val)) return val; // Pass through feature object arrays
+        return [];
+      },
+      z
+        .array(
+          z.object({
+            name: z.string(),
+            icon: z.string(),
+          }),
+        )
+        .default([]),
+    ),
+  });
 
 // Hero slide schema types
 export const insertHeroSlideSchema = createInsertSchema(heroSlides).pick({
@@ -1369,7 +1474,9 @@ export const insertRoomSchema = createInsertSchema(rooms).pick({
   status: true,
 });
 
-export const insertRoomCombinationSchema = createInsertSchema(roomCombinations).pick({
+export const insertRoomCombinationSchema = createInsertSchema(
+  roomCombinations,
+).pick({
   roomId: true,
   adultsCount: true,
   childrenCount: true,
@@ -1379,7 +1486,9 @@ export const insertRoomCombinationSchema = createInsertSchema(roomCombinations).
   active: true,
 });
 
-export const insertTransportLocationSchema = createInsertSchema(transportLocations).pick({
+export const insertTransportLocationSchema = createInsertSchema(
+  transportLocations,
+).pick({
   name: true,
   city: true,
   country: true,
@@ -1392,7 +1501,9 @@ export const insertTransportLocationSchema = createInsertSchema(transportLocatio
   status: true,
 });
 
-export const insertTransportDurationSchema = createInsertSchema(transportDurations).pick({
+export const insertTransportDurationSchema = createInsertSchema(
+  transportDurations,
+).pick({
   name: true,
   hours: true,
   description: true,
@@ -1407,14 +1518,18 @@ export const insertTranslationSchema = createInsertSchema(translations).pick({
   category: true,
 });
 
-export const insertSiteLanguageSettingsSchema = createInsertSchema(siteLanguageSettings).pick({
+export const insertSiteLanguageSettingsSchema = createInsertSchema(
+  siteLanguageSettings,
+).pick({
   defaultLanguage: true,
   availableLanguages: true,
   rtlLanguages: true,
 });
 
 // Define dictionary entry insert schema
-export const insertDictionaryEntrySchema = createInsertSchema(dictionaryEntries).pick({
+export const insertDictionaryEntrySchema = createInsertSchema(
+  dictionaryEntries,
+).pick({
   word: true,
   englishDefinition: true,
   arabicTranslation: true,
@@ -1429,13 +1544,17 @@ export type Translation = typeof translations.$inferSelect;
 export type InsertTranslation = z.infer<typeof insertTranslationSchema>;
 
 export type SiteLanguageSetting = typeof siteLanguageSettings.$inferSelect;
-export type InsertSiteLanguageSetting = z.infer<typeof insertSiteLanguageSettingsSchema>;
+export type InsertSiteLanguageSetting = z.infer<
+  typeof insertSiteLanguageSettingsSchema
+>;
 
 // Define dictionary entry types
 export type DictionaryEntry = typeof dictionaryEntries.$inferSelect;
 export type InsertDictionaryEntry = z.infer<typeof insertDictionaryEntrySchema>;
 
-export const insertTransportTypeSchema = createInsertSchema(transportTypes).pick({
+export const insertTransportTypeSchema = createInsertSchema(
+  transportTypes,
+).pick({
   name: true,
   description: true,
   imageUrl: true,
@@ -1471,7 +1590,9 @@ export const insertMenuItemSchema = createInsertSchema(menuItems).pick({
 export type MenuItem = typeof menuItems.$inferSelect;
 export type InsertMenuItem = z.infer<typeof insertMenuItemSchema>;
 
-export const insertTransportationSchema = createInsertSchema(transportation).pick({
+export const insertTransportationSchema = createInsertSchema(
+  transportation,
+).pick({
   name: true,
   description: true,
   typeId: true,
@@ -1519,7 +1640,9 @@ export type Booking = typeof bookings.$inferSelect;
 // Reviews table for user feedback
 export const reviews = pgTable("reviews", {
   id: serial("id").primaryKey(),
-  userId: integer("user_id").references(() => users.id).notNull(),
+  userId: integer("user_id")
+    .references(() => users.id)
+    .notNull(),
   bookingId: integer("booking_id").references(() => bookings.id),
   packageId: integer("package_id").references(() => packages.id),
   tourId: integer("tour_id").references(() => tours.id),
@@ -1546,8 +1669,12 @@ export const reviews = pgTable("reviews", {
 export const payments = pgTable("payments", {
   id: serial("id").primaryKey(),
   paymentReference: text("payment_reference").notNull().unique(),
-  bookingId: integer("booking_id").references(() => bookings.id).notNull(),
-  userId: integer("user_id").references(() => users.id).notNull(),
+  bookingId: integer("booking_id")
+    .references(() => bookings.id)
+    .notNull(),
+  userId: integer("user_id")
+    .references(() => users.id)
+    .notNull(),
   amount: integer("amount").notNull(),
   currency: text("currency").default("EGP").notNull(),
   paymentMethod: text("payment_method").notNull(), // card, paypal, bank_transfer
@@ -1571,7 +1698,9 @@ export const payments = pgTable("payments", {
 // Notifications table for user communications
 export const notifications = pgTable("notifications", {
   id: serial("id").primaryKey(),
-  userId: integer("user_id").references(() => users.id).notNull(),
+  userId: integer("user_id")
+    .references(() => users.id)
+    .notNull(),
   type: text("type").notNull(), // booking_confirmation, payment_received, etc.
   title: text("title").notNull(),
   message: text("message").notNull(),
@@ -1594,7 +1723,9 @@ export const notifications = pgTable("notifications", {
 // Traveler details for bookings
 export const travelers = pgTable("travelers", {
   id: serial("id").primaryKey(),
-  bookingId: integer("booking_id").references(() => bookings.id).notNull(),
+  bookingId: integer("booking_id")
+    .references(() => bookings.id)
+    .notNull(),
   type: text("type").notNull(), // adult, child, infant
   title: text("title"), // Mr, Mrs, Ms, Dr
   firstName: text("first_name").notNull(),
@@ -1643,9 +1774,15 @@ export const coupons = pgTable("coupons", {
 // Coupon usage tracking
 export const couponUsages = pgTable("coupon_usages", {
   id: serial("id").primaryKey(),
-  couponId: integer("coupon_id").references(() => coupons.id).notNull(),
-  userId: integer("user_id").references(() => users.id).notNull(),
-  bookingId: integer("booking_id").references(() => bookings.id).notNull(),
+  couponId: integer("coupon_id")
+    .references(() => coupons.id)
+    .notNull(),
+  userId: integer("user_id")
+    .references(() => users.id)
+    .notNull(),
+  bookingId: integer("booking_id")
+    .references(() => bookings.id)
+    .notNull(),
   discountAmount: integer("discount_amount").notNull(),
   usedAt: timestamp("used_at").notNull().defaultNow(),
   createdAt: timestamp("created_at").notNull().defaultNow(),
@@ -1669,10 +1806,14 @@ export type Room = typeof rooms.$inferSelect;
 export type InsertRoomCombination = z.infer<typeof insertRoomCombinationSchema>;
 export type RoomCombination = typeof roomCombinations.$inferSelect;
 
-export type InsertTransportLocation = z.infer<typeof insertTransportLocationSchema>;
+export type InsertTransportLocation = z.infer<
+  typeof insertTransportLocationSchema
+>;
 export type TransportLocation = typeof transportLocations.$inferSelect;
 
-export type InsertTransportDuration = z.infer<typeof insertTransportDurationSchema>;
+export type InsertTransportDuration = z.infer<
+  typeof insertTransportDurationSchema
+>;
 export type TransportDuration = typeof transportDurations.$inferSelect;
 
 export type InsertTransportType = z.infer<typeof insertTransportTypeSchema>;
@@ -1682,25 +1823,33 @@ export type InsertTransportation = z.infer<typeof insertTransportationSchema>;
 export type Transportation = typeof transportation.$inferSelect;
 
 // Categories insert schemas
-export const insertTourCategorySchema = createInsertSchema(tourCategories).pick({
+export const insertTourCategorySchema = createInsertSchema(tourCategories).pick(
+  {
+    name: true,
+    description: true,
+    active: true,
+  },
+);
+
+export const insertHotelCategorySchema = createInsertSchema(
+  hotelCategories,
+).pick({
   name: true,
   description: true,
   active: true,
 });
 
-export const insertHotelCategorySchema = createInsertSchema(hotelCategories).pick({
-  name: true,
-  description: true,
-  active: true,
-});
+export const insertRoomCategorySchema = createInsertSchema(roomCategories).pick(
+  {
+    name: true,
+    description: true,
+    active: true,
+  },
+);
 
-export const insertRoomCategorySchema = createInsertSchema(roomCategories).pick({
-  name: true,
-  description: true,
-  active: true,
-});
-
-export const insertPackageCategorySchema = createInsertSchema(packageCategories).pick({
+export const insertPackageCategorySchema = createInsertSchema(
+  packageCategories,
+).pick({
   name: true,
   description: true,
   active: true,
