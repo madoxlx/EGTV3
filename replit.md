@@ -106,6 +106,12 @@ The application uses a comprehensive PostgreSQL schema with the following core e
 
 ## Recent Changes
 
+- **Package Form Description Field Validation Fix (July 3, 2025)**: Fixed form validation mismatch where schema required 'description' field but form UI only had 'shortDescription' and 'overview' fields
+  - Made description field optional in packageFormSchema since it doesn't exist in the form UI
+  - Enhanced overview field validation to require minimum 10 characters
+  - Resolved validation error preventing package submission when user filled shortDescription and overview
+  - Package creation form now works correctly with existing UI fields without asking for non-existent description field
+
 - **Hotel Room Display Fix Complete (July 3, 2025)**: Successfully resolved critical issue where multiple rooms for the same hotel weren't displaying in package creation forms
   - Fixed room filtering logic in SimplePackageForm.tsx to properly validate individual capacity constraints (adults, children, infants)
   - Replaced total occupancy validation with detailed capacity checking for each guest type

@@ -111,11 +111,9 @@ import { IconSelector } from "@/components/ui/IconSelector";
 const packageFormSchema = z.object({
   // Basic fields
   title: z.string().min(3, { message: "Title must be at least 3 characters" }),
-  description: z
-    .string()
-    .min(20, { message: "Description should be at least 20 characters" }),
+  description: z.string().optional(), // Made optional since the form doesn't have this field
   shortDescription: z.string().optional(),
-  overview: z.string().optional(),
+  overview: z.string().min(10, { message: "Overview should be at least 10 characters" }),
   price: z.coerce
     .number()
     .min(0, { message: "Price must be a positive number" }),
@@ -578,7 +576,7 @@ export function PackageCreatorForm({
       selectedHotels: [],
       rooms: [],
       tourSelection: [],
-      selectedTourId: null,
+      selectedTourId: undefined,
       adultCount: 2,
       childrenCount: 0,
       infantCount: 0,
