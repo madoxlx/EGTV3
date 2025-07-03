@@ -357,6 +357,9 @@ export function PackageCreatorForm({
   const [selectedTour, setSelectedTour] = useState<Tour | null>(null);
   const tourSearchRef = useRef<HTMLDivElement>(null);
 
+  // Hotel search functionality
+  const [hotelSearchQuery, setHotelSearchQuery] = useState<string>("");
+
   // Track whether we're submitting an update or create
   const [isUpdating, setIsUpdating] = useState<boolean>(false);
 
@@ -1549,6 +1552,29 @@ export function PackageCreatorForm({
     }
   };
 
+  // Hotel filtering function
+  const getFilteredHotels = useCallback(() => {
+    if (!hotelSearchQuery.trim()) {
+      return hotels;
+    }
+
+    const searchQuery = hotelSearchQuery.toLowerCase().trim();
+    
+    return hotels.filter((hotel) => {
+      // Search by hotel name
+      const nameMatch = hotel.name.toLowerCase().includes(searchQuery);
+      
+      // Search by destination/city
+      const cityMatch = hotel.city?.toLowerCase().includes(searchQuery);
+      const countryMatch = hotel.country?.toLowerCase().includes(searchQuery);
+      
+      // Search by ID (convert to string for comparison)
+      const idMatch = hotel.id.toString().includes(searchQuery);
+      
+      return nameMatch || cityMatch || countryMatch || idMatch;
+    });
+  }, [hotels, hotelSearchQuery]);
+
   // Validation helper functions
   const validateFormFields = useCallback(() => {
     const formData = form.getValues();
@@ -2660,6 +2686,23 @@ export function PackageCreatorForm({
             {/* Hotel Selection */}
             <div className="space-y-4 border rounded-md p-4">
               <h3 className="text-lg font-semibold">Select Hotels</h3>
+              
+              {/* Hotel Search Input */}
+              <div className="space-y-2">
+                <Label htmlFor="hotel-search">Search Hotels</Label>
+                <Input
+                  id="hotel-search"
+                  type="text"
+                  placeholder="Search by hotel name, destination, or ID..."
+                  value={hotelSearchQuery}
+                  onChange={(e) => setHotelSearchQuery(e.target.value)}
+                  className="w-full"
+                />
+                <div className="text-sm text-muted-foreground">
+                  Showing {getFilteredHotels().length} of {hotels.length} hotels
+                </div>
+              </div>
+
               <FormField
                 control={form.control}
                 name="selectedHotels"
@@ -2667,7 +2710,7 @@ export function PackageCreatorForm({
                   <FormItem>
                     <FormControl>
                       <div className="space-y-2">
-                        {hotels.map((hotel) => (
+                        {getFilteredHotels().map((hotel) => (
                           <div
                             key={hotel.id}
                             className="flex items-center space-x-2 p-2 border rounded"
