@@ -76,6 +76,7 @@ export interface IStorage {
     id: number,
     pkg: Partial<InsertPackage>,
   ): Promise<Package | undefined>;
+  deletePackage(id: number): Promise<boolean>;
 
   // Hotels
   getHotel(id: number): Promise<Hotel | undefined>;
@@ -388,6 +389,18 @@ export class DatabaseStorage implements IStorage {
       .where(eq(packages.id, id))
       .returning();
     return updated || undefined;
+  }
+
+  async deletePackage(id: number): Promise<boolean> {
+    try {
+      const result = await db
+        .delete(packages)
+        .where(eq(packages.id, id));
+      return !!result;
+    } catch (error) {
+      console.error("Error deleting package:", error);
+      return false;
+    }
   }
 
   // Hotels
