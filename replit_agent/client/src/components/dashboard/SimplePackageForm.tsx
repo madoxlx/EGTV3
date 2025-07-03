@@ -749,6 +749,42 @@ export function PackageCreatorForm({ packageId }: PackageCreatorFormProps) {
         // Log the available cities for the selected country
         console.log('Available cities for country ID', countryId, ':', cities);
 
+        // Parse hotel and room data from database
+        const parsedSelectedHotels = existingPackageData.selectedHotels
+          ? typeof existingPackageData.selectedHotels === "string"
+            ? JSON.parse(existingPackageData.selectedHotels)
+            : existingPackageData.selectedHotels
+          : [];
+        const parsedRooms = existingPackageData.rooms
+          ? typeof existingPackageData.rooms === "string"
+            ? JSON.parse(existingPackageData.rooms)
+            : existingPackageData.rooms
+          : [];
+
+        // Log hotel and room data loading for debugging
+        console.log("Loading hotel and room data from database:");
+        console.log("- Selected Hotels:", parsedSelectedHotels);
+        console.log("- Rooms:", parsedRooms);
+
+        // Set component state for hotels and rooms
+        if (Array.isArray(parsedSelectedHotels) && parsedSelectedHotels.length > 0) {
+          // Convert hotel IDs to strings if they aren't already
+          const hotelIds = parsedSelectedHotels.map(h => String(h));
+          console.log("Setting selectedHotels state:", hotelIds);
+          
+          // Update available rooms based on selected hotels
+          const hotelRooms = allRooms.filter(room => 
+            hotelIds.includes(String(room.hotelId || room.hotel_id))
+          );
+          setAvailableRooms(hotelRooms);
+          console.log("Available rooms for selected hotels:", hotelRooms);
+        }
+
+        if (Array.isArray(parsedRooms) && parsedRooms.length > 0) {
+          setSelectedHotelRooms(parsedRooms);
+          console.log("Setting selectedHotelRooms state:", parsedRooms);
+        }
+
         // Set form values
         form.reset({
           name: existingPackageData.title || "",
@@ -757,6 +793,8 @@ export function PackageCreatorForm({ packageId }: PackageCreatorFormProps) {
           countryId: countryId,
           cityId: cityId,
           category: existingPackageData.destinationId?.toString() || undefined,
+          selectedHotels: Array.isArray(parsedSelectedHotels) ? parsedSelectedHotels.map(h => String(h)) : [],
+          rooms: Array.isArray(parsedRooms) ? parsedRooms : [],
           // Set dates with sensible defaults
           startDate: startDate,
           endDate: endDate,
@@ -770,6 +808,18 @@ export function PackageCreatorForm({ packageId }: PackageCreatorFormProps) {
         // Force update the form control values directly as a backup
         form.setValue('countryId', countryId);
         form.setValue('cityId', cityId);
+        
+        // Force set hotel and room data in form
+        if (Array.isArray(parsedSelectedHotels) && parsedSelectedHotels.length > 0) {
+          const hotelIds = parsedSelectedHotels.map(h => String(h));
+          form.setValue("selectedHotels", hotelIds);
+          console.log("Force set selectedHotels in form:", hotelIds);
+        }
+        
+        if (Array.isArray(parsedRooms) && parsedRooms.length > 0) {
+          form.setValue("rooms", parsedRooms);
+          console.log("Force set rooms in form:", parsedRooms);
+        }
 
         console.log('Form values set:', form.getValues());
       }, 800); // Give a longer delay to ensure cities are loaded

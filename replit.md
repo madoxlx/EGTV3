@@ -106,6 +106,18 @@ The application uses a comprehensive PostgreSQL schema with the following core e
 
 ## Recent Changes
 
+- **Package Edit Form Hotel/Room Data Loading Fix Complete (July 3, 2025)**: Successfully resolved critical issue where package edit forms weren't displaying existing hotel and room data from database
+  - Fixed missing hotel and room data initialization in SimplePackageForm.tsx form loading logic for edit mode
+  - Added comprehensive JSON parsing for selectedHotels and rooms database fields that store data as JSON strings
+  - Enhanced form initialization to properly set component state: setAvailableRooms() and setSelectedHotelRooms()
+  - Added selectedHotels and rooms fields to form.reset() default values ensuring form reflects database content
+  - Implemented form.setValue() force updates for hotel and room data to guarantee proper form population
+  - Added detailed logging for debugging hotel and room data loading process with visual confirmation
+  - Applied fix to both client and replit_agent versions of SimplePackageForm for consistency
+  - Package ID 10 with hotels [83, 19] and 3 rooms now properly displays all existing selections in edit mode
+  - Form now correctly shows pre-selected hotels, room checkboxes, and custom pricing in package edit interface
+  - System maintains complete data integrity between database storage and form display during package editing workflow
+
 - **Complete Hotel/Room Data Persistence Fix in Package Creation Forms (July 3, 2025)**: Successfully resolved critical issue where hotel selection and room properties weren't being saved during package creation/editing
   - Added selectedHotels and rooms fields to packagePayload in form submission handler for proper data persistence
   - Enhanced room selection logic to capture comprehensive room data including custom pricing and guest breakdown capacity
