@@ -244,7 +244,7 @@ export default function RoomDistributionWithStars({
                         <div>
                           <div className="font-medium text-gray-900 mb-1">{room.name}</div>
                           <div className="text-sm text-gray-600">
-                            {room.max_adults || room.maxAdults}-star accommodation
+                            {hotel?.stars || 4}-star accommodation
                           </div>
                         </div>
                       </div>
