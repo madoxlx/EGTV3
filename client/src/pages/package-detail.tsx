@@ -9,19 +9,19 @@ import { Badge } from "@/components/ui/badge";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { useToast } from "@/hooks/use-toast";
 import { Card, CardContent } from "@/components/ui/card";
-import { 
-  Calendar, 
-  Clock, 
-  Globe, 
+import {
+  Calendar,
+  Clock,
+  Globe,
   Users,
-  MapPin, 
-  Star, 
-  Check, 
+  MapPin,
+  Star,
+  Check,
   X,
-  ArrowLeft, 
-  Share2, 
+  ArrowLeft,
+  Share2,
   Heart,
-  ChevronLeft, 
+  ChevronLeft,
   ChevronRight,
   DollarSign,
   Coffee,
@@ -30,7 +30,7 @@ import {
   Plane,
   Utensils,
   Edit,
-  ShieldCheck
+  ShieldCheck,
 } from "lucide-react";
 
 type Package = {
@@ -91,12 +91,12 @@ export default function PackageDetail() {
   const packageSlug = params?.id; // This is actually the slug, not an ID
   const [location, setLocation] = useLocation();
   const { toast } = useToast();
-  
+
   // For quick info scroll functionality
   const scrollRef = useRef<HTMLDivElement>(null);
   const [canScrollLeft, setCanScrollLeft] = useState(false);
   const [canScrollRight, setCanScrollRight] = useState(false);
-  
+
   // For traveler selection in the booking form
   const [adults, setAdults] = useState(2);
   const [children, setChildren] = useState(0);
@@ -109,21 +109,23 @@ export default function PackageDetail() {
     adults?: string;
     room?: string;
   }>({});
-  
+
   // Check if user is authenticated and is an admin
   const { data: userData } = useQuery<User | null>({
-    queryKey: ['/api/user'],
+    queryKey: ["/api/user"],
     retry: 0, // Don't retry on 401
   });
 
   // Fetch all packages
-  const { data: allPackages = [], isLoading: isLoadingPackages } = useQuery<Package[]>({
-    queryKey: ['/api/packages'],
+  const { data: allPackages = [], isLoading: isLoadingPackages } = useQuery<
+    Package[]
+  >({
+    queryKey: ["/api/packages"],
     retry: 1,
   });
-  
+
   // Find the package matching either slug or ID
-  const packageData = allPackages.find(p => {
+  const packageData = allPackages.find((p) => {
     // First try to match by slug if it exists
     if (p.slug && p.slug === packageSlug) {
       return true;
@@ -136,39 +138,40 @@ export default function PackageDetail() {
   });
 
   // Fetch destinations to get destination info
-  const { data: destinations = [], isLoading: isLoadingDestinations } = useQuery<Destination[]>({
-    queryKey: ['/api/destinations'],
-    retry: 1,
-  });
+  const { data: destinations = [], isLoading: isLoadingDestinations } =
+    useQuery<Destination[]>({
+      queryKey: ["/api/destinations"],
+      retry: 1,
+    });
 
   // Find the destination for this package
-  const destination = packageData?.destinationId 
-    ? destinations.find(d => d.id === packageData.destinationId) 
+  const destination = packageData?.destinationId
+    ? destinations.find((d) => d.id === packageData.destinationId)
     : null;
-    
+
   // Validation function
   const validateBookingForm = () => {
     const errors: { date?: string; adults?: string; room?: string } = {};
-    
+
     if (!selectedDate) {
       errors.date = "Please select a travel date";
     }
-    
+
     if (adults === 0) {
       errors.adults = "At least 1 adult is required";
     }
-    
+
     if (!roomDistribution) {
       errors.room = "Please select a room distribution";
     }
-    
+
     setValidationErrors(errors);
     return Object.keys(errors).length === 0;
   };
 
   // Clear validation errors when user interacts with form
   const clearValidationError = (field: keyof typeof validationErrors) => {
-    setValidationErrors(prev => {
+    setValidationErrors((prev) => {
       const updated = { ...prev };
       delete updated[field];
       return updated;
@@ -191,7 +194,7 @@ export default function PackageDetail() {
       setter(value - 1);
     }
   };
-  
+
   // Scroll container for quick info items
   const scrollContainer = (direction: "left" | "right") => {
     const container = scrollRef.current;
@@ -202,7 +205,7 @@ export default function PackageDetail() {
       behavior: "smooth",
     });
   };
-  
+
   // Update scroll buttons visibility
   const updateScrollButtons = () => {
     const el = scrollRef.current;
@@ -224,11 +227,11 @@ export default function PackageDetail() {
   }, []);
 
   // Add debugging to identify what's happening with package loading
-  console.log('Package Slug:', packageSlug);
-  console.log('All Packages:', allPackages);
-  console.log('Package Data:', packageData);
-  console.log('Is Loading Packages:', isLoadingPackages);
-  
+  console.log("Package Slug:", packageSlug);
+  console.log("All Packages:", allPackages);
+  console.log("Package Data:", packageData);
+  console.log("Is Loading Packages:", isLoadingPackages);
+
   // Handle if package is not found
   if (!isLoadingPackages && !packageData) {
     return (
@@ -237,8 +240,9 @@ export default function PackageDetail() {
           <div className="text-center py-16">
             <h1 className="text-3xl font-bold mb-4">Package Not Found</h1>
             <p className="text-muted-foreground mb-8">
-              The package with slug "{packageSlug}" doesn't exist or has been removed.
-              </p>
+              The package with slug "{packageSlug}" doesn't exist or has been
+              removed.
+            </p>
             <Button onClick={() => setLocation("/packages")} className="mr-2">
               <ArrowLeft className="mr-2 h-4 w-4" />
               Back to Packages
@@ -251,35 +255,39 @@ export default function PackageDetail() {
       </PackageLayout>
     );
   }
-  
+
   // Define quick info items based on package data
-  const quickInfoItems = packageData ? [
-    {
-      icon: <Calendar className="h-8 w-8 mb-2 text-primary" />,
-      title: "Duration",
-      desc: `${packageData.duration} Days`,
-    },
-    {
-      icon: <Globe className="h-8 w-8 mb-2 text-primary" />,
-      title: "Language",
-      desc: "English, Arabic",
-    },
-    {
-      icon: <Users className="h-8 w-8 mb-2 text-primary" />,
-      title: "Group Size",
-      desc: "Max 20 People",
-    },
-    {
-      icon: <Star className="h-8 w-8 mb-2 text-primary" />,
-      title: "Starting Price",
-      desc: `${(packageData.discountedPrice || packageData.price).toLocaleString('en-US')} EGP`,
-    },
-    {
-      icon: <MapPin className="h-8 w-8 mb-2 text-primary" />,
-      title: "Location",
-      desc: destination ? `${destination.name}, ${destination.country}` : "Multiple Locations",
-    },
-  ] : [];
+  const quickInfoItems = packageData
+    ? [
+        {
+          icon: <Calendar className="h-8 w-8 mb-2 text-primary" />,
+          title: "Duration",
+          desc: `${packageData.duration} Days`,
+        },
+        {
+          icon: <Globe className="h-8 w-8 mb-2 text-primary" />,
+          title: "Language",
+          desc: "English, Arabic",
+        },
+        {
+          icon: <Users className="h-8 w-8 mb-2 text-primary" />,
+          title: "Group Size",
+          desc: "Max 20 People",
+        },
+        {
+          icon: <Star className="h-8 w-8 mb-2 text-primary" />,
+          title: "Starting Price",
+          desc: `${(packageData.discountedPrice || packageData.price).toLocaleString("en-US")} EGP`,
+        },
+        {
+          icon: <MapPin className="h-8 w-8 mb-2 text-primary" />,
+          title: "Location",
+          desc: destination
+            ? `${destination.name}, ${destination.country}`
+            : "Multiple Locations",
+        },
+      ]
+    : [];
 
   return (
     <PackageLayout>
@@ -308,7 +316,7 @@ export default function PackageDetail() {
             <div
               className="absolute inset-0 bg-cover bg-center"
               style={{
-                backgroundImage: packageData.imageUrl 
+                backgroundImage: packageData.imageUrl
                   ? `url('${packageData.imageUrl}')`
                   : "url('https://images.unsplash.com/photo-1568322445389-f64ac2515099?q=80&w=2070&auto=format&fit=crop')",
               }}
@@ -336,16 +344,20 @@ export default function PackageDetail() {
                       <span className="mx-2">/</span>
                       <span className="font-medium">{packageData.title}</span>
                     </div>
-                    {userData?.role === 'admin' && (
+                    {userData?.role === "admin" && (
                       <div className="flex items-center gap-2">
                         <Button
                           variant="secondary"
                           size="sm"
                           className="flex items-center gap-1.5"
                           onClick={() => {
-                            const slugUrl = prompt("Enter a friendly URL for this package:", 
-                              packageData.title?.toLowerCase().replace(/[^a-z0-9]+/g, '-') || '');
-                            
+                            const slugUrl = prompt(
+                              "Enter a friendly URL for this package:",
+                              packageData.title
+                                ?.toLowerCase()
+                                .replace(/[^a-z0-9]+/g, "-") || "",
+                            );
+
                             if (slugUrl) {
                               // This would typically send a request to update the package's slug/URL
                               toast({
@@ -358,12 +370,17 @@ export default function PackageDetail() {
                           <Globe className="h-3.5 w-3.5" />
                           <span className="text-xs">Friendly URL</span>
                         </Button>
-                        
+
                         <Button
                           variant="secondary"
                           size="sm"
                           className="flex items-center gap-1.5"
-                          onClick={() => window.open(`/packages/${packageData.slug}`, '_blank')}
+                          onClick={() =>
+                            window.open(
+                              `/packages/${packageData.slug}`,
+                              "_blank",
+                            )
+                          }
                         >
                           <Share2 className="h-3.5 w-3.5" />
                           <span className="text-xs">View</span>
@@ -371,14 +388,16 @@ export default function PackageDetail() {
                       </div>
                     )}
                   </div>
-                  
+
                   {/* Admin Edit Button - Only visible to admins */}
-                  {userData?.role === 'admin' && (
-                    <Button 
-                      variant="secondary" 
-                      size="sm" 
+                  {userData?.role === "admin" && (
+                    <Button
+                      variant="secondary"
+                      size="sm"
                       className="gap-1.5"
-                      onClick={() => setLocation(`/admin/packages/edit/${packageData.id}`)}
+                      onClick={() =>
+                        setLocation(`/admin/packages/edit/${packageData.id}`)
+                      }
                     >
                       <Edit className="h-3.5 w-3.5" />
                       <span>Edit Package</span>
@@ -392,15 +411,20 @@ export default function PackageDetail() {
                     <h1 className="text-2xl sm:text-3xl md:text-4xl lg:text-5xl font-bold mb-0 sm:mb-2">
                       {packageData.title}
                     </h1>
-                    {userData?.role === 'admin' && (
-                      <Badge variant="outline" className="text-white border-white bg-black/30 flex items-center gap-1">
+                    {userData?.role === "admin" && (
+                      <Badge
+                        variant="outline"
+                        className="text-white border-white bg-black/30 flex items-center gap-1"
+                      >
                         <ShieldCheck className="h-3 w-3" />
                         <span className="text-xs">Admin View</span>
                       </Badge>
                     )}
                   </div>
                   <p className="text-sm sm:text-base md:text-lg lg:text-xl">
-                    {destination ? `Experience ${destination.name} with our exclusive package` : "Experience the beauty of this destination with our exclusive package"}
+                    {destination
+                      ? `Experience ${destination.name} with our exclusive package`
+                      : "Experience the beauty of this destination with our exclusive package"}
                   </p>
                 </div>
               </div>
@@ -434,8 +458,12 @@ export default function PackageDetail() {
                     key={idx}
                     className="flex-shrink-0 w-36 sm:w-48 flex flex-col items-center p-3 sm:p-4 bg-white border border-[#F1F1F1] rounded-lg shadow-inner shadow-[inset_0_0_20px_rgba(0,0,0,0.1)] hover:shadow-[inset_0_0_30px_rgba(0,0,0,0.15)] transition-all duration-200 text-center"
                   >
-                    <div className="w-6 h-6 sm:w-8 sm:h-8 mb-1 sm:mb-2">{item.icon}</div>
-                    <h3 className="text-xs sm:text-sm font-medium mb-0.5 sm:mb-1">{item.title}</h3>
+                    <div className="w-6 h-6 sm:w-8 sm:h-8 mb-1 sm:mb-2">
+                      {item.icon}
+                    </div>
+                    <h3 className="text-xs sm:text-sm font-medium mb-0.5 sm:mb-1">
+                      {item.title}
+                    </h3>
                     <p className="text-xs sm:text-sm">{item.desc}</p>
                   </div>
                 ))}
@@ -466,24 +494,31 @@ export default function PackageDetail() {
                           Best Time to Visit
                         </h3>
                         <p className="text-xs text-neutral-600">
-                          {packageData.bestTimeToVisit || "Available year-round"}
+                          {packageData.bestTimeToVisit ||
+                            "Available year-round"}
                         </p>
                       </div>
                       <div className="bg-white border border-[#F1F1F1] p-4 rounded-lg flex flex-col items-center text-center shadow-inner shadow-[inset_0_0_20px_rgba(0,0,0,0.1)] hover:shadow-[inset_0_0_30px_rgba(0,0,0,0.15)] transition-all duration-200">
                         <Users className="h-6 w-6 text-primary mb-2" />
                         <h3 className="font-medium text-sm mb-1">Ideal For</h3>
                         <p className="text-xs text-neutral-600">
-                          {packageData.idealFor && packageData.idealFor.length > 0 
-                            ? packageData.idealFor.join(', ') 
+                          {packageData.idealFor &&
+                          packageData.idealFor.length > 0
+                            ? packageData.idealFor.join(", ")
                             : "All traveler types"}
                         </p>
                       </div>
                       <div className="bg-white border border-[#F1F1F1] p-4 rounded-lg flex flex-col items-center text-center shadow-inner shadow-[inset_0_0_20px_rgba(0,0,0,0.1)] hover:shadow-[inset_0_0_30px_rgba(0,0,0,0.15)] transition-all duration-200">
                         <Globe className="h-6 w-6 text-primary mb-2" />
-                        <h3 className="font-medium text-sm mb-1">What to Pack</h3>
+                        <h3 className="font-medium text-sm mb-1">
+                          What to Pack
+                        </h3>
                         <p className="text-xs text-neutral-600">
-                          {packageData.whatToPack && packageData.whatToPack.length > 0
-                            ? packageData.whatToPack.map(item => item.item).join(', ')
+                          {packageData.whatToPack &&
+                          packageData.whatToPack.length > 0
+                            ? packageData.whatToPack
+                                .map((item) => item.item)
+                                .join(", ")
                             : "Standard travel essentials"}
                         </p>
                       </div>
@@ -494,9 +529,14 @@ export default function PackageDetail() {
                 {/* Itinerary Section with Tabs - Styled like sailing-cruise.tsx */}
                 <section className="bg-white rounded-xl shadow-md overflow-hidden">
                   <div className="p-4 sm:p-6">
-                    <h2 className="text-xl sm:text-2xl font-bold mb-4 sm:mb-6">Package Itinerary</h2>
-                    {packageData.itinerary && packageData.itinerary.length > 0 ? (
-                      <Tabs defaultValue={`day${packageData.itinerary[0]?.day || 1}`}>
+                    <h2 className="text-xl sm:text-2xl font-bold mb-4 sm:mb-6">
+                      Package Itinerary
+                    </h2>
+                    {packageData.itinerary &&
+                    packageData.itinerary.length > 0 ? (
+                      <Tabs
+                        defaultValue={`day${packageData.itinerary[0]?.day || 1}`}
+                      >
                         <TabsList className="grid w-full grid-cols-3 text-xs sm:text-sm">
                           {packageData.itinerary.length <= 3 ? (
                             packageData.itinerary.map((day, index) => (
@@ -506,17 +546,38 @@ export default function PackageDetail() {
                             ))
                           ) : (
                             <>
-                              <TabsTrigger value="day1">Day 1-{Math.ceil(packageData.itinerary.length / 3)}</TabsTrigger>
-                              <TabsTrigger value="day2">Day {Math.ceil(packageData.itinerary.length / 3) + 1}-{Math.ceil(packageData.itinerary.length * 2 / 3)}</TabsTrigger>
-                              <TabsTrigger value="day3">Day {Math.ceil(packageData.itinerary.length * 2 / 3) + 1}-{packageData.itinerary.length}</TabsTrigger>
+                              <TabsTrigger value="day1">
+                                Day 1-
+                                {Math.ceil(packageData.itinerary.length / 3)}
+                              </TabsTrigger>
+                              <TabsTrigger value="day2">
+                                Day{" "}
+                                {Math.ceil(packageData.itinerary.length / 3) +
+                                  1}
+                                -
+                                {Math.ceil(
+                                  (packageData.itinerary.length * 2) / 3,
+                                )}
+                              </TabsTrigger>
+                              <TabsTrigger value="day3">
+                                Day{" "}
+                                {Math.ceil(
+                                  (packageData.itinerary.length * 2) / 3,
+                                ) + 1}
+                                -{packageData.itinerary.length}
+                              </TabsTrigger>
                             </>
                           )}
                         </TabsList>
-                        
+
                         {packageData.itinerary.length <= 3 ? (
                           // Individual day tabs for shorter itineraries
                           packageData.itinerary.map((day, index) => (
-                            <TabsContent key={index} value={`day${day.day}`} className="p-3 sm:p-4">
+                            <TabsContent
+                              key={index}
+                              value={`day${day.day}`}
+                              className="p-3 sm:p-4"
+                            >
                               <h3 className="text-lg sm:text-xl font-semibold mb-2 sm:mb-3">
                                 Day {day.day}: {day.title}
                               </h3>
@@ -540,11 +601,24 @@ export default function PackageDetail() {
                             <TabsContent value="day1" className="p-3 sm:p-4">
                               <div className="space-y-4">
                                 {packageData.itinerary
-                                  .filter((_, index) => index < Math.ceil(packageData.itinerary.length / 3))
+                                  .filter(
+                                    (_, index) =>
+                                      index <
+                                      Math.ceil(
+                                        packageData.itinerary.length / 3,
+                                      ),
+                                  )
                                   .map((day, index) => (
-                                    <div key={index} className="border-b border-gray-100 pb-4 last:border-b-0">
-                                      <h3 className="font-bold text-lg mb-2">Day {day.day}: {day.title}</h3>
-                                      <p className="text-neutral-700 leading-relaxed mb-3">{day.description}</p>
+                                    <div
+                                      key={index}
+                                      className="border-b border-gray-100 pb-4 last:border-b-0"
+                                    >
+                                      <h3 className="font-bold text-lg mb-2">
+                                        Day {day.day}: {day.title}
+                                      </h3>
+                                      <p className="text-neutral-700 leading-relaxed mb-3">
+                                        {day.description}
+                                      </p>
                                       {day.image && (
                                         <img
                                           src={day.image}
@@ -556,18 +630,33 @@ export default function PackageDetail() {
                                   ))}
                               </div>
                             </TabsContent>
-                            
+
                             <TabsContent value="day2" className="p-3 sm:p-4">
                               <div className="space-y-4">
                                 {packageData.itinerary
-                                  .filter((_, index) => 
-                                    index >= Math.ceil(packageData.itinerary.length / 3) && 
-                                    index < Math.ceil(packageData.itinerary.length * 2 / 3)
+                                  .filter(
+                                    (_, index) =>
+                                      index >=
+                                        Math.ceil(
+                                          packageData.itinerary.length / 3,
+                                        ) &&
+                                      index <
+                                        Math.ceil(
+                                          (packageData.itinerary.length * 2) /
+                                            3,
+                                        ),
                                   )
                                   .map((day, index) => (
-                                    <div key={index} className="border-b border-gray-100 pb-4 last:border-b-0">
-                                      <h3 className="font-bold text-lg mb-2">Day {day.day}: {day.title}</h3>
-                                      <p className="text-neutral-700 leading-relaxed mb-3">{day.description}</p>
+                                    <div
+                                      key={index}
+                                      className="border-b border-gray-100 pb-4 last:border-b-0"
+                                    >
+                                      <h3 className="font-bold text-lg mb-2">
+                                        Day {day.day}: {day.title}
+                                      </h3>
+                                      <p className="text-neutral-700 leading-relaxed mb-3">
+                                        {day.description}
+                                      </p>
                                       {day.image && (
                                         <img
                                           src={day.image}
@@ -579,15 +668,28 @@ export default function PackageDetail() {
                                   ))}
                               </div>
                             </TabsContent>
-                            
+
                             <TabsContent value="day3" className="p-3 sm:p-4">
                               <div className="space-y-4">
                                 {packageData.itinerary
-                                  .filter((_, index) => index >= Math.ceil(packageData.itinerary.length * 2 / 3))
+                                  .filter(
+                                    (_, index) =>
+                                      index >=
+                                      Math.ceil(
+                                        (packageData.itinerary.length * 2) / 3,
+                                      ),
+                                  )
                                   .map((day, index) => (
-                                    <div key={index} className="border-b border-gray-100 pb-4 last:border-b-0">
-                                      <h3 className="font-bold text-lg mb-2">Day {day.day}: {day.title}</h3>
-                                      <p className="text-neutral-700 leading-relaxed mb-3">{day.description}</p>
+                                    <div
+                                      key={index}
+                                      className="border-b border-gray-100 pb-4 last:border-b-0"
+                                    >
+                                      <h3 className="font-bold text-lg mb-2">
+                                        Day {day.day}: {day.title}
+                                      </h3>
+                                      <p className="text-neutral-700 leading-relaxed mb-3">
+                                        {day.description}
+                                      </p>
                                       {day.image && (
                                         <img
                                           src={day.image}
@@ -605,10 +707,13 @@ export default function PackageDetail() {
                     ) : (
                       <div className="bg-gray-50 rounded-lg p-8 text-center">
                         <Calendar className="h-12 w-12 text-gray-400 mx-auto mb-4" />
-                        <h3 className="text-lg font-medium text-gray-900 mb-2">Detailed Itinerary Coming Soon</h3>
+                        <h3 className="text-lg font-medium text-gray-900 mb-2">
+                          Detailed Itinerary Coming Soon
+                        </h3>
                         <p className="text-gray-600">
-                          Our team is preparing a comprehensive day-by-day itinerary for this package. 
-                          Please contact us for more details about the planned activities.
+                          Our team is preparing a comprehensive day-by-day
+                          itinerary for this package. Please contact us for more
+                          details about the planned activities.
                         </p>
                       </div>
                     )}
@@ -624,14 +729,18 @@ export default function PackageDetail() {
                           What's Included
                         </h2>
                         <ul className="space-y-3">
-                          {packageData.includedFeatures && packageData.includedFeatures.length > 0 ? (
-                            packageData.includedFeatures.map((feature, index) => (
-                              <li key={index} className="flex items-start">
-                                <Check className="h-5 w-5 text-green-500 mr-2 mt-0.5 flex-shrink-0" />
-                                <span>{feature}</span>
-                              </li>
-                            ))
-                          ) : packageData.inclusions && packageData.inclusions.length > 0 ? (
+                          {packageData.includedFeatures &&
+                          packageData.includedFeatures.length > 0 ? (
+                            packageData.includedFeatures.map(
+                              (feature, index) => (
+                                <li key={index} className="flex items-start">
+                                  <Check className="h-5 w-5 text-green-500 mr-2 mt-0.5 flex-shrink-0" />
+                                  <span>{feature}</span>
+                                </li>
+                              ),
+                            )
+                          ) : packageData.inclusions &&
+                            packageData.inclusions.length > 0 ? (
                             packageData.inclusions.map((inclusion, index) => (
                               <li key={index} className="flex items-start">
                                 <Check className="h-5 w-5 text-green-500 mr-2 mt-0.5 flex-shrink-0" />
@@ -643,7 +752,8 @@ export default function PackageDetail() {
                               <div className="text-center">
                                 <Check className="h-12 w-12 text-gray-300 mx-auto mb-3" />
                                 <p className="text-gray-500">
-                                  Inclusion details will be provided upon inquiry
+                                  Inclusion details will be provided upon
+                                  inquiry
                                 </p>
                               </div>
                             </li>
@@ -651,24 +761,28 @@ export default function PackageDetail() {
                         </ul>
                       </div>
                       <div>
-                        <h2 className="text-xl font-bold mb-4">What's Excluded</h2>
+                        <h2 className="text-xl font-bold mb-4">
+                          What's Excluded
+                        </h2>
                         <ul className="space-y-3">
-                          {packageData.excludedFeatures && packageData.excludedFeatures.length > 0 ? (
-                            packageData.excludedFeatures.map((feature, index) => (
-                              <li key={index} className="flex items-start">
-                                <X className="h-5 w-5 text-red-500 mr-2 mt-0.5 flex-shrink-0" />
-                                <span>{feature}</span>
-                              </li>
-                            ))
+                          {packageData.excludedFeatures &&
+                          packageData.excludedFeatures.length > 0 ? (
+                            packageData.excludedFeatures.map(
+                              (feature, index) => (
+                                <li key={index} className="flex items-start">
+                                  <X className="h-5 w-5 text-red-500 mr-2 mt-0.5 flex-shrink-0" />
+                                  <span>{feature}</span>
+                                </li>
+                              ),
+                            )
                           ) : (
                             <li className="flex items-center justify-center py-8">
                               <div className="text-center">
                                 <X className="h-12 w-12 text-gray-300 mx-auto mb-3" />
                                 <p className="text-gray-500">
-                                  {userData?.role === 'admin' 
-                                    ? 'Exclusion details will be provided upon inquiry'
-                                    : 'No exclusions available.'
-                                  }
+                                  {userData?.role === "admin"
+                                    ? "Exclusion details will be provided upon inquiry"
+                                    : "No exclusions available."}
                                 </p>
                               </div>
                             </li>
@@ -680,13 +794,20 @@ export default function PackageDetail() {
                 </section>
 
                 {/* Photos placeholder - would be replaced with actual gallery */}
-                <section className="bg-white rounded-xl shadow-md overflow-hidden">
+                <section
+                  className="bg-white rounded-xl shadow-md overflow-hidden"
+                  id="package-gallary"
+                >
                   <div className="p-6">
                     <h2 className="text-2xl font-bold mb-4">Package Photos</h2>
                     <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3">
-                      {packageData.galleryUrls && packageData.galleryUrls.length > 0 ? (
+                      {packageData.galleryUrls &&
+                      packageData.galleryUrls.length > 0 ? (
                         packageData.galleryUrls.map((url, index) => (
-                          <div key={index} className="aspect-square rounded-lg overflow-hidden">
+                          <div
+                            key={index}
+                            className="aspect-square rounded-lg overflow-hidden"
+                          >
                             <img
                               src={url}
                               alt={`${packageData.title} - ${index + 1}`}
@@ -696,7 +817,9 @@ export default function PackageDetail() {
                         ))
                       ) : (
                         <div className="col-span-full bg-gray-100 rounded-lg p-8 text-center">
-                          <p className="text-muted-foreground">Gallery images coming soon</p>
+                          <p className="text-muted-foreground">
+                            Gallery images coming soon
+                          </p>
                         </div>
                       )}
                     </div>
@@ -712,164 +835,204 @@ export default function PackageDetail() {
                     <CardContent className="p-6">
                       <div className="flex items-center justify-between mb-4">
                         <h3 className="text-xl font-bold">Book This Package</h3>
-                        
+
                         {/* Admin Edit Button in card */}
-                        {userData?.role === 'admin' && (
-                          <Button 
-                            variant="outline" 
-                            size="sm" 
+                        {userData?.role === "admin" && (
+                          <Button
+                            variant="outline"
+                            size="sm"
                             className="gap-1.5"
-                            onClick={() => setLocation(`/admin/packages/edit/${packageData.id}`)}
+                            onClick={() =>
+                              setLocation(
+                                `/admin/packages/edit/${packageData.id}`,
+                              )
+                            }
                           >
                             <Edit className="h-3.5 w-3.5" />
                             <span>Edit</span>
                           </Button>
                         )}
                       </div>
-                      
+
                       <div className="space-y-4">
                         <div>
-                          <label className="text-sm font-medium mb-1 block">Select Date *</label>
+                          <label className="text-sm font-medium mb-1 block">
+                            Select Date *
+                          </label>
                           <div className="relative">
                             <input
                               type="date"
                               value={selectedDate}
                               onChange={(e) => {
                                 setSelectedDate(e.target.value);
-                                clearValidationError('date');
+                                clearValidationError("date");
                               }}
                               className={`w-full rounded-md border px-3 py-2 text-sm ring-offset-background ${
-                                validationErrors.date ? "border-red-500" : "border-input"
+                                validationErrors.date
+                                  ? "border-red-500"
+                                  : "border-input"
                               }`}
-                              min={new Date().toISOString().split('T')[0]}
+                              min={new Date().toISOString().split("T")[0]}
                             />
                             {validationErrors.date && (
-                              <p className="text-red-500 text-xs mt-1">{validationErrors.date}</p>
+                              <p className="text-red-500 text-xs mt-1">
+                                {validationErrors.date}
+                              </p>
                             )}
                           </div>
                         </div>
-                        
+
                         {/* Travelers */}
                         <div className="space-y-3">
-                          <label className="text-sm font-medium block">Travelers *</label>
+                          <label className="text-sm font-medium block">
+                            Travelers *
+                          </label>
                           {validationErrors.adults && (
-                            <p className="text-red-500 text-xs">{validationErrors.adults}</p>
+                            <p className="text-red-500 text-xs">
+                              {validationErrors.adults}
+                            </p>
                           )}
-                          
+
                           {/* Adults */}
                           <div className="flex items-center justify-between">
-                            <span className={`text-sm ${adults === 0 && validationErrors.adults ? "text-red-500" : ""}`}>
+                            <span
+                              className={`text-sm ${adults === 0 && validationErrors.adults ? "text-red-500" : ""}`}
+                            >
                               Adults (required)
                             </span>
                             <div className="flex items-center">
                               <button
                                 className="w-8 h-8 rounded-full border border-input flex items-center justify-center hover:bg-muted disabled:opacity-50"
-                                onClick={() => handleDecrement(setAdults, adults)}
+                                onClick={() =>
+                                  handleDecrement(setAdults, adults)
+                                }
                                 disabled={adults <= 0}
                               >
                                 -
                               </button>
-                              <span className={`w-8 text-center ${adults === 0 && validationErrors.adults ? "text-red-500 font-bold" : ""}`}>
+                              <span
+                                className={`w-8 text-center ${adults === 0 && validationErrors.adults ? "text-red-500 font-bold" : ""}`}
+                              >
                                 {adults}
                               </span>
                               <button
                                 className="w-8 h-8 rounded-full border border-input flex items-center justify-center hover:bg-muted"
                                 onClick={() => {
                                   handleIncrement(setAdults, adults);
-                                  clearValidationError('adults');
+                                  clearValidationError("adults");
                                 }}
                               >
                                 +
                               </button>
                             </div>
                           </div>
-                          
+
                           {/* Children */}
                           <div className="flex items-center justify-between">
                             <span className="text-sm">Children (2-12 yrs)</span>
                             <div className="flex items-center">
                               <button
                                 className="w-8 h-8 rounded-full border border-input flex items-center justify-center hover:bg-muted"
-                                onClick={() => handleDecrement(setChildren, children)}
+                                onClick={() =>
+                                  handleDecrement(setChildren, children)
+                                }
                               >
                                 -
                               </button>
-                              <span className="w-8 text-center">{children}</span>
+                              <span className="w-8 text-center">
+                                {children}
+                              </span>
                               <button
                                 className="w-8 h-8 rounded-full border border-input flex items-center justify-center hover:bg-muted"
-                                onClick={() => handleIncrement(setChildren, children)}
+                                onClick={() =>
+                                  handleIncrement(setChildren, children)
+                                }
                               >
                                 +
                               </button>
                             </div>
                           </div>
-                          
+
                           {/* Infants */}
                           <div className="flex items-center justify-between">
                             <span className="text-sm">Infants (0-2 yrs)</span>
                             <div className="flex items-center">
                               <button
                                 className="w-8 h-8 rounded-full border border-input flex items-center justify-center hover:bg-muted"
-                                onClick={() => handleDecrement(setInfants, infants)}
+                                onClick={() =>
+                                  handleDecrement(setInfants, infants)
+                                }
                               >
                                 -
                               </button>
                               <span className="w-8 text-center">{infants}</span>
                               <button
                                 className="w-8 h-8 rounded-full border border-input flex items-center justify-center hover:bg-muted"
-                                onClick={() => handleIncrement(setInfants, infants)}
+                                onClick={() =>
+                                  handleIncrement(setInfants, infants)
+                                }
                               >
                                 +
                               </button>
                             </div>
                           </div>
                         </div>
-                        
+
                         {/* Room Distribution */}
                         <div>
-                          <label className="text-sm font-medium mb-1 block">Room Distribution *</label>
+                          <label className="text-sm font-medium mb-1 block">
+                            Room Distribution *
+                          </label>
                           <div className="grid grid-cols-2 gap-2">
                             <div
                               className={`border rounded-md p-2 cursor-pointer transition-colors ${
                                 roomDistribution === "single"
                                   ? "border-primary bg-primary/10"
                                   : validationErrors.room
-                                  ? "border-red-300 hover:border-red-400"
-                                  : "hover:bg-muted"
+                                    ? "border-red-300 hover:border-red-400"
+                                    : "hover:bg-muted"
                               }`}
                               onClick={() => {
                                 setRoomDistribution("single");
-                                clearValidationError('room');
+                                clearValidationError("room");
                               }}
                             >
                               <p className="text-sm font-medium">Single Room</p>
-                              <p className="text-xs text-muted-foreground">1 person per room</p>
+                              <p className="text-xs text-muted-foreground">
+                                1 person per room
+                              </p>
                             </div>
                             <div
                               className={`border rounded-md p-2 cursor-pointer transition-colors ${
                                 roomDistribution === "double"
                                   ? "border-primary bg-primary/10"
                                   : validationErrors.room
-                                  ? "border-red-300 hover:border-red-400"
-                                  : "hover:bg-muted"
+                                    ? "border-red-300 hover:border-red-400"
+                                    : "hover:bg-muted"
                               }`}
                               onClick={() => {
                                 setRoomDistribution("double");
-                                clearValidationError('room');
+                                clearValidationError("room");
                               }}
                             >
                               <p className="text-sm font-medium">Double Room</p>
-                              <p className="text-xs text-muted-foreground">2 people per room</p>
+                              <p className="text-xs text-muted-foreground">
+                                2 people per room
+                              </p>
                             </div>
                           </div>
                           {validationErrors.room && (
-                            <p className="text-red-500 text-xs mt-1">{validationErrors.room}</p>
+                            <p className="text-red-500 text-xs mt-1">
+                              {validationErrors.room}
+                            </p>
                           )}
                         </div>
-                        
+
                         {/* Hotel Package */}
                         <div>
-                          <label className="text-sm font-medium mb-1 block">Hotel Package</label>
+                          <label className="text-sm font-medium mb-1 block">
+                            Hotel Package
+                          </label>
                           <div className="space-y-2">
                             <div
                               className={`border rounded-md p-2 cursor-pointer transition-colors ${
@@ -881,9 +1044,14 @@ export default function PackageDetail() {
                             >
                               <div className="flex justify-between">
                                 <p className="text-sm font-medium">Standard</p>
-                                <p className="text-sm font-medium">{packageData.price.toLocaleString('en-US')} EGP</p>
+                                <p className="text-sm font-medium">
+                                  {packageData.price.toLocaleString("en-US")}{" "}
+                                  EGP
+                                </p>
                               </div>
-                              <p className="text-xs text-muted-foreground">4-star accommodation</p>
+                              <p className="text-xs text-muted-foreground">
+                                4-star accommodation
+                              </p>
                             </div>
                             <div
                               className={`border rounded-md p-2 cursor-pointer transition-colors ${
@@ -895,59 +1063,91 @@ export default function PackageDetail() {
                             >
                               <div className="flex justify-between">
                                 <p className="text-sm font-medium">Deluxe</p>
-                                <p className="text-sm font-medium">{Math.round(packageData.price * 1.3).toLocaleString('en-US')} EGP</p>
+                                <p className="text-sm font-medium">
+                                  {Math.round(
+                                    packageData.price * 1.3,
+                                  ).toLocaleString("en-US")}{" "}
+                                  EGP
+                                </p>
                               </div>
-                              <p className="text-xs text-muted-foreground">5-star accommodation</p>
+                              <p className="text-xs text-muted-foreground">
+                                5-star accommodation
+                              </p>
                             </div>
                           </div>
                         </div>
-                        
+
                         <Separator />
-                        
+
                         {/* Price Calculation */}
                         <div className="space-y-2">
                           <div className="flex justify-between">
-                            <span className="text-sm">Base price ({adults + children} travelers)</span>
                             <span className="text-sm">
-                              {(
-                                hotelPackage === "standard" 
-                                  ? packageData.price * (adults + children)
-                                  : Math.round(packageData.price * 1.3) * (adults + children)
-                              ).toLocaleString('en-US')} EGP
+                              Base price ({adults + children} travelers)
+                            </span>
+                            <span className="text-sm">
+                              {(hotelPackage === "standard"
+                                ? packageData.price * (adults + children)
+                                : Math.round(packageData.price * 1.3) *
+                                  (adults + children)
+                              ).toLocaleString("en-US")}{" "}
+                              EGP
                             </span>
                           </div>
-                          
+
                           {roomDistribution === "single" && adults > 1 && (
                             <div className="flex justify-between">
-                              <span className="text-sm">Single room supplement</span>
+                              <span className="text-sm">
+                                Single room supplement
+                              </span>
                               <span className="text-sm">+10,000 EGP</span>
                             </div>
                           )}
-                          
-                          {packageData.discountedPrice && packageData.discountedPrice < packageData.price && (
-                            <div className="flex justify-between">
-                              <span className="text-sm text-green-600">Discount</span>
-                              <span className="text-sm text-green-600">
-                                -{((packageData.price - packageData.discountedPrice) * (adults + children)).toLocaleString('en-US')} EGP
-                              </span>
-                            </div>
-                          )}
-                          
+
+                          {packageData.discountedPrice &&
+                            packageData.discountedPrice < packageData.price && (
+                              <div className="flex justify-between">
+                                <span className="text-sm text-green-600">
+                                  Discount
+                                </span>
+                                <span className="text-sm text-green-600">
+                                  -
+                                  {(
+                                    (packageData.price -
+                                      packageData.discountedPrice) *
+                                    (adults + children)
+                                  ).toLocaleString("en-US")}{" "}
+                                  EGP
+                                </span>
+                              </div>
+                            )}
+
                           <Separator />
-                          
+
                           <div className="flex justify-between font-bold">
                             <span>Total price</span>
                             <span>
-                              {(
-                                packageData.discountedPrice && packageData.discountedPrice < packageData.price
-                                  ? packageData.discountedPrice * (adults + children) + (roomDistribution === "single" && adults > 1 ? 10000 : 0)
-                                  : (hotelPackage === "standard" ? packageData.price : Math.round(packageData.price * 1.3)) * (adults + children) + (roomDistribution === "single" && adults > 1 ? 10000 : 0)
-                              ).toLocaleString('en-US')} EGP
+                              {(packageData.discountedPrice &&
+                              packageData.discountedPrice < packageData.price
+                                ? packageData.discountedPrice *
+                                    (adults + children) +
+                                  (roomDistribution === "single" && adults > 1
+                                    ? 10000
+                                    : 0)
+                                : (hotelPackage === "standard"
+                                    ? packageData.price
+                                    : Math.round(packageData.price * 1.3)) *
+                                    (adults + children) +
+                                  (roomDistribution === "single" && adults > 1
+                                    ? 10000
+                                    : 0)
+                              ).toLocaleString("en-US")}{" "}
+                              EGP
                             </span>
                           </div>
                         </div>
-                        
-                        <BookPackageButton 
+
+                        <BookPackageButton
                           package={packageData}
                           className="w-full bg-primary hover:bg-primary/90 text-white"
                           onClick={() => {
@@ -960,35 +1160,44 @@ export default function PackageDetail() {
                             children,
                             infants,
                             roomDistribution,
-                            hotelPackage
+                            hotelPackage,
                           }}
                         />
-                        
+
                         <p className="text-xs text-center text-muted-foreground">
-                          No payment required to book. You'll only pay when finalizing your reservation.
+                          No payment required to book. You'll only pay when
+                          finalizing your reservation.
                         </p>
                       </div>
                     </CardContent>
                   </Card>
-                  
+
                   {/* What's Included/Excluded - Separate box */}
                   <Card className="mb-6">
                     <CardContent className="p-6">
-                      <h3 className="text-lg font-bold mb-4">Package Summary</h3>
-                      
+                      <h3 className="text-lg font-bold mb-4">
+                        Package Summary
+                      </h3>
+
                       <div className="space-y-4">
                         <div>
                           <h4 className="text-sm font-semibold mb-2">
                             What's Included:
                           </h4>
                           <ul className="space-y-1.5">
-                            {packageData.inclusions && packageData.inclusions.length > 0 ? (
-                              packageData.inclusions.slice(0, 5).map((inclusion, index) => (
-                                <li key={index} className="flex items-start text-sm">
-                                  <Check className="h-4 w-4 text-green-500 mr-1.5 mt-0.5 flex-shrink-0" />
-                                  <span>{inclusion}</span>
-                                </li>
-                              ))
+                            {packageData.inclusions &&
+                            packageData.inclusions.length > 0 ? (
+                              packageData.inclusions
+                                .slice(0, 5)
+                                .map((inclusion, index) => (
+                                  <li
+                                    key={index}
+                                    className="flex items-start text-sm"
+                                  >
+                                    <Check className="h-4 w-4 text-green-500 mr-1.5 mt-0.5 flex-shrink-0" />
+                                    <span>{inclusion}</span>
+                                  </li>
+                                ))
                             ) : (
                               <>
                                 <li className="flex items-start text-sm">
@@ -1015,26 +1224,36 @@ export default function PackageDetail() {
                             )}
                           </ul>
                         </div>
-                        
+
                         <div>
                           <h4 className="text-sm font-semibold mb-2">
                             Highlights:
                           </h4>
                           <ul className="space-y-1.5">
                             <li className="flex items-start text-sm">
-                              <span className="text-primary font-bold mr-2">•</span>
-                              <span>Professional guides and quality service</span>
+                              <span className="text-primary font-bold mr-2">
+                                •
+                              </span>
+                              <span>
+                                Professional guides and quality service
+                              </span>
                             </li>
                             <li className="flex items-start text-sm">
-                              <span className="text-primary font-bold mr-2">•</span>
+                              <span className="text-primary font-bold mr-2">
+                                •
+                              </span>
                               <span>Authentic local experiences</span>
                             </li>
                             <li className="flex items-start text-sm">
-                              <span className="text-primary font-bold mr-2">•</span>
+                              <span className="text-primary font-bold mr-2">
+                                •
+                              </span>
                               <span>Comfortable accommodations</span>
                             </li>
                             <li className="flex items-start text-sm">
-                              <span className="text-primary font-bold mr-2">•</span>
+                              <span className="text-primary font-bold mr-2">
+                                •
+                              </span>
                               <span>Well-planned itinerary</span>
                             </li>
                           </ul>
@@ -1042,42 +1261,60 @@ export default function PackageDetail() {
                       </div>
                     </CardContent>
                   </Card>
-                  
+
                   {/* Travel Tips */}
                   <Card>
                     <CardContent className="p-6">
-                      <h3 className="text-lg font-bold mb-4">Destination Tips</h3>
-                      
+                      <h3 className="text-lg font-bold mb-4">
+                        Destination Tips
+                      </h3>
+
                       <div className="space-y-3">
                         <div className="flex gap-3">
                           <Calendar className="h-5 w-5 text-primary flex-shrink-0" />
                           <div>
-                            <p className="text-sm font-medium">Best Time to Visit</p>
-                            <p className="text-xs text-muted-foreground">October to April offers the most pleasant weather.</p>
+                            <p className="text-sm font-medium">
+                              Best Time to Visit
+                            </p>
+                            <p className="text-xs text-muted-foreground">
+                              October to April offers the most pleasant weather.
+                            </p>
                           </div>
                         </div>
-                        
+
                         <div className="flex gap-3">
                           <Coffee className="h-5 w-5 text-primary flex-shrink-0" />
                           <div>
                             <p className="text-sm font-medium">Local Cuisine</p>
-                            <p className="text-xs text-muted-foreground">Try the traditional dishes for an authentic experience.</p>
+                            <p className="text-xs text-muted-foreground">
+                              Try the traditional dishes for an authentic
+                              experience.
+                            </p>
                           </div>
                         </div>
-                        
+
                         <div className="flex gap-3">
                           <Car className="h-5 w-5 text-primary flex-shrink-0" />
                           <div>
-                            <p className="text-sm font-medium">Getting Around</p>
-                            <p className="text-xs text-muted-foreground">Transportation is included in your package.</p>
+                            <p className="text-sm font-medium">
+                              Getting Around
+                            </p>
+                            <p className="text-xs text-muted-foreground">
+                              Transportation is included in your package.
+                            </p>
                           </div>
                         </div>
-                        
+
                         <div className="flex gap-3">
                           <Mountain className="h-5 w-5 text-primary flex-shrink-0" />
                           <div>
-                            <p className="text-sm font-medium">Must-See Attractions</p>
-                            <p className="text-xs text-muted-foreground">All the major attractions are covered in your itinerary.</p>
+                            <p className="text-sm font-medium">
+                              Must-See Attractions
+                            </p>
+                            <p className="text-xs text-muted-foreground">
+                              All the major attractions are covered in your
+                              itinerary.
+                            </p>
                           </div>
                         </div>
                       </div>

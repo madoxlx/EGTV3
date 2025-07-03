@@ -200,9 +200,16 @@ const packageFormSchema = z.object({
         hotelId: z.string(),
         hotelName: z.string(),
         price: z.coerce.number(),
+        customPrice: z.number().optional(),
+        originalPrice: z.number().optional(),
+        maxOccupancy: z.number().optional(),
         maxAdults: z.number().optional(),
         maxChildren: z.number().optional(),
         maxInfants: z.number().optional(),
+        amenities: z.array(z.string()).optional(),
+        bedType: z.string().optional(),
+        view: z.string().optional(),
+        size: z.string().optional(),
       }),
     )
     .optional(),
@@ -721,6 +728,15 @@ export function PackageCreatorForm({
         // Tour selection
         tourSelection: selectedTour?.id || formData.selectedTourId,
         selectedTourId: selectedTour?.id || formData.selectedTourId,
+
+        // Hotel and room selections
+        selectedHotels: formData.selectedHotels || [],
+        rooms: formData.rooms || [],
+
+        // Transportation
+        transportation: formData.transportation || "",
+        transportationPrice: formData.transportationPrice || 0,
+        transportationDetails: formData.transportationDetails || [],
 
         // Pricing and metadata
         pricingMode: formData.pricingMode || "per_booking",
@@ -2449,22 +2465,31 @@ export function PackageCreatorForm({
                           </div>
                         </TableCell>
                         <TableCell>
-                          <Input
-                            type="number"
-                            min="0"
-                            defaultValue={room.price ? room.price / 100 : 0}
-                            onChange={(e) => {
-                              const currentRooms =
-                                form.getValues("rooms") || [];
-                              const updatedRooms = currentRooms.map((r) =>
-                                r.id === room.id
-                                  ? { ...r, price: Number(e.target.value) }
-                                  : r,
-                              );
-                              form.setValue("rooms", updatedRooms);
-                            }}
-                            className="w-24"
-                          />
+                          {(() => {
+                            const selectedRoom = form.watch("rooms")?.find(r => r.id === room.id);
+                            return selectedRoom ? (
+                              <Input
+                                type="number"
+                                min="0"
+                                value={selectedRoom.customPrice || selectedRoom.price || 0}
+                                onChange={(e) => {
+                                  const currentRooms = form.getValues("rooms") || [];
+                                  const updatedRooms = currentRooms.map((r) =>
+                                    r.id === room.id
+                                      ? { ...r, customPrice: Number(e.target.value) }
+                                      : r,
+                                  );
+                                  form.setValue("rooms", updatedRooms);
+                                  console.log("Updated room pricing:", updatedRooms);
+                                }}
+                                className="w-24"
+                              />
+                            ) : (
+                              <span className="text-muted-foreground text-sm">
+                                Select room to set custom price
+                              </span>
+                            );
+                          })()}
                         </TableCell>
                       </TableRow>
                     ))}
@@ -2760,7 +2785,7 @@ export function PackageCreatorForm({
                         <div className="space-y-6">
                           {/* Room Capacity Summary */}
                           {form.watch("rooms") &&
-                            form.watch("rooms").length > 0 && (
+                            form.watch("rooms")?.length > 0 && (
                               <div className="bg-green-50 border border-green-200 rounded-md p-4">
                                 <h4 className="text-sm font-medium text-green-900 mb-2">
                                   Selected Rooms Capacity:
@@ -2768,7 +2793,7 @@ export function PackageCreatorForm({
                                 <div className="space-y-2">
                                   {form
                                     .watch("rooms")
-                                    .map((selectedRoom: any, index: number) => {
+                                    ?.map((selectedRoom: any, index: number) => {
                                       const roomData = filteredRooms.find(
                                         (r) => r.id === selectedRoom.id,
                                       );
@@ -2966,15 +2991,43 @@ export function PackageCreatorForm({
                                                 const currentRooms =
                                                   form.watch("rooms") || [];
                                                 if (checked) {
+                                                  // Add comprehensive room data including capacity and pricing
+                                                  const roomData = {
+                                                    id: room.id,
+                                                    name: room.name,
+                                                    description: room.description,
+                                                    hotelId: room.hotelId || room.hotel_id,
+                                                    hotelName: room.hotelName,
+                                                    type: room.type,
+                                                    // Capacity information
+                                                    maxOccupancy: room.max_occupancy || room.maxOccupancy,
+                                                    maxAdults: room.max_adults || room.maxAdults,
+                                                    maxChildren: room.max_children || room.maxChildren,
+                                                    maxInfants: room.max_infants || room.maxInfants,
+                                                    // Pricing information (convert from cents to EGP)
+                                                    price: room.price ? room.price / 100 : 0,
+                                                    originalPrice: room.price ? room.price / 100 : 0,
+                                                    discountedPrice: room.discounted_price ? room.discounted_price / 100 : null,
+                                                    currency: room.currency || 'EGP',
+                                                    // Room details
+                                                    size: room.size,
+                                                    bedType: room.bed_type || room.bedType,
+                                                    view: room.view,
+                                                    amenities: room.amenities || [],
+                                                    imageUrl: room.image_url || room.imageUrl,
+                                                    // Availability
+                                                    available: room.available,
+                                                    status: room.status,
+                                                    // Custom pricing (starts with original price)
+                                                    customPrice: room.price ? room.price / 100 : 0,
+                                                    customDiscount: 0,
+                                                  };
+                                                  
+                                                  console.log("Adding room to selection:", roomData);
+                                                  
                                                   form.setValue("rooms", [
                                                     ...currentRooms,
-                                                    {
-                                                      id: room.id,
-                                                      name: room.name,
-                                                      hotelId: room.hotelId,
-                                                      hotelName: room.hotelName,
-                                                      price: room.price,
-                                                    },
+                                                    roomData,
                                                   ]);
                                                 } else {
                                                   form.setValue(

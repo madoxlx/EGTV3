@@ -106,6 +106,17 @@ The application uses a comprehensive PostgreSQL schema with the following core e
 
 ## Recent Changes
 
+- **Complete Hotel/Room Data Persistence Fix in Package Creation Forms (July 3, 2025)**: Successfully resolved critical issue where hotel selection and room properties weren't being saved during package creation/editing
+  - Added selectedHotels and rooms fields to packagePayload in form submission handler for proper data persistence
+  - Enhanced room selection logic to capture comprehensive room data including custom pricing and guest breakdown capacity
+  - Modified room selection checkboxes to store detailed properties: maxOccupancy, maxAdults, maxChildren, maxInfants, originalPrice, customPrice, amenities, etc.
+  - Updated pricing input system to work with customPrice field allowing users to set custom room pricing that persists in database
+  - Fixed form submission to include hotel and room data in API payload ensuring all selected accommodation details are saved
+  - Room selection now captures complete room properties for proper package creation with detailed guest capacity information
+  - Enhanced pricing table to only show pricing inputs for actually selected rooms with real-time custom price updates
+  - Package creation/editing forms now properly persist all hotel and room selection data including custom pricing modifications
+  - System maintains comprehensive room data integrity from selection through database storage with detailed capacity and pricing information
+
 - **Package Detail Real Data Integration Complete (July 3, 2025)**: Successfully replaced all mock data with authentic database content in package detail pages
   - Updated Tour Overview section to display real package data: bestTimeToVisit, idealFor (comma-separated), and whatToPack items
   - Replaced mock itinerary tabs with dynamic database-driven day-by-day itinerary display showing actual day numbers, titles, descriptions, and images
