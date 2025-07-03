@@ -2,6 +2,7 @@ import React from 'react';
 import { useQuery } from '@tanstack/react-query';
 import { Card, CardContent } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
+import { Checkbox } from '@/components/ui/checkbox';
 import { Star, Users, Bed, CheckCircle2 } from 'lucide-react';
 
 type Room = {
@@ -40,14 +41,14 @@ type Package = {
 
 interface RoomDistributionWithStarsProps {
   packageData: Package;
-  selectedRoom: string;
-  onRoomSelect: (room: string) => void;
+  selectedRooms: string[];
+  onRoomSelect: (rooms: string[]) => void;
   validationError?: string;
 }
 
 export default function RoomDistributionWithStars({ 
   packageData, 
-  selectedRoom, 
+  selectedRooms, 
   onRoomSelect, 
   validationError 
 }: RoomDistributionWithStarsProps) {
@@ -177,8 +178,15 @@ export default function RoomDistributionWithStars({
   }, {} as Record<number, Room[]>);
 
   const handleRoomSelection = (room: Room) => {
-    const roomInfo = `${room.name} - ${room.max_adults} adults, ${room.max_children} children`;
-    onRoomSelect(roomInfo);
+    const roomInfo = `${room.name} - ${room.max_adults || room.maxAdults} adults, ${room.max_children || room.maxChildren} children`;
+    
+    if (selectedRooms.includes(roomInfo)) {
+      // Remove room if already selected
+      onRoomSelect(selectedRooms.filter(r => r !== roomInfo));
+    } else {
+      // Add room to selection
+      onRoomSelect([...selectedRooms, roomInfo]);
+    }
   };
 
   return (
@@ -217,8 +225,8 @@ export default function RoomDistributionWithStars({
 
             <div className="grid gap-2">
               {hotelRooms.map((room) => {
-                const roomInfo = `${room.name} - ${room.max_adults} adults, ${room.max_children} children`;
-                const isSelected = selectedRoom === roomInfo;
+                const roomInfo = `${room.name} - ${room.max_adults || room.maxAdults} adults, ${room.max_children || room.maxChildren} children`;
+                const isSelected = selectedRooms.includes(roomInfo);
                 const displayPrice = room.customPrice || room.price;
 
                 return (
@@ -231,16 +239,23 @@ export default function RoomDistributionWithStars({
                   >
                     <CardContent className="p-3">
                       <div className="flex justify-between items-start">
-                        <div className="flex-1">
-                          <div className="flex items-center gap-2 mb-1">
-                            <h5 className="font-medium text-sm text-green-800">{room.name}</h5>
-                            <Badge variant="outline" className="text-xs text-green-700 border-green-300">
-                              {room.type}
-                            </Badge>
-                            <Badge variant="outline" className="text-xs text-green-700 border-green-300">
-                              Included
-                            </Badge>
-                          </div>
+                        <div className="flex items-start gap-3 flex-1">
+                          <Checkbox
+                            id={`room-${room.id}`}
+                            checked={isSelected}
+                            onCheckedChange={() => handleRoomSelection(room)}
+                            className="mt-1 border-green-400 data-[state=checked]:bg-green-600 data-[state=checked]:border-green-600"
+                          />
+                          <div className="flex-1">
+                            <div className="flex items-center gap-2 mb-1">
+                              <h5 className="font-medium text-sm text-green-800">{room.name}</h5>
+                              <Badge variant="outline" className="text-xs text-green-700 border-green-300">
+                                {room.type}
+                              </Badge>
+                              <Badge variant="outline" className="text-xs text-green-700 border-green-300">
+                                Included
+                              </Badge>
+                            </div>
                           
                           <div className="flex items-center gap-4 text-xs text-green-700 mb-2">
                             <div className="flex items-center gap-1">
@@ -260,6 +275,7 @@ export default function RoomDistributionWithStars({
                               {room.description}
                             </p>
                           )}
+                          </div>
                         </div>
 
                         <div className="text-right">

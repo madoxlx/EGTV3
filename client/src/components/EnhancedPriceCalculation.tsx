@@ -19,7 +19,7 @@ interface EnhancedPriceCalculationProps {
   children: number;
   infants: number;
   hotelPackage: string;
-  roomDistribution: string;
+  selectedRooms: string[];
 }
 
 export default function EnhancedPriceCalculation({
@@ -28,7 +28,7 @@ export default function EnhancedPriceCalculation({
   children,
   infants,
   hotelPackage,
-  roomDistribution
+  selectedRooms
 }: EnhancedPriceCalculationProps) {
   // Base price calculation
   const basePrice = packageData.discountedPrice || packageData.price;
@@ -50,14 +50,14 @@ export default function EnhancedPriceCalculation({
   const selectedUpgrade = hotelUpgrades[hotelPackage as keyof typeof hotelUpgrades] || hotelUpgrades.standard;
   const upgradePrice = selectedUpgrade.price * (adults + children);
   
-  // Room distribution costs (example pricing)
-  const getRoomCost = (roomDist: string) => {
-    if (!roomDist) return 0;
-    const roomCount = roomDist.split(',').length;
-    return roomCount > 1 ? (roomCount - 1) * 8000 : 0; // Additional room cost
+  // Selected rooms costs (based on number of selected rooms)
+  const getRoomCost = (rooms: string[]) => {
+    if (!rooms || rooms.length === 0) return 0;
+    // No additional cost for multiple room selections in package
+    return 0;
   };
   
-  const roomCost = getRoomCost(roomDistribution);
+  const roomCost = getRoomCost(selectedRooms);
   
   // Calculate subtotal
   const subtotal = adultPrice + childPrice + infantPrice + upgradePrice + roomCost;

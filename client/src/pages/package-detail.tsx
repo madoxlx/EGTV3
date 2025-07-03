@@ -105,7 +105,7 @@ export default function PackageDetail() {
   const [children, setChildren] = useState(0);
   const [infants, setInfants] = useState(0);
   const [selectedDate, setSelectedDate] = useState("");
-  const [roomDistribution, setRoomDistribution] = useState<string>("");
+  const [selectedRooms, setSelectedRooms] = useState<string[]>([]);
   const [hotelPackage, setHotelPackage] = useState("standard");
   const [validationErrors, setValidationErrors] = useState<{
     date?: string;
@@ -164,8 +164,8 @@ export default function PackageDetail() {
       errors.adults = "At least 1 adult is required";
     }
 
-    if (!roomDistribution) {
-      errors.room = "Please select a room distribution";
+    if (selectedRooms.length === 0) {
+      errors.room = "Please select at least one room";
     }
 
     setValidationErrors(errors);
@@ -604,11 +604,11 @@ export default function PackageDetail() {
                             <TabsContent value="day1" className="p-3 sm:p-4">
                               <div className="space-y-4">
                                 {packageData.itinerary
-                                  .filter(
+                                  ?.filter(
                                     (_, index) =>
                                       index <
                                       Math.ceil(
-                                        packageData.itinerary.length / 3,
+                                        (packageData.itinerary?.length || 0) / 3,
                                       ),
                                   )
                                   .map((day, index) => (
@@ -637,15 +637,15 @@ export default function PackageDetail() {
                             <TabsContent value="day2" className="p-3 sm:p-4">
                               <div className="space-y-4">
                                 {packageData.itinerary
-                                  .filter(
+                                  ?.filter(
                                     (_, index) =>
                                       index >=
                                         Math.ceil(
-                                          packageData.itinerary.length / 3,
+                                          (packageData.itinerary?.length || 0) / 3,
                                         ) &&
                                       index <
                                         Math.ceil(
-                                          (packageData.itinerary.length * 2) /
+                                          ((packageData.itinerary?.length || 0) * 2) /
                                             3,
                                         ),
                                   )
@@ -675,11 +675,11 @@ export default function PackageDetail() {
                             <TabsContent value="day3" className="p-3 sm:p-4">
                               <div className="space-y-4">
                                 {packageData.itinerary
-                                  .filter(
+                                  ?.filter(
                                     (_, index) =>
                                       index >=
                                       Math.ceil(
-                                        (packageData.itinerary.length * 2) / 3,
+                                        ((packageData.itinerary?.length || 0) * 2) / 3,
                                       ),
                                   )
                                   .map((day, index) => (
@@ -996,9 +996,9 @@ export default function PackageDetail() {
                           </label>
                           <RoomDistributionWithStars 
                             packageData={packageData}
-                            selectedRoom={roomDistribution}
-                            onRoomSelect={(room: string) => {
-                              setRoomDistribution(room);
+                            selectedRooms={selectedRooms}
+                            onRoomSelect={(rooms: string[]) => {
+                              setSelectedRooms(rooms);
                               clearValidationError("room");
                             }}
                             validationError={validationErrors.room}
@@ -1063,7 +1063,7 @@ export default function PackageDetail() {
                           children={children}
                           infants={infants}
                           hotelPackage={hotelPackage}
-                          roomDistribution={roomDistribution}
+                          selectedRooms={selectedRooms}
                         />
 
                         <BookPackageButton
@@ -1078,7 +1078,7 @@ export default function PackageDetail() {
                             adults,
                             children,
                             infants,
-                            roomDistribution,
+                            selectedRooms,
                             hotelPackage,
                           }}
                         />

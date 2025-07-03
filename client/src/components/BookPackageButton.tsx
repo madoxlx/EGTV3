@@ -28,7 +28,7 @@ interface BookPackageButtonProps {
     adults: number;
     children: number;
     infants: number;
-    roomDistribution: string;
+    selectedRooms: string[];
     hotelPackage: string;
   };
 }
@@ -87,7 +87,7 @@ const BookPackageButton: React.FC<BookPackageButtonProps> = ({
         configuration: {
           duration: pkg.duration,
           imageUrl: pkg.imageUrl || '/api/placeholder/300/200',
-          roomDistribution: formData?.roomDistribution,
+          selectedRooms: formData?.selectedRooms || [],
           hotelPackage: formData?.hotelPackage
         }
       };
