@@ -192,14 +192,14 @@ export default function RoomDistributionWithStars({
   }, {} as Record<number, Room[]>);
 
   const handleRoomSelection = (room: Room) => {
-    const roomInfo = `${room.name} - ${room.max_adults || room.maxAdults} adults, ${room.max_children || room.maxChildren} children`;
+    const roomId = room.id.toString();
     
-    if (selectedRooms.includes(roomInfo)) {
+    if (selectedRooms.includes(roomId)) {
       // Remove room if already selected
-      onRoomSelect(selectedRooms.filter(r => r !== roomInfo));
+      onRoomSelect(selectedRooms.filter(r => r !== roomId));
     } else {
       // Add room to selection
-      onRoomSelect([...selectedRooms, roomInfo]);
+      onRoomSelect([...selectedRooms, roomId]);
     }
   };
 
@@ -242,8 +242,8 @@ export default function RoomDistributionWithStars({
 
             <div className="grid gap-2">
               {hotelRooms.map((room) => {
-                const roomInfo = `${room.name} - ${room.max_adults || room.maxAdults} adults, ${room.max_children || room.maxChildren} children`;
-                const isSelected = selectedRooms.includes(roomInfo);
+                const roomId = room.id.toString();
+                const isSelected = selectedRooms.includes(roomId);
                 const displayPrice = room.customPrice || room.price;
 
                 return (

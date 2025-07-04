@@ -103,7 +103,15 @@ export default function EnhancedPriceCalculation({
 
   const packageHotels = parsePackageArray(packageData.selectedHotels);
   const packageRooms = parsePackageArray(packageData.rooms);
-  const packageTours = parsePackageArray(packageData.tourSelection || packageData.selectedTourIds);
+  // Handle tours - can be single ID, array of IDs, or JSON string
+  let packageTours: number[] = [];
+  if (packageData.selectedTourId) {
+    packageTours = [packageData.selectedTourId];
+  } else if (packageData.tourSelection) {
+    packageTours = parsePackageArray(packageData.tourSelection);
+  } else if (packageData.selectedTourIds) {
+    packageTours = parsePackageArray(packageData.selectedTourIds);
+  }
   const packageOptionalExcursions = parsePackageArray(packageData.optionalExcursions);
 
   // Determine pricing mode (per person vs per booking)
@@ -191,7 +199,7 @@ export default function EnhancedPriceCalculation({
     packageTours.forEach((tourId: number) => {
       const tour = allTours.find(t => t.id === tourId);
       if (tour) {
-        const tourPrice = tour.price;
+        const tourPrice = tour.price / 100; // Convert from cents to EGP
         const totalTourCost = isPricingPerPerson ? tourPrice * (adults + children * 0.7 + infants * 0.1) : tourPrice;
 
         toursCost += totalTourCost;

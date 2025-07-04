@@ -113,6 +113,9 @@ The application uses a comprehensive PostgreSQL schema with the following core e
   - Improved visual presentation with blue-themed accommodation section showing nightly rates and total costs
   - System now calculates room costs based on actual user selections and date ranges for accurate pricing
   - Room selection directly impacts total package cost calculation with proper night multiplication
+  - Fixed tour pricing calculation to properly convert from cents to EGP (tour prices now display correctly)
+  - Fixed room selection to use room IDs instead of descriptive strings for accurate room cost calculation
+  - Tours and user-selected rooms now properly included in total package pricing breakdown
 
 - **Flexible Date Range Selection Implementation Complete (July 4, 2025)**: Successfully implemented comprehensive date range selection functionality for package booking
   - Added toggle between single date and date range modes with professional button interface using Calendar icons
