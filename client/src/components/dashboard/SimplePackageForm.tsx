@@ -44,6 +44,7 @@ import { Switch } from "@/components/ui/switch";
 import { Card, CardContent } from "@/components/ui/card";
 import {
   AlertCircle,
+  ArrowRight,
   CalendarIcon,
   ImagePlus,
   Loader2,
@@ -3913,14 +3914,81 @@ export function PackageCreatorForm({
                       <FormItem>
                         <FormLabel>Route Description</FormLabel>
                         <FormControl>
-                          <Textarea
-                            placeholder="Describe the travel route (e.g., Cairo → Luxor → Aswan)"
-                            className="min-h-[100px]"
-                            {...field}
-                          />
+                          <div className="space-y-3">
+                            {/* Input + Add Button */}
+                            <div className="flex gap-2">
+                              <Input
+                                placeholder="Enter a destination (e.g., Cairo)"
+                                value={newRouteStop}
+                                onChange={(e) => setNewRouteStop(e.target.value)}
+                                onKeyPress={(e) => {
+                                  if (e.key === 'Enter') {
+                                    e.preventDefault();
+                                    handleAddRouteStop();
+                                  }
+                                }}
+                                className="flex-1"
+                              />
+                              <Button
+                                type="button"
+                                onClick={handleAddRouteStop}
+                                disabled={!newRouteStop.trim()}
+                                size="sm"
+                                className="px-4"
+                              >
+                                <Plus className="h-4 w-4 mr-1" />
+                                Add
+                              </Button>
+                            </div>
+                            
+                            {/* Route Display */}
+                            {travelRouteItems.length > 0 && (
+                              <div className="bg-gray-50 p-3 rounded-lg">
+                                <div className="flex items-center flex-wrap gap-2 text-sm">
+                                  {travelRouteItems.map((stop, index) => (
+                                    <div key={index} className="flex items-center">
+                                      <span className="bg-blue-100 text-blue-800 px-2 py-1 rounded flex items-center gap-1">
+                                        {stop}
+                                        <button
+                                          type="button"
+                                          onClick={() => handleRemoveRouteStop(index)}
+                                          className="text-blue-600 hover:text-blue-800 ml-1"
+                                        >
+                                          <X className="h-3 w-3" />
+                                        </button>
+                                      </span>
+                                      {index < travelRouteItems.length - 1 && (
+                                        <ArrowRight className="h-4 w-4 mx-1 text-gray-500" />
+                                      )}
+                                    </div>
+                                  ))}
+                                </div>
+                                
+                                {/* Clear all button */}
+                                <div className="mt-2 pt-2 border-t border-gray-200">
+                                  <Button
+                                    type="button"
+                                    variant="outline"
+                                    size="sm"
+                                    onClick={handleClearRoute}
+                                    className="text-xs"
+                                  >
+                                    Clear Route
+                                  </Button>
+                                </div>
+                              </div>
+                            )}
+                            
+                            {/* Hidden input to sync with form */}
+                            <input
+                              type="hidden"
+                              {...field}
+                              value={travelRouteItems.join(' → ')}
+                            />
+                          </div>
                         </FormControl>
                         <FormDescription>
-                          Provide a clear description of the travel route.
+                          Add destinations to build your travel route (e.g., Cairo → Aswan → Red Sea)
                         </FormDescription>
                         <FormMessage />
                       </FormItem>
