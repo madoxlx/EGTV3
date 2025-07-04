@@ -44,8 +44,8 @@ const form = useForm<TourFormValues>({
     startDate: tour?.startDate ? new Date(tour.startDate) : new Date(),
     endDate: tour?.endDate ? new Date(tour.endDate) : new Date(new Date().setDate(new Date().getDate() + 1)),
     numPassengers: tour?.numPassengers || 1,
-    price: tour?.price || 0,
-    discountedPrice: tour?.discountedPrice || null,
+    price: tour?.price ? (tour.price / 100) : 0, // Convert from cents to EGP
+    discountedPrice: tour?.discountedPrice ? (tour.discountedPrice / 100) : null, // Convert from cents to EGP
     included: tour?.included || [],
     excluded: tour?.excluded || [],
     itinerary: tour?.itinerary || "",

@@ -290,6 +290,8 @@ export function TourCreatorForm({ tourId }: TourCreatorFormProps) {
         galleryUrls: cleanGalleryUrls,
         date: data.startDate.toISOString(),
         endDate: data.endDate.toISOString(),
+        price: Math.round(data.price * 100), // Convert EGP to cents
+        discountedPrice: data.discountedPrice ? Math.round(data.discountedPrice * 100) : null, // Convert EGP to cents
       };
       
       const url = isEditMode 
@@ -379,8 +381,8 @@ export function TourCreatorForm({ tourId }: TourCreatorFormProps) {
         startDate: existingTour.start_date ? new Date(existingTour.start_date) : (existingTour.date ? new Date(existingTour.date) : new Date()),
         endDate: existingTour.end_date ? new Date(existingTour.end_date) : new Date(),
         numPassengers: existingTour.num_passengers || existingTour.numPassengers || 1,
-        price: existingTour.price || 0,
-        discountedPrice: existingTour.discounted_price || existingTour.discountedPrice || null,
+        price: existingTour.price ? (existingTour.price / 100) : 0, // Convert from cents to EGP
+        discountedPrice: existingTour.discounted_price ? (existingTour.discounted_price / 100) : (existingTour.discountedPrice ? (existingTour.discountedPrice / 100) : null), // Convert from cents to EGP
         included: Array.isArray(existingTour.included) ? existingTour.included : [],
         excluded: Array.isArray(existingTour.excluded) ? existingTour.excluded : [],
         itinerary: existingTour.itinerary || "",

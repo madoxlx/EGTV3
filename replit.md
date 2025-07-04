@@ -106,6 +106,13 @@ The application uses a comprehensive PostgreSQL schema with the following core e
 
 ## Recent Changes
 
+- **Complete Tour Management Price Conversion System Fix (July 4, 2025)**: Successfully fixed critical price conversion issues across entire tour management system
+  - Fixed tour edit forms to properly convert prices from cents to EGP when loading existing tour data
+  - Added price conversion from EGP to cents in all form submission functions (TourCreatorForm, ToursEdit, ToursManagement)
+  - Enhanced tour display tables to show proper EGP formatting with discount prices in green when available
+  - System now maintains consistent cents storage in database while displaying user-friendly EGP values
+  - Tour editing and creation workflows work correctly with proper price handling throughout
+
 - **Enhanced Room Cost Calculation with Days Integration (July 4, 2025)**: Successfully enhanced the pricing calculation to include room costs multiplied by the number of nights
   - Modified EnhancedPriceCalculation component to prioritize user-selected rooms over package default rooms
   - Enhanced night calculation logic to properly handle both single date and date range modes

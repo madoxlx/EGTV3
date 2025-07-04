@@ -139,8 +139,8 @@ export default function ToursEdit() {
         destinationId: tour.destinationId || 0,
         duration: tour.duration || 1,
         durationType: tour.durationType || "days",
-        price: tour.price || 0,
-        discountedPrice: tour.discountedPrice || 0,
+        price: tour.price ? (tour.price / 100) : 0, // Convert from cents to EGP
+        discountedPrice: tour.discountedPrice ? (tour.discountedPrice / 100) : 0, // Convert from cents to EGP
         maxCapacity: tour.maxCapacity || 10,
         maxGroupSize: tour.maxGroupSize || 10,
         numPassengers: tour.numPassengers || 1,
@@ -173,7 +173,11 @@ export default function ToursEdit() {
 
   // Prepare form data for submission
   const prepareFormData = (data: TourFormValues) => {
-    const formData = { ...data };
+    const formData = { 
+      ...data,
+      price: Math.round(data.price * 100), // Convert EGP to cents
+      discountedPrice: data.discountedPrice ? Math.round(data.discountedPrice * 100) : null, // Convert EGP to cents
+    };
     
     // Convert arrays to proper format if they're strings
     if (formData.included && typeof formData.included === 'string') {
