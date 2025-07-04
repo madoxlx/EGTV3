@@ -6,31 +6,96 @@ import { ScrollArea } from "./scroll-area";
 import { Badge } from "./badge";
 import * as LucideIcons from "lucide-react";
 
-// Common icon categories for travel and tourism
+// Comprehensive icon categories with 400+ icons for travel and tourism
 const iconCategories = {
   travel: [
-    "Plane", "Car", "Bus", "Train", "Ship", "Bike", "Walk", "MapPin", "Map", "Navigation",
-    "Compass", "Globe", "Earth", "Mountain", "TreePine", "Waves", "Sun", "Moon", "Star"
+    "Plane", "PlaneTakeoff", "PlaneLanding", "Car", "CarFront", "Taxi", "Bus", "Train", "Tram",
+    "Ship", "Sailboat", "Anchor", "Bike", "Motorcycle", "Scooter", "Walk", "Footprints", "MapPin",
+    "Map", "Navigation", "Navigation2", "Route", "Signpost", "Milestone", "Compass", "Globe",
+    "Globe2", "Earth", "Mountain", "MountainSnow", "TreePine", "Trees", "Waves", "Palmtree",
+    "Tent", "Backpack", "Luggage", "Briefcase", "Suitcase", "Passport", "Ticket", "BoardingPass"
   ],
   accommodation: [
-    "Hotel", "Home", "Building", "Castle", "Tent", "Warehouse", "Store", "Bed", "Bath",
-    "Wifi", "AirVent", "Coffee", "Utensils", "Wine", "Music", "Tv", "Gamepad2"
+    "Hotel", "Home", "Building", "Building2", "Castle", "Warehouse", "Store", "Bed", "BedDouble",
+    "BedSingle", "Bath", "Shower", "Wifi", "WifiOff", "AirVent", "Fan", "Heater", "Snowflake",
+    "Thermometer", "Key", "KeyRound", "Door", "DoorOpen", "DoorClosed", "Stairs", "Elevator",
+    "Parking", "ParkingCircle", "ParkingMeter", "CarFront", "Garage", "Home", "Hotel", "Building",
+    "Warehouse", "Store", "ShoppingCart", "ShoppingBag", "CreditCard", "Banknote", "Coins"
   ],
   activities: [
-    "Camera", "Image", "Video", "Binoculars", "Telescope", "Footprints", "Trophy", "Award",
-    "Target", "Zap", "Heart", "ThumbsUp", "Gift", "ShoppingBag", "CreditCard", "Ticket"
+    "Camera", "CameraOff", "Image", "Images", "Video", "VideoOff", "Film", "Clapperboard",
+    "Binoculars", "Telescope", "Microscope", "Trophy", "Award", "Medal", "Target", "Crosshair",
+    "Zap", "Heart", "HeartHandshake", "ThumbsUp", "ThumbsDown", "Star", "StarHalf", "Gift",
+    "GiftCard", "PartyPopper", "Confetti", "Balloon", "Cake", "IceCream", "Cherry", "Apple",
+    "Grape", "Banana", "Lemon", "Orange", "Strawberry", "Gamepad", "Gamepad2", "Joystick",
+    "Dice1", "Dice2", "Dice3", "Dice4", "Dice5", "Dice6", "Casino", "Spade", "Club", "Diamond", "Heart"
   ],
   services: [
-    "Shield", "Lock", "Phone", "Mail", "MessageCircle", "Calendar", "Clock", "Timer",
-    "Users", "User", "Crown", "Key", "Tool", "Settings", "Info", "AlertCircle", "CheckCircle"
+    "Shield", "ShieldCheck", "Lock", "LockOpen", "Unlock", "Phone", "PhoneCall", "PhoneIncoming",
+    "PhoneOutgoing", "PhoneMissed", "Mail", "MailOpen", "MailCheck", "MessageCircle", "MessageSquare",
+    "MessageSquareText", "Send", "Calendar", "CalendarDays", "CalendarCheck", "Clock", "Clock3",
+    "Timer", "Stopwatch", "Users", "Users2", "User", "UserCheck", "UserPlus", "UserMinus",
+    "Crown", "Key", "Tool", "Tools", "Wrench", "Hammer", "Screwdriver", "Settings", "Settings2",
+    "Cog", "Info", "AlertCircle", "AlertTriangle", "CheckCircle", "CheckCircle2", "XCircle",
+    "HelpCircle", "QuestionMarkCircle", "ExclamationTriangle", "Ban", "ShieldAlert", "ShieldX"
   ],
   food: [
-    "UtensilsCrossed", "ChefHat", "Cookie", "Cake", "Pizza", "Soup", "IceCream", "Cherry",
-    "Apple", "Grape", "Sandwich", "Croissant", "Fish", "Beef", "Salad", "CupSoda"
+    "UtensilsCrossed", "Utensils", "Fork", "Spoon", "Knife", "ChefHat", "Cookie", "Cake",
+    "CakeSlice", "Pizza", "PizzaSlice", "Soup", "Salad", "Sandwich", "Croissant", "Donut",
+    "Pretzel", "Popcorn", "IceCream", "IceCream2", "Milk", "Coffee", "Tea", "Wine", "WineGlass",
+    "Beer", "Martini", "Cocktail", "CupSoda", "Bottle", "BottleWater", "Cherry", "Apple",
+    "Grape", "Banana", "Lemon", "Orange", "Strawberry", "Carrot", "Corn", "Egg", "EggFried",
+    "Fish", "Beef", "Ham", "Chicken", "Turkey", "Shrimp", "Lobster", "Crab"
   ],
   weather: [
-    "Sun", "Moon", "Cloud", "CloudRain", "CloudSnow", "Zap", "Rainbow", "Snowflake",
-    "Droplets", "Wind", "Thermometer", "Sunrise", "Sunset", "Eclipse"
+    "Sun", "SunMoon", "Moon", "MoonStar", "Cloud", "CloudRain", "CloudDrizzle", "CloudSnow",
+    "CloudHail", "CloudLightning", "Cloudy", "PartlyCloudy", "Zap", "Rainbow", "Snowflake",
+    "Droplets", "Droplet", "Wind", "Tornado", "Hurricane", "Thermometer", "ThermometerSun",
+    "ThermometerSnowflake", "Sunrise", "Sunset", "Eclipse", "Umbrella", "UmbrellaBeach"
+  ],
+  nature: [
+    "TreePine", "Trees", "Tree", "Leaf", "Leaves", "Flower", "Flower2", "FlowerTulip", "Rose",
+    "Cactus", "Grass", "Mountain", "MountainSnow", "Volcano", "Island", "Desert", "Forest",
+    "Palmtree", "Coconut", "Waves", "Water", "Lake", "River", "Waterfall", "Beach", "Shell",
+    "Starfish", "Fish", "Whale", "Dolphin", "Octopus", "Crab", "Lobster", "Shrimp", "Turtle",
+    "Penguin", "Bird", "Eagle", "Dove", "Owl", "Parrot", "Flamingo", "Swan", "Duck", "Chicken",
+    "Rabbit", "Cat", "Dog", "Horse", "Cow", "Pig", "Sheep", "Goat", "Deer", "Fox", "Wolf",
+    "Bear", "Lion", "Tiger", "Elephant", "Giraffe", "Zebra", "Hippo", "Rhino", "Monkey", "Koala"
+  ],
+  sports: [
+    "Football", "Basketball", "Baseball", "Tennis", "Golf", "Soccer", "Volleyball", "Rugby",
+    "Cricket", "Hockey", "TableTennis", "Badminton", "Boxing", "MartialArts", "Wrestling",
+    "Swimming", "Diving", "Surfing", "Skiing", "Snowboarding", "IceSkating", "Cycling",
+    "Running", "Marathon", "Gymnastics", "Weightlifting", "Archery", "Fishing", "Hunting",
+    "Rock", "Mountain", "Climbing", "Hiking", "Camping", "Kayak", "Canoe", "Sailing", "Windsurfing"
+  ],
+  transportation: [
+    "Car", "CarFront", "Truck", "Van", "Bus", "Taxi", "Ambulance", "FireTruck", "PoliceCar",
+    "Motorcycle", "Scooter", "Bike", "ElectricScooter", "Skateboard", "RollerSkate", "Train",
+    "Subway", "Tram", "Monorail", "Plane", "PlaneTakeoff", "PlaneLanding", "Helicopter",
+    "Rocket", "Satellite", "Ship", "Boat", "Sailboat", "Yacht", "Submarine", "Ferry", "Cruise"
+  ],
+  technology: [
+    "Smartphone", "Tablet", "Laptop", "Desktop", "Monitor", "Tv", "Radio", "Camera", "Video",
+    "Headphones", "Speaker", "Microphone", "Battery", "BatteryCharging", "Plug", "Cable",
+    "Wifi", "Bluetooth", "Signal", "Antenna", "Router", "Server", "Database", "HardDrive",
+    "Usb", "SdCard", "Cd", "Dvd", "Floppy", "Printer", "Scanner", "Fax", "Phone", "Watch",
+    "Smartwatch", "VirtualReality", "GameController", "Remote", "Calculator", "Computer"
+  ],
+  business: [
+    "Building", "Building2", "Office", "Factory", "Warehouse", "Store", "Shop", "Mall",
+    "Bank", "Hospital", "School", "University", "Library", "Museum", "Theater", "Cinema",
+    "Restaurant", "Cafe", "Bar", "Hotel", "Gym", "Spa", "Salon", "Pharmacy", "GasStation",
+    "CarWash", "Laundry", "PostOffice", "Police", "FireStation", "Embassy", "Government",
+    "Church", "Mosque", "Temple", "Synagogue", "Cemetery", "Park", "Zoo", "Aquarium"
+  ],
+  symbols: [
+    "Heart", "Star", "Diamond", "Circle", "Square", "Triangle", "Hexagon", "Pentagon",
+    "Cross", "Plus", "Minus", "Multiply", "Divide", "Equal", "Percent", "Hash", "At",
+    "Ampersand", "Question", "Exclamation", "Period", "Comma", "Semicolon", "Colon",
+    "Quote", "Apostrophe", "Hyphen", "Underscore", "Backslash", "Slash", "Pipe", "Tilde",
+    "Caret", "Grave", "Dollar", "Euro", "Pound", "Yen", "Rupee", "Bitcoin", "Copyright",
+    "Trademark", "Registered", "Degree", "Section", "Paragraph", "Bullet", "Ellipsis"
   ]
 };
 
@@ -90,9 +155,9 @@ export function IconSelector({ value, onChange, placeholder = "Select an icon", 
         </Button>
       </DialogTrigger>
       
-      <DialogContent className="max-w-2xl max-h-[80vh]">
+      <DialogContent className="max-w-4xl max-h-[90vh]">
         <DialogHeader>
-          <DialogTitle>Select an Icon</DialogTitle>
+          <DialogTitle>Select an Icon (400+ Available)</DialogTitle>
         </DialogHeader>
         
         <div className="space-y-4">
@@ -125,14 +190,14 @@ export function IconSelector({ value, onChange, placeholder = "Select an icon", 
           </div>
           
           {/* Icons Grid */}
-          <ScrollArea className="h-64">
-            <div className="grid grid-cols-8 gap-2 p-2">
-              {filteredIcons.slice(0, 100).map((iconName) => (
+          <ScrollArea className="h-96">
+            <div className="grid grid-cols-10 gap-2 p-2">
+              {filteredIcons.map((iconName) => (
                 <Button
                   key={iconName}
                   variant={value === iconName ? "default" : "ghost"}
                   size="sm"
-                  className="h-12 w-12 p-2"
+                  className="h-12 w-12 p-2 hover:bg-accent"
                   onClick={() => handleIconSelect(iconName)}
                   title={iconName}
                 >
@@ -140,7 +205,18 @@ export function IconSelector({ value, onChange, placeholder = "Select an icon", 
                 </Button>
               ))}
             </div>
+            {filteredIcons.length === 0 && (
+              <div className="text-center py-8 text-muted-foreground">
+                No icons found matching your search.
+              </div>
+            )}
           </ScrollArea>
+          
+          {/* Icons Count */}
+          <div className="text-sm text-muted-foreground text-center">
+            Showing {filteredIcons.length} icons
+            {selectedCategory && ` in ${selectedCategory}`}
+          </div>
           
           {/* Selected Icon Info */}
           {value && (
