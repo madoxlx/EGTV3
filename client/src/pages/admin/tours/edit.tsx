@@ -310,15 +310,16 @@ export default function EditTour() {
         headers: {
           "Content-Type": "application/json",
         },
+        credentials: "include", // This is the key fix for authentication
         body: JSON.stringify(tourData),
       });
 
       if (!response.ok) {
         const error = await response.json();
-        throw error;
+        throw new Error(error.message || "Failed to update tour");
       }
 
-      return response.json();
+      return await response.json();
     },
     onSuccess: () => {
       toast({
