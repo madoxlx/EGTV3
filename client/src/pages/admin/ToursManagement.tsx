@@ -349,11 +349,11 @@ export default function ToursManagement() {
                         <TableCell className="font-medium">{tour.name}</TableCell>
                         <TableCell>{category?.name || "No Category"}</TableCell>
                         <TableCell>{destination?.name || "No Destination"}</TableCell>
-                        <TableCell>{(tour.price || 0).toLocaleString('en-US')} EGP</TableCell>
+                        <TableCell>{((tour.price || 0) / 100).toLocaleString('en-US')} EGP</TableCell>
                         <TableCell>
                           {tour.discountedPrice ? (
                             <span className="text-green-600 font-medium">
-                              {(tour.discountedPrice || 0).toLocaleString('en-US')} EGP
+                              {((tour.discountedPrice || 0) / 100).toLocaleString('en-US')} EGP
                             </span>
                           ) : (
                             <span className="text-gray-400">-</span>
