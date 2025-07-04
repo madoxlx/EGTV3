@@ -1,8 +1,8 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useMutation, useQuery } from "@tanstack/react-query";
-import { useLocation } from "wouter";
+import { useLocation, useParams } from "wouter";
 import { z } from "zod";
 import {
   Form,
@@ -106,8 +106,9 @@ const formSchema = z.object({
 
 type TourFormValues = z.infer<typeof formSchema>;
 
-export default function CreateTour() {
-  const [, setLocation] = useLocation();
+export default function EditTour() {
+  const [location, setLocation] = useLocation();
+  const { id } = useParams();
   const { toast } = useToast();
   const [activeTab, setActiveTab] = useState("basic");
   const [includedItems, setIncludedItems] = useState<string[]>([]);
@@ -154,6 +155,19 @@ export default function CreateTour() {
     },
   });
 
+  // Fetch existing tour data
+  const tourQuery = useQuery({
+    queryKey: ["/api/admin/tours", id],
+    queryFn: async () => {
+      const response = await fetch(`/api/admin/tours/${id}`);
+      if (!response.ok) {
+        throw new Error("Failed to fetch tour");
+      }
+      return response.json();
+    },
+    enabled: !!id,
+  });
+
   // Fetch destinations
   const destinationsQuery = useQuery({
     queryKey: ["/api/destinations"],
@@ -174,8 +188,81 @@ export default function CreateTour() {
     },
   });
 
-  // Create tour mutation
-  const createTourMutation = useMutation({
+  // Load tour data into form when available
+  useEffect(() => {
+    if (tourQuery.data) {
+      const tour = tourQuery.data;
+      console.log("Loading tour data into form:", tour);
+
+      // Convert price from cents to EGP for display
+      const priceInEGP = tour.price ? (tour.price / 100).toString() : "";
+      const discountedPriceInEGP = tour.discountedPrice ? (tour.discountedPrice / 100).toString() : "";
+
+      // Parse JSON arrays safely
+      const parseArrayField = (field: any) => {
+        if (Array.isArray(field)) return field;
+        if (typeof field === 'string') {
+          try {
+            const parsed = JSON.parse(field);
+            return Array.isArray(parsed) ? parsed : [];
+          } catch {
+            return [];
+          }
+        }
+        return [];
+      };
+
+      const includedArray = parseArrayField(tour.included);
+      const excludedArray = parseArrayField(tour.excluded);
+      const includedArArray = parseArrayField(tour.includedAr);
+      const excludedArArray = parseArrayField(tour.excludedAr);
+      const galleryArray = parseArrayField(tour.galleryUrls);
+
+      // Set state arrays
+      setIncludedItems(includedArray);
+      setExcludedItems(excludedArray);
+      setIncludedItemsAr(includedArArray);
+      setExcludedItemsAr(excludedArArray);
+      setGalleryImages(galleryArray);
+
+      // Reset form with tour data
+      form.reset({
+        name: tour.name || "",
+        description: tour.description || "",
+        destinationId: tour.destinationId ? tour.destinationId.toString() : "",
+        categoryId: tour.categoryId ? tour.categoryId.toString() : "",
+        duration: tour.duration ? tour.duration.toString() : "",
+        durationType: tour.durationType || "days",
+        price: priceInEGP,
+        currency: tour.currency || "EGP",
+        discountedPrice: discountedPriceInEGP,
+        maxCapacity: tour.maxCapacity ? tour.maxCapacity.toString() : "",
+        maxGroupSize: tour.maxGroupSize ? tour.maxGroupSize.toString() : "",
+        numPassengers: tour.numPassengers ? tour.numPassengers.toString() : "",
+        itinerary: tour.itinerary || "",
+        included: includedArray,
+        excluded: excludedArray,
+        imageUrl: tour.imageUrl || "",
+        galleryUrls: galleryArray,
+        active: tour.active ?? true,
+        featured: tour.featured ?? false,
+        tripType: tour.tripType || "",
+        rating: tour.rating ? tour.rating.toString() : "",
+        reviewCount: tour.reviewCount ? tour.reviewCount.toString() : "",
+        nameAr: tour.nameAr || "",
+        descriptionAr: tour.descriptionAr || "",
+        itineraryAr: tour.itineraryAr || "",
+        includedAr: includedArArray,
+        excludedAr: excludedArArray,
+        hasArabicVersion: tour.hasArabicVersion ?? false,
+      });
+
+      console.log("Form data populated successfully");
+    }
+  }, [tourQuery.data, form]);
+
+  // Update tour mutation
+  const updateTourMutation = useMutation({
     mutationFn: async (data: TourFormValues) => {
       // Convert form data to proper types
       const tourData = {
@@ -218,8 +305,8 @@ export default function CreateTour() {
         galleryUrls: galleryImages,
       };
 
-      const response = await fetch("/api/admin/tours", {
-        method: "POST",
+      const response = await fetch(`/api/admin/tours/${id}`, {
+        method: "PUT",
         headers: {
           "Content-Type": "application/json",
         },
@@ -236,9 +323,10 @@ export default function CreateTour() {
     onSuccess: () => {
       toast({
         title: "Success",
-        description: "Tour created successfully",
+        description: "Tour updated successfully",
       });
       queryClient.invalidateQueries({ queryKey: ["/api/admin/tours"] });
+      queryClient.invalidateQueries({ queryKey: ["/api/admin/tours", id] });
       setLocation("/admin/tours");
     },
     onError: (error: any) => {
@@ -247,10 +335,10 @@ export default function CreateTour() {
           ? `Required field missing: ${error.message}`
           : error?.constraint
             ? error.message
-            : error.message || "Failed to create tour";
+            : error.message || "Failed to update tour";
 
       toast({
-        title: "Error creating tour",
+        title: "Error updating tour",
         description: errorMessage,
         variant: "destructive",
       });
@@ -476,7 +564,7 @@ export default function CreateTour() {
         gallery: finalGallery,
       };
 
-      createTourMutation.mutate(tourData);
+      updateTourMutation.mutate(tourData);
     } catch (error) {
       console.error("Submission error:", error);
       toast({
@@ -487,9 +575,9 @@ export default function CreateTour() {
     }
   };
 
-  if (destinationsQuery.isLoading || tourCategoriesQuery.isLoading) {
+  if (tourQuery.isLoading || destinationsQuery.isLoading || tourCategoriesQuery.isLoading) {
     return (
-      <DashboardLayout>
+      <DashboardLayout location={location}>
         <div className="flex items-center justify-center h-64">
           <Loader2 className="h-8 w-8 animate-spin" />
         </div>
@@ -497,8 +585,27 @@ export default function CreateTour() {
     );
   }
 
+  if (tourQuery.isError) {
+    return (
+      <DashboardLayout location={location}>
+        <div className="flex items-center justify-center h-64">
+          <div className="text-center">
+            <h2 className="text-lg font-semibold text-red-600">Error loading tour</h2>
+            <p className="text-gray-600">Failed to fetch tour data</p>
+            <Button
+              onClick={() => setLocation("/admin/tours")}
+              className="mt-4"
+            >
+              Back to Tours
+            </Button>
+          </div>
+        </div>
+      </DashboardLayout>
+    );
+  }
+
   return (
-    <DashboardLayout>
+    <DashboardLayout location={location}>
       <div className="mb-6">
         <Breadcrumb>
           <BreadcrumbItem>
@@ -517,14 +624,19 @@ export default function CreateTour() {
             </BreadcrumbLink>
           </BreadcrumbItem>
           <BreadcrumbItem>
-            <span>Create New Tour</span>
+            <span>Edit Tour</span>
           </BreadcrumbItem>
         </Breadcrumb>
       </div>
 
       <div className="bg-white rounded-lg shadow-sm border p-6">
         <div className="flex justify-between items-center mb-6">
-          <h1 className="text-2xl font-bold text-zinc-800">Create New Tour</h1>
+          <div>
+            <h1 className="text-2xl font-bold text-zinc-800">Edit Tour</h1>
+            {tourQuery.data && (
+              <p className="text-gray-600 mt-1">{tourQuery.data.name}</p>
+            )}
+          </div>
           <Button
             variant="outline"
             className="gap-1"
@@ -539,65 +651,78 @@ export default function CreateTour() {
           <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
             <FormRequiredFieldsNote />
 
-            {createTourMutation.isError && (
+            {updateTourMutation.isError && (
               <FormValidationAlert
                 status="error"
-                title="Tour Creation Failed"
-                message={
-                  createTourMutation.error?.message ||
-                  "An error occurred while creating the tour."
-                }
+                title="Update Failed"
+                message={updateTourMutation.error?.message || "Failed to update tour"}
                 className="mb-6"
               />
             )}
 
-            <Tabs
-              value={activeTab}
-              onValueChange={setActiveTab}
-              className="w-full"
-            >
-              <TabsList className="grid w-full grid-cols-6">
+            <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
+              <TabsList className="grid w-full grid-cols-4">
                 <TabsTrigger value="basic">Basic Info</TabsTrigger>
-                <TabsTrigger value="pricing">Pricing</TabsTrigger>
+                <TabsTrigger value="media">Media</TabsTrigger>
                 <TabsTrigger value="details">Details</TabsTrigger>
-                <TabsTrigger value="images">Images</TabsTrigger>
                 <TabsTrigger value="content">Content</TabsTrigger>
-                <TabsTrigger value="arabic">Arabic Version</TabsTrigger>
+                <TabsTrigger value="arabic">Arabic</TabsTrigger>
               </TabsList>
 
               <TabsContent value="basic" className="space-y-6">
                 <Card>
                   <CardHeader>
-                    <CardTitle className="flex items-center gap-2">
-                      <MapPin className="h-5 w-5" />
-                      Basic Information
-                    </CardTitle>
+                    <CardTitle>Basic Information</CardTitle>
                   </CardHeader>
                   <CardContent className="space-y-4">
-                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                      <FormField
-                        control={form.control}
-                        name="name"
-                        render={({ field }) => (
-                          <FormItem>
-                            <FormLabel>Tour Name *</FormLabel>
-                            <FormControl>
-                              <Input placeholder="Enter tour name" {...field} />
-                            </FormControl>
-                            <FormMessage />
-                          </FormItem>
-                        )}
-                      />
+                    <FormField
+                      control={form.control}
+                      name="name"
+                      render={({ field }) => (
+                        <FormItem>
+                          <FormLabel>
+                            Tour Name <span className="text-red-500">*</span>
+                          </FormLabel>
+                          <FormControl>
+                            <Input placeholder="Enter tour name" {...field} />
+                          </FormControl>
+                          <FormMessage />
+                        </FormItem>
+                      )}
+                    />
 
+                    <FormField
+                      control={form.control}
+                      name="description"
+                      render={({ field }) => (
+                        <FormItem>
+                          <FormLabel>
+                            Description <span className="text-red-500">*</span>
+                          </FormLabel>
+                          <FormControl>
+                            <Textarea
+                              placeholder="Enter tour description"
+                              className="min-h-32"
+                              {...field}
+                            />
+                          </FormControl>
+                          <FormMessage />
+                        </FormItem>
+                      )}
+                    />
+
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                       <FormField
                         control={form.control}
                         name="destinationId"
                         render={({ field }) => (
                           <FormItem>
-                            <FormLabel>Destination *</FormLabel>
+                            <FormLabel>
+                              Destination <span className="text-red-500">*</span>
+                            </FormLabel>
                             <Select
                               onValueChange={field.onChange}
-                              defaultValue={field.value}
+                              value={field.value}
                             >
                               <FormControl>
                                 <SelectTrigger>
@@ -605,9 +730,9 @@ export default function CreateTour() {
                                 </SelectTrigger>
                               </FormControl>
                               <SelectContent>
-                                {destinationsQuery.data?.map((destination) => (
+                                {destinationsQuery.data?.map((destination: any) => (
                                   <SelectItem
-                                    key={destination.id}
+                                    key={`dest-${destination.id}`}
                                     value={destination.id.toString()}
                                   >
                                     {destination.name}
@@ -636,9 +761,9 @@ export default function CreateTour() {
                                 </SelectTrigger>
                               </FormControl>
                               <SelectContent>
-                                {tourCategoriesQuery.data?.map((category) => (
+                                {tourCategoriesQuery.data?.map((category: any) => (
                                   <SelectItem
-                                    key={category.id}
+                                    key={`cat-${category.id}`}
                                     value={category.id.toString()}
                                   >
                                     {category.name}
@@ -652,86 +777,64 @@ export default function CreateTour() {
                       />
                     </div>
 
-                    <FormField
-                      control={form.control}
-                      name="description"
-                      render={({ field }) => (
-                        <FormItem>
-                          <FormLabel>Description *</FormLabel>
-                          <FormControl>
-                            <Textarea
-                              placeholder="Enter detailed tour description"
-                              className="min-h-32"
-                              {...field}
-                            />
-                          </FormControl>
-                          <FormMessage />
-                        </FormItem>
-                      )}
-                    />
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                      <div className="flex gap-2">
+                        <FormField
+                          control={form.control}
+                          name="duration"
+                          render={({ field }) => (
+                            <FormItem className="flex-1">
+                              <FormLabel>
+                                Duration <span className="text-red-500">*</span>
+                              </FormLabel>
+                              <FormControl>
+                                <Input
+                                  type="number"
+                                  min="1"
+                                  placeholder="Enter duration"
+                                  {...field}
+                                />
+                              </FormControl>
+                              <FormMessage />
+                            </FormItem>
+                          )}
+                        />
 
-                    <div className="flex items-center space-x-6">
+                        <FormField
+                          control={form.control}
+                          name="durationType"
+                          render={({ field }) => (
+                            <FormItem className="w-32">
+                              <FormLabel>Type</FormLabel>
+                              <Select
+                                onValueChange={field.onChange}
+                                value={field.value}
+                              >
+                                <FormControl>
+                                  <SelectTrigger>
+                                    <SelectValue />
+                                  </SelectTrigger>
+                                </FormControl>
+                                <SelectContent>
+                                  <SelectItem value="days">Days</SelectItem>
+                                  <SelectItem value="hours">Hours</SelectItem>
+                                </SelectContent>
+                              </Select>
+                              <FormMessage />
+                            </FormItem>
+                          )}
+                        />
+                      </div>
+
                       <FormField
                         control={form.control}
-                        name="active"
-                        render={({ field }) => (
-                          <FormItem className="flex flex-row items-center space-x-3 space-y-0">
-                            <FormControl>
-                              <Switch
-                                checked={field.value}
-                                onCheckedChange={field.onChange}
-                              />
-                            </FormControl>
-                            <div className="space-y-1 leading-none">
-                              <FormLabel>Active</FormLabel>
-                            </div>
-                          </FormItem>
-                        )}
-                      />
-
-                      <FormField
-                        control={form.control}
-                        name="featured"
-                        render={({ field }) => (
-                          <FormItem className="flex flex-row items-center space-x-3 space-y-0">
-                            <FormControl>
-                              <Switch
-                                checked={field.value}
-                                onCheckedChange={field.onChange}
-                              />
-                            </FormControl>
-                            <div className="space-y-1 leading-none">
-                              <FormLabel>Featured</FormLabel>
-                            </div>
-                          </FormItem>
-                        )}
-                      />
-                    </div>
-                  </CardContent>
-                </Card>
-              </TabsContent>
-
-              <TabsContent value="pricing" className="space-y-6">
-                <Card>
-                  <CardHeader>
-                    <CardTitle className="flex items-center gap-2">
-                      <Clock className="h-5 w-5" />
-                      Duration & Pricing
-                    </CardTitle>
-                  </CardHeader>
-                  <CardContent className="space-y-4">
-                    <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-                      <FormField
-                        control={form.control}
-                        name="duration"
+                        name="tripType"
                         render={({ field }) => (
                           <FormItem>
-                            <FormLabel>Duration *</FormLabel>
+                            <FormLabel>Trip Type</FormLabel>
                             <FormControl>
                               <Input
-                                type="number"
-                                min="1"
-                                placeholder="Enter duration"
+                                placeholder="e.g., Private, Group"
                                 {...field}
                               />
                             </FormControl>
@@ -739,66 +842,17 @@ export default function CreateTour() {
                           </FormItem>
                         )}
                       />
-
-                      <FormField
-                        control={form.control}
-                        name="durationType"
-                        render={({ field }) => (
-                          <FormItem>
-                            <FormLabel>Duration Type</FormLabel>
-                            <Select
-                              onValueChange={field.onChange}
-                              defaultValue={field.value}
-                            >
-                              <FormControl>
-                                <SelectTrigger>
-                                  <SelectValue placeholder="Select type" />
-                                </SelectTrigger>
-                              </FormControl>
-                              <SelectContent>
-                                <SelectItem value="days">Days</SelectItem>
-                                <SelectItem value="hours">Hours</SelectItem>
-                              </SelectContent>
-                            </Select>
-                            <FormMessage />
-                          </FormItem>
-                        )}
-                      />
-
-                      <FormField
-                        control={form.control}
-                        name="currency"
-                        render={({ field }) => (
-                          <FormItem>
-                            <FormLabel>Currency</FormLabel>
-                            <Select
-                              onValueChange={field.onChange}
-                              defaultValue={field.value}
-                            >
-                              <FormControl>
-                                <SelectTrigger>
-                                  <SelectValue placeholder="Select currency" />
-                                </SelectTrigger>
-                              </FormControl>
-                              <SelectContent>
-                                <SelectItem value="EGP">EGP</SelectItem>
-                                <SelectItem value="USD">USD</SelectItem>
-                                <SelectItem value="EUR">EUR</SelectItem>
-                              </SelectContent>
-                            </Select>
-                            <FormMessage />
-                          </FormItem>
-                        )}
-                      />
                     </div>
 
-                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
                       <FormField
                         control={form.control}
                         name="price"
                         render={({ field }) => (
                           <FormItem>
-                            <FormLabel>Regular Price *</FormLabel>
+                            <FormLabel>
+                              Price (EGP) <span className="text-red-500">*</span>
+                            </FormLabel>
                             <FormControl>
                               <Input
                                 type="number"
@@ -818,7 +872,7 @@ export default function CreateTour() {
                         name="discountedPrice"
                         render={({ field }) => (
                           <FormItem>
-                            <FormLabel>Discounted Price</FormLabel>
+                            <FormLabel>Discounted Price (EGP)</FormLabel>
                             <FormControl>
                               <Input
                                 type="number"
@@ -832,29 +886,96 @@ export default function CreateTour() {
                           </FormItem>
                         )}
                       />
+
+                      <FormField
+                        control={form.control}
+                        name="currency"
+                        render={({ field }) => (
+                          <FormItem>
+                            <FormLabel>Currency</FormLabel>
+                            <Select
+                              onValueChange={field.onChange}
+                              value={field.value}
+                            >
+                              <FormControl>
+                                <SelectTrigger>
+                                  <SelectValue />
+                                </SelectTrigger>
+                              </FormControl>
+                              <SelectContent>
+                                <SelectItem value="EGP">EGP</SelectItem>
+                                <SelectItem value="USD">USD</SelectItem>
+                                <SelectItem value="EUR">EUR</SelectItem>
+                              </SelectContent>
+                            </Select>
+                            <FormMessage />
+                          </FormItem>
+                        )}
+                      />
+                    </div>
+
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                      <FormField
+                        control={form.control}
+                        name="active"
+                        render={({ field }) => (
+                          <FormItem className="flex flex-row items-center space-x-3 space-y-0">
+                            <FormControl>
+                              <Switch
+                                checked={field.value}
+                                onCheckedChange={field.onChange}
+                              />
+                            </FormControl>
+                            <div className="space-y-1 leading-none">
+                              <FormLabel>Active Tour</FormLabel>
+                              <FormDescription>
+                                Make this tour visible to customers
+                              </FormDescription>
+                            </div>
+                          </FormItem>
+                        )}
+                      />
+
+                      <FormField
+                        control={form.control}
+                        name="featured"
+                        render={({ field }) => (
+                          <FormItem className="flex flex-row items-center space-x-3 space-y-0">
+                            <FormControl>
+                              <Switch
+                                checked={field.value}
+                                onCheckedChange={field.onChange}
+                              />
+                            </FormControl>
+                            <div className="space-y-1 leading-none">
+                              <FormLabel>Featured Tour</FormLabel>
+                              <FormDescription>
+                                Highlight this tour on the homepage
+                              </FormDescription>
+                            </div>
+                          </FormItem>
+                        )}
+                      />
                     </div>
                   </CardContent>
                 </Card>
               </TabsContent>
 
-              <TabsContent value="images" className="space-y-6">
+              <TabsContent value="media" className="space-y-6">
                 <Card>
                   <CardHeader>
-                    <CardTitle className="flex items-center gap-2">
-                      <Plus className="h-5 w-5" />
-                      Images & Media
-                    </CardTitle>
+                    <CardTitle>Images & Media</CardTitle>
                   </CardHeader>
                   <CardContent className="space-y-6">
                     <div>
                       <Label className="text-sm font-medium">Main Image</Label>
                       <FormDescription className="mb-4">
-                        Upload the primary image for your tour
+                        Upload a main image for your tour
                       </FormDescription>
 
-                      {!mainImageFile && !form.watch("imageUrl") ? (
+                      {!form.watch("imageUrl") ? (
                         <div
-                          className="border-2 border-dashed border-gray-300 rounded-lg p-8 text-center hover:border-gray-400 transition-colors cursor-pointer"
+                          className="border-2 border-dashed border-gray-300 rounded-lg p-6 text-center hover:border-gray-400 transition-colors cursor-pointer"
                           onDrop={(e) => {
                             e.preventDefault();
                             const files = e.dataTransfer.files;
@@ -870,23 +991,15 @@ export default function CreateTour() {
                             input.onchange = (e) => {
                               const file = (e.target as HTMLInputElement)
                                 .files?.[0];
-                              if (file) {
-                                console.log(
-                                  "Selected file:",
-                                  file.name,
-                                  file.type,
-                                  file.size,
-                                );
-                                handleMainImageUpload(file);
-                              }
+                              if (file) handleMainImageUpload(file);
                             };
                             input.click();
                           }}
                         >
                           {uploadingMain ? (
-                            <Loader2 className="h-8 w-8 mx-auto mb-2 animate-spin" />
+                            <Loader2 className="h-6 w-6 mx-auto mb-2 animate-spin" />
                           ) : (
-                            <Upload className="h-8 w-8 mx-auto mb-2 text-gray-400" />
+                            <Upload className="h-6 w-6 mx-auto mb-2 text-gray-400" />
                           )}
                           <p className="text-gray-600">
                             {uploadingMain
@@ -942,7 +1055,7 @@ export default function CreateTour() {
                       <FormDescription className="mb-4">
                         Upload additional images to showcase your tour
                       </FormDescription>
-                      t
+                      
                       <div
                         className="border-2 border-dashed border-gray-300 rounded-lg p-6 text-center hover:border-gray-400 transition-colors cursor-pointer mb-4"
                         onDrop={(e) => {
@@ -1479,16 +1592,16 @@ export default function CreateTour() {
               </Button>
               <Button
                 type="submit"
-                disabled={createTourMutation.isPending}
+                disabled={updateTourMutation.isPending}
                 className="bg-blue-600 hover:bg-blue-700"
               >
-                {createTourMutation.isPending ? (
+                {updateTourMutation.isPending ? (
                   <>
                     <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                    Creating Tour...
+                    Updating Tour...
                   </>
                 ) : (
-                  "Create Tour"
+                  "Update Tour"
                 )}
               </Button>
             </div>
