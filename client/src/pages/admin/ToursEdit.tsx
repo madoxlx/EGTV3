@@ -134,11 +134,16 @@ export default function ToursEdit() {
   useEffect(() => {
     if (tour) {
       console.log('Loading tour data into form:', tour);
+      console.log('Tour destinationId:', tour.destinationId, 'Type:', typeof tour.destinationId);
+      console.log('Tour categoryId:', tour.categoryId, 'Type:', typeof tour.categoryId);
+      console.log('Tour price:', tour.price, 'Type:', typeof tour.price);
       
       // Ensure proper type conversion for numeric fields
       const destinationId = tour.destinationId ? Number(tour.destinationId) : 0;
       const categoryId = tour.categoryId ? Number(tour.categoryId) : 0;
       const duration = tour.duration ? Number(tour.duration) : 1;
+      
+      console.log('Converted destinationId:', destinationId, 'categoryId:', categoryId);
       
       // Convert prices from cents to EGP for display
       const priceInEGP = tour.price ? Number(tour.price) / 100 : 0;
@@ -208,6 +213,14 @@ export default function ToursEdit() {
       
       console.log('Form data prepared:', formData);
       form.reset(formData);
+      
+      // Log form values after reset to confirm they were set
+      setTimeout(() => {
+        console.log('Form values after reset:', form.getValues());
+        console.log('Form destinationId value:', form.getValues('destinationId'));
+        console.log('Form categoryId value:', form.getValues('categoryId'));
+        console.log('Form price value:', form.getValues('price'));
+      }, 100);
     }
   }, [tour, form]);
 

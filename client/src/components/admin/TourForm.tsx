@@ -183,8 +183,8 @@ export function TourForm({
                     </SelectTrigger>
                   </FormControl>
                   <SelectContent>
-                    {categories.map((category: any) => (
-                      <SelectItem key={category.id} value={category.id.toString()}>
+                    {categories.map((category: any, index: number) => (
+                      <SelectItem key={`category-${category.id}-${index}`} value={category.id.toString()}>
                         {category.name}
                       </SelectItem>
                     ))}
@@ -208,8 +208,8 @@ export function TourForm({
                     </SelectTrigger>
                   </FormControl>
                   <SelectContent>
-                    {destinations.map((destination: any) => (
-                      <SelectItem key={destination.id} value={destination.id.toString()}>
+                    {destinations.map((destination: any, index: number) => (
+                      <SelectItem key={`destination-${destination.id}-${index}`} value={destination.id.toString()}>
                         {destination.name}
                       </SelectItem>
                     ))}

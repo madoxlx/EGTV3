@@ -106,15 +106,17 @@ The application uses a comprehensive PostgreSQL schema with the following core e
 
 ## Recent Changes
 
-- **Tour Edit Data Loading Enhancement Complete (January 4, 2025)**: Successfully resolved tour edit page data loading issues where not all tour data was being reflected
+- **Tour Edit Form Data Loading Fix Complete (January 4, 2025)**: Successfully enhanced tour edit form to properly reflect all database data in input fields
+  - Fixed React duplicate key warnings in select components by using unique keys with ID and index combination
   - Enhanced tour edit data loading with robust type conversion for numeric fields (destinationId, categoryId, duration)
-  - Added comprehensive logging to debug form data population and identify loading issues
-  - Fixed admin tour categories endpoint to use working public API (/api/tour-categories)
-  - Implemented safe JSON parsing for included/excluded arrays with fallback handling
-  - Added proper price conversion from cents to EGP for display with Number() type coercion
-  - Tour edit page now properly loads destination ID 4 (Dubai), category ID 6 (Cultural Tours), and all other fields
-  - System maintains complete data integrity during form initialization with detailed error handling
-  - Updated CardContent styling with p-6 pt-0 text-center classes for consistent admin interface
+  - Added comprehensive debugging logs to track form data population and identify loading issues
+  - Fixed admin tour categories endpoint to use working public API (/api/tour-categories) instead of failing admin endpoint
+  - Implemented safe JSON parsing for included/excluded arrays with fallback handling and proper error recovery
+  - Added proper price conversion from cents to EGP for display with Number() type coercion (150000 cents = 1500 EGP)
+  - Enhanced form initialization with detailed logging to verify form.reset() populates all field values correctly
+  - Tour edit page now properly loads destination ID 4 (Dubai), category ID 6 (Cultural Tours), and all other database fields
+  - System maintains complete data integrity during form initialization with comprehensive error handling and validation
+  - Updated CardContent styling with p-6 pt-0 text-center classes for consistent admin interface presentation
 
 - **Complete Tour Management Price Conversion System Fix (July 4, 2025)**: Successfully fixed critical price conversion issues across entire tour management system
   - Fixed tour edit forms to properly convert prices from cents to EGP when loading existing tour data
