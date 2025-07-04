@@ -2961,51 +2961,53 @@ export function PackageCreatorForm({
                                       if (!roomData) return null;
 
                                       return (
-                                        <div
-                                          key={selectedRoom.id}
-                                          className="flex items-center justify-between text-sm bg-white p-2 rounded border"
-                                        >
-                                          <span className="font-medium text-green-800">
-                                            {roomData.name}
-                                          </span>
-                                          <div className="flex gap-2">
-                                            <Badge
-                                              variant="outline"
-                                              className="text-xs"
-                                            >
-                                              Adults:{" "}
-                                              {roomData.max_adults ||
-                                                roomData.maxAdults ||
-                                                2}
-                                            </Badge>
-                                            <Badge
-                                              variant="outline"
-                                              className="text-xs"
-                                            >
-                                              Children:{" "}
-                                              {roomData.max_children ||
-                                                roomData.maxChildren ||
-                                                0}
-                                            </Badge>
-                                            <Badge
-                                              variant="outline"
-                                              className="text-xs"
-                                            >
-                                              Infants:{" "}
-                                              {roomData.max_infants ||
-                                                roomData.maxInfants ||
-                                                0}
-                                            </Badge>
-                                            <Badge
-                                              variant="default"
-                                              className="bg-green-600 text-xs"
-                                            >
-                                              Total:{" "}
-                                              {roomData.max_occupancy ||
-                                                roomData.maxOccupancy ||
-                                                2}
-                                            </Badge>
+                                        <div key={selectedRoom.id}>
+                                          <div className="flex items-center justify-between text-sm bg-white p-2 rounded border">
+                                            <span className="font-medium text-green-800">
+                                              {roomData.name}
+                                            </span>
+                                            <div className="flex gap-2">
+                                              <Badge
+                                                variant="outline"
+                                                className="text-xs"
+                                              >
+                                                Adults:{" "}
+                                                {roomData.max_adults ||
+                                                  roomData.maxAdults ||
+                                                  2}
+                                              </Badge>
+                                              <Badge
+                                                variant="outline"
+                                                className="text-xs"
+                                              >
+                                                Children:{" "}
+                                                {roomData.max_children ||
+                                                  roomData.maxChildren ||
+                                                  0}
+                                              </Badge>
+                                              <Badge
+                                                variant="outline"
+                                                className="text-xs"
+                                              >
+                                                Infants:{" "}
+                                                {roomData.max_infants ||
+                                                  roomData.maxInfants ||
+                                                  0}
+                                              </Badge>
+                                              <Badge
+                                                variant="default"
+                                                className="bg-green-600 text-xs"
+                                              >
+                                                Total:{" "}
+                                                {roomData.max_occupancy ||
+                                                  roomData.maxOccupancy ||
+                                                  2}
+                                              </Badge>
+                                            </div>
                                           </div>
+                                          {index < (form.watch("rooms")?.length || 0) - 1 && (
+                                            <div className="border-b border-gray-200 my-2"></div>
+                                          )}
                                         </div>
                                       );
                                     })}
