@@ -25,6 +25,9 @@ interface BookPackageButtonProps {
   onClick?: () => boolean | void;
   formData?: {
     selectedDate: string;
+    startDate?: string;
+    endDate?: string;
+    dateMode?: "single" | "range";
     adults: number;
     children: number;
     infants: number;
@@ -73,6 +76,17 @@ const BookPackageButton: React.FC<BookPackageButtonProps> = ({
     setIsAdding(true);
     
     try {
+      // Determine travel date based on mode
+      const getTravelDate = () => {
+        if (formData?.dateMode === "range" && formData?.startDate) {
+          return formData.startDate;
+        } else if (formData?.selectedDate) {
+          return formData.selectedDate;
+        }
+        // Default fallback
+        return new Date(Date.now() + 30 * 24 * 60 * 60 * 1000).toISOString().split('T')[0];
+      };
+
       const cartItem = {
         itemType: 'package',
         itemId: parseInt(pkg.id.toString(), 10),
@@ -83,12 +97,15 @@ const BookPackageButton: React.FC<BookPackageButtonProps> = ({
         adults: formData?.adults || 2,
         children: formData?.children || 0,
         infants: formData?.infants || 0,
-        travelDate: formData?.selectedDate || new Date(Date.now() + 30 * 24 * 60 * 60 * 1000).toISOString(),
+        travelDate: getTravelDate(),
         configuration: {
           duration: pkg.duration,
           imageUrl: pkg.imageUrl || '/api/placeholder/300/200',
           selectedRooms: formData?.selectedRooms || [],
-          hotelPackage: formData?.hotelPackage
+          hotelPackage: formData?.hotelPackage,
+          dateMode: formData?.dateMode || "single",
+          startDate: formData?.startDate || "",
+          endDate: formData?.endDate || ""
         }
       };
 

@@ -105,10 +105,15 @@ export default function PackageDetail() {
   const [children, setChildren] = useState(0);
   const [infants, setInfants] = useState(0);
   const [selectedDate, setSelectedDate] = useState("");
+  const [startDate, setStartDate] = useState("");
+  const [endDate, setEndDate] = useState("");
+  const [dateMode, setDateMode] = useState<"single" | "range">("single");
   const [selectedRooms, setSelectedRooms] = useState<string[]>([]);
   const [hotelPackage, setHotelPackage] = useState("standard");
   const [validationErrors, setValidationErrors] = useState<{
     date?: string;
+    startDate?: string;
+    endDate?: string;
     adults?: string;
     room?: string;
   }>({});
@@ -154,10 +159,28 @@ export default function PackageDetail() {
 
   // Validation function
   const validateBookingForm = () => {
-    const errors: { date?: string; adults?: string; room?: string } = {};
+    const errors: { 
+      date?: string; 
+      startDate?: string; 
+      endDate?: string; 
+      adults?: string; 
+      room?: string; 
+    } = {};
 
-    if (!selectedDate) {
-      errors.date = "Please select a travel date";
+    if (dateMode === "single") {
+      if (!selectedDate) {
+        errors.date = "Please select a travel date";
+      }
+    } else {
+      if (!startDate) {
+        errors.startDate = "Please select a start date";
+      }
+      if (!endDate) {
+        errors.endDate = "Please select an end date";
+      }
+      if (startDate && endDate && new Date(startDate) >= new Date(endDate)) {
+        errors.endDate = "End date must be after start date";
+      }
     }
 
     if (adults === 0) {
@@ -173,7 +196,7 @@ export default function PackageDetail() {
   };
 
   // Clear validation errors when user interacts with form
-  const clearValidationError = (field: keyof typeof validationErrors) => {
+  const clearValidationError = (field: "date" | "startDate" | "endDate" | "adults" | "room") => {
     setValidationErrors((prev) => {
       const updated = { ...prev };
       delete updated[field];
@@ -858,31 +881,151 @@ export default function PackageDetail() {
                       </div>
 
                       <div className="space-y-4">
+                        {/* Date Selection Mode */}
                         <div>
-                          <label className="text-sm font-medium mb-1 block">
-                            Select Date *
+                          <label className="text-sm font-medium mb-2 block">
+                            Travel Dates *
                           </label>
-                          <div className="relative">
-                            <input
-                              type="date"
-                              value={selectedDate}
-                              onChange={(e) => {
-                                setSelectedDate(e.target.value);
+                          
+                          {/* Date Mode Toggle */}
+                          <div className="flex gap-2 mb-3">
+                            <button
+                              type="button"
+                              className={`px-3 py-1.5 text-xs rounded-md transition-colors ${
+                                dateMode === "single"
+                                  ? "bg-primary text-primary-foreground"
+                                  : "bg-gray-100 text-gray-600 hover:bg-gray-200"
+                              }`}
+                              onClick={() => {
+                                setDateMode("single");
+                                setStartDate("");
+                                setEndDate("");
+                                clearValidationError("startDate");
+                                clearValidationError("endDate");
+                              }}
+                            >
+                              <Calendar className="w-3 h-3 inline mr-1" />
+                              Single Date
+                            </button>
+                            <button
+                              type="button"
+                              className={`px-3 py-1.5 text-xs rounded-md transition-colors ${
+                                dateMode === "range"
+                                  ? "bg-primary text-primary-foreground"
+                                  : "bg-gray-100 text-gray-600 hover:bg-gray-200"
+                              }`}
+                              onClick={() => {
+                                setDateMode("range");
+                                setSelectedDate("");
                                 clearValidationError("date");
                               }}
-                              className={`w-full rounded-md border px-3 py-2 text-sm ring-offset-background ${
-                                validationErrors.date
-                                  ? "border-red-500"
-                                  : "border-input"
-                              }`}
-                              min={new Date().toISOString().split("T")[0]}
-                            />
-                            {validationErrors.date && (
-                              <p className="text-red-500 text-xs mt-1">
-                                {validationErrors.date}
-                              </p>
-                            )}
+                            >
+                              <Calendar className="w-3 h-3 inline mr-1" />
+                              Date Range
+                            </button>
                           </div>
+
+                          {/* Single Date Input */}
+                          {dateMode === "single" ? (
+                            <div className="relative">
+                              <input
+                                type="date"
+                                value={selectedDate}
+                                onChange={(e) => {
+                                  setSelectedDate(e.target.value);
+                                  clearValidationError("date");
+                                }}
+                                className={`w-full rounded-md border px-3 py-2 text-sm ring-offset-background ${
+                                  validationErrors.date
+                                    ? "border-red-500"
+                                    : "border-input"
+                                }`}
+                                min={new Date().toISOString().split("T")[0]}
+                                placeholder="Select travel date"
+                              />
+                              {validationErrors.date && (
+                                <p className="text-red-500 text-xs mt-1">
+                                  {validationErrors.date}
+                                </p>
+                              )}
+                            </div>
+                          ) : (
+                            /* Date Range Inputs */
+                            <div className="space-y-3">
+                              <div className="grid grid-cols-2 gap-3">
+                                <div>
+                                  <label className="text-xs text-gray-600 mb-1 block">
+                                    Start Date
+                                  </label>
+                                  <input
+                                    type="date"
+                                    value={startDate}
+                                    onChange={(e) => {
+                                      setStartDate(e.target.value);
+                                      clearValidationError("startDate");
+                                      // Auto-clear end date validation if start date is fixed
+                                      if (validationErrors.endDate && endDate) {
+                                        clearValidationError("endDate");
+                                      }
+                                    }}
+                                    className={`w-full rounded-md border px-3 py-2 text-sm ring-offset-background ${
+                                      validationErrors.startDate
+                                        ? "border-red-500"
+                                        : "border-input"
+                                    }`}
+                                    min={new Date().toISOString().split("T")[0]}
+                                    placeholder="Start date"
+                                  />
+                                  {validationErrors.startDate && (
+                                    <p className="text-red-500 text-xs mt-1">
+                                      {validationErrors.startDate}
+                                    </p>
+                                  )}
+                                </div>
+                                <div>
+                                  <label className="text-xs text-gray-600 mb-1 block">
+                                    End Date
+                                  </label>
+                                  <input
+                                    type="date"
+                                    value={endDate}
+                                    onChange={(e) => {
+                                      setEndDate(e.target.value);
+                                      clearValidationError("endDate");
+                                    }}
+                                    className={`w-full rounded-md border px-3 py-2 text-sm ring-offset-background ${
+                                      validationErrors.endDate
+                                        ? "border-red-500"
+                                        : "border-input"
+                                    }`}
+                                    min={startDate || new Date().toISOString().split("T")[0]}
+                                    placeholder="End date"
+                                  />
+                                  {validationErrors.endDate && (
+                                    <p className="text-red-500 text-xs mt-1">
+                                      {validationErrors.endDate}
+                                    </p>
+                                  )}
+                                </div>
+                              </div>
+                              
+                              {/* Date Range Summary */}
+                              {startDate && endDate && (
+                                <div className="bg-blue-50 border border-blue-200 rounded-md p-2">
+                                  <p className="text-xs text-blue-800">
+                                    <Calendar className="w-3 h-3 inline mr-1" />
+                                    {(() => {
+                                      const start = new Date(startDate);
+                                      const end = new Date(endDate);
+                                      const diffTime = Math.abs(end.getTime() - start.getTime());
+                                      const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+                                      return `${diffDays} day${diffDays !== 1 ? 's' : ''} trip (${start.toLocaleDateString()} - ${end.toLocaleDateString()})`;
+                                    })()}
+                                  </p>
+                                </div>
+                              )}
+                            </div>
+                          )}
                         </div>
 
                         {/* Travelers */}
@@ -1074,7 +1217,10 @@ export default function PackageDetail() {
                             return validateBookingForm();
                           }}
                           formData={{
-                            selectedDate,
+                            selectedDate: dateMode === "single" ? selectedDate : "",
+                            startDate: dateMode === "range" ? startDate : "",
+                            endDate: dateMode === "range" ? endDate : "",
+                            dateMode,
                             adults,
                             children,
                             infants,
