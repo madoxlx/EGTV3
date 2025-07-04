@@ -106,6 +106,21 @@ The application uses a comprehensive PostgreSQL schema with the following core e
 
 ## Recent Changes
 
+- **Sophisticated Pricing Calculation Logic Complete (July 4, 2025)**: Successfully implemented advanced pricing calculation system in package booking section
+  - Completely rewrote EnhancedPriceCalculation component with sophisticated logic that accounts for all package components
+  - Added intelligent parsing of package data including rooms, tours, hotels, and optional excursions from JSON database fields
+  - Implemented dynamic pricing modes supporting both "per person" and "per booking" pricing structures
+  - Enhanced room cost calculation with proper price conversion from cents to EGP and per-night multipliers
+  - Added tour pricing calculation with automatic integration from package's selected tours with per-person adjustments
+  - Implemented optional excursions pricing with configurable pricing modes and traveler-based calculations
+  - Added hotel upgrade pricing system with percentage-based upgrades (Deluxe +20%, Luxury +50%)
+  - Enhanced VAT calculation (14% Egypt standard) and dynamic service fees (2% with 50 EGP minimum)
+  - Added comprehensive pricing breakdown showing accommodation, tours, excursions, upgrades, taxes, and fees separately
+  - Implemented savings calculation for discounted packages with clear before/after pricing display
+  - Added intelligent summary information showing cost per traveler, cost per day, and total savings
+  - Enhanced UI with color-coded sections, pricing mode indicators, and detailed breakdown for transparency
+  - Pricing calculation fetches real data from rooms, tours, and hotels APIs for accurate cost computation
+
 - **Enhanced Package Form Error Handling Complete (July 4, 2025)**: Successfully implemented comprehensive error handling for package creation and editing forms
   - Enhanced API error extraction to capture detailed server error messages instead of generic "Package Update Failed" alerts
   - Added fallback handling for both JSON error responses and HTML error pages from server
