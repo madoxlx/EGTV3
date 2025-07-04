@@ -65,7 +65,7 @@ export function TourForm({
 
   const removeIncluded = (index: number) => {
     const current = form.getValues("included") || [];
-    form.setValue("included", current.filter((_, i) => i !== index));
+    form.setValue("included", current.filter((_: any, i: number) => i !== index));
   };
 
   const addExcluded = () => {
@@ -78,7 +78,7 @@ export function TourForm({
 
   const removeExcluded = (index: number) => {
     const current = form.getValues("excluded") || [];
-    form.setValue("excluded", current.filter((_, i) => i !== index));
+    form.setValue("excluded", current.filter((_: any, i: number) => i !== index));
   };
 
   const addIncludedAr = () => {
@@ -91,7 +91,7 @@ export function TourForm({
 
   const removeIncludedAr = (index: number) => {
     const current = form.getValues("includedAr") || [];
-    form.setValue("includedAr", current.filter((_, i) => i !== index));
+    form.setValue("includedAr", current.filter((_: any, i: number) => i !== index));
   };
 
   const addExcludedAr = () => {
@@ -104,7 +104,7 @@ export function TourForm({
 
   const removeExcludedAr = (index: number) => {
     const current = form.getValues("excludedAr") || [];
-    form.setValue("excludedAr", current.filter((_, i) => i !== index));
+    form.setValue("excludedAr", current.filter((_: any, i: number) => i !== index));
   };
 
   const addGalleryUrl = () => {
@@ -117,7 +117,7 @@ export function TourForm({
 
   const removeGalleryUrl = (index: number) => {
     const current = form.getValues("galleryUrls") || [];
-    form.setValue("galleryUrls", current.filter((_, i) => i !== index));
+    form.setValue("galleryUrls", current.filter((_: any, i: number) => i !== index));
   };
 
   return (
@@ -183,8 +183,8 @@ export function TourForm({
                     </SelectTrigger>
                   </FormControl>
                   <SelectContent>
-                    {categories.map((category: any, index: number) => (
-                      <SelectItem key={`category-${category.id}-${index}`} value={category.id.toString()}>
+                    {categories.map((category: any) => (
+                      <SelectItem key={`category-${category.id}`} value={category.id.toString()}>
                         {category.name}
                       </SelectItem>
                     ))}
@@ -208,8 +208,8 @@ export function TourForm({
                     </SelectTrigger>
                   </FormControl>
                   <SelectContent>
-                    {destinations.map((destination: any, index: number) => (
-                      <SelectItem key={`destination-${destination.id}-${index}`} value={destination.id.toString()}>
+                    {destinations.map((destination: any) => (
+                      <SelectItem key={`destination-${destination.id}`} value={destination.id.toString()}>
                         {destination.name}
                       </SelectItem>
                     ))}

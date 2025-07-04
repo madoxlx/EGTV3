@@ -92,6 +92,7 @@ export interface IStorage {
   listTours(active?: boolean): Promise<Tour[]>;
   createTour(tour: InsertTour): Promise<Tour>;
   updateTour(id: number, tour: Partial<InsertTour>): Promise<Tour | undefined>;
+  deleteTour(id: number): Promise<boolean>;
 
   // Hero Slides
   getActiveHeroSlides(): Promise<HeroSlide[]>;
@@ -778,6 +779,18 @@ export class DatabaseStorage implements IStorage {
     } catch (error) {
       console.error("Error updating tour:", error);
       return undefined;
+    }
+  }
+
+  async deleteTour(id: number): Promise<boolean> {
+    try {
+      const result = await db
+        .delete(tours)
+        .where(eq(tours.id, id));
+      return true; // Drizzle ORM doesn't return affected rows count like this
+    } catch (error) {
+      console.error("Error deleting tour:", error);
+      return false;
     }
   }
 
