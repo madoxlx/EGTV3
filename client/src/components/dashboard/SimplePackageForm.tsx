@@ -255,23 +255,118 @@ const pricingOptions = [
 ];
 
 const features = [
+  // Meals & Dining
   { id: "breakfast", label: "Breakfast Included" },
   { id: "lunch", label: "Lunch Included" },
   { id: "dinner", label: "Dinner Included" },
+  { id: "welcome_drink", label: "Welcome Drink" },
+  { id: "traditional_meal", label: "Traditional Local Cuisine" },
+  { id: "cooking_class", label: "Cooking Class Experience" },
+  
+  // Transportation
   { id: "airport_transfer", label: "Airport Transfer" },
-  { id: "city_tour", label: "City Tour" },
+  { id: "private_transport", label: "Private Transportation" },
+  { id: "train_tickets", label: "Train Tickets Included" },
+  { id: "domestic_flights", label: "Domestic Flights" },
+  { id: "car_rental", label: "Car Rental Included" },
+  
+  // Accommodation Features
   { id: "wifi", label: "Free Wi-Fi" },
+  { id: "spa_access", label: "Spa & Wellness Access" },
+  { id: "pool_access", label: "Swimming Pool Access" },
+  { id: "gym_access", label: "Fitness Center Access" },
+  { id: "room_upgrade", label: "Room Upgrade Included" },
+  { id: "concierge", label: "Concierge Services" },
+  
+  // Tours & Activities
+  { id: "city_tour", label: "City Tour" },
+  { id: "museum_tickets", label: "Museum Entry Tickets" },
+  { id: "archaeological_sites", label: "Archaeological Sites Access" },
+  { id: "desert_safari", label: "Desert Safari Experience" },
+  { id: "boat_cruise", label: "Boat Cruise" },
+  { id: "camel_ride", label: "Camel Riding Experience" },
+  { id: "cultural_show", label: "Cultural Performance Show" },
+  { id: "shopping_tour", label: "Shopping Tour" },
+  { id: "photography_session", label: "Professional Photography" },
+  
+  // Services & Support
+  { id: "tour_guide", label: "Professional Tour Guide" },
+  { id: "multilingual_guide", label: "Multilingual Guide Support" },
+  { id: "24_7_support", label: "24/7 Customer Support" },
+  { id: "local_sim", label: "Local SIM Card" },
+  { id: "luggage_handling", label: "Luggage Handling Service" },
+  { id: "travel_kit", label: "Travel Kit & Amenities" },
+  
+  // Special Experiences
+  { id: "sunset_viewing", label: "Sunset Viewing Experience" },
+  { id: "stargazing", label: "Stargazing Activity" },
+  { id: "hot_air_balloon", label: "Hot Air Balloon Ride" },
+  { id: "helicopter_tour", label: "Helicopter Tour" },
+  { id: "diving_snorkeling", label: "Diving/Snorkeling Activity" },
+  { id: "adventure_sports", label: "Adventure Sports" },
+  
+  // Cultural & Educational
+  { id: "cultural_immersion", label: "Cultural Immersion Experience" },
+  { id: "language_lesson", label: "Local Language Lessons" },
+  { id: "artisan_workshop", label: "Local Artisan Workshop" },
+  { id: "historical_lecture", label: "Historical Lectures" },
+  
+  // Optional Services
   { id: "excursion", label: "Optional Excursions" },
+  { id: "souvenir_package", label: "Souvenir Package" },
+  { id: "photo_package", label: "Photo Package" },
 ];
 
 const excludedItems = [
-  { id: "meals", label: "Additional Meals" },
+  // Travel Documents & Fees
+  { id: "visa", label: "Visa Fees" },
+  { id: "passport", label: "Passport Processing" },
   { id: "insurance", label: "Travel Insurance" },
-  { id: "drinks", label: "Drinks during meals" },
+  { id: "vaccination", label: "Vaccination Costs" },
+  
+  // Meals & Beverages
+  { id: "meals", label: "Additional Meals" },
+  { id: "drinks", label: "Alcoholic Beverages" },
+  { id: "room_service", label: "Room Service" },
+  { id: "special_diet", label: "Special Dietary Requirements" },
+  { id: "snacks", label: "Snacks & Refreshments" },
+  
+  // Transportation
+  { id: "excess_baggage", label: "Excess Baggage Fees" },
+  { id: "seat_upgrade", label: "Flight Seat Upgrades" },
+  { id: "taxi_fares", label: "Local Taxi Fares" },
+  { id: "fuel_surcharge", label: "Fuel Surcharges" },
+  { id: "parking_fees", label: "Parking Fees" },
+  
+  // Personal & Services
   { id: "tips", label: "Tips and Gratuities" },
   { id: "personal", label: "Personal Expenses" },
-  { id: "visa", label: "Visa Fees" },
+  { id: "laundry", label: "Laundry Services" },
+  { id: "phone_calls", label: "International Phone Calls" },
+  { id: "internet", label: "Premium Internet Access" },
+  { id: "spa_treatments", label: "Spa Treatments" },
+  { id: "minibar", label: "Minibar Consumption" },
+  
+  // Activities & Entertainment
   { id: "extras", label: "Optional Activities" },
+  { id: "entrance_fees", label: "Additional Entrance Fees" },
+  { id: "equipment_rental", label: "Equipment Rental" },
+  { id: "photography", label: "Professional Photography" },
+  { id: "shopping", label: "Shopping & Souvenirs" },
+  { id: "entertainment", label: "Evening Entertainment" },
+  { id: "excursions", label: "Optional Day Excursions" },
+  
+  // Medical & Emergency
+  { id: "medical", label: "Medical Expenses" },
+  { id: "emergency", label: "Emergency Evacuation" },
+  { id: "medication", label: "Personal Medication" },
+  
+  // Accommodation Extras
+  { id: "room_upgrade_fees", label: "Room Upgrade Fees" },
+  { id: "early_checkin", label: "Early Check-in Fees" },
+  { id: "late_checkout", label: "Late Check-out Fees" },
+  { id: "resort_fees", label: "Resort Fees" },
+  { id: "city_tax", label: "City/Tourist Tax" },
 ];
 
 const travellerTypes = [
@@ -379,7 +474,9 @@ export function PackageCreatorForm({
     string[]
   >([]);
   const [optionalExcursions, setOptionalExcursions] = useState<string[]>([]);
+  const [newExcursion, setNewExcursion] = useState<string>("");
   const [travelRouteItems, setTravelRouteItems] = useState<string[]>([]);
+  const [newRouteStop, setNewRouteStop] = useState<string>("");
 
   // Packing list section
   const [packItems, setPackItems] = useState<
@@ -1389,6 +1486,39 @@ export function PackageCreatorForm({
     form.setValue("selectedTourId", tour.id);
     setShowTourDropdown(false);
     setTourSearchQuery(tour.name);
+  };
+
+  // Function to handle adding route stops
+  const handleAddRouteStop = () => {
+    if (newRouteStop.trim()) {
+      const updatedRouteItems = [...travelRouteItems, newRouteStop.trim()];
+      setTravelRouteItems(updatedRouteItems);
+      form.setValue("travelRoute", updatedRouteItems);
+      setNewRouteStop("");
+    }
+  };
+
+  // Function to remove a route stop
+  const handleRemoveRouteStop = (index: number) => {
+    const updatedRouteItems = travelRouteItems.filter((_, i) => i !== index);
+    setTravelRouteItems(updatedRouteItems);
+    form.setValue("travelRoute", updatedRouteItems);
+  };
+
+  // Function to clear all route stops
+  const handleClearRoute = () => {
+    setTravelRouteItems([]);
+    form.setValue("travelRoute", []);
+  };
+
+  // Function to handle adding optional excursions
+  const handleAddExcursion = () => {
+    if (newExcursion.trim()) {
+      const updatedExcursions = [...optionalExcursions, newExcursion.trim()];
+      setOptionalExcursions(updatedExcursions);
+      form.setValue("optionalExcursions", updatedExcursions);
+      setNewExcursion("");
+    }
   };
 
   // Function to filter tours based on search query
@@ -3604,6 +3734,117 @@ export function PackageCreatorForm({
                 </FormItem>
               )}
             />
+
+            {/* Ideal Traveler Types */}
+            <FormField
+              control={form.control}
+              name="idealFor"
+              render={() => (
+                <FormItem>
+                  <div className="mb-4">
+                    <FormLabel>Ideal For (Traveler Types)</FormLabel>
+                    <FormDescription>
+                      Select the types of travelers this package is best suited for
+                    </FormDescription>
+                  </div>
+                  <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                    {travellerTypes.map((type) => (
+                      <FormItem
+                        key={type.id}
+                        className="flex items-center space-x-3 space-y-0 rounded-md border p-4 border-blue-200 bg-blue-50"
+                      >
+                        <FormControl>
+                          <Checkbox
+                            checked={
+                              Array.isArray(form.watch("idealFor")) &&
+                              form.watch("idealFor")?.includes(type.id)
+                            }
+                            onCheckedChange={(checked) => {
+                              const currentTypes = form.watch("idealFor") || [];
+                              if (checked) {
+                                form.setValue("idealFor", [
+                                  ...currentTypes,
+                                  type.id,
+                                ]);
+                              } else {
+                                form.setValue(
+                                  "idealFor",
+                                  currentTypes.filter(
+                                    (value) => value !== type.id,
+                                  ),
+                                );
+                              }
+                            }}
+                          />
+                        </FormControl>
+                        <FormLabel className="font-normal cursor-pointer text-blue-700">
+                          {type.label}
+                        </FormLabel>
+                      </FormItem>
+                    ))}
+                  </div>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+
+            {/* Optional Excursions */}
+            <div className="border-t pt-6">
+              <FormLabel className="text-lg font-medium">Optional Excursions & Add-ons</FormLabel>
+              <FormDescription className="mb-4">
+                Add optional activities that travelers can choose to add to their package
+              </FormDescription>
+              
+              <div className="space-y-4">
+                <div className="grid grid-cols-1 gap-4">
+                  {optionalExcursions.map((excursion, index) => (
+                    <div key={index} className="border rounded-md p-4 bg-orange-50">
+                      <div className="flex items-center justify-between">
+                        <span className="font-medium text-orange-800">{excursion}</span>
+                        <Button
+                          variant="ghost"
+                          size="icon"
+                          className="h-8 w-8 text-orange-600"
+                          type="button"
+                          onClick={() => {
+                            const updatedExcursions = optionalExcursions.filter((_, i) => i !== index);
+                            setOptionalExcursions(updatedExcursions);
+                            form.setValue("optionalExcursions", updatedExcursions);
+                          }}
+                        >
+                          <X className="h-4 w-4" />
+                        </Button>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+
+                <div className="flex gap-2">
+                  <Input
+                    placeholder="Enter optional excursion (e.g., Hot Air Balloon Ride - $150)"
+                    value={newExcursion}
+                    onChange={(e) => setNewExcursion(e.target.value)}
+                    onKeyPress={(e) => {
+                      if (e.key === 'Enter') {
+                        e.preventDefault();
+                        handleAddExcursion();
+                      }
+                    }}
+                    className="flex-1"
+                  />
+                  <Button
+                    type="button"
+                    onClick={handleAddExcursion}
+                    disabled={!newExcursion.trim()}
+                    size="sm"
+                    className="px-4"
+                  >
+                    <Plus className="h-4 w-4 mr-1" />
+                    Add
+                  </Button>
+                </div>
+              </div>
+            </div>
           </TabsContent>
 
           {/* Itinerary Tab */}
