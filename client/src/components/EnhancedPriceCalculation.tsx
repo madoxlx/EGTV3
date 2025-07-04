@@ -45,14 +45,18 @@ type Hotel = {
   base_price?: number;
 };
 
-interface EnhancedPriceCalculationProps {
-  packageData: PackageData;
+type EnhancedPriceCalculationProps = {
+  packageData: any;
   adults: number;
   children: number;
   infants: number;
   hotelPackage: string;
   selectedRooms: string[];
-}
+  dateMode?: 'single' | 'range';
+  selectedDate?: string;
+  startDate?: string;
+  endDate?: string;
+};
 
 export default function EnhancedPriceCalculation({
   packageData,
@@ -60,7 +64,11 @@ export default function EnhancedPriceCalculation({
   children,
   infants,
   hotelPackage,
-  selectedRooms
+  selectedRooms,
+  dateMode = 'single',
+  selectedDate,
+  startDate,
+  endDate
 }: EnhancedPriceCalculationProps) {
   // Fetch rooms data for accurate pricing
   const { data: allRooms = [] } = useQuery<Room[]>({
@@ -127,20 +135,28 @@ export default function EnhancedPriceCalculation({
   // Calculate room costs based on package rooms
   let roomsCost = 0;
   let roomsBreakdown: { name: string; nights: number; cost: number }[] = [];
-  
+
+  // Calculate the number of nights based on the date range
+  let actualNights = packageData.duration || 1; // Default to 1 night
+  if (startDate && endDate) {
+    const start = new Date(startDate);
+    const end = new Date(endDate);
+    actualNights = Math.max(0, (end.getTime() - start.getTime()) / (1000 * 3600 * 24));
+  }
+  actualNights = Math.round(actualNights)
+
   if (packageRooms.length > 0 && allRooms.length > 0) {
     packageRooms.forEach((roomData: any) => {
       const room = allRooms.find(r => r.id === (roomData.id || roomData.roomId));
       if (room) {
         const customPrice = roomData.customPrice || roomData.price || room.price;
         const roomPricePerNight = customPrice / 100; // Convert from cents to EGP
-        const totalNights = packageData.duration || 1;
-        const roomTotalCost = roomPricePerNight * totalNights;
-        
+        const roomTotalCost = roomPricePerNight * actualNights;
+
         roomsCost += roomTotalCost;
         roomsBreakdown.push({
           name: room.name,
-          nights: totalNights,
+          nights: actualNights,
           cost: roomTotalCost
         });
       }
@@ -150,14 +166,14 @@ export default function EnhancedPriceCalculation({
   // Calculate tours cost based on package tours
   let toursCost = 0;
   let toursBreakdown: { name: string; price: number }[] = [];
-  
+
   if (packageTours.length > 0 && allTours.length > 0) {
     packageTours.forEach((tourId: number) => {
       const tour = allTours.find(t => t.id === tourId);
       if (tour) {
         const tourPrice = tour.price;
         const totalTourCost = isPricingPerPerson ? tourPrice * (adults + children * 0.7 + infants * 0.1) : tourPrice;
-        
+
         toursCost += totalTourCost;
         toursBreakdown.push({
           name: tour.name,
@@ -170,12 +186,12 @@ export default function EnhancedPriceCalculation({
   // Calculate optional excursions cost
   let excursionsCost = 0;
   let excursionsBreakdown: { name: string; price: number }[] = [];
-  
+
   if (packageOptionalExcursions.length > 0) {
     packageOptionalExcursions.forEach((excursion: any) => {
       const excursionPrice = excursion.price || 0;
       const totalExcursionCost = isPricingPerPerson ? excursionPrice * (adults + children * 0.7 + infants * 0.1) : excursionPrice;
-      
+
       excursionsCost += totalExcursionCost;
       excursionsBreakdown.push({
         name: excursion.name || 'Optional Excursion',
@@ -190,9 +206,9 @@ export default function EnhancedPriceCalculation({
     deluxe: { name: 'Deluxe', multiplier: 1.2, price: 150 },
     luxury: { name: 'Luxury', multiplier: 1.5, price: 300 }
   };
-  
+
   const selectedUpgrade = hotelUpgrades[hotelPackage as keyof typeof hotelUpgrades] || hotelUpgrades.standard;
-  const upgradePrice = packageRooms.length > 0 ? 0 : selectedUpgrade.price * packageData.duration * (adults + children);
+  const upgradePrice = packageRooms.length > 0 ? 0 : selectedUpgrade.price * actualNights * (adults + children);
 
   // Calculate subtotal
   const subtotal = packageBaseCost + roomsCost + toursCost + excursionsCost + upgradePrice;
@@ -222,6 +238,8 @@ export default function EnhancedPriceCalculation({
 
   const totalTravelers = adults + children + infants;
 
+  const totalPrice = total;
+
   return (
     <Card className="w-full">
       <CardHeader className="pb-3">
@@ -230,7 +248,7 @@ export default function EnhancedPriceCalculation({
           Price Breakdown
         </CardTitle>
       </CardHeader>
-      
+
       <CardContent className="space-y-4">
         {/* Pricing Mode Indicator */}
         <div className="flex items-center justify-between p-3 bg-gradient-to-r from-blue-50 to-indigo-50 rounded-lg border border-blue-200">
@@ -262,7 +280,7 @@ export default function EnhancedPriceCalculation({
             <Star className="w-4 h-4 text-yellow-500" />
             Base Package
           </h4>
-          
+
           {isPricingPerPerson ? (
             <>
               {adults > 0 && (
@@ -271,14 +289,14 @@ export default function EnhancedPriceCalculation({
                   <span>{formatPrice(adultPrice)} EGP</span>
                 </div>
               )}
-              
+
               {children > 0 && (
                 <div className="flex justify-between text-sm">
                   <span>Children ({children} × {formatPrice(basePrice * 0.7)} EGP)</span>
                   <span>{formatPrice(childPrice)} EGP</span>
                 </div>
               )}
-              
+
               {infants > 0 && (
                 <div className="flex justify-between text-sm">
                   <span>Infants ({infants} × {formatPrice(basePrice * 0.1)} EGP)</span>
@@ -299,10 +317,9 @@ export default function EnhancedPriceCalculation({
           <>
             <Separator />
             <div className="space-y-2">
-              <h4 className="font-medium text-sm flex items-center gap-2">
-                <Home className="w-4 h-4 text-blue-500" />
-                Accommodation ({packageData.duration} nights)
-              </h4>
+              <div>
+                <h4 className="text-sm font-semibold mb-2">Accommodation ({actualNights} night{actualNights !== 1 ? 's' : ''})</h4>
+              </div>
               {roomsBreakdown.map((room, index) => (
                 <div key={index} className="flex justify-between text-sm">
                   <span>{room.name} × {room.nights} nights</span>
@@ -435,7 +452,7 @@ export default function EnhancedPriceCalculation({
         <div className="mt-4 p-3 bg-gradient-to-r from-green-50 to-emerald-50 rounded-lg border border-green-200">
           <div className="text-sm text-green-800">
             <div className="flex items-center justify-between">
-              <span><strong>{packageData.duration} days</strong> package</span>
+              <span><strong>{actualNights + 1} days</strong> package</span>
               <span><strong>{totalTravelers} travelers</strong></span>
             </div>
             <div className="flex items-center justify-between mt-1">
@@ -443,8 +460,8 @@ export default function EnhancedPriceCalculation({
               <span><strong>{formatPrice(total / totalTravelers)} EGP</strong></span>
             </div>
             <div className="flex items-center justify-between mt-1">
-              <span>Cost per day:</span>
-              <span><strong>{formatPrice(total / packageData.duration)} EGP</strong></span>
+              <span>Cost per night:</span>
+              <span><strong>{formatPrice(total / actualNights)} EGP</strong></span>
             </div>
             {hasDiscount && (
               <div className="mt-2 text-green-700 font-medium">

@@ -1208,6 +1208,10 @@ export default function PackageDetail() {
                           infants={infants}
                           hotelPackage={hotelPackage}
                           selectedRooms={selectedRooms}
+                          dateMode={dateMode}
+                          selectedDate={selectedDate}
+                          startDate={startDate}
+                          endDate={endDate}
                         />
 
                         <BookPackageButton
