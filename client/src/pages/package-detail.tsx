@@ -1019,7 +1019,8 @@ export default function PackageDetail() {
                                       const end = new Date(endDate);
                                       const diffTime = Math.abs(end.getTime() - start.getTime());
                                       const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
-                                      return `${diffDays} day${diffDays !== 1 ? 's' : ''} trip (${start.toLocaleDateString()} - ${end.toLocaleDateString()})`;
+                                      const nights = Math.max(0, diffDays - 1); // Nights = days - 1
+                                      return `${diffDays} day${diffDays !== 1 ? 's' : ''}, ${nights} night${nights !== 1 ? 's' : ''} trip (${start.toLocaleDateString()} - ${end.toLocaleDateString()})`;
                                     })()}
                                   </p>
                                 </div>
