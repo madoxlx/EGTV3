@@ -141,7 +141,10 @@ export default function RoomDistributionWithStars({
   // Get hotel info for a room
   const getHotelInfo = (hotelId: number) => {
     // Handle type mismatch between number and string IDs
-    const hotel = hotels.find(h => h.id === hotelId || h.id === String(hotelId) || Number(h.id) === hotelId);
+    const hotel = hotels.find(h => {
+      const hId = typeof h.id === 'string' ? Number(h.id) : h.id;
+      return hId === hotelId;
+    });
     if (!hotel) {
       console.warn(`Hotel not found for ID: ${hotelId}`);
       return null;

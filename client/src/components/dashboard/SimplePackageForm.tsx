@@ -884,11 +884,36 @@ export function PackageCreatorForm({
       });
 
       if (!response.ok) {
-        const errorData = await response.json();
-        throw new Error(
-          errorData.message ||
-            `Failed to ${isUpdate ? "update" : "create"} package`,
-        );
+        let errorMessage = `Failed to ${isUpdate ? "update" : "create"} package`;
+        
+        try {
+          const errorData = await response.json();
+          console.log('API Error Response:', errorData);
+          errorMessage = errorData.message || errorData.error || errorMessage;
+          
+          // If the error contains validation details, include them
+          if (errorData.details) {
+            errorMessage += `. Details: ${JSON.stringify(errorData.details)}`;
+          }
+        } catch (parseError) {
+          // If we can't parse the response as JSON, try to get text
+          try {
+            const errorText = await response.text();
+            console.log('API Error Text Response:', errorText);
+            
+            // Check if it's an HTML error page
+            if (errorText.includes('<!DOCTYPE html>')) {
+              errorMessage += ` (Server returned HTML error page - Status: ${response.status})`;
+            } else {
+              errorMessage = errorText || errorMessage;
+            }
+          } catch (textError) {
+            console.log('Failed to parse error response:', textError);
+            errorMessage += ` (Status: ${response.status})`;
+          }
+        }
+        
+        throw new Error(errorMessage);
       }
 
       return await response.json();
@@ -1910,7 +1935,7 @@ export function PackageCreatorForm({
               }
               message={
                 packageMutation.error?.message ||
-                `An error occurred while ${isEditMode ? "updating" : "creating"} the package.`
+                `An error occurred while ${isEditMode ? "updating" : "creating"} the package. Please check the form data and try again.`
               }
               className="mt-3"
             />
