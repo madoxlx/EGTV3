@@ -140,7 +140,16 @@ export default function RoomDistributionWithStars({
 
   // Get hotel info for a room
   const getHotelInfo = (hotelId: number) => {
-    return hotels.find(h => h.id === hotelId);
+    const hotel = hotels.find(h => h.id === hotelId);
+    if (!hotel) {
+      console.warn(`Hotel not found for ID: ${hotelId}`);
+      return null;
+    }
+    // Ensure we have the actual star rating from the database
+    return {
+      ...hotel,
+      stars: hotel.stars || 0 // Use the actual stars field from the hotel record
+    };
   };
 
   // Render star rating
@@ -204,6 +213,13 @@ export default function RoomDistributionWithStars({
 
       {Object.entries(roomsByHotel).map(([hotelId, hotelRooms]) => {
         const hotel = getHotelInfo(Number(hotelId));
+        
+        // Debug: Log hotel data to verify star ratings
+        if (hotel) {
+          console.log(`Hotel ${hotel.name} (ID: ${hotelId}) - Stars: ${hotel.stars}`);
+        } else {
+          console.warn(`No hotel found for hotel ID: ${hotelId}`);
+        }
         
         return (
           <div key={hotelId} className="space-y-2">
