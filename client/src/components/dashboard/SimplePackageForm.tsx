@@ -56,6 +56,7 @@ import {
   Hotel,
   Map as MapIcon,
   Search,
+  Check,
   LucideProps,
 } from "lucide-react";
 
@@ -219,6 +220,7 @@ const packageFormSchema = z.object({
   // Tour selection
   tourSelection: z.array(z.string()).optional(),
   selectedTourId: z.number().optional(),
+  selectedTourIds: z.array(z.number()).optional(),
 
   // Traveler counts
   adultCount: z.coerce
@@ -451,7 +453,7 @@ export function PackageCreatorForm({
   // Tour selection variables
   const [tourSearchQuery, setTourSearchQuery] = useState<string>("");
   const [showTourDropdown, setShowTourDropdown] = useState<boolean>(false);
-  const [selectedTour, setSelectedTour] = useState<Tour | null>(null);
+  const [selectedTours, setSelectedTours] = useState<Tour[]>([]);
   const tourSearchRef = useRef<HTMLDivElement>(null);
 
   // Hotel search functionality
@@ -687,6 +689,7 @@ export function PackageCreatorForm({
       rooms: [],
       tourSelection: [],
       selectedTourId: undefined,
+      selectedTourIds: [],
       adultCount: 2,
       childrenCount: 0,
       infantCount: 0,
@@ -832,8 +835,8 @@ export function PackageCreatorForm({
         travelRoute: travelRouteItems,
 
         // Tour selection
-        tourSelection: selectedTour?.id || formData.selectedTourId,
-        selectedTourId: selectedTour?.id || formData.selectedTourId,
+        tourSelection: selectedTours.length > 0 ? selectedTours.map(t => t.id) : formData.selectedTourIds,
+        selectedTourIds: selectedTours.length > 0 ? selectedTours.map(t => t.id) : formData.selectedTourIds,
 
         // Hotel and room selections
         selectedHotels: formData.selectedHotels || [],
@@ -1266,12 +1269,19 @@ export function PackageCreatorForm({
         setAccommodationHighlights(parsedAccommodationHighlights);
 
         // Set selected tour if exists
-        if (existingPackageData.selectedTourId) {
+        // Handle multiple tour IDs from existing package data
+        if (existingPackageData.selectedTourIds && Array.isArray(existingPackageData.selectedTourIds)) {
+          const selectedTourObjects = tours.filter(
+            (t) => existingPackageData.selectedTourIds.includes(t.id)
+          );
+          setSelectedTours(selectedTourObjects);
+        } else if (existingPackageData.selectedTourId) {
+          // Backward compatibility for single tour ID
           const tour = tours.find(
             (t) => t.id === existingPackageData.selectedTourId,
           );
           if (tour) {
-            setSelectedTour(tour);
+            setSelectedTours([tour]);
           }
         }
 
@@ -1341,6 +1351,7 @@ export function PackageCreatorForm({
           itinerary: parsedItinerary,
           accommodationHighlights: parsedAccommodationHighlights,
           selectedTourId: existingPackageData.selectedTourId,
+          selectedTourIds: existingPackageData.selectedTourIds || [],
           selectedHotels: Array.isArray(parsedSelectedHotels) ? parsedSelectedHotels.map(h => String(h)) : [],
           rooms: Array.isArray(parsedRooms) ? parsedRooms : [],
           adultCount: existingPackageData.adultCount || 2,
@@ -1480,12 +1491,24 @@ export function PackageCreatorForm({
     form.trigger("selectedHotels");
   };
 
-  // Function to handle tour selection
+  // Function to handle tour selection (multiple tours)
   const handleTourSelection = (tour: Tour) => {
-    setSelectedTour(tour);
-    form.setValue("selectedTourId", tour.id);
+    // Check if tour is already selected
+    if (selectedTours.find(t => t.id === tour.id)) {
+      return; // Don't add duplicate tours
+    }
+    
+    const updatedTours = [...selectedTours, tour];
+    setSelectedTours(updatedTours);
+    form.setValue("selectedTourIds", updatedTours.map(t => t.id));
+    setTourSearchQuery("");
     setShowTourDropdown(false);
-    setTourSearchQuery(tour.name);
+  };
+
+  const handleRemoveTour = (tourId: number) => {
+    const updatedTours = selectedTours.filter(tour => tour.id !== tourId);
+    setSelectedTours(updatedTours);
+    form.setValue("selectedTourIds", updatedTours.map(t => t.id));
   };
 
   // Function to handle adding route stops
@@ -3496,18 +3519,18 @@ export function PackageCreatorForm({
 
           {/* Features Tab */}
           <TabsContent value="features" className="space-y-6 pt-4">
-            {/* Tour Search Component */}
+            {/* Multiple Tours Selection Component */}
             <div className="p-4 border rounded-md mb-6">
               <h3 className="text-lg font-semibold mb-2">Tour Selection</h3>
               <FormDescription className="mb-4">
-                Search and select available tours to include in this package
+                Search and select multiple tours to include in this package. You can add as many tours as needed.
               </FormDescription>
 
               <div className="relative mb-4" ref={tourSearchRef}>
                 <div className="flex items-center relative">
                   <Input
                     type="text"
-                    placeholder="Search for tours by name or click to view recent"
+                    placeholder="Search for tours by name or click to view all tours"
                     value={tourSearchQuery}
                     onChange={(e) => setTourSearchQuery(e.target.value)}
                     onFocus={() => setShowTourDropdown(true)}
@@ -3527,27 +3550,48 @@ export function PackageCreatorForm({
                     )}
 
                     {getFilteredTours().length > 0 ? (
-                      getFilteredTours().map((tour) => (
-                        <div
-                          key={tour.id}
-                          className="p-3 cursor-pointer hover:bg-zinc-100 border-b last:border-0"
-                          onClick={() => handleTourSelection(tour)}
-                        >
-                          <div className="flex justify-between">
-                            <span className="font-medium">{tour.name}</span>
-                            <span className="text-sm font-semibold text-green-700">
-                              {tour.price
-                                ? `${tour.price.toLocaleString("ar-EG")} EGP`
-                                : "Price TBD"}
-                            </span>
+                      getFilteredTours().map((tour) => {
+                        const isSelected = selectedTours.find(t => t.id === tour.id);
+                        return (
+                          <div
+                            key={tour.id}
+                            className={`p-3 cursor-pointer border-b last:border-0 ${
+                              isSelected 
+                                ? 'bg-green-50 hover:bg-green-100' 
+                                : 'hover:bg-zinc-100'
+                            }`}
+                            onClick={() => handleTourSelection(tour)}
+                          >
+                            <div className="flex justify-between items-center">
+                              <div className="flex items-center gap-2">
+                                {isSelected && (
+                                  <div className="w-4 h-4 bg-green-500 rounded-full flex items-center justify-center">
+                                    <Check className="w-2 h-2 text-white" />
+                                  </div>
+                                )}
+                                <span className={`font-medium ${isSelected ? 'text-green-700' : ''}`}>
+                                  {tour.name}
+                                </span>
+                              </div>
+                              <span className="text-sm font-semibold text-green-700">
+                                {tour.price
+                                  ? `${tour.price.toLocaleString("ar-EG")} EGP`
+                                  : "Price TBD"}
+                              </span>
+                            </div>
+                            {tour.description && (
+                              <p className="text-xs text-gray-600 mt-1 truncate">
+                                {tour.description.substring(0, 80)}...
+                              </p>
+                            )}
+                            {isSelected && (
+                              <p className="text-xs text-green-600 mt-1 font-medium">
+                                ✓ Already selected
+                              </p>
+                            )}
                           </div>
-                          {tour.description && (
-                            <p className="text-xs text-gray-600 mt-1 truncate">
-                              {tour.description.substring(0, 80)}...
-                            </p>
-                          )}
-                        </div>
-                      ))
+                        );
+                      })
                     ) : (
                       <div className="px-4 py-2 text-gray-500">
                         {tours.length === 0
@@ -3559,69 +3603,67 @@ export function PackageCreatorForm({
                 )}
               </div>
 
-              {selectedTour && (
-                <div className="mt-6 p-4 border rounded-md bg-white shadow-sm">
-                  <div className="flex justify-between items-start mb-3">
-                    <div>
-                      <h4 className="font-semibold text-zinc-900 text-lg">
-                        {selectedTour.name}
-                      </h4>
-                      <p className="text-xs text-zinc-500 mt-1">
-                        Selected tour information (read-only)
-                      </p>
-                    </div>
-                    <Badge variant="secondary" className="text-sm">
-                      ID: {selectedTour.id}
+              {/* Selected Tours Display */}
+              {selectedTours.length > 0 && (
+                <div className="mt-6 space-y-4">
+                  <div className="flex items-center justify-between">
+                    <h4 className="text-lg font-medium text-zinc-900">
+                      Selected Tours ({selectedTours.length})
+                    </h4>
+                    <Badge variant="outline" className="bg-green-50 text-green-700 border-green-200">
+                      Total: {selectedTours.reduce((sum, tour) => sum + (tour.price || 0), 0).toLocaleString("ar-EG")} EGP
                     </Badge>
                   </div>
+                  
+                  <div className="grid gap-4">
+                    {selectedTours.map((tour) => (
+                      <div key={tour.id} className="p-4 border rounded-md bg-green-50 border-green-200">
+                        <div className="flex justify-between items-start mb-3">
+                          <div className="flex-1">
+                            <div className="flex items-center gap-2 mb-1">
+                              <h5 className="font-semibold text-green-900">{tour.name}</h5>
+                              <Badge variant="secondary" className="text-xs">
+                                ID: {tour.id}
+                              </Badge>
+                            </div>
+                            <p className="text-sm text-green-700 mb-2">{tour.description}</p>
+                          </div>
+                          <Button
+                            type="button"
+                            variant="ghost"
+                            size="sm"
+                            onClick={() => handleRemoveTour(tour.id)}
+                            className="text-red-600 hover:text-red-800 hover:bg-red-100"
+                          >
+                            <X className="h-4 w-4" />
+                          </Button>
+                        </div>
 
-                  <div className="bg-zinc-50 p-3 rounded-md mt-3 border border-zinc-100">
-                    <h5 className="text-sm font-medium text-zinc-700 mb-2">
-                      Tour Description
-                    </h5>
-                    <p className="text-sm text-zinc-600">
-                      {selectedTour.description}
-                    </p>
+                        <div className="grid grid-cols-2 gap-4">
+                          <div className="p-2 bg-white rounded border">
+                            <h6 className="text-xs font-medium text-green-700 mb-1">Base Price</h6>
+                            <p className="text-sm font-semibold text-green-800">
+                              {tour.price
+                                ? `${tour.price.toLocaleString("ar-EG")} EGP`
+                                : "Price TBD"}
+                            </p>
+                          </div>
+                          <div className="p-2 bg-white rounded border">
+                            <h6 className="text-xs font-medium text-green-700 mb-1">Duration</h6>
+                            <p className="text-sm font-semibold text-green-800">
+                              {tour.duration ? `${tour.duration} hours` : "Not specified"}
+                            </p>
+                          </div>
+                        </div>
+                      </div>
+                    ))}
                   </div>
+                </div>
+              )}
 
-                  <div className="grid grid-cols-2 gap-4 mt-4">
-                    <div className="p-3 bg-zinc-50 rounded-md border border-zinc-100">
-                      <h5 className="text-xs font-medium text-zinc-700 mb-1">
-                        Base Price
-                      </h5>
-                      <p className="text-lg font-semibold text-emerald-600">
-                        {selectedTour.price
-                          ? `${selectedTour.price.toLocaleString("ar-EG")} EGP`
-                          : "Price TBD"}
-                      </p>
-                    </div>
-
-                    <div className="p-3 bg-zinc-50 rounded-md border border-zinc-100">
-                      <h5 className="text-xs font-medium text-zinc-700 mb-1">
-                        Duration
-                      </h5>
-                      <p className="text-lg font-semibold text-zinc-700">
-                        {selectedTour.duration
-                          ? `${selectedTour.duration} hours`
-                          : "Not specified"}
-                      </p>
-                    </div>
-                  </div>
-
-                  <div className="mt-4 flex justify-end">
-                    <Button
-                      type="button"
-                      variant="outline"
-                      size="sm"
-                      onClick={() => {
-                        setSelectedTour(null);
-                        setTourSearchQuery("");
-                      }}
-                    >
-                      <X className="h-3 w-3 mr-1" />
-                      Remove Tour
-                    </Button>
-                  </div>
+              {selectedTours.length === 0 && (
+                <div className="mt-4 p-4 border-2 border-dashed border-gray-200 rounded-lg text-center">
+                  <p className="text-sm text-gray-500">No tours selected yet. Search and click on tours above to add them to your package.</p>
                 </div>
               )}
             </div>
