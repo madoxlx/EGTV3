@@ -5,6 +5,16 @@ import { Separator } from '@/components/ui/separator';
 import { Calculator, Users, Home, Star, Percent, MapPin, Calendar, Info } from 'lucide-react';
 import { useQuery } from '@tanstack/react-query';
 
+interface SystemSettings {
+  payment?: {
+    vatEnabled?: boolean;
+    vatRate?: number;
+    serviceFeeEnabled?: boolean;
+    serviceFeeRate?: number;
+    minimumServiceFee?: number;
+  };
+}
+
 type PackageData = {
   id: number;
   title: string;
@@ -85,6 +95,12 @@ export default function EnhancedPriceCalculation({
   // Fetch hotels data for accommodation pricing
   const { data: allHotels = [] } = useQuery<Hotel[]>({
     queryKey: ['/api/hotels'],
+    retry: 1,
+  });
+
+  // Fetch system settings for VAT and service fee configuration
+  const { data: systemSettings } = useQuery<SystemSettings>({
+    queryKey: ['/api/admin/settings'],
     retry: 1,
   });
 
@@ -241,13 +257,16 @@ export default function EnhancedPriceCalculation({
   // Calculate subtotal
   const subtotal = packageBaseCost + roomsCost + toursCost + excursionsCost + upgradePrice;
 
-  // VAT calculation (14% in Egypt)
-  const vatRate = 0.14;
-  const vatAmount = subtotal * vatRate;
+  // VAT calculation based on system settings (default disabled until enabled in admin settings)
+  const vatEnabled = systemSettings?.payment?.vatEnabled ?? false;
+  const vatRate = vatEnabled ? (systemSettings?.payment?.vatRate ?? 14) / 100 : 0;
+  const vatAmount = vatEnabled ? subtotal * vatRate : 0;
 
-  // Service fees (percentage based on booking value)
-  const serviceFeeRate = 0.02; // 2% service fee
-  const serviceFee = Math.max(subtotal * serviceFeeRate, 50); // Minimum 50 EGP service fee
+  // Service fees based on system settings (default disabled until enabled in admin settings)  
+  const serviceFeeEnabled = systemSettings?.payment?.serviceFeeEnabled ?? false;
+  const serviceFeeRate = serviceFeeEnabled ? (systemSettings?.payment?.serviceFeeRate ?? 2) / 100 : 0;
+  const minimumServiceFee = systemSettings?.payment?.minimumServiceFee ?? 50;
+  const serviceFee = serviceFeeEnabled ? Math.max(subtotal * serviceFeeRate, minimumServiceFee) : 0;
 
   // Total calculation
   const total = subtotal + vatAmount + serviceFee;
@@ -443,20 +462,24 @@ export default function EnhancedPriceCalculation({
           <span>{formatPrice(subtotal)} EGP</span>
         </div>
 
-        {/* VAT */}
-        <div className="flex justify-between text-sm text-gray-600">
-          <div className="flex items-center gap-1">
-            <Percent className="w-3 h-3" />
-            <span>VAT ({Math.round(vatRate * 100)}%)</span>
+        {/* VAT - only show if enabled */}
+        {vatEnabled && (
+          <div className="flex justify-between text-sm text-gray-600">
+            <div className="flex items-center gap-1">
+              <Percent className="w-3 h-3" />
+              <span>VAT ({Math.round(vatRate * 100)}%)</span>
+            </div>
+            <span>{formatPrice(vatAmount)} EGP</span>
           </div>
-          <span>{formatPrice(vatAmount)} EGP</span>
-        </div>
+        )}
 
-        {/* Service Fee */}
-        <div className="flex justify-between text-sm text-gray-600">
-          <span>Service Fee ({Math.round(serviceFeeRate * 100)}%)</span>
-          <span>{formatPrice(serviceFee)} EGP</span>
-        </div>
+        {/* Service Fee - only show if enabled */}
+        {serviceFeeEnabled && (
+          <div className="flex justify-between text-sm text-gray-600">
+            <span>Service Fee ({Math.round(serviceFeeRate * 100)}%)</span>
+            <span>{formatPrice(serviceFee)} EGP</span>
+          </div>
+        )}
 
         <Separator />
 

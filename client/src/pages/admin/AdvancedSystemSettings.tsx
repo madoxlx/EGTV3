@@ -49,6 +49,11 @@ interface SystemSettings {
     paypalSecret: string;
     currency: string;
     taxRate: number;
+    vatEnabled: boolean;
+    vatRate: number;
+    serviceFeeEnabled: boolean;
+    serviceFeeRate: number;
+    minimumServiceFee: number;
   };
   security: {
     twoFactorEnabled: boolean;
@@ -599,6 +604,71 @@ export default function AdvancedSystemSettings() {
                       onChange={(e) => updateSetting('payment', 'taxRate', parseFloat(e.target.value))}
                       placeholder="15"
                     />
+                  </div>
+                </div>
+
+                {/* VAT Settings */}
+                <div className="border rounded-lg p-4">
+                  <div className="flex items-center justify-between mb-4">
+                    <div>
+                      <h3 className="text-lg font-semibold">VAT (Value Added Tax)</h3>
+                      <p className="text-sm text-gray-600">تطبيق ضريبة القيمة المضافة على المبيعات</p>
+                    </div>
+                    <Switch 
+                      checked={settings.payment.vatEnabled || false}
+                      onCheckedChange={(checked) => updateSetting('payment', 'vatEnabled', checked)}
+                    />
+                  </div>
+                  <div className="grid grid-cols-1 gap-4">
+                    <div>
+                      <Label>معدل ضريبة القيمة المضافة (%)</Label>
+                      <Input
+                        type="number"
+                        step="0.01"
+                        value={settings.payment.vatRate || 14}
+                        onChange={(e) => updateSetting('payment', 'vatRate', parseFloat(e.target.value))}
+                        placeholder="14"
+                        disabled={!settings.payment.vatEnabled}
+                      />
+                      <p className="text-xs text-gray-500 mt-1">المعدل الافتراضي في مصر: 14%</p>
+                    </div>
+                  </div>
+                </div>
+
+                {/* Service Fee Settings */}
+                <div className="border rounded-lg p-4">
+                  <div className="flex items-center justify-between mb-4">
+                    <div>
+                      <h3 className="text-lg font-semibold">Service Fees</h3>
+                      <p className="text-sm text-gray-600">رسوم الخدمة على الحجوزات</p>
+                    </div>
+                    <Switch 
+                      checked={settings.payment.serviceFeeEnabled || false}
+                      onCheckedChange={(checked) => updateSetting('payment', 'serviceFeeEnabled', checked)}
+                    />
+                  </div>
+                  <div className="grid grid-cols-2 gap-4">
+                    <div>
+                      <Label>معدل رسوم الخدمة (%)</Label>
+                      <Input
+                        type="number"
+                        step="0.01"
+                        value={settings.payment.serviceFeeRate || 2}
+                        onChange={(e) => updateSetting('payment', 'serviceFeeRate', parseFloat(e.target.value))}
+                        placeholder="2"
+                        disabled={!settings.payment.serviceFeeEnabled}
+                      />
+                    </div>
+                    <div>
+                      <Label>الحد الأدنى لرسوم الخدمة (EGP)</Label>
+                      <Input
+                        type="number"
+                        value={settings.payment.minimumServiceFee || 50}
+                        onChange={(e) => updateSetting('payment', 'minimumServiceFee', parseFloat(e.target.value))}
+                        placeholder="50"
+                        disabled={!settings.payment.serviceFeeEnabled}
+                      />
+                    </div>
                   </div>
                 </div>
               </div>

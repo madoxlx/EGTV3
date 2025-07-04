@@ -116,6 +116,10 @@ The application uses a comprehensive PostgreSQL schema with the following core e
   - Fixed tour pricing calculation to properly convert from cents to EGP (tour prices now display correctly)
   - Fixed room selection to use room IDs instead of descriptive strings for accurate room cost calculation
   - Tours and user-selected rooms now properly included in total package pricing breakdown
+  - Implemented configurable VAT and service fee settings in admin panel with enable/disable controls
+  - Enhanced pricing calculation to use system settings for VAT (14% default) and service fees (2% default, 50 EGP minimum)
+  - VAT and service fees now only display in price breakdown when enabled in admin payment settings
+  - Added comprehensive payment configuration interface with Arabic/English labels and proper validation
 
 - **Flexible Date Range Selection Implementation Complete (July 4, 2025)**: Successfully implemented comprehensive date range selection functionality for package booking
   - Added toggle between single date and date range modes with professional button interface using Calendar icons
