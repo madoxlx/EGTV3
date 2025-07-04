@@ -3112,227 +3112,248 @@ export function PackageCreatorForm({
                             .filter(
                               (hotel) =>
                                 Array.isArray(form.watch("selectedHotels")) &&
-                                form
-                                  .watch("selectedHotels")
-                                  ?.includes(hotel.id),
+                                form.watch("selectedHotels")?.includes(hotel.id),
                             )
-                            .map((hotel) => (
-                              <div
-                                key={hotel.id}
-                                className="border rounded-md p-4"
-                              >
-                                <div className="flex items-center justify-between mb-3">
-                                  <h4 className="font-medium text-md">
-                                    {hotel.name}
-                                  </h4>
-                                  <div className="flex items-center gap-1">
-                                    {Array.from({ length: 5 }, (_, i) => (
-                                      <span
-                                        key={i}
-                                        className={`text-sm ${
-                                          i < (hotel.stars || 0)
-                                            ? "text-yellow-500"
-                                            : "text-gray-300"
-                                        }`}
-                                      >
-                                        ★
+                            .map((hotel) => {
+                              const hotelRooms = filteredRooms.filter(
+                                (room) =>
+                                  String(room.hotelId || room.hotel_id) === String(hotel.id),
+                              );
+                              
+                              return (
+                                <div
+                                  key={hotel.id}
+                                  className="border-2 border-blue-200 rounded-lg p-6 bg-gradient-to-r from-blue-50 to-indigo-50 mb-6"
+                                >
+                                  {/* Hotel Header */}
+                                  <div className="flex items-center justify-between mb-4 pb-3 border-b border-blue-200">
+                                    <div className="flex items-center gap-3">
+                                      <div className="w-12 h-12 bg-blue-100 rounded-full flex items-center justify-center">
+                                        <span className="text-blue-600 font-bold text-lg">
+                                          {hotel.name.charAt(0).toUpperCase()}
+                                        </span>
+                                      </div>
+                                      <div>
+                                        <h4 className="font-bold text-lg text-gray-900">
+                                          {hotel.name}
+                                        </h4>
+                                        <p className="text-sm text-gray-600">
+                                          {hotel.city}, {hotel.country}
+                                        </p>
+                                      </div>
+                                    </div>
+                                    <div className="flex flex-col items-end">
+                                      <div className="flex items-center gap-1 mb-1">
+                                        {Array.from({ length: 5 }, (_, i) => (
+                                          <span
+                                            key={i}
+                                            className={`text-lg ${
+                                              i < (hotel.stars || 0)
+                                                ? "text-yellow-500"
+                                                : "text-gray-300"
+                                            }`}
+                                          >
+                                            ★
+                                          </span>
+                                        ))}
+                                      </div>
+                                      <span className="text-sm text-gray-600 font-medium">
+                                        {hotel.stars || 0} Star Hotel
                                       </span>
-                                    ))}
-                                    <span className="text-sm text-muted-foreground ml-1">
-                                      ({hotel.stars || 0} stars)
-                                    </span>
+                                    </div>
                                   </div>
-                                </div>
-                                <div className="grid grid-cols-1 gap-3">
-                                  {filteredRooms
-                                    .filter(
-                                      (room) =>
-                                        String(
-                                          room.hotelId || room.hotel_id,
-                                        ) === String(hotel.id),
-                                    )
-                                    .map((room) => (
-                                      <FormItem
-                                        key={room.id}
-                                        className="flex flex-col md:flex-row md:items-center space-y-3 md:space-y-0 md:space-x-3 rounded-md border p-4"
-                                      >
-                                        <div className="flex items-center space-x-3">
-                                          <FormControl>
-                                            <Checkbox
-                                              checked={
-                                                Array.isArray(
-                                                  form.watch("rooms"),
-                                                ) &&
-                                                form
-                                                  .watch("rooms")
-                                                  ?.some(
-                                                    (r) => r.id === room.id,
-                                                  )
-                                              }
-                                              onCheckedChange={(checked) => {
-                                                const currentRooms =
-                                                  form.watch("rooms") || [];
-                                                if (checked) {
-                                                  // Add comprehensive room data including capacity and pricing
-                                                  const roomData = {
-                                                    id: room.id,
-                                                    name: room.name,
-                                                    description: room.description,
-                                                    hotelId: room.hotelId || room.hotel_id,
-                                                    hotelName: room.hotelName,
-                                                    type: room.type,
-                                                    // Capacity information
-                                                    maxOccupancy: room.max_occupancy || room.maxOccupancy,
-                                                    maxAdults: room.max_adults || room.maxAdults,
-                                                    maxChildren: room.max_children || room.maxChildren,
-                                                    maxInfants: room.max_infants || room.maxInfants,
-                                                    // Pricing information (convert from cents to EGP)
-                                                    price: room.price ? room.price / 100 : 0,
-                                                    originalPrice: room.price ? room.price / 100 : 0,
-                                                    discountedPrice: room.discounted_price ? room.discounted_price / 100 : null,
-                                                    currency: room.currency || 'EGP',
-                                                    // Room details
-                                                    size: room.size,
-                                                    bedType: room.bed_type || room.bedType,
-                                                    view: room.view,
-                                                    amenities: room.amenities || [],
-                                                    imageUrl: room.image_url || room.imageUrl,
-                                                    // Availability
-                                                    available: room.available,
-                                                    status: room.status,
-                                                    // Custom pricing (starts with original price)
-                                                    customPrice: room.price ? room.price / 100 : 0,
-                                                    customDiscount: 0,
-                                                  };
-                                                  
-                                                  console.log("Adding room to selection:", roomData);
-                                                  
-                                                  form.setValue("rooms", [
-                                                    ...currentRooms,
-                                                    roomData,
-                                                  ]);
-                                                } else {
-                                                  form.setValue(
-                                                    "rooms",
-                                                    currentRooms.filter(
-                                                      (r) => r.id !== room.id,
-                                                    ),
-                                                  );
-                                                }
-                                              }}
-                                            />
-                                          </FormControl>
-                                          <div>
-                                            <FormLabel className="font-medium cursor-pointer block">
-                                              {room.name}
-                                            </FormLabel>
-                                            <div className="flex gap-2 mt-1">
-                                              <Badge
-                                                variant="outline"
-                                                className="text-xs"
-                                              >
-                                                Max{" "}
-                                                {room.maxOccupancy ||
-                                                  room.maxAdults ||
-                                                  room.capacity ||
-                                                  2}{" "}
-                                                Guests
-                                              </Badge>
-                                              {room.type && (
-                                                <Badge
-                                                  variant="secondary"
-                                                  className="text-xs"
-                                                >
-                                                  {room.type}
-                                                </Badge>
-                                              )}
-                                              {room.bedType && (
-                                                <Badge
-                                                  variant="outline"
-                                                  className="text-xs"
-                                                >
-                                                  {room.bedType}
-                                                </Badge>
-                                              )}
-                                            </div>
-                                            <div className="text-sm text-muted-foreground mt-1">
-                                              Room pricing moved to Pricing
-                                              Rules section
-                                            </div>
-                                          </div>
-                                        </div>
 
-                                        <div className="ml-auto flex items-center space-x-4">
-                                          <FormItem className="flex items-center space-x-2 space-y-0">
-                                            <FormLabel>Price: </FormLabel>
-                                            <Input
-                                              className="w-24"
-                                              type="number"
-                                              min="0"
-                                              value={
-                                                room.price
-                                                  ? room.price / 100
-                                                  : 0
-                                              }
-                                              onChange={(e) => {
-                                                // Update price in local rooms data
-                                                const newRooms =
-                                                  filteredRooms.map((r) => {
-                                                    if (r.id === room.id) {
-                                                      return {
-                                                        ...r,
-                                                        price:
-                                                          parseInt(
-                                                            e.target.value,
-                                                          ) * 100, // Convert to cents
-                                                      };
-                                                    }
-                                                    return r;
-                                                  });
-                                                setFilteredRooms(newRooms);
+                                  {/* Room Count Info */}
+                                  <div className="mb-4 bg-white rounded-md p-3 border border-blue-100">
+                                    <div className="flex items-center justify-between">
+                                      <span className="text-sm font-medium text-gray-700">
+                                        Available Rooms for Your Group:
+                                      </span>
+                                      <span className="bg-blue-100 text-blue-800 px-2 py-1 rounded-full text-xs font-medium">
+                                        {hotelRooms.length} room{hotelRooms.length !== 1 ? 's' : ''} available
+                                      </span>
+                                    </div>
+                                  </div>
 
-                                                // If this room is already selected, update it in form
-                                                const currentRooms =
-                                                  form.getValues("rooms") || [];
-                                                const roomIndex =
-                                                  currentRooms.findIndex(
-                                                    (r) => r.id === room.id,
-                                                  );
-                                                if (roomIndex !== -1) {
-                                                  const updatedRooms = [
-                                                    ...currentRooms,
-                                                  ];
-                                                  updatedRooms[roomIndex] = {
-                                                    ...updatedRooms[roomIndex],
-                                                    price:
-                                                      parseInt(e.target.value) *
-                                                      100, // Convert to cents
-                                                  };
-                                                  form.setValue(
-                                                    "rooms",
-                                                    updatedRooms,
-                                                  );
-                                                }
-                                              }}
-                                            />
-                                          </FormItem>
-                                        </div>
-                                      </FormItem>
-                                    ))}
-
-                                  {filteredRooms.filter(
-                                    (room) => room.hotelId === hotel.id,
-                                  ).length === 0 && (
-                                    <div className="text-center p-4 border border-dashed rounded-md">
-                                      <p className="text-muted-foreground">
-                                        No rooms in this hotel match the
-                                        selected guest criteria.
+                                  {/* Rooms Grid */}
+                                  {hotelRooms.length === 0 ? (
+                                    <div className="text-center py-8 bg-white rounded-md border border-dashed border-gray-300">
+                                      <p className="text-gray-500">
+                                        No rooms available at this hotel for your guest count.
                                       </p>
+                                    </div>
+                                  ) : (
+                                    <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
+                                      {hotelRooms.map((room) => {
+                                        const isSelected = Array.isArray(form.watch("rooms")) &&
+                                          form.watch("rooms")?.some((r) => r.id === room.id);
+                                        
+                                        return (
+                                          <FormItem
+                                            key={room.id}
+                                            className={`bg-white border-2 rounded-lg p-4 transition-all duration-200 ${
+                                              isSelected 
+                                                ? "border-green-400 bg-green-50 shadow-md" 
+                                                : "border-gray-200 hover:border-blue-300 hover:shadow-sm"
+                                            }`}
+                                          >
+                                            {/* Room Header */}
+                                            <div className="flex items-start justify-between mb-3">
+                                              <div className="flex items-center space-x-3">
+                                                <FormControl>
+                                                  <Checkbox
+                                                    checked={isSelected}
+                                                    onCheckedChange={(checked) => {
+                                                      const currentRooms = form.watch("rooms") || [];
+                                                      if (checked) {
+                                                        // Add comprehensive room data
+                                                        const roomData = {
+                                                          id: room.id,
+                                                          name: room.name,
+                                                          description: room.description,
+                                                          hotelId: room.hotelId || room.hotel_id,
+                                                          hotelName: hotel.name,
+                                                          type: room.type,
+                                                          maxOccupancy: room.max_occupancy || room.maxOccupancy,
+                                                          maxAdults: room.max_adults || room.maxAdults,
+                                                          maxChildren: room.max_children || room.maxChildren,
+                                                          maxInfants: room.max_infants || room.maxInfants,
+                                                          price: room.price ? room.price / 100 : 0,
+                                                          originalPrice: room.price ? room.price / 100 : 0,
+                                                          discountedPrice: room.discounted_price ? room.discounted_price / 100 : null,
+                                                          currency: room.currency || 'EGP',
+                                                          size: room.size,
+                                                          bedType: room.bed_type || room.bedType,
+                                                          view: room.view,
+                                                          amenities: room.amenities || [],
+                                                          imageUrl: room.image_url || room.imageUrl,
+                                                          available: room.available,
+                                                          status: room.status,
+                                                          customPrice: room.price ? room.price / 100 : 0,
+                                                          customDiscount: 0,
+                                                        };
+                                                        
+                                                        form.setValue("rooms", [...currentRooms, roomData]);
+                                                      } else {
+                                                        form.setValue("rooms", currentRooms.filter((r) => r.id !== room.id));
+                                                      }
+                                                    }}
+                                                    className="mt-1"
+                                                  />
+                                                </FormControl>
+                                                <div className="flex-1">
+                                                  <FormLabel className="font-semibold text-base cursor-pointer block text-gray-900">
+                                                    {room.name}
+                                                  </FormLabel>
+                                                  {room.description && (
+                                                    <p className="text-sm text-gray-600 mt-1 line-clamp-2">
+                                                      {room.description}
+                                                    </p>
+                                                  )}
+                                                </div>
+                                              </div>
+                                              
+                                              {/* Selected Badge */}
+                                              {isSelected && (
+                                                <div className="bg-green-100 text-green-800 px-2 py-1 rounded-full text-xs font-medium">
+                                                  Selected
+                                                </div>
+                                              )}
+                                            </div>
+
+                                            {/* Room Details */}
+                                            <div className="grid grid-cols-2 gap-3 mb-3">
+                                              {/* Capacity Info */}
+                                              <div className="bg-gray-50 rounded-md p-3">
+                                                <div className="text-xs font-medium text-gray-700 mb-2">Guest Capacity</div>
+                                                <div className="flex flex-wrap gap-1">
+                                                  <Badge variant="outline" className="text-xs">
+                                                    Adults: {room.max_adults || room.maxAdults || 2}
+                                                  </Badge>
+                                                  <Badge variant="outline" className="text-xs">
+                                                    Children: {room.max_children || room.maxChildren || 0}
+                                                  </Badge>
+                                                  <Badge variant="outline" className="text-xs">
+                                                    Infants: {room.max_infants || room.maxInfants || 0}
+                                                  </Badge>
+                                                </div>
+                                                <div className="mt-1">
+                                                  <Badge variant="secondary" className="text-xs">
+                                                    Total: {room.max_occupancy || room.maxOccupancy || 2} guests
+                                                  </Badge>
+                                                </div>
+                                              </div>
+
+                                              {/* Room Features */}
+                                              <div className="bg-gray-50 rounded-md p-3">
+                                                <div className="text-xs font-medium text-gray-700 mb-2">Room Features</div>
+                                                <div className="flex flex-wrap gap-1">
+                                                  {room.type && (
+                                                    <Badge variant="secondary" className="text-xs">
+                                                      {room.type}
+                                                    </Badge>
+                                                  )}
+                                                  {room.bedType && (
+                                                    <Badge variant="outline" className="text-xs">
+                                                      {room.bedType}
+                                                    </Badge>
+                                                  )}
+                                                  {room.view && (
+                                                    <Badge variant="outline" className="text-xs">
+                                                      {room.view} view
+                                                    </Badge>
+                                                  )}
+                                                  {room.size && (
+                                                    <Badge variant="outline" className="text-xs">
+                                                      {room.size}
+                                                    </Badge>
+                                                  )}
+                                                </div>
+                                              </div>
+                                            </div>
+
+                                            {/* Pricing Section */}
+                                            <div className="flex items-center justify-between pt-3 border-t border-gray-200">
+                                              <div className="text-sm text-gray-600">
+                                                Custom pricing in <span className="font-medium">Pricing Rules</span> section
+                                              </div>
+                                              <div className="flex items-center space-x-2">
+                                                <span className="text-xs text-gray-500">Price/night:</span>
+                                                <Input
+                                                  className="w-20 h-8 text-sm"
+                                                  type="number"
+                                                  min="0"
+                                                  value={room.price ? room.price / 100 : 0}
+                                                  onChange={(e) => {
+                                                    const newPrice = parseInt(e.target.value) * 100;
+                                                    const newRooms = filteredRooms.map((r) => 
+                                                      r.id === room.id ? { ...r, price: newPrice } : r
+                                                    );
+                                                    setFilteredRooms(newRooms);
+
+                                                    const currentRooms = form.getValues("rooms") || [];
+                                                    const roomIndex = currentRooms.findIndex((r) => r.id === room.id);
+                                                    if (roomIndex !== -1) {
+                                                      const updatedRooms = [...currentRooms];
+                                                      updatedRooms[roomIndex] = {
+                                                        ...updatedRooms[roomIndex],
+                                                        price: newPrice / 100,
+                                                      };
+                                                      form.setValue("rooms", updatedRooms);
+                                                    }
+                                                  }}
+                                                />
+                                                <span className="text-xs text-gray-600">EGP</span>
+                                              </div>
+                                            </div>
+                                          </FormItem>
+                                        );
+                                      })}
                                     </div>
                                   )}
                                 </div>
-                              </div>
-                            ))}
+                              );
+                            })}
                         </div>
                       )}
                       <FormMessage />
