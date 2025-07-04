@@ -134,9 +134,9 @@ export default function EnhancedPriceCalculation({
   const isPricingPerPerson = packageData.pricingMode === 'per_person';
   const isPricingPerBooking = packageData.pricingMode === 'per_booking';
 
-  // Base package price calculation
-  const basePrice = packageData.discountedPrice || packageData.price;
-  const originalPrice = packageData.price;
+  // Base package price calculation - convert from cents to EGP
+  const basePrice = (packageData.discountedPrice || packageData.price) / 100;
+  const originalPrice = packageData.price / 100;
   const hasDiscount = packageData.discountedPrice && packageData.discountedPrice < packageData.price;
 
   // Calculate base package cost based on pricing mode
@@ -273,7 +273,7 @@ export default function EnhancedPriceCalculation({
 
   // Savings calculation
   const originalSubtotal = hasDiscount ? (
-    (isPricingPerPerson ? originalPrice * (adults + children + infants) : originalPrice) + 
+    (isPricingPerPerson ? (packageData.price / 100) * (adults + children + infants) : (packageData.price / 100)) + 
     roomsCost + toursCost + excursionsCost + upgradePrice
   ) : 0;
   const originalTotal = hasDiscount ? originalSubtotal + (originalSubtotal * vatRate) + serviceFee : 0;

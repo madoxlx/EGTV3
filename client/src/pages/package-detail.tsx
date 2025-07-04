@@ -1166,7 +1166,7 @@ export default function PackageDetail() {
                               <div className="flex justify-between">
                                 <p className="text-sm font-medium">Standard</p>
                                 <p className="text-sm font-medium">
-                                  {packageData.price.toLocaleString("en-US")}{" "}
+                                  {(packageData.price / 100).toLocaleString("en-US")}{" "}
                                   EGP
                                 </p>
                               </div>
@@ -1186,7 +1186,7 @@ export default function PackageDetail() {
                                 <p className="text-sm font-medium">Deluxe</p>
                                 <p className="text-sm font-medium">
                                   {Math.round(
-                                    packageData.price * 1.3,
+                                    (packageData.price / 100) * 1.3,
                                   ).toLocaleString("en-US")}{" "}
                                   EGP
                                 </p>
