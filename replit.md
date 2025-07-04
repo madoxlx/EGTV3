@@ -106,6 +106,15 @@ The application uses a comprehensive PostgreSQL schema with the following core e
 
 ## Recent Changes
 
+- **Dynamic Custom Features Input Implementation Complete (July 4, 2025)**: Successfully added input + add button functionality for dynamically adding custom included and excluded features
+  - Added Custom Included Features section with green-themed design and text input field
+  - Added Custom Excluded Features section with red-themed design and text input field  
+  - Implemented Add buttons with Plus icons that are only enabled when input contains text
+  - Added display sections showing all custom features with individual remove buttons
+  - Enhanced with Enter key support for quick feature addition without clicking buttons
+  - Professional styling with clear visual distinction between included (green) and excluded (red) features
+  - Package creators can now add unlimited custom features beyond the 40+ predefined included and 35+ predefined excluded options
+
 - **Multiple Tour Selection Implementation Complete (July 4, 2025)**: Successfully transformed tour selection component to accept multiple tours instead of single tour selection
   - Changed state management from `selectedTour` to `selectedTours` array with proper add/remove functionality
   - Updated `handleTourSelection` function to support adding multiple tours to packages with duplicate prevention

@@ -477,6 +477,12 @@ export function PackageCreatorForm({
   >([]);
   const [optionalExcursions, setOptionalExcursions] = useState<string[]>([]);
   const [newExcursion, setNewExcursion] = useState<string>("");
+  
+  // Custom features state
+  const [newIncludedFeature, setNewIncludedFeature] = useState<string>("");
+  const [newExcludedFeature, setNewExcludedFeature] = useState<string>("");
+  const [customIncludedFeatures, setCustomIncludedFeatures] = useState<string[]>([]);
+  const [customExcludedFeatures, setCustomExcludedFeatures] = useState<string[]>([]);
   const [travelRouteItems, setTravelRouteItems] = useState<string[]>([]);
   const [newRouteStop, setNewRouteStop] = useState<string>("");
 
@@ -1542,6 +1548,36 @@ export function PackageCreatorForm({
       form.setValue("optionalExcursions", updatedExcursions);
       setNewExcursion("");
     }
+  };
+
+  // Handler for adding custom included features
+  const handleAddIncludedFeature = () => {
+    if (newIncludedFeature.trim()) {
+      const updatedFeatures = [...customIncludedFeatures, newIncludedFeature.trim()];
+      setCustomIncludedFeatures(updatedFeatures);
+      setNewIncludedFeature("");
+    }
+  };
+
+  // Handler for removing custom included features
+  const handleRemoveIncludedFeature = (index: number) => {
+    const updatedFeatures = customIncludedFeatures.filter((_, i) => i !== index);
+    setCustomIncludedFeatures(updatedFeatures);
+  };
+
+  // Handler for adding custom excluded features
+  const handleAddExcludedFeature = () => {
+    if (newExcludedFeature.trim()) {
+      const updatedFeatures = [...customExcludedFeatures, newExcludedFeature.trim()];
+      setCustomExcludedFeatures(updatedFeatures);
+      setNewExcludedFeature("");
+    }
+  };
+
+  // Handler for removing custom excluded features
+  const handleRemoveExcludedFeature = (index: number) => {
+    const updatedFeatures = customExcludedFeatures.filter((_, i) => i !== index);
+    setCustomExcludedFeatures(updatedFeatures);
   };
 
   // Function to filter tours based on search query
@@ -3723,6 +3759,62 @@ export function PackageCreatorForm({
               )}
             />
 
+            {/* Custom Included Features Section */}
+            <div className="mt-6 p-4 border rounded-md bg-green-50">
+              <div className="mb-4">
+                <Label className="text-sm font-medium">Add Custom Included Features</Label>
+                <p className="text-xs text-muted-foreground mt-1">
+                  Add specific features not listed above that are included in this package
+                </p>
+              </div>
+              
+              {/* Display existing custom included features */}
+              {customIncludedFeatures.length > 0 && (
+                <div className="mb-4 space-y-2">
+                  {customIncludedFeatures.map((feature, index) => (
+                    <div key={index} className="flex items-center justify-between p-2 bg-green-100 rounded border">
+                      <span className="text-sm text-green-800">{feature}</span>
+                      <Button
+                        type="button"
+                        variant="ghost"
+                        size="sm"
+                        onClick={() => handleRemoveIncludedFeature(index)}
+                        className="text-green-600 hover:text-green-800 hover:bg-green-200 h-6 w-6 p-0"
+                      >
+                        <X className="h-3 w-3" />
+                      </Button>
+                    </div>
+                  ))}
+                </div>
+              )}
+
+              {/* Input for new custom included feature */}
+              <div className="flex gap-2">
+                <Input
+                  placeholder="Enter custom included feature (e.g., Private chef service)"
+                  value={newIncludedFeature}
+                  onChange={(e) => setNewIncludedFeature(e.target.value)}
+                  onKeyPress={(e) => {
+                    if (e.key === 'Enter') {
+                      e.preventDefault();
+                      handleAddIncludedFeature();
+                    }
+                  }}
+                  className="flex-1"
+                />
+                <Button
+                  type="button"
+                  onClick={handleAddIncludedFeature}
+                  disabled={!newIncludedFeature.trim()}
+                  size="sm"
+                  className="px-4 bg-green-600 hover:bg-green-700"
+                >
+                  <Plus className="h-4 w-4 mr-1" />
+                  Add
+                </Button>
+              </div>
+            </div>
+
             {/* Excluded Features */}
             <FormField
               control={form.control}
@@ -3776,6 +3868,62 @@ export function PackageCreatorForm({
                 </FormItem>
               )}
             />
+
+            {/* Custom Excluded Features Section */}
+            <div className="mt-6 p-4 border rounded-md bg-red-50">
+              <div className="mb-4">
+                <Label className="text-sm font-medium">Add Custom Excluded Features</Label>
+                <p className="text-xs text-muted-foreground mt-1">
+                  Add specific features not listed above that are NOT included in this package
+                </p>
+              </div>
+              
+              {/* Display existing custom excluded features */}
+              {customExcludedFeatures.length > 0 && (
+                <div className="mb-4 space-y-2">
+                  {customExcludedFeatures.map((feature, index) => (
+                    <div key={index} className="flex items-center justify-between p-2 bg-red-100 rounded border">
+                      <span className="text-sm text-red-800">{feature}</span>
+                      <Button
+                        type="button"
+                        variant="ghost"
+                        size="sm"
+                        onClick={() => handleRemoveExcludedFeature(index)}
+                        className="text-red-600 hover:text-red-800 hover:bg-red-200 h-6 w-6 p-0"
+                      >
+                        <X className="h-3 w-3" />
+                      </Button>
+                    </div>
+                  ))}
+                </div>
+              )}
+
+              {/* Input for new custom excluded feature */}
+              <div className="flex gap-2">
+                <Input
+                  placeholder="Enter custom excluded feature (e.g., International flights)"
+                  value={newExcludedFeature}
+                  onChange={(e) => setNewExcludedFeature(e.target.value)}
+                  onKeyPress={(e) => {
+                    if (e.key === 'Enter') {
+                      e.preventDefault();
+                      handleAddExcludedFeature();
+                    }
+                  }}
+                  className="flex-1"
+                />
+                <Button
+                  type="button"
+                  onClick={handleAddExcludedFeature}
+                  disabled={!newExcludedFeature.trim()}
+                  size="sm"
+                  className="px-4 bg-red-600 hover:bg-red-700"
+                >
+                  <Plus className="h-4 w-4 mr-1" />
+                  Add
+                </Button>
+              </div>
+            </div>
 
             {/* Ideal Traveler Types */}
             <FormField
