@@ -484,7 +484,7 @@ export default function EnhancedPriceCalculation({
         <Separator />
 
         {/* Discount/Savings */}
-        {hasDiscount && savings > 0 && (
+        {hasDiscount && savings > 1 && (
           <div className="flex justify-between text-sm text-green-600 font-medium">
             <span>Total Savings</span>
             <span>-{formatPrice(savings)} EGP</span>
@@ -519,7 +519,7 @@ export default function EnhancedPriceCalculation({
               <span>Cost per night:</span>
               <span><strong>{formatPrice(total / actualNights)} EGP</strong></span>
             </div>
-            {hasDiscount && (
+            {hasDiscount && savings > 1 && (
               <div className="mt-2 text-green-700 font-medium">
                 💰 You're saving {formatPrice(savings)} EGP with this offer!
               </div>
