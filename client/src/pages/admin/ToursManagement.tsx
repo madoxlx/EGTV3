@@ -321,6 +321,7 @@ export default function ToursManagement() {
                     <TableHead>Category</TableHead>
                     <TableHead>Destination</TableHead>
                     <TableHead>Price</TableHead>
+                    <TableHead>Discount</TableHead>
                     <TableHead>Duration</TableHead>
                     <TableHead>Status</TableHead>
                     <TableHead>Actions</TableHead>
@@ -349,6 +350,15 @@ export default function ToursManagement() {
                         <TableCell>{category?.name || "No Category"}</TableCell>
                         <TableCell>{destination?.name || "No Destination"}</TableCell>
                         <TableCell>{(tour.price || 0).toLocaleString('en-US')} EGP</TableCell>
+                        <TableCell>
+                          {tour.discountedPrice ? (
+                            <span className="text-green-600 font-medium">
+                              {(tour.discountedPrice || 0).toLocaleString('en-US')} EGP
+                            </span>
+                          ) : (
+                            <span className="text-gray-400">-</span>
+                          )}
+                        </TableCell>
                         <TableCell>{durationText}</TableCell>
                         <TableCell>
                           <span className={`px-2 py-1 rounded-full text-xs ${
