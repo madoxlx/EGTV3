@@ -314,6 +314,8 @@ export const tours = pgTable("tours", {
   categoryId: integer("category_id").references(() => tourCategories.id),
   durationType: text("duration_type").default("days").notNull(),
   date: timestamp("date"),
+  cancellationPolicy: text("cancellation_policy"),
+  termsAndConditions: text("terms_and_conditions"),
 });
 
 // Hotels table

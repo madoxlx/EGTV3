@@ -63,6 +63,9 @@ const tourFormSchema = z.object({
   startDate: z.date().optional(),
   endDate: z.date().optional(),
   date: z.date().optional(),
+  // Policy and Legal fields
+  cancellationPolicy: z.string().optional(),
+  termsAndConditions: z.string().optional(),
   // Arabic fields
   nameAr: z.string().optional(),
   descriptionAr: z.string().optional(),
@@ -139,6 +142,8 @@ export function UnifiedTourForm({ mode, tourId, onSuccess, onCancel }: UnifiedTo
       rating: 0,
       reviewCount: 0,
       categoryId: 0,
+      cancellationPolicy: "",
+      termsAndConditions: "",
       nameAr: "",
       descriptionAr: "",
       itineraryAr: "",
@@ -215,6 +220,8 @@ export function UnifiedTourForm({ mode, tourId, onSuccess, onCancel }: UnifiedTo
         startDate: tour.startDate ? new Date(tour.startDate) : undefined,
         endDate: tour.endDate ? new Date(tour.endDate) : undefined,
         date: tour.date ? new Date(tour.date) : undefined,
+        cancellationPolicy: tour.cancellationPolicy || "",
+        termsAndConditions: tour.termsAndConditions || "",
         nameAr: tour.nameAr || "",
         descriptionAr: tour.descriptionAr || "",
         itineraryAr: tour.itineraryAr || "",
@@ -447,10 +454,11 @@ export function UnifiedTourForm({ mode, tourId, onSuccess, onCancel }: UnifiedTo
           <Form {...form}>
             <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
               <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
-                <TabsList className="grid w-full grid-cols-4">
+                <TabsList className="grid w-full grid-cols-5">
                   <TabsTrigger value="basic">Basic Info</TabsTrigger>
                   <TabsTrigger value="details">Details</TabsTrigger>
                   <TabsTrigger value="media">Media</TabsTrigger>
+                  <TabsTrigger value="policies">Policies</TabsTrigger>
                   <TabsTrigger value="arabic">Arabic</TabsTrigger>
                 </TabsList>
 
@@ -834,6 +842,47 @@ export function UnifiedTourForm({ mode, tourId, onSuccess, onCancel }: UnifiedTo
                         </div>
                       ))}
                     </div>
+                  </div>
+                </TabsContent>
+
+                <TabsContent value="policies" className="space-y-6">
+                  {/* Policies and Legal Information */}
+                  <div className="grid grid-cols-1 gap-6">
+                    <FormField
+                      control={form.control}
+                      name="cancellationPolicy"
+                      render={({ field }) => (
+                        <FormItem>
+                          <FormLabel>Cancellation Policy</FormLabel>
+                          <FormControl>
+                            <Textarea 
+                              placeholder="Enter cancellation policy details (e.g., Free cancellation up to 24 hours before tour, 50% refund within 48 hours, etc.)" 
+                              className="min-h-[120px]"
+                              {...field} 
+                            />
+                          </FormControl>
+                          <FormMessage />
+                        </FormItem>
+                      )}
+                    />
+
+                    <FormField
+                      control={form.control}
+                      name="termsAndConditions"
+                      render={({ field }) => (
+                        <FormItem>
+                          <FormLabel>Terms & Conditions</FormLabel>
+                          <FormControl>
+                            <Textarea 
+                              placeholder="Enter detailed terms and conditions for this tour including participant requirements, safety guidelines, liability terms, etc." 
+                              className="min-h-[200px]"
+                              {...field} 
+                            />
+                          </FormControl>
+                          <FormMessage />
+                        </FormItem>
+                      )}
+                    />
                   </div>
                 </TabsContent>
 
