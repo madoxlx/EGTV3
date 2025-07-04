@@ -227,7 +227,7 @@ export default function RoomDistributionWithStars({
           <div key={hotelId} className="space-y-2">
             {hotel && (
               <div className="mb-3">
-                <h4 className="font-medium text-gray-900 mb-1">{hotel.name}</h4>
+                <h4 className="font-medium text-gray-900 mb-1">Some hotel in {hotel.city || 'Unknown City'}</h4>
                 <div className="flex items-center gap-2">
                   <div className="flex items-center gap-1">
                     {renderStars(hotel.stars || 0)}
