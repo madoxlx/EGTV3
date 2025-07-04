@@ -243,10 +243,16 @@ export default function RoomDistributionWithStars({
                         />
                         <div>
                           <div className="font-medium text-gray-900 mb-1">{room.name}</div>
-                          <div className="flex items-center gap-2 text-sm text-gray-600">
+                          {/* Hotel star rating under room name */}
+                          <div className="flex items-center gap-2 text-sm text-gray-600 mb-1">
                             <div className="flex items-center gap-1">
                               {renderStars(hotel?.stars || 0)}
                             </div>
+                            <span>
+                              {hotel?.stars ? `(${hotel.stars} Star Hotel)` : '(Hotel)'}
+                            </span>
+                          </div>
+                          <div className="flex items-center gap-2 text-sm text-gray-600">
                             <span>
                               {hotel?.stars ? `${hotel.stars}-star accommodation` : 'Hotel accommodation'}
                             </span>
