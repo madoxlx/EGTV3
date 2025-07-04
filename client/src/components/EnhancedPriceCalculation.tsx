@@ -132,20 +132,40 @@ export default function EnhancedPriceCalculation({
     packageBaseCost = basePrice;
   }
 
-  // Calculate room costs based on package rooms
+  // Calculate room costs based on selected rooms
   let roomsCost = 0;
   let roomsBreakdown: { name: string; nights: number; cost: number }[] = [];
 
   // Calculate the number of nights based on the date range
-  let actualNights = packageData.duration || 1; // Default to 1 night
-  if (startDate && endDate) {
+  let actualNights = packageData.duration || 1; // Default to package duration
+  if (dateMode === 'range' && startDate && endDate) {
     const start = new Date(startDate);
     const end = new Date(endDate);
-    actualNights = Math.max(0, (end.getTime() - start.getTime()) / (1000 * 3600 * 24));
+    actualNights = Math.max(1, Math.ceil((end.getTime() - start.getTime()) / (1000 * 3600 * 24)));
+  } else if (dateMode === 'single' && selectedDate) {
+    // For single date, use package duration
+    actualNights = packageData.duration || 1;
   }
-  actualNights = Math.round(actualNights)
 
-  if (packageRooms.length > 0 && allRooms.length > 0) {
+  // Calculate costs for user-selected rooms
+  if (selectedRooms.length > 0 && allRooms.length > 0) {
+    selectedRooms.forEach((roomId: string) => {
+      const room = allRooms.find(r => r.id === parseInt(roomId));
+      if (room) {
+        const roomPricePerNight = room.price / 100; // Convert from cents to EGP
+        const roomTotalCost = roomPricePerNight * actualNights;
+
+        roomsCost += roomTotalCost;
+        roomsBreakdown.push({
+          name: room.name,
+          nights: actualNights,
+          cost: roomTotalCost
+        });
+      }
+    });
+  }
+  // Fallback to package rooms if no rooms are selected by user
+  else if (packageRooms.length > 0 && allRooms.length > 0) {
     packageRooms.forEach((roomData: any) => {
       const room = allRooms.find(r => r.id === (roomData.id || roomData.roomId));
       if (room) {
@@ -317,15 +337,20 @@ export default function EnhancedPriceCalculation({
           <>
             <Separator />
             <div className="space-y-2">
-              <div>
-                <h4 className="text-sm font-semibold mb-2">Accommodation ({actualNights} night{actualNights !== 1 ? 's' : ''})</h4>
+              <div className="flex items-center gap-2">
+                <Home className="w-4 h-4 text-blue-500" />
+                <h4 className="text-sm font-semibold">Accommodation ({actualNights} night{actualNights !== 1 ? 's' : ''})</h4>
               </div>
-              {roomsBreakdown.map((room, index) => (
-                <div key={index} className="flex justify-between text-sm">
-                  <span>{room.name} × {room.nights} nights</span>
-                  <span>{formatPrice(room.cost)} EGP</span>
+              <div className="bg-blue-50 border border-blue-200 rounded-lg p-3">
+                <div className="space-y-1">
+                  {roomsBreakdown.map((room, index) => (
+                    <div key={index} className="flex justify-between text-sm">
+                      <span className="text-blue-800">{room.name}</span>
+                      <span className="text-blue-900 font-medium">{formatPrice(room.cost / room.nights)} EGP/night × {room.nights} nights</span>
+                    </div>
+                  ))}
                 </div>
-              ))}
+              </div>
               <div className="flex justify-between text-sm font-medium border-t pt-1">
                 <span>Total Accommodation</span>
                 <span>{formatPrice(roomsCost)} EGP</span>

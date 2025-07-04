@@ -106,6 +106,14 @@ The application uses a comprehensive PostgreSQL schema with the following core e
 
 ## Recent Changes
 
+- **Enhanced Room Cost Calculation with Days Integration (July 4, 2025)**: Successfully enhanced the pricing calculation to include room costs multiplied by the number of nights
+  - Modified EnhancedPriceCalculation component to prioritize user-selected rooms over package default rooms
+  - Enhanced night calculation logic to properly handle both single date and date range modes
+  - Added detailed accommodation breakdown showing cost per night × number of nights for each selected room
+  - Improved visual presentation with blue-themed accommodation section showing nightly rates and total costs
+  - System now calculates room costs based on actual user selections and date ranges for accurate pricing
+  - Room selection directly impacts total package cost calculation with proper night multiplication
+
 - **Flexible Date Range Selection Implementation Complete (July 4, 2025)**: Successfully implemented comprehensive date range selection functionality for package booking
   - Added toggle between single date and date range modes with professional button interface using Calendar icons
   - Enhanced validation system to handle both single date and date range validation with specific error messages
