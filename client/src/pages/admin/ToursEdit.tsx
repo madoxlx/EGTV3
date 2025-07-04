@@ -84,8 +84,8 @@ export default function ToursEdit() {
 
   // Fetch categories and destinations
   const { data: categories = [] } = useQuery({
-    queryKey: ['/api/admin/tour-categories'],
-    queryFn: () => apiRequest('/api/admin/tour-categories'),
+    queryKey: ['/api/tour-categories'],
+    queryFn: () => apiRequest('/api/tour-categories'),
   });
 
   const { data: destinations = [] } = useQuery({
@@ -133,14 +133,51 @@ export default function ToursEdit() {
   // Update form when tour data is loaded
   useEffect(() => {
     if (tour) {
-      form.reset({
+      console.log('Loading tour data into form:', tour);
+      
+      // Ensure proper type conversion for numeric fields
+      const destinationId = tour.destinationId ? Number(tour.destinationId) : 0;
+      const categoryId = tour.categoryId ? Number(tour.categoryId) : 0;
+      const duration = tour.duration ? Number(tour.duration) : 1;
+      
+      // Convert prices from cents to EGP for display
+      const priceInEGP = tour.price ? Number(tour.price) / 100 : 0;
+      const discountedPriceInEGP = tour.discountedPrice ? Number(tour.discountedPrice) / 100 : 0;
+      
+      // Parse JSON fields safely
+      let included = [];
+      let excluded = [];
+      let includedAr = [];
+      let excludedAr = [];
+      
+      if (tour.included) {
+        included = Array.isArray(tour.included) ? tour.included : 
+                  typeof tour.included === 'string' ? JSON.parse(tour.included) : [];
+      }
+      
+      if (tour.excluded) {
+        excluded = Array.isArray(tour.excluded) ? tour.excluded : 
+                  typeof tour.excluded === 'string' ? JSON.parse(tour.excluded) : [];
+      }
+      
+      if (tour.includedAr) {
+        includedAr = Array.isArray(tour.includedAr) ? tour.includedAr : 
+                    typeof tour.includedAr === 'string' ? JSON.parse(tour.includedAr) : [];
+      }
+      
+      if (tour.excludedAr) {
+        excludedAr = Array.isArray(tour.excludedAr) ? tour.excludedAr : 
+                    typeof tour.excludedAr === 'string' ? JSON.parse(tour.excludedAr) : [];
+      }
+
+      const formData = {
         name: tour.name || "",
         description: tour.description || "",
-        destinationId: tour.destinationId || 0,
-        duration: tour.duration || 1,
+        destinationId: destinationId,
+        duration: duration,
         durationType: tour.durationType || "days",
-        price: tour.price ? (tour.price / 100) : 0, // Convert from cents to EGP
-        discountedPrice: tour.discountedPrice ? (tour.discountedPrice / 100) : 0, // Convert from cents to EGP
+        price: priceInEGP,
+        discountedPrice: discountedPriceInEGP,
         maxCapacity: tour.maxCapacity || 10,
         maxGroupSize: tour.maxGroupSize || 10,
         numPassengers: tour.numPassengers || 1,
@@ -148,15 +185,15 @@ export default function ToursEdit() {
         galleryUrls: tour.galleryUrls || [],
         tripType: tour.tripType || "",
         itinerary: tour.itinerary || "",
-        included: Array.isArray(tour.included) ? tour.included : [],
-        excluded: Array.isArray(tour.excluded) ? tour.excluded : [],
+        included: included,
+        excluded: excluded,
         featured: tour.featured || false,
         active: tour.active !== false,
         status: tour.status || "active",
         currency: tour.currency || "EGP",
         rating: tour.rating || 0,
         reviewCount: tour.reviewCount || 0,
-        categoryId: tour.categoryId || 0,
+        categoryId: categoryId,
         startDate: tour.startDate ? new Date(tour.startDate) : undefined,
         endDate: tour.endDate ? new Date(tour.endDate) : undefined,
         date: tour.date ? new Date(tour.date) : undefined,
@@ -164,10 +201,13 @@ export default function ToursEdit() {
         nameAr: tour.nameAr || "",
         descriptionAr: tour.descriptionAr || "",
         itineraryAr: tour.itineraryAr || "",
-        includedAr: Array.isArray(tour.includedAr) ? tour.includedAr : [],
-        excludedAr: Array.isArray(tour.excludedAr) ? tour.excludedAr : [],
+        includedAr: includedAr,
+        excludedAr: excludedAr,
         hasArabicVersion: tour.hasArabicVersion || false,
-      });
+      };
+      
+      console.log('Form data prepared:', formData);
+      form.reset(formData);
     }
   }, [tour, form]);
 
