@@ -106,6 +106,16 @@ The application uses a comprehensive PostgreSQL schema with the following core e
 
 ## Recent Changes
 
+- **Multi-Room Support for Hotel Dialog Enhancement Complete (July 5, 2025)**: Successfully transformed AlertDialogContent component in MultiHotelManualPackageForm.tsx to support comprehensive multi-room management
+  - Updated schema structure to support room arrays instead of single room type per hotel
+  - Enhanced hotel form data to manage multiple rooms with detailed properties (type, price, occupancy, amenities)
+  - Added dedicated room management interface with room list display, add/edit/delete functionality
+  - Implemented comprehensive room dialog with room type, price per night, max occupancy selector, and amenities checkboxes
+  - Updated hotel display to show room count and price range instead of single room information
+  - Enhanced validation requiring at least one room per hotel with user-friendly error handling
+  - Room amenities include WiFi, AC, TV, Minibar, Safe, Balcony, Ocean View, City View, and Kitchenette options
+  - Each hotel can now support unlimited rooms with different configurations for flexible package creation
+
 - **Complete Dual Image Input Implementation for Country/City/Airport Management (July 5, 2025)**: Successfully enhanced CountryCityManagement.tsx with comprehensive dual image input functionality matching destinations management system
   - Added enhanced ImageField component supporting both URL input and file upload modes with professional toggle interface
   - Updated all country, city, and airport creation and edit forms to use dual input functionality

@@ -64,15 +64,25 @@ import {
   FormValidationAlert,
 } from "@/components/dashboard/FormValidationAlert";
 
-// Define the hotel entry schema
+// Define the room entry schema
+const roomEntrySchema = z.object({
+  id: z.string(),
+  type: z.string().min(1, { message: "Room type is required" }),
+  pricePerNight: z.coerce.number().positive({ message: "Price must be positive" }),
+  maxOccupancy: z.coerce.number().min(1).max(10).default(2),
+  amenities: z.array(z.string()).default([]),
+});
+
+// Define the hotel entry schema with rooms array
 const hotelEntrySchema = z.object({
   id: z.string().optional(),
   name: z
     .string()
     .min(2, { message: "Hotel name must be at least 2 characters" }),
   stars: z.coerce.number().min(1).max(5),
-  roomType: z.string().optional(),
-  pricePerNight: z.coerce.number().optional(),
+  rooms: z
+    .array(roomEntrySchema)
+    .min(1, { message: "At least one room is required" }),
 });
 
 // Validation schema for manual package form
@@ -173,8 +183,23 @@ export function MultiHotelManualPackageForm() {
   const [hotelFormData, setHotelFormData] = useState({
     name: "",
     stars: 3,
-    roomType: "",
-    pricePerNight: undefined as number | undefined,
+    rooms: [] as Array<{
+      id: string;
+      type: string;
+      pricePerNight: number;
+      maxOccupancy: number;
+      amenities: string[];
+    }>,
+  });
+
+  // Room dialog state
+  const [isRoomDialogOpen, setIsRoomDialogOpen] = useState(false);
+  const [editingRoomIndex, setEditingRoomIndex] = useState<number | null>(null);
+  const [roomFormData, setRoomFormData] = useState({
+    type: "",
+    pricePerNight: 0,
+    maxOccupancy: 2,
+    amenities: [] as string[],
   });
 
   // Fetch destinations for the dropdown
@@ -319,13 +344,18 @@ export function MultiHotelManualPackageForm() {
       // Get all gallery image URLs
       const galleryUrls = images.map((img) => img.preview);
 
-      // Build a more detailed description that includes all hotels
+      // Build a more detailed description that includes all hotels and their rooms
       const hotelsText = formData.hotels
-        .map(
-          (hotel) =>
-            `${hotel.name} (${hotel.stars}★)${hotel.roomType ? " - " + hotel.roomType : ""}${hotel.pricePerNight ? " - $" + hotel.pricePerNight + "/night" : ""}`,
-        )
-        .join("\n");
+        .map((hotel) => {
+          const roomsText = hotel.rooms
+            .map(
+              (room) =>
+                `  • ${room.type} - $${room.pricePerNight}/night (Max: ${room.maxOccupancy} guests)`
+            )
+            .join("\n");
+          return `${hotel.name} (${hotel.stars}★)\nRooms:\n${roomsText}`;
+        })
+        .join("\n\n");
 
       const enhancedDescription = `${formData.description}\n\nHotels:\n${hotelsText}\n\nTransportation: ${formData.transportationDetails}\n\nTour: ${formData.tourDetails}`;
 
@@ -464,8 +494,7 @@ export function MultiHotelManualPackageForm() {
     setHotelFormData({
       name: "",
       stars: 3,
-      roomType: "",
-      pricePerNight: undefined,
+      rooms: [],
     });
     setIsHotelDialogOpen(true);
   };
@@ -476,8 +505,7 @@ export function MultiHotelManualPackageForm() {
     setHotelFormData({
       name: hotel.name,
       stars: hotel.stars,
-      roomType: hotel.roomType || "",
-      pricePerNight: hotel.pricePerNight,
+      rooms: hotel.rooms || [],
     });
     setIsHotelDialogOpen(true);
   };
@@ -487,6 +515,86 @@ export function MultiHotelManualPackageForm() {
       ...prev,
       [field]: value,
     }));
+  };
+
+  // Room dialog handlers
+  const openAddRoomDialog = () => {
+    setEditingRoomIndex(null);
+    setRoomFormData({
+      type: "",
+      pricePerNight: 0,
+      maxOccupancy: 2,
+      amenities: [],
+    });
+    setIsRoomDialogOpen(true);
+  };
+
+  const openEditRoomDialog = (index: number) => {
+    const room = hotelFormData.rooms[index];
+    setEditingRoomIndex(index);
+    setRoomFormData({
+      type: room.type,
+      pricePerNight: room.pricePerNight,
+      maxOccupancy: room.maxOccupancy,
+      amenities: [...room.amenities],
+    });
+    setIsRoomDialogOpen(true);
+  };
+
+  const handleRoomFormChange = (field: string, value: any) => {
+    setRoomFormData((prev) => ({
+      ...prev,
+      [field]: value,
+    }));
+  };
+
+  const handleRoomSave = () => {
+    // Validate room data
+    if (!roomFormData.type || roomFormData.type.length < 1) {
+      toast({
+        title: "Invalid Room Type",
+        description: "Room type is required",
+        variant: "destructive",
+      });
+      return;
+    }
+
+    if (roomFormData.pricePerNight <= 0) {
+      toast({
+        title: "Invalid Price",
+        description: "Price per night must be positive",
+        variant: "destructive",
+      });
+      return;
+    }
+
+    const roomEntry = {
+      id: Math.random().toString(36).substring(7),
+      type: roomFormData.type,
+      pricePerNight: roomFormData.pricePerNight,
+      maxOccupancy: roomFormData.maxOccupancy,
+      amenities: [...roomFormData.amenities],
+    };
+
+    if (editingRoomIndex !== null) {
+      // Update existing room
+      const updatedRooms = [...hotelFormData.rooms];
+      updatedRooms[editingRoomIndex] = roomEntry;
+      setHotelFormData((prev) => ({ ...prev, rooms: updatedRooms }));
+    } else {
+      // Add new room
+      setHotelFormData((prev) => ({
+        ...prev,
+        rooms: [...prev.rooms, roomEntry],
+      }));
+    }
+
+    setIsRoomDialogOpen(false);
+  };
+
+  const removeRoom = (index: number) => {
+    const updatedRooms = hotelFormData.rooms.filter((_, i) => i !== index);
+    setHotelFormData((prev) => ({ ...prev, rooms: updatedRooms }));
   };
 
   const handleHotelSave = () => {
@@ -500,12 +608,26 @@ export function MultiHotelManualPackageForm() {
       return;
     }
 
+    if (hotelFormData.rooms.length === 0) {
+      toast({
+        title: "No Rooms Added",
+        description: "Please add at least one room to the hotel",
+        variant: "destructive",
+      });
+      return;
+    }
+
     const hotelEntry = {
       id: Math.random().toString(36).substring(7),
       name: hotelFormData.name,
       stars: hotelFormData.stars,
-      roomType: hotelFormData.roomType || undefined,
-      pricePerNight: hotelFormData.pricePerNight,
+      rooms: hotelFormData.rooms.map(room => ({
+        id: room.id,
+        type: room.type,
+        pricePerNight: room.pricePerNight,
+        maxOccupancy: room.maxOccupancy,
+        amenities: room.amenities,
+      })),
     };
 
     if (editingHotelIndex !== null) {
@@ -1174,9 +1296,14 @@ export function MultiHotelManualPackageForm() {
                               <span className="text-amber-500">
                                 {renderStars(hotel.stars)}
                               </span>
-                              {hotel.roomType && <span>{hotel.roomType}</span>}
-                              {hotel.pricePerNight && (
-                                <span>${hotel.pricePerNight}/night</span>
+                              <span>
+                                {hotel.rooms.length} room{hotel.rooms.length !== 1 ? 's' : ''}
+                              </span>
+                              {hotel.rooms.length > 0 && (
+                                <span>
+                                  ${Math.min(...hotel.rooms.map(r => r.pricePerNight))} - 
+                                  ${Math.max(...hotel.rooms.map(r => r.pricePerNight))}/night
+                                </span>
                               )}
                             </div>
                           </div>
@@ -1688,33 +1815,122 @@ export function MultiHotelManualPackageForm() {
               </Select>
             </div>
 
+            {/* Rooms Section */}
+            <div className="space-y-3">
+              <div className="flex justify-between items-center">
+                <label className="text-sm font-medium leading-none">
+                  Rooms <span className="text-destructive">*</span>
+                </label>
+                <Button
+                  type="button"
+                  variant="outline"
+                  size="sm"
+                  onClick={openAddRoomDialog}
+                  className="h-8"
+                >
+                  <PlusCircle className="h-3 w-3 mr-1" />
+                  Add Room
+                </Button>
+              </div>
+              
+              {hotelFormData.rooms.length === 0 ? (
+                <div className="text-sm text-muted-foreground text-center py-4 border border-dashed rounded-md">
+                  No rooms added yet. Click "Add Room" to get started.
+                </div>
+              ) : (
+                <div className="space-y-2 max-h-40 overflow-y-auto">
+                  {hotelFormData.rooms.map((room, index) => (
+                    <div
+                      key={room.id}
+                      className="p-3 border rounded-md flex justify-between items-start"
+                    >
+                      <div className="flex-1">
+                        <div className="font-medium text-sm">{room.type}</div>
+                        <div className="text-xs text-muted-foreground">
+                          ${room.pricePerNight}/night • Max {room.maxOccupancy} guests
+                        </div>
+                        {room.amenities.length > 0 && (
+                          <div className="text-xs text-muted-foreground mt-1">
+                            {room.amenities.join(", ")}
+                          </div>
+                        )}
+                      </div>
+                      <div className="flex gap-1">
+                        <Button
+                          type="button"
+                          variant="ghost"
+                          size="icon"
+                          onClick={() => openEditRoomDialog(index)}
+                          className="h-6 w-6"
+                        >
+                          <Edit className="h-3 w-3" />
+                        </Button>
+                        <Button
+                          type="button"
+                          variant="ghost"
+                          size="icon"
+                          onClick={() => removeRoom(index)}
+                          className="h-6 w-6 text-destructive hover:text-destructive"
+                        >
+                          <Trash className="h-3 w-3" />
+                        </Button>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              )}
+            </div>
+          </div>
+
+          <AlertDialogFooter>
+            <AlertDialogCancel>Cancel</AlertDialogCancel>
+            <AlertDialogAction onClick={handleHotelSave}>
+              {editingHotelIndex !== null ? "Update" : "Add"}
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
+
+      {/* Room Dialog */}
+      <AlertDialog open={isRoomDialogOpen} onOpenChange={setIsRoomDialogOpen}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>
+              {editingRoomIndex !== null ? "Edit Room" : "Add Room"}
+            </AlertDialogTitle>
+            <AlertDialogDescription>
+              Enter the room details below.
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+
+          <div className="space-y-4 py-4">
             <div className="space-y-2 suggestion-dropdown">
               <label
                 htmlFor="roomType"
                 className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70"
               >
-                Room Type (Optional)
+                Room Type <span className="text-destructive">*</span>
               </label>
               <div className="relative">
                 <Input
                   id="roomType"
                   placeholder="e.g., Deluxe Room"
-                  value={hotelFormData.roomType}
+                  value={roomFormData.type}
                   onChange={(e) => {
-                    handleHotelFormChange("roomType", e.target.value);
+                    handleRoomFormChange("type", e.target.value);
                   }}
                 />
-                {roomTypeSuggestions.length > 0 && hotelFormData.roomType && (
+                {roomTypeSuggestions.length > 0 && roomFormData.type && (
                   <div className="absolute z-10 w-full mt-1 max-h-60 overflow-auto bg-white border rounded-md shadow-lg">
                     {filterSuggestions(
-                      hotelFormData.roomType,
+                      roomFormData.type,
                       roomTypeSuggestions,
                     ).map((suggestion, index) => (
                       <div
                         key={index}
                         className="px-4 py-2 cursor-pointer hover:bg-zinc-100"
                         onClick={() => {
-                          handleHotelFormChange("roomType", suggestion);
+                          handleRoomFormChange("type", suggestion);
                         }}
                       >
                         {suggestion}
@@ -1725,36 +1941,89 @@ export function MultiHotelManualPackageForm() {
               </div>
             </div>
 
+            <div className="grid grid-cols-2 gap-4">
+              <div className="space-y-2">
+                <label
+                  htmlFor="pricePerNight"
+                  className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70"
+                >
+                  Price Per Night ($) <span className="text-destructive">*</span>
+                </label>
+                <Input
+                  id="pricePerNight"
+                  type="number"
+                  placeholder="e.g., 120"
+                  value={roomFormData.pricePerNight || ""}
+                  onChange={(e) => {
+                    const value = e.target.value ? parseFloat(e.target.value) : 0;
+                    handleRoomFormChange("pricePerNight", value);
+                  }}
+                />
+              </div>
+
+              <div className="space-y-2">
+                <label
+                  htmlFor="maxOccupancy"
+                  className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70"
+                >
+                  Max Occupancy <span className="text-destructive">*</span>
+                </label>
+                <Select
+                  value={roomFormData.maxOccupancy.toString()}
+                  onValueChange={(value) =>
+                    handleRoomFormChange("maxOccupancy", parseInt(value))
+                  }
+                >
+                  <SelectTrigger>
+                    <SelectValue placeholder="Select capacity" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="1">1 Guest</SelectItem>
+                    <SelectItem value="2">2 Guests</SelectItem>
+                    <SelectItem value="3">3 Guests</SelectItem>
+                    <SelectItem value="4">4 Guests</SelectItem>
+                    <SelectItem value="5">5 Guests</SelectItem>
+                    <SelectItem value="6">6 Guests</SelectItem>
+                    <SelectItem value="8">8 Guests</SelectItem>
+                    <SelectItem value="10">10 Guests</SelectItem>
+                  </SelectContent>
+                </Select>
+              </div>
+            </div>
+
             <div className="space-y-2">
-              <label
-                htmlFor="pricePerNight"
-                className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70"
-              >
-                Price Per Night ($) (Optional)
+              <label className="text-sm font-medium leading-none">
+                Amenities (Optional)
               </label>
-              <Input
-                id="pricePerNight"
-                type="number"
-                placeholder="e.g., 120"
-                value={
-                  hotelFormData.pricePerNight !== undefined
-                    ? hotelFormData.pricePerNight
-                    : ""
-                }
-                onChange={(e) => {
-                  const value = e.target.value
-                    ? parseFloat(e.target.value)
-                    : undefined;
-                  handleHotelFormChange("pricePerNight", value);
-                }}
-              />
+              <div className="grid grid-cols-3 gap-2">
+                {["WiFi", "AC", "TV", "Minibar", "Safe", "Balcony", "Ocean View", "City View", "Kitchenette"].map((amenity) => (
+                  <div key={amenity} className="flex items-center space-x-2">
+                    <input
+                      type="checkbox"
+                      id={`amenity-${amenity}`}
+                      checked={roomFormData.amenities.includes(amenity)}
+                      onChange={(e) => {
+                        if (e.target.checked) {
+                          handleRoomFormChange("amenities", [...roomFormData.amenities, amenity]);
+                        } else {
+                          handleRoomFormChange("amenities", roomFormData.amenities.filter(a => a !== amenity));
+                        }
+                      }}
+                      className="h-4 w-4 text-primary border-gray-300 rounded"
+                    />
+                    <label htmlFor={`amenity-${amenity}`} className="text-sm">
+                      {amenity}
+                    </label>
+                  </div>
+                ))}
+              </div>
             </div>
           </div>
 
           <AlertDialogFooter>
             <AlertDialogCancel>Cancel</AlertDialogCancel>
-            <AlertDialogAction onClick={handleHotelSave}>
-              {editingHotelIndex !== null ? "Update" : "Add"}
+            <AlertDialogAction onClick={handleRoomSave}>
+              {editingRoomIndex !== null ? "Update" : "Add"}
             </AlertDialogAction>
           </AlertDialogFooter>
         </AlertDialogContent>
