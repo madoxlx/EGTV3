@@ -52,7 +52,7 @@ import { useToast } from "@/hooks/use-toast";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
 import { z } from "zod";
-import { Plus, Search, Edit, Trash2, Loader2, MapPin, GlobeIcon, AlertCircle } from "lucide-react";
+import { Plus, Search, Edit, Trash2, Loader2, MapPin, GlobeIcon, AlertCircle, Camera, ImageIcon, Upload } from "lucide-react";
 import { queryClient, apiRequest } from "@/lib/queryClient";
 import { validateForm, validateRequiredFields } from "@/lib/validateForm";
 import { FormRequiredFieldsNote, FormValidationAlert } from "@/components/dashboard/FormValidationAlert";
@@ -83,14 +83,14 @@ interface City {
   countryId: number;
 }
 
-// Destination validation schema
+// Zod schema for destination form validation
 const destinationSchema = z.object({
-  name: z.string().min(2, { message: "Name must be at least 2 characters" }),
-  country: z.string().min(2, { message: "Country must be at least 2 characters" }),
-  countryId: z.number({ message: "Country ID is required" }),
-  cityId: z.number({ message: "City ID is required" }),
+  name: z.string().min(1, "Destination name is required"),
+  country: z.string().optional(),
+  countryId: z.number().min(1, "Country is required"),
+  cityId: z.number().min(1, "City is required"),
   description: z.string().optional(),
-  imageUrl: z.string().url({ message: "Must be a valid URL" }).optional().or(z.literal("")),
+  imageUrl: z.string().optional(),
   featured: z.boolean().default(false),
 });
 
@@ -104,6 +104,8 @@ export default function DestinationsManagement() {
   const [selectedDestination, setSelectedDestination] = useState<Destination | null>(null);
   const [deleteConfirmOpen, setDeleteConfirmOpen] = useState(false);
   const [selectedCountryId, setSelectedCountryId] = useState<number | null>(null);
+  const [imageUploadMode, setImageUploadMode] = useState<'url' | 'upload'>('url');
+  const [isUploadingImage, setIsUploadingImage] = useState(false);
 
   // Query destinations
   const { data: destinations = [], isLoading: isLoadingDestinations } = useQuery<Destination[]>({
@@ -146,6 +148,43 @@ export default function DestinationsManagement() {
     },
   });
 
+  // Image upload handler
+  const handleImageUpload = async (file: File) => {
+    setIsUploadingImage(true);
+    try {
+      const formData = new FormData();
+      formData.append('image', file);
+
+      const response = await fetch('/api/upload-image', {
+        method: 'POST',
+        body: formData,
+      });
+
+      if (!response.ok) {
+        throw new Error('Image upload failed');
+      }
+
+      const result = await response.json();
+      const imageUrl = result.url || result.imageUrl;
+      
+      // Update the form field with the uploaded image URL
+      destinationForm.setValue('imageUrl', imageUrl);
+      
+      toast({
+        title: "Success",
+        description: "Image uploaded successfully",
+      });
+    } catch (error) {
+      toast({
+        title: "Error",
+        description: "Failed to upload image",
+        variant: "destructive",
+      });
+    } finally {
+      setIsUploadingImage(false);
+    }
+  };
+
   // Create Destination Mutation
   const createDestinationMutation = useMutation({
     mutationFn: async (destination: DestinationFormValues) => {
@@ -166,6 +205,7 @@ export default function DestinationsManagement() {
       queryClient.invalidateQueries({ queryKey: ['/api/destinations'] });
       setIsCreateDialogOpen(false);
       destinationForm.reset();
+      setImageUploadMode('url');
       toast({
         title: "Success",
         description: "Destination created successfully",
@@ -190,8 +230,11 @@ export default function DestinationsManagement() {
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['/api/destinations'] });
+      queryClient.invalidateQueries({ queryKey: ['/admin-api/destinations'] });
       setIsEditDialogOpen(false);
+      destinationForm.reset();
       setSelectedDestination(null);
+      setImageUploadMode('url');
       toast({
         title: "Success",
         description: "Destination updated successfully",
@@ -239,113 +282,56 @@ export default function DestinationsManagement() {
       values,
       ['name', 'countryId', 'cityId'],
       {
-        name: 'Destination Name',
-        countryId: 'Country',
-        cityId: 'City'
+        name: "Destination name",
+        countryId: "Country",
+        cityId: "City"
       }
     );
-    
-    if (!requiredFieldsValid) return;
-    
-    // Additional validation for country and city selection
-    const customValidationsValid = validateForm(values, [
-      {
-        condition: values.countryId === 0,
-        errorMessage: {
-          title: "Country Required",
-          description: "Please select a country for this destination"
-        },
-        variant: "destructive"
-      },
-      {
-        condition: values.cityId === 0,
-        errorMessage: {
-          title: "City Required",
-          description: "Please select a city for this destination"
-        },
-        variant: "destructive"
-      },
-      {
-        condition: !!values.imageUrl && !values.imageUrl.startsWith('http'),
-        errorMessage: {
-          title: "Invalid Image URL",
-          description: "Please provide a valid URL starting with http:// or https://"
-        },
-        variant: "destructive"
-      }
-    ]);
-    
-    if (!customValidationsValid) return;
-    
-    // All validations passed, proceed with submission
-    createDestinationMutation.mutate(values);
-  };
 
-  const onUpdateSubmit = (values: DestinationFormValues) => {
-    if (!selectedDestination) {
+    if (!requiredFieldsValid.isValid) {
       toast({
-        title: "Update Error",
-        description: "No destination selected for update",
+        title: "Validation Error",
+        description: requiredFieldsValid.message,
         variant: "destructive",
       });
       return;
     }
-    
+
+    createDestinationMutation.mutate(values);
+  };
+
+  const onUpdateSubmit = (values: DestinationFormValues) => {
+    if (!selectedDestination) return;
+
     // Validate required fields
     const requiredFieldsValid = validateRequiredFields(
       values,
       ['name', 'countryId', 'cityId'],
       {
-        name: 'Destination Name',
-        countryId: 'Country',
-        cityId: 'City'
+        name: "Destination name",
+        countryId: "Country",
+        cityId: "City"
       }
     );
-    
-    if (!requiredFieldsValid) return;
-    
-    // Additional validation for country and city selection
-    const customValidationsValid = validateForm(values, [
-      {
-        condition: values.countryId === 0,
-        errorMessage: {
-          title: "Country Required",
-          description: "Please select a country for this destination"
-        },
-        variant: "destructive"
-      },
-      {
-        condition: values.cityId === 0,
-        errorMessage: {
-          title: "City Required",
-          description: "Please select a city for this destination"
-        },
-        variant: "destructive"
-      },
-      {
-        condition: !!values.imageUrl && !values.imageUrl.startsWith('http'),
-        errorMessage: {
-          title: "Invalid Image URL",
-          description: "Please provide a valid URL starting with http:// or https://"
-        },
-        variant: "destructive"
-      }
-    ]);
-    
-    if (!customValidationsValid) return;
-    
-    // All validations passed, proceed with submission
+
+    if (!requiredFieldsValid.isValid) {
+      toast({
+        title: "Validation Error",
+        description: requiredFieldsValid.message,
+        variant: "destructive",
+      });
+      return;
+    }
+
     updateDestinationMutation.mutate({ 
       id: selectedDestination.id, 
       data: values 
     });
   };
 
-  // Handle edit button click
   const handleEditClick = (destination: Destination) => {
     setSelectedDestination(destination);
     setSelectedCountryId(destination.countryId);
-    
     destinationForm.reset({
       name: destination.name,
       country: destination.country,
@@ -355,143 +341,270 @@ export default function DestinationsManagement() {
       imageUrl: destination.imageUrl || "",
       featured: destination.featured,
     });
-    
+    setImageUploadMode('url');
     setIsEditDialogOpen(true);
   };
 
-  // Handle delete button click
   const handleDeleteClick = (destination: Destination) => {
     setSelectedDestination(destination);
     setDeleteConfirmOpen(true);
   };
 
-  // Handle country change
-  const handleCountryChange = (countryId: number) => {
-    setSelectedCountryId(countryId);
-    const country = countries.find(c => c.id === countryId);
-    
-    if (country) {
-      destinationForm.setValue("country", country.name);
-      destinationForm.setValue("countryId", country.id);
-      
-      // Reset city selection
-      destinationForm.setValue("cityId", 0);
-    }
-  };
+  // Enhanced Image Field Component
+  const ImageField = ({ field, fieldId }: { field: any; fieldId: string }) => (
+    <FormItem>
+      <FormLabel>Destination Image</FormLabel>
+      <div className="space-y-4">
+        {/* Mode Toggle */}
+        <div className="flex space-x-2">
+          <Button
+            type="button"
+            variant={imageUploadMode === 'url' ? 'default' : 'outline'}
+            size="sm"
+            onClick={() => setImageUploadMode('url')}
+            className="flex items-center gap-2"
+          >
+            <ImageIcon className="h-4 w-4" />
+            Image URL
+          </Button>
+          <Button
+            type="button"
+            variant={imageUploadMode === 'upload' ? 'default' : 'outline'}
+            size="sm"
+            onClick={() => setImageUploadMode('upload')}
+            className="flex items-center gap-2"
+          >
+            <Upload className="h-4 w-4" />
+            Upload Photo
+          </Button>
+        </div>
+
+        {/* URL Input Mode */}
+        {imageUploadMode === 'url' && (
+          <FormControl>
+            <Input 
+              placeholder="Enter image URL" 
+              {...field} 
+            />
+          </FormControl>
+        )}
+
+        {/* File Upload Mode */}
+        {imageUploadMode === 'upload' && (
+          <div className="space-y-2">
+            <div className="border-2 border-dashed border-gray-300 rounded-lg p-6">
+              <div className="text-center">
+                <Camera className="mx-auto h-12 w-12 text-gray-400" />
+                <div className="mt-4">
+                  <Button
+                    type="button"
+                    variant="outline"
+                    onClick={() => document.getElementById(`${fieldId}-upload`)?.click()}
+                    disabled={isUploadingImage}
+                  >
+                    {isUploadingImage ? (
+                      <>
+                        <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                        Uploading...
+                      </>
+                    ) : (
+                      <>
+                        <Camera className="mr-2 h-4 w-4" />
+                        Choose Photo
+                      </>
+                    )}
+                  </Button>
+                  <input
+                    id={`${fieldId}-upload`}
+                    type="file"
+                    accept="image/*"
+                    className="hidden"
+                    onChange={(e) => {
+                      const file = e.target.files?.[0];
+                      if (file) {
+                        handleImageUpload(file);
+                      }
+                    }}
+                  />
+                </div>
+                <p className="mt-2 text-sm text-gray-600">
+                  Upload a photo or drag and drop
+                </p>
+                <p className="text-xs text-gray-500">
+                  PNG, JPG, JPEG up to 10MB
+                </p>
+              </div>
+            </div>
+            {field.value && (
+              <FormControl>
+                <Input 
+                  placeholder="Uploaded image URL will appear here" 
+                  {...field} 
+                  disabled
+                />
+              </FormControl>
+            )}
+          </div>
+        )}
+
+        {/* Image Preview */}
+        {field.value && (
+          <div className="mt-4">
+            <img 
+              src={field.value} 
+              alt="Destination preview" 
+              className="w-full h-48 object-cover rounded-lg border"
+              onError={(e) => {
+                e.currentTarget.style.display = 'none';
+              }}
+            />
+          </div>
+        )}
+      </div>
+      <FormDescription>
+        Choose an image URL or upload a photo for this destination
+      </FormDescription>
+      <FormMessage />
+    </FormItem>
+  );
 
   return (
     <DashboardLayout>
-      <div className="container mx-auto py-6">
-        <div className="flex flex-col space-y-8">
-          <div className="flex items-center justify-between">
-            <h2 className="text-3xl font-bold tracking-tight">Destinations Management</h2>
-            <Button onClick={() => {
-              destinationForm.reset();
-              setSelectedCountryId(null);
-              setIsCreateDialogOpen(true);
-            }}>
-              <Plus className="mr-2 h-4 w-4" /> Add Destination
-            </Button>
+      <div className="space-y-6">
+        <div className="flex justify-between items-center">
+          <div>
+            <h1 className="text-3xl font-bold tracking-tight">Destinations Management</h1>
+            <p className="text-muted-foreground">
+              Manage travel destinations including creation, editing, and organization.
+            </p>
           </div>
+          <Dialog open={isCreateDialogOpen} onOpenChange={setIsCreateDialogOpen}>
+            <DialogTrigger asChild>
+              <Button>
+                <Plus className="mr-2 h-4 w-4" />
+                Add Destination
+              </Button>
+            </DialogTrigger>
+          </Dialog>
+        </div>
 
-          <Card>
-            <CardHeader>
-              <CardTitle>All Destinations</CardTitle>
-              <CardDescription>
-                Manage destinations for your travel application. Destinations are linked to countries and cities.
-              </CardDescription>
-              <div className="flex w-full max-w-sm items-center space-x-2 mt-4">
+        {/* Search and Filter Section */}
+        <Card>
+          <CardHeader>
+            <CardTitle className="flex items-center gap-2">
+              <Search className="h-5 w-5" />
+              Search & Filter
+            </CardTitle>
+          </CardHeader>
+          <CardContent>
+            <div className="flex gap-4">
+              <div className="flex-1">
                 <Input
-                  type="text"
-                  placeholder="Search destinations..."
+                  placeholder="Search destinations by name or country..."
                   value={searchQuery}
                   onChange={(e) => setSearchQuery(e.target.value)}
                   className="w-full"
                 />
-                <Button type="submit" size="icon" variant="ghost">
-                  <Search className="h-4 w-4" />
-                </Button>
               </div>
-            </CardHeader>
-            <CardContent>
-              {isLoadingDestinations ? (
-                <div className="flex items-center justify-center py-10">
-                  <Loader2 className="h-10 w-10 animate-spin text-primary" />
-                </div>
-              ) : filteredDestinations.length === 0 ? (
-                <div className="text-center py-10 text-muted-foreground">
-                  No destinations found. Add a new destination to get started.
-                </div>
-              ) : (
-                <div className="overflow-x-auto">
-                  <table className="w-full divide-y divide-gray-200">
-                    <thead className="bg-gray-50">
-                      <tr>
-                        <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                          ID
-                        </th>
-                        <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                          Name
-                        </th>
-                        <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                          Country
-                        </th>
-                        <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                          City
-                        </th>
-                        <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                          Featured
-                        </th>
-                        <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                          Actions
-                        </th>
-                      </tr>
-                    </thead>
-                    <tbody className="bg-white divide-y divide-gray-200">
-                      {filteredDestinations.map((destination) => {
-                        const city = cities.find(c => c.id === destination.cityId);
-                        return (
-                          <tr key={destination.id}>
-                            <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                              {destination.id}
-                            </td>
-                            <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">
-                              {destination.name}
-                            </td>
-                            <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                              {destination.country}
-                            </td>
-                            <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                              {city?.name || 'N/A'}
-                            </td>
-                            <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                              {destination.featured ? 'Yes' : 'No'}
-                            </td>
-                            <td className="px-6 py-4 whitespace-nowrap text-sm font-medium space-x-2">
-                              <Button
-                                variant="ghost"
-                                size="icon"
-                                onClick={() => handleEditClick(destination)}
-                              >
-                                <Edit className="h-4 w-4" />
-                              </Button>
-                              <Button
-                                variant="ghost"
-                                size="icon"
-                                onClick={() => handleDeleteClick(destination)}
-                              >
-                                <Trash2 className="h-4 w-4 text-red-500" />
-                              </Button>
-                            </td>
-                          </tr>
-                        );
-                      })}
-                    </tbody>
-                  </table>
-                </div>
-              )}
-            </CardContent>
-          </Card>
+            </div>
+          </CardContent>
+        </Card>
+
+        {/* Destinations Grid */}
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+          {isLoadingDestinations ? (
+            Array.from({ length: 6 }).map((_, index) => (
+              <Card key={index} className="animate-pulse">
+                <CardHeader>
+                  <div className="h-4 bg-gray-200 rounded w-3/4"></div>
+                  <div className="h-3 bg-gray-200 rounded w-1/2"></div>
+                </CardHeader>
+                <CardContent>
+                  <div className="h-32 bg-gray-200 rounded"></div>
+                </CardContent>
+              </Card>
+            ))
+          ) : filteredDestinations.length === 0 ? (
+            <Card className="col-span-full">
+              <CardContent className="flex flex-col items-center justify-center py-12">
+                <MapPin className="h-12 w-12 text-muted-foreground mb-4" />
+                <h3 className="text-lg font-semibold mb-2">No destinations found</h3>
+                <p className="text-muted-foreground text-center">
+                  {searchQuery ? "No destinations match your search criteria." : "Start by adding your first destination."}
+                </p>
+                {!searchQuery && (
+                  <Button
+                    className="mt-4"
+                    onClick={() => setIsCreateDialogOpen(true)}
+                  >
+                    <Plus className="mr-2 h-4 w-4" />
+                    Add First Destination
+                  </Button>
+                )}
+              </CardContent>
+            </Card>
+          ) : (
+            filteredDestinations.map((destination) => (
+              <Card key={destination.id} className="group hover:shadow-md transition-shadow">
+                <CardHeader>
+                  <div className="flex justify-between items-start">
+                    <div className="flex-1">
+                      <CardTitle className="flex items-center gap-2">
+                        <MapPin className="h-4 w-4" />
+                        {destination.name}
+                        {destination.featured && (
+                          <span className="bg-yellow-100 text-yellow-800 text-xs px-2 py-1 rounded-full">
+                            Featured
+                          </span>
+                        )}
+                      </CardTitle>
+                      <CardDescription className="flex items-center gap-1">
+                        <GlobeIcon className="h-3 w-3" />
+                        {destination.country}
+                      </CardDescription>
+                    </div>
+                    <div className="flex gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
+                      <Button
+                        variant="outline"
+                        size="icon"
+                        className="h-8 w-8"
+                        onClick={() => handleEditClick(destination)}
+                      >
+                        <Edit className="h-3 w-3" />
+                      </Button>
+                      <Button
+                        variant="outline"
+                        size="icon"
+                        className="h-8 w-8 text-destructive hover:text-destructive"
+                        onClick={() => handleDeleteClick(destination)}
+                      >
+                        <Trash2 className="h-3 w-3" />
+                      </Button>
+                    </div>
+                  </div>
+                </CardHeader>
+                {destination.imageUrl && (
+                  <CardContent className="pt-0">
+                    <img
+                      src={destination.imageUrl}
+                      alt={destination.name}
+                      className="w-full h-32 object-cover rounded-md"
+                      onError={(e) => {
+                        e.currentTarget.style.display = 'none';
+                      }}
+                    />
+                  </CardContent>
+                )}
+                {destination.description && (
+                  <CardFooter className="pt-0">
+                    <p className="text-sm text-muted-foreground line-clamp-2">
+                      {destination.description}
+                    </p>
+                  </CardFooter>
+                )}
+              </Card>
+            ))
+          )}
         </div>
 
         {/* Create Destination Dialog */}
@@ -500,7 +613,7 @@ export default function DestinationsManagement() {
             <DialogHeader>
               <DialogTitle>Add New Destination</DialogTitle>
               <DialogDescription>
-                Create a new destination for your travel application.
+                Create a new travel destination. Fill in the required information below.
               </DialogDescription>
             </DialogHeader>
             <FormRequiredFieldsNote />
@@ -513,13 +626,15 @@ export default function DestinationsManagement() {
               />
             )}
             <Form {...destinationForm}>
-              <form onSubmit={destinationForm.handleSubmit(onCreateSubmit)} className="space-y-6">
+              <form onSubmit={destinationForm.handleSubmit(onCreateSubmit)} className="space-y-4">
                 <FormField
                   control={destinationForm.control}
                   name="name"
                   render={({ field }) => (
                     <FormItem>
-                      <FormLabel>Destination Name</FormLabel>
+                      <FormLabel>
+                        Destination Name <span className="text-red-500">*</span>
+                      </FormLabel>
                       <FormControl>
                         <Input placeholder="Enter destination name" {...field} />
                       </FormControl>
@@ -528,65 +643,74 @@ export default function DestinationsManagement() {
                   )}
                 />
 
-                <FormField
-                  control={destinationForm.control}
-                  name="countryId"
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel>Country</FormLabel>
-                      <Select
-                        onValueChange={(value) => {
-                          field.onChange(parseInt(value));
-                          handleCountryChange(parseInt(value));
-                        }}
-                        value={field.value.toString()}
-                      >
-                        <FormControl>
-                          <SelectTrigger>
-                            <SelectValue placeholder="Select a country" />
-                          </SelectTrigger>
-                        </FormControl>
-                        <SelectContent>
-                          {countries.map((country) => (
-                            <SelectItem key={country.id} value={country.id.toString()}>
-                              {country.name} ({country.code})
-                            </SelectItem>
-                          ))}
-                        </SelectContent>
-                      </Select>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
+                <div className="grid grid-cols-2 gap-4">
+                  <FormField
+                    control={destinationForm.control}
+                    name="countryId"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel>
+                          Country <span className="text-red-500">*</span>
+                        </FormLabel>
+                        <Select 
+                          onValueChange={(value) => {
+                            const countryId = parseInt(value);
+                            field.onChange(countryId);
+                            setSelectedCountryId(countryId);
+                            // Reset city when country changes
+                            destinationForm.setValue('cityId', 0);
+                          }} 
+                          value={field.value?.toString()}
+                        >
+                          <FormControl>
+                            <SelectTrigger>
+                              <SelectValue placeholder="Select a country" />
+                            </SelectTrigger>
+                          </FormControl>
+                          <SelectContent>
+                            {countries.map((country) => (
+                              <SelectItem key={country.id} value={country.id.toString()}>
+                                {country.name}
+                              </SelectItem>
+                            ))}
+                          </SelectContent>
+                        </Select>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
 
-                <FormField
-                  control={destinationForm.control}
-                  name="cityId"
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel>City</FormLabel>
-                      <Select
-                        onValueChange={(value) => field.onChange(parseInt(value))}
-                        value={field.value.toString()}
-                        disabled={!selectedCountryId}
-                      >
-                        <FormControl>
-                          <SelectTrigger>
-                            <SelectValue placeholder={selectedCountryId ? "Select a city" : "Select a country first"} />
-                          </SelectTrigger>
-                        </FormControl>
-                        <SelectContent>
-                          {filteredCities.map((city) => (
-                            <SelectItem key={city.id} value={city.id.toString()}>
-                              {city.name}
-                            </SelectItem>
-                          ))}
-                        </SelectContent>
-                      </Select>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
+                  <FormField
+                    control={destinationForm.control}
+                    name="cityId"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel>
+                          City <span className="text-red-500">*</span>
+                        </FormLabel>
+                        <Select 
+                          onValueChange={(value) => field.onChange(parseInt(value))} 
+                          value={field.value?.toString()}
+                          disabled={!selectedCountryId}
+                        >
+                          <FormControl>
+                            <SelectTrigger>
+                              <SelectValue placeholder={selectedCountryId ? "Select a city" : "Select country first"} />
+                            </SelectTrigger>
+                          </FormControl>
+                          <SelectContent>
+                            {filteredCities.map((city) => (
+                              <SelectItem key={city.id} value={city.id.toString()}>
+                                {city.name}
+                              </SelectItem>
+                            ))}
+                          </SelectContent>
+                        </Select>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+                </div>
 
                 <FormField
                   control={destinationForm.control}
@@ -610,16 +734,7 @@ export default function DestinationsManagement() {
                   control={destinationForm.control}
                   name="imageUrl"
                   render={({ field }) => (
-                    <FormItem>
-                      <FormLabel>Image URL</FormLabel>
-                      <FormControl>
-                        <Input placeholder="Enter image URL" {...field} />
-                      </FormControl>
-                      <FormDescription>
-                        Provide a URL to an image for this destination
-                      </FormDescription>
-                      <FormMessage />
-                    </FormItem>
+                    <ImageField field={field} fieldId="create-destination" />
                   )}
                 />
 
@@ -645,14 +760,18 @@ export default function DestinationsManagement() {
                 />
 
                 <DialogFooter>
-                  <Button 
-                    type="button" 
-                    variant="outline" 
-                    onClick={() => setIsCreateDialogOpen(false)}
+                  <Button
+                    type="button"
+                    variant="outline"
+                    onClick={() => {
+                      setIsCreateDialogOpen(false);
+                      destinationForm.reset();
+                      setImageUploadMode('url');
+                    }}
                   >
                     Cancel
                   </Button>
-                  <Button 
+                  <Button
                     type="submit"
                     disabled={createDestinationMutation.isPending}
                   >
@@ -673,7 +792,7 @@ export default function DestinationsManagement() {
             <DialogHeader>
               <DialogTitle>Edit Destination</DialogTitle>
               <DialogDescription>
-                Update the details for this destination.
+                Update the destination information. Modify the fields below as needed.
               </DialogDescription>
             </DialogHeader>
             <FormRequiredFieldsNote />
@@ -686,13 +805,15 @@ export default function DestinationsManagement() {
               />
             )}
             <Form {...destinationForm}>
-              <form onSubmit={destinationForm.handleSubmit(onUpdateSubmit)} className="space-y-6">
+              <form onSubmit={destinationForm.handleSubmit(onUpdateSubmit)} className="space-y-4">
                 <FormField
                   control={destinationForm.control}
                   name="name"
                   render={({ field }) => (
                     <FormItem>
-                      <FormLabel>Destination Name</FormLabel>
+                      <FormLabel>
+                        Destination Name <span className="text-red-500">*</span>
+                      </FormLabel>
                       <FormControl>
                         <Input placeholder="Enter destination name" {...field} />
                       </FormControl>
@@ -701,65 +822,74 @@ export default function DestinationsManagement() {
                   )}
                 />
 
-                <FormField
-                  control={destinationForm.control}
-                  name="countryId"
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel>Country</FormLabel>
-                      <Select
-                        onValueChange={(value) => {
-                          field.onChange(parseInt(value));
-                          handleCountryChange(parseInt(value));
-                        }}
-                        value={field.value.toString()}
-                      >
-                        <FormControl>
-                          <SelectTrigger>
-                            <SelectValue placeholder="Select a country" />
-                          </SelectTrigger>
-                        </FormControl>
-                        <SelectContent>
-                          {countries.map((country) => (
-                            <SelectItem key={country.id} value={country.id.toString()}>
-                              {country.name} ({country.code})
-                            </SelectItem>
-                          ))}
-                        </SelectContent>
-                      </Select>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
+                <div className="grid grid-cols-2 gap-4">
+                  <FormField
+                    control={destinationForm.control}
+                    name="countryId"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel>
+                          Country <span className="text-red-500">*</span>
+                        </FormLabel>
+                        <Select 
+                          onValueChange={(value) => {
+                            const countryId = parseInt(value);
+                            field.onChange(countryId);
+                            setSelectedCountryId(countryId);
+                            // Reset city when country changes
+                            destinationForm.setValue('cityId', 0);
+                          }} 
+                          value={field.value?.toString()}
+                        >
+                          <FormControl>
+                            <SelectTrigger>
+                              <SelectValue placeholder="Select a country" />
+                            </SelectTrigger>
+                          </FormControl>
+                          <SelectContent>
+                            {countries.map((country) => (
+                              <SelectItem key={country.id} value={country.id.toString()}>
+                                {country.name}
+                              </SelectItem>
+                            ))}
+                          </SelectContent>
+                        </Select>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
 
-                <FormField
-                  control={destinationForm.control}
-                  name="cityId"
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel>City</FormLabel>
-                      <Select
-                        onValueChange={(value) => field.onChange(parseInt(value))}
-                        value={field.value.toString()}
-                        disabled={!selectedCountryId}
-                      >
-                        <FormControl>
-                          <SelectTrigger>
-                            <SelectValue placeholder={selectedCountryId ? "Select a city" : "Select a country first"} />
-                          </SelectTrigger>
-                        </FormControl>
-                        <SelectContent>
-                          {filteredCities.map((city) => (
-                            <SelectItem key={city.id} value={city.id.toString()}>
-                              {city.name}
-                            </SelectItem>
-                          ))}
-                        </SelectContent>
-                      </Select>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
+                  <FormField
+                    control={destinationForm.control}
+                    name="cityId"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel>
+                          City <span className="text-red-500">*</span>
+                        </FormLabel>
+                        <Select 
+                          onValueChange={(value) => field.onChange(parseInt(value))} 
+                          value={field.value?.toString()}
+                          disabled={!selectedCountryId}
+                        >
+                          <FormControl>
+                            <SelectTrigger>
+                              <SelectValue placeholder={selectedCountryId ? "Select a city" : "Select country first"} />
+                            </SelectTrigger>
+                          </FormControl>
+                          <SelectContent>
+                            {filteredCities.map((city) => (
+                              <SelectItem key={city.id} value={city.id.toString()}>
+                                {city.name}
+                              </SelectItem>
+                            ))}
+                          </SelectContent>
+                        </Select>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+                </div>
 
                 <FormField
                   control={destinationForm.control}
@@ -783,16 +913,7 @@ export default function DestinationsManagement() {
                   control={destinationForm.control}
                   name="imageUrl"
                   render={({ field }) => (
-                    <FormItem>
-                      <FormLabel>Image URL</FormLabel>
-                      <FormControl>
-                        <Input placeholder="Enter image URL" {...field} />
-                      </FormControl>
-                      <FormDescription>
-                        Provide a URL to an image for this destination
-                      </FormDescription>
-                      <FormMessage />
-                    </FormItem>
+                    <ImageField field={field} fieldId="edit-destination" />
                   )}
                 />
 
@@ -818,14 +939,19 @@ export default function DestinationsManagement() {
                 />
 
                 <DialogFooter>
-                  <Button 
-                    type="button" 
-                    variant="outline" 
-                    onClick={() => setIsEditDialogOpen(false)}
+                  <Button
+                    type="button"
+                    variant="outline"
+                    onClick={() => {
+                      setIsEditDialogOpen(false);
+                      destinationForm.reset();
+                      setSelectedDestination(null);
+                      setImageUploadMode('url');
+                    }}
                   >
                     Cancel
                   </Button>
-                  <Button 
+                  <Button
                     type="submit"
                     disabled={updateDestinationMutation.isPending}
                   >
@@ -840,14 +966,16 @@ export default function DestinationsManagement() {
           </DialogContent>
         </Dialog>
 
-        {/* Delete Confirmation */}
+        {/* Delete Confirmation Dialog */}
         <AlertDialog open={deleteConfirmOpen} onOpenChange={setDeleteConfirmOpen}>
           <AlertDialogContent>
             <AlertDialogHeader>
-              <AlertDialogTitle>Are you absolutely sure?</AlertDialogTitle>
+              <AlertDialogTitle className="flex items-center gap-2">
+                <AlertCircle className="h-5 w-5 text-destructive" />
+                Delete Destination
+              </AlertDialogTitle>
               <AlertDialogDescription>
-                This action cannot be undone. This will permanently delete the destination
-                "{selectedDestination?.name}" and remove it from your database.
+                Are you sure you want to delete "{selectedDestination?.name}"? This action cannot be undone.
               </AlertDialogDescription>
             </AlertDialogHeader>
             <AlertDialogFooter>
@@ -858,7 +986,8 @@ export default function DestinationsManagement() {
                     deleteDestinationMutation.mutate(selectedDestination.id);
                   }
                 }}
-                className="bg-red-600 hover:bg-red-700"
+                className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
+                disabled={deleteDestinationMutation.isPending}
               >
                 {deleteDestinationMutation.isPending && (
                   <Loader2 className="mr-2 h-4 w-4 animate-spin" />
@@ -868,7 +997,6 @@ export default function DestinationsManagement() {
             </AlertDialogFooter>
           </AlertDialogContent>
         </AlertDialog>
-
       </div>
     </DashboardLayout>
   );
