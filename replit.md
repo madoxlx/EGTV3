@@ -106,6 +106,15 @@ The application uses a comprehensive PostgreSQL schema with the following core e
 
 ## Recent Changes
 
+- **Double-Click Tour Selection Enhancement Complete (July 5, 2025)**: Successfully implemented double-click functionality on tour selection fields to display all available tours
+  - **Universal Implementation**: Added double-click functionality to tour search inputs in both MultiHotelManualPackageForm and SimplePackageForm components
+  - **Smart Tour Display**: Enhanced tour mapping logic to show all unselected tours when search field is empty, enabling complete tour catalog browsing
+  - **Improved User Guidance**: Updated placeholder text to "double-click to view all tours" for clear user instruction
+  - **Seamless Tour Discovery**: Users can now double-click any tour selection field to instantly see all available tours without manual search clearing
+  - **Consistent Experience**: Applied identical functionality across both package creation workflows for uniform user experience
+  - **Maintained Multi-Selection**: Preserved existing multi-tour selection capabilities while adding convenient discovery feature
+  - **Professional Interface**: Enhanced tour selection interface maintains existing functionality while adding intuitive browsing capability
+
 - **Default Package Type Configuration Complete (July 5, 2025)**: Successfully implemented automatic default package type settings for both package creation workflows
   - **SimplePackageForm**: Automatically defaults to "dynamic" type for `/admin/packages/create` route enabling streamlined dynamic package creation
   - **ManualPackageCreatorForm & MultiHotelManualPackageForm**: Both components now default to "manual" type for `/admin/packages/create-manual` route

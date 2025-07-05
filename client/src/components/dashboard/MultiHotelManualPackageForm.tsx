@@ -1432,19 +1432,29 @@ export function MultiHotelManualPackageForm() {
                   {/* Tour Search Input */}
                   <div className="relative">
                     <Input
-                      placeholder="Search tours..."
+                      placeholder="Search tours... (double-click to see all tours)"
                       value={tourSearchQuery}
                       onChange={(e) => {
                         setTourSearchQuery(e.target.value);
                         setShowTourDropdown(e.target.value.length > 0);
                       }}
                       onFocus={() => setShowTourDropdown(tourSearchQuery.length > 0)}
+                      onDoubleClick={() => {
+                        setTourSearchQuery("");
+                        setShowTourDropdown(true);
+                      }}
                     />
                     
                     {/* Tour Dropdown */}
-                    {showTourDropdown && filteredTours.length > 0 && (
+                    {showTourDropdown && (
+                      tourSearchQuery.length > 0 ? filteredTours.length > 0 : tours.filter(tour => 
+                        !form.getValues("selectedTourIds")?.includes(tour.id)
+                      ).length > 0
+                    ) && (
                       <div className="absolute z-10 w-full mt-1 max-h-60 overflow-auto bg-white border rounded-md shadow-lg">
-                        {filteredTours.map((tour) => (
+                        {(tourSearchQuery.length > 0 ? filteredTours : tours.filter(tour => 
+                          !form.getValues("selectedTourIds")?.includes(tour.id)
+                        )).map((tour) => (
                           <div
                             key={tour.id}
                             className="px-4 py-3 cursor-pointer hover:bg-zinc-100 border-b last:border-b-0"

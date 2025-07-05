@@ -2107,11 +2107,15 @@ export function PackageCreatorForm({ packageId }: PackageCreatorFormProps) {
                 <div className="flex items-center relative">
                   <Input
                     type="text"
-                    placeholder="Search for tours by name or click to view recent"
+                    placeholder="Search for tours by name or double-click to view all tours"
                     value={tourSearchQuery}
                     onChange={(e) => setTourSearchQuery(e.target.value)}
                     onFocus={() => setShowTourDropdown(true)}
                     onClick={() => setShowTourDropdown(true)}
+                    onDoubleClick={() => {
+                      setTourSearchQuery("");
+                      setShowTourDropdown(true);
+                    }}
                     className="pr-10"
                   />
                   <Search className="w-4 h-4 absolute right-3 text-gray-500" />
