@@ -411,6 +411,7 @@ const PackagesSearchResults: React.FC = () => {
                         <BookPackageButton package={pkg} />
                       </div>
                     </div>
+                    </div>
                   </div>
                 </Card>
               ))}

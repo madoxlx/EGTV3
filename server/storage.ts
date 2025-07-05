@@ -8,6 +8,9 @@ import {
   cities,
   City,
   InsertCity,
+  airports,
+  Airport,
+  InsertAirport,
   destinations,
   Destination,
   InsertDestination,
@@ -57,11 +60,19 @@ export interface IStorage {
   getCountry(id: number): Promise<Country | undefined>;
   listCountries(active?: boolean): Promise<Country[]>;
   createCountry(country: InsertCountry): Promise<Country>;
+  updateCountry(id: number, country: Partial<InsertCountry>): Promise<Country | undefined>;
 
   // Cities
   getCity(id: number): Promise<City | undefined>;
   listCities(countryId?: number, active?: boolean): Promise<City[]>;
   createCity(city: InsertCity): Promise<City>;
+
+  // Airports
+  getAirport(id: number): Promise<Airport | undefined>;
+  listAirports(active?: boolean): Promise<Airport[]>;
+  createAirport(airport: InsertAirport): Promise<Airport>;
+  updateAirport(id: number, airport: Partial<InsertAirport>): Promise<Airport | undefined>;
+  deleteAirport(id: number): Promise<boolean>;
 
   // Destinations
   getDestination(id: number): Promise<Destination | undefined>;
@@ -264,6 +275,20 @@ export class DatabaseStorage implements IStorage {
     return created;
   }
 
+  async updateCountry(id: number, country: Partial<InsertCountry>): Promise<Country | undefined> {
+    try {
+      const [updated] = await db
+        .update(countries)
+        .set(country)
+        .where(eq(countries.id, id))
+        .returning();
+      return updated || undefined;
+    } catch (error) {
+      console.error("Error updating country:", error);
+      return undefined;
+    }
+  }
+
   // Cities
   async getCity(id: number): Promise<City | undefined> {
     try {
@@ -302,6 +327,62 @@ export class DatabaseStorage implements IStorage {
   async createCity(city: InsertCity): Promise<City> {
     const [created] = await db.insert(cities).values(city).returning();
     return created;
+  }
+
+  // Airports
+  async getAirport(id: number): Promise<Airport | undefined> {
+    try {
+      const [airport] = await db.select().from(airports).where(eq(airports.id, id));
+      return airport || undefined;
+    } catch (error) {
+      console.error("Error getting airport:", error);
+      return undefined;
+    }
+  }
+
+  async listAirports(active?: boolean): Promise<Airport[]> {
+    try {
+      if (active !== undefined) {
+        return await db
+          .select()
+          .from(airports)
+          .where(eq(airports.active, active))
+          .orderBy(asc(airports.name));
+      }
+      return await db.select().from(airports).orderBy(asc(airports.name));
+    } catch (error) {
+      console.error("Error listing airports:", error);
+      return [];
+    }
+  }
+
+  async createAirport(airport: InsertAirport): Promise<Airport> {
+    const [created] = await db.insert(airports).values(airport).returning();
+    return created;
+  }
+
+  async updateAirport(id: number, airport: Partial<InsertAirport>): Promise<Airport | undefined> {
+    try {
+      const [updated] = await db
+        .update(airports)
+        .set(airport)
+        .where(eq(airports.id, id))
+        .returning();
+      return updated || undefined;
+    } catch (error) {
+      console.error("Error updating airport:", error);
+      return undefined;
+    }
+  }
+
+  async deleteAirport(id: number): Promise<boolean> {
+    try {
+      const result = await db.delete(airports).where(eq(airports.id, id));
+      return result.rowCount !== null && result.rowCount > 0;
+    } catch (error) {
+      console.error("Error deleting airport:", error);
+      return false;
+    }
   }
 
   // Destinations
