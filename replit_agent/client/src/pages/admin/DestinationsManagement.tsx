@@ -180,10 +180,10 @@ export default function DestinationsManagement() {
     },
   });
 
-  // Update Destination Mutation
+  // Update Destination Mutation - using alternative endpoint to bypass Vite middleware
   const updateDestinationMutation = useMutation({
     mutationFn: async ({ id, data }: { id: number; data: DestinationFormValues }) => {
-      const response = await fetch(`/api/admin/destinations/${id}`, {
+      const response = await fetch(`/api-admin/destinations/${id}`, {
         method: 'PUT',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(data),

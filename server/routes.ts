@@ -2045,8 +2045,36 @@ export async function registerRoutes(app: Express): Promise<Server> {
       const updateData = insertDestinationSchema.parse(req.body);
       
       // Perform the update operation
-      // Note: For this to work, you need to add the updateDestination method to your storage interface
-      // This is a placeholder - the actual implementation depends on your storage
+      const updatedDestination = await storage.updateDestination(id, updateData);
+      
+      res.json(updatedDestination);
+    } catch (error) {
+      if (error instanceof z.ZodError) {
+        return res.status(400).json({ message: 'Invalid destination data', errors: error.errors });
+      }
+      console.error('Error updating destination:', error);
+      res.status(500).json({ message: 'Failed to update destination' });
+    }
+  });
+
+  // Alternative endpoint to bypass Vite middleware interception
+  app.put('/api-admin/destinations/:id', isAdmin, async (req, res) => {
+    try {
+      const id = parseInt(req.params.id);
+      if (isNaN(id)) {
+        return res.status(400).json({ message: 'Invalid destination ID' });
+      }
+
+      // Verify destination exists
+      const existingDestination = await storage.getDestination(id);
+      if (!existingDestination) {
+        return res.status(404).json({ message: 'Destination not found' });
+      }
+
+      // Parse and validate the update data
+      const updateData = insertDestinationSchema.parse(req.body);
+      
+      // Perform the update operation
       const updatedDestination = await storage.updateDestination(id, updateData);
       
       res.json(updatedDestination);
