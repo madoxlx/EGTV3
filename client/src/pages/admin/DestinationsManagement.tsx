@@ -54,7 +54,7 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
 import { z } from "zod";
 import { Plus, Search, Edit, Trash2, Loader2, MapPin, GlobeIcon, AlertCircle } from "lucide-react";
-import { queryClient } from "@/lib/queryClient";
+import { queryClient, apiRequest } from "@/lib/queryClient";
 import { validateForm, validateRequiredFields } from "@/lib/validateForm";
 import { FormRequiredFieldsNote, FormValidationAlert } from "@/components/dashboard/FormValidationAlert";
 
@@ -183,21 +183,13 @@ export default function DestinationsManagement() {
     },
   });
 
-  // Update Destination Mutation - using alternative endpoint to bypass Vite middleware
+  // Update Destination Mutation - using apiRequest with alternative endpoint
   const updateDestinationMutation = useMutation({
     mutationFn: async ({ id, data }: { id: number; data: DestinationFormValues }) => {
-      const response = await fetch(`/api-admin/destinations/${id}`, {
+      return await apiRequest(`/api-admin/destinations/${id}`, {
         method: 'PUT',
-        headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(data),
       });
-      
-      if (!response.ok) {
-        const errorData = await response.json();
-        throw new Error(errorData.message || 'Failed to update destination');
-      }
-      
-      return response.json();
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['/api/destinations'] });
