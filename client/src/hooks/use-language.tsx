@@ -65,7 +65,7 @@ export const LanguageProvider: React.FC<{ children: ReactNode }> = ({ children }
     isLoading: translationsLoading 
   } = useQuery({ 
     queryKey: ['translations'], 
-    queryFn: () => apiRequest<Translation[]>('GET', '/api/translations'), 
+    queryFn: () => apiRequest<Translation[]>('/api/translations'), 
   });
 
   // Fetch language settings
@@ -74,7 +74,7 @@ export const LanguageProvider: React.FC<{ children: ReactNode }> = ({ children }
     isLoading: settingsLoading 
   } = useQuery({ 
     queryKey: ['languageSettings'], 
-    queryFn: () => apiRequest<LanguageSettings>('GET', '/api/translations/settings'), 
+    queryFn: () => apiRequest<LanguageSettings>('/api/translations/settings'), 
   });
 
   // Set language and save to localStorage

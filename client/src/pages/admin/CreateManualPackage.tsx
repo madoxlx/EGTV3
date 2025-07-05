@@ -8,7 +8,7 @@ import {
 import { Button } from "@/components/ui/button";
 import { MultiHotelManualPackageForm } from "@/components/dashboard/MultiHotelManualPackageForm";
 import { ArrowLeft, Home, Package, Plus, Hotel } from "lucide-react";
-import { useLanguage } from "@/hooks/useLanguage";
+import { useLanguage } from "@/hooks/use-language";
 
 export default function CreateManualPackage() {
   const { t } = useLanguage();
