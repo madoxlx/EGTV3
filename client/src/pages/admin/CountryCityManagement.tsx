@@ -1736,24 +1736,11 @@ export default function CountryCityManagement() {
                           </FormItem>
                         )}
                       />
-                      <FormField
-                        control={countryForm.control}
+                      <ImageField
+                        form={countryForm}
                         name="imageUrl"
-                        render={({ field }) => (
-                          <FormItem>
-                            <FormLabel>Image URL</FormLabel>
-                            <FormControl>
-                              <Input
-                                placeholder="https://example.com/image.jpg"
-                                {...field}
-                              />
-                            </FormControl>
-                            <FormDescription>
-                              URL to an image representing the country
-                            </FormDescription>
-                            <FormMessage />
-                          </FormItem>
-                        )}
+                        label="Country Image"
+                        description="URL to an image representing the country or upload a photo"
                       />
                       <FormField
                         control={countryForm.control}
