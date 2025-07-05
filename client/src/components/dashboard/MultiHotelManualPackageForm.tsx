@@ -27,18 +27,49 @@ import {
 import { Switch } from "@/components/ui/switch";
 import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger } from "@/components/ui/alert-dialog";
-import { ImagePlus, Loader2, Plus, Trash, Star, X, Edit, PlusCircle, Hotel, Building, Save } from "lucide-react";
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+  AlertDialogTrigger,
+} from "@/components/ui/alert-dialog";
+import {
+  ImagePlus,
+  Loader2,
+  Plus,
+  Trash,
+  Star,
+  X,
+  Edit,
+  PlusCircle,
+  Hotel,
+  Building,
+  Save,
+} from "lucide-react";
 import { cn } from "@/lib/utils";
 import { useToast } from "@/hooks/use-toast";
 import { queryClient } from "@/lib/queryClient";
-import { validateForm, validateRequiredFields, validateNumericFields } from "@/lib/validateForm";
-import { FormRequiredFieldsNote, FormValidationAlert } from "@/components/dashboard/FormValidationAlert";
+import {
+  validateForm,
+  validateRequiredFields,
+  validateNumericFields,
+} from "@/lib/validateForm";
+import {
+  FormRequiredFieldsNote,
+  FormValidationAlert,
+} from "@/components/dashboard/FormValidationAlert";
 
 // Define the hotel entry schema
 const hotelEntrySchema = z.object({
   id: z.string().optional(),
-  name: z.string().min(2, { message: "Hotel name must be at least 2 characters" }),
+  name: z
+    .string()
+    .min(2, { message: "Hotel name must be at least 2 characters" }),
   stars: z.coerce.number().min(1).max(5),
   roomType: z.string().optional(),
   pricePerNight: z.coerce.number().optional(),
@@ -46,23 +77,43 @@ const hotelEntrySchema = z.object({
 
 // Validation schema for manual package form
 const manualPackageFormSchema = z.object({
-  title: z.string().min(3, { message: "Package title must be at least 3 characters" }),
-  description: z.string().min(10, { message: "Description must be at least 10 characters" }),
-  price: z.coerce.number().positive({ message: "Price must be a positive number" }),
+  title: z
+    .string()
+    .min(3, { message: "Package title must be at least 3 characters" }),
+  description: z
+    .string()
+    .min(10, { message: "Description must be at least 10 characters" }),
+  price: z.coerce
+    .number()
+    .positive({ message: "Price must be a positive number" }),
   discountedPrice: z.coerce.number().optional(),
   discountType: z.enum(["percentage", "fixed"]).optional(),
   discountValue: z.coerce.number().optional(),
   markup: z.coerce.number().optional(),
-  hotels: z.array(hotelEntrySchema).min(1, { message: "At least one hotel is required" }),
-  transportationDetails: z.string().min(3, { message: "Transportation details must be at least 3 characters" }),
-  tourDetails: z.string().min(3, { message: "Tour details must be at least 3 characters" }),
-  duration: z.coerce.number().positive({ message: "Duration must be a positive number" }),
-  destinationId: z.coerce.number({ required_error: "Please select a destination" }),
+  hotels: z
+    .array(hotelEntrySchema)
+    .min(1, { message: "At least one hotel is required" }),
+  transportationDetails: z
+    .string()
+    .min(3, {
+      message: "Transportation details must be at least 3 characters",
+    }),
+  tourDetails: z
+    .string()
+    .min(3, { message: "Tour details must be at least 3 characters" }),
+  duration: z.coerce
+    .number()
+    .positive({ message: "Duration must be a positive number" }),
+  destinationId: z.coerce.number({
+    required_error: "Please select a destination",
+  }),
   countryId: z.coerce.number().optional(),
   cityId: z.coerce.number().optional(),
   categoryId: z.coerce.number({ required_error: "Please select a category" }),
   featured: z.boolean().default(false),
-  inclusions: z.array(z.string()).min(1, { message: "At least one inclusion is required" }),
+  inclusions: z
+    .array(z.string())
+    .min(1, { message: "At least one inclusion is required" }),
   excludedItems: z.array(z.string()).optional(),
   cancellationPolicy: z.string().optional(),
   childrenPolicy: z.string().optional(),
@@ -75,31 +126,47 @@ export function MultiHotelManualPackageForm() {
   const { toast } = useToast();
   const { t } = useLanguage();
   const [_, navigate] = useLocation();
-  const [images, setImages] = useState<{ id: string; file: File | null; preview: string; isMain: boolean }[]>([]);
+  const [images, setImages] = useState<
+    { id: string; file: File | null; preview: string; isMain: boolean }[]
+  >([]);
   const [newHotelName, setNewHotelName] = useState("");
   const [newInclusion, setNewInclusion] = useState("");
   const [newExcludedItem, setNewExcludedItem] = useState("");
-  const [editingHotelIndex, setEditingHotelIndex] = useState<number | null>(null);
+  const [editingHotelIndex, setEditingHotelIndex] = useState<number | null>(
+    null,
+  );
   const [showConfirmDialog, setShowConfirmDialog] = useState(false);
-  const [pendingNavigation, setPendingNavigation] = useState<string | null>(null);
+  const [pendingNavigation, setPendingNavigation] = useState<string | null>(
+    null,
+  );
   const [isDraft, setIsDraft] = useState(false);
   const [selectedCountry, setSelectedCountry] = useState<number | null>(null);
   const [selectedCity, setSelectedCity] = useState<number | null>(null);
-  
+
   // Used for autocomplete suggestion functionality
   const [hotelSuggestions, setHotelSuggestions] = useState<string[]>([]);
-  const [transportationSuggestions, setTransportationSuggestions] = useState<string[]>([]);
+  const [transportationSuggestions, setTransportationSuggestions] = useState<
+    string[]
+  >([]);
   const [tourSuggestions, setTourSuggestions] = useState<string[]>([]);
-  const [inclusionSuggestions, setInclusionSuggestions] = useState<string[]>([]);
+  const [inclusionSuggestions, setInclusionSuggestions] = useState<string[]>(
+    [],
+  );
   const [roomTypeSuggestions, setRoomTypeSuggestions] = useState<string[]>([
-    "Standard Room", "Deluxe Room", "Suite", "Executive Suite", "Family Room"
+    "Standard Room",
+    "Deluxe Room",
+    "Suite",
+    "Executive Suite",
+    "Family Room",
   ]);
-  
+
   // Control displaying the suggestion dropdowns
   const [showHotelSuggestions, setShowHotelSuggestions] = useState(false);
-  const [showTransportationSuggestions, setShowTransportationSuggestions] = useState(false);
+  const [showTransportationSuggestions, setShowTransportationSuggestions] =
+    useState(false);
   const [showTourSuggestions, setShowTourSuggestions] = useState(false);
-  const [showInclusionSuggestions, setShowInclusionSuggestions] = useState(false);
+  const [showInclusionSuggestions, setShowInclusionSuggestions] =
+    useState(false);
 
   // Dialog state for adding/editing hotels
   const [isHotelDialogOpen, setIsHotelDialogOpen] = useState(false);
@@ -107,36 +174,36 @@ export function MultiHotelManualPackageForm() {
     name: "",
     stars: 3,
     roomType: "",
-    pricePerNight: undefined as number | undefined
+    pricePerNight: undefined as number | undefined,
   });
 
   // Fetch destinations for the dropdown
   const { data: destinations = [] } = useQuery<any[]>({
-    queryKey: ['/api/destinations'],
+    queryKey: ["/api/destinations"],
   });
 
   // Fetch package categories for the dropdown
   const { data: packageCategories = [] } = useQuery<any[]>({
-    queryKey: ['/api/package-categories'],
+    queryKey: ["/api/package-categories"],
   });
 
   // Fetch existing packages to extract suggestions
   const { data: packages = [] } = useQuery<any[]>({
-    queryKey: ['/api/packages'],
+    queryKey: ["/api/packages"],
   });
-  
+
   // Fetch hotels for the hotel name suggestions
   const { data: hotels = [] } = useQuery<any[]>({
-    queryKey: ['/api/admin/hotels'],
+    queryKey: ["/api/admin/hotels"],
   });
 
   // Fetch countries and cities for location selection
   const { data: countries = [] } = useQuery<any[]>({
-    queryKey: ['/api/countries'],
+    queryKey: ["/api/countries"],
   });
 
   const { data: cities = [] } = useQuery<any[]>({
-    queryKey: ['/api/cities'],
+    queryKey: ["/api/cities"],
   });
 
   const form = useForm<ManualPackageFormValues>({
@@ -167,7 +234,12 @@ export function MultiHotelManualPackageForm() {
   });
 
   // Setup field array for hotels
-  const { fields: hotelFields, append: appendHotel, remove: removeHotel, update: updateHotel } = useFieldArray({
+  const {
+    fields: hotelFields,
+    append: appendHotel,
+    remove: removeHotel,
+    update: updateHotel,
+  } = useFieldArray({
     control: form.control,
     name: "hotels",
   });
@@ -179,7 +251,7 @@ export function MultiHotelManualPackageForm() {
     const types = new Set<string>();
     const inclusions = new Set<string>();
 
-    // Add hotel names from the hotel database 
+    // Add hotel names from the hotel database
     if (hotels && hotels.length > 0) {
       hotels.forEach((hotel: any) => {
         if (hotel.name) {
@@ -217,7 +289,7 @@ export function MultiHotelManualPackageForm() {
       "Airport shuttle",
       "Luxury vehicle",
       "Group bus tour",
-      "Private SUV with driver"
+      "Private SUV with driver",
     ]);
 
     const tours = new Set<string>([
@@ -225,7 +297,7 @@ export function MultiHotelManualPackageForm() {
       "Museum visit with expert",
       "Nile dinner cruise",
       "Desert safari experience",
-      "Historical sites tour"
+      "Historical sites tour",
     ]);
 
     // Update state with suggestions
@@ -239,25 +311,31 @@ export function MultiHotelManualPackageForm() {
   const createManualPackageMutation = useMutation({
     mutationFn: async (formData: ManualPackageFormValues) => {
       // Get the main image URL (or a default if none is set)
-      const mainImage = images.find(img => img.isMain);
-      const mainImageUrl = mainImage ? mainImage.preview : "https://images.unsplash.com/photo-1540541338287-41700207dee6?q=80&w=800";
-      
+      const mainImage = images.find((img) => img.isMain);
+      const mainImageUrl = mainImage
+        ? mainImage.preview
+        : "https://images.unsplash.com/photo-1540541338287-41700207dee6?q=80&w=800";
+
       // Get all gallery image URLs
-      const galleryUrls = images.map(img => img.preview);
-      
+      const galleryUrls = images.map((img) => img.preview);
+
       // Build a more detailed description that includes all hotels
-      const hotelsText = formData.hotels.map(hotel => 
-        `${hotel.name} (${hotel.stars}★)${hotel.roomType ? ' - ' + hotel.roomType : ''}${hotel.pricePerNight ? ' - $' + hotel.pricePerNight + '/night' : ''}`
-      ).join('\n');
-      
+      const hotelsText = formData.hotels
+        .map(
+          (hotel) =>
+            `${hotel.name} (${hotel.stars}★)${hotel.roomType ? " - " + hotel.roomType : ""}${hotel.pricePerNight ? " - $" + hotel.pricePerNight + "/night" : ""}`,
+        )
+        .join("\n");
+
       const enhancedDescription = `${formData.description}\n\nHotels:\n${hotelsText}\n\nTransportation: ${formData.transportationDetails}\n\nTour: ${formData.tourDetails}`;
-      
+
       // Transform the form data to match the API schema
       const packageData = {
-        title: 'MANUAL:' + formData.title, // Prefix with MANUAL: to identify manual packages
+        title: "MANUAL:" + formData.title, // Prefix with MANUAL: to identify manual packages
         description: enhancedDescription,
         price: formData.price,
-        discountedPrice: formData.discountedPrice || Math.round(formData.price * 0.9), // Use provided discounted price or 10% off
+        discountedPrice:
+          formData.discountedPrice || Math.round(formData.price * 0.9), // Use provided discounted price or 10% off
         imageUrl: mainImageUrl,
         galleryUrls: galleryUrls,
         duration: formData.duration,
@@ -273,32 +351,32 @@ export function MultiHotelManualPackageForm() {
         discountType: formData.discountType,
         discountValue: formData.discountValue,
         countryId: formData.countryId,
-        cityId: formData.cityId
+        cityId: formData.cityId,
       };
-      
-      const response = await fetch('/api/admin/packages', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
+
+      const response = await fetch("/api/admin/packages", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
         body: JSON.stringify(packageData),
       });
-      
+
       if (!response.ok) {
         const errorData = await response.json();
-        throw new Error(errorData.message || 'Failed to create package');
+        throw new Error(errorData.message || "Failed to create package");
       }
-      
+
       return await response.json();
     },
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['/api/packages'] });
-      
+      queryClient.invalidateQueries({ queryKey: ["/api/packages"] });
+
       // Show success message
       toast({
         title: "Manual Package Created",
         description: "The manual package was created successfully",
         variant: "default",
       });
-      
+
       // Reset form and state
       form.reset();
       setImages([]);
@@ -323,36 +401,43 @@ export function MultiHotelManualPackageForm() {
       });
       return;
     }
-    
+
     // Validation
     const requiredFieldsValid = validateRequiredFields(
       data,
-      ['title', 'description', 'price', 'transportationDetails', 'tourDetails', 'duration', 'destinationId', 'categoryId', 'type'],
-      {
-        title: 'Package Title',
-        description: 'Description',
-        price: 'Price',
-        transportationDetails: 'Transportation Details',
-        tourDetails: 'Tour Details',
-        duration: 'Duration',
-        destinationId: 'Destination',
-        categoryId: 'Package Category',
-        type: 'Package Type'
-      }
-    );
-    
-    if (!requiredFieldsValid) return;
-    
-    // Numeric fields validation
-    const numericFieldsValid = validateNumericFields(
-      data,
       [
-        { field: 'price', label: 'Price', min: 0.01 },
-        { field: 'discountedPrice', label: 'Discounted Price', min: 0 },
-        { field: 'duration', label: 'Duration', min: 1, integer: true }
-      ]
+        "title",
+        "description",
+        "price",
+        "transportationDetails",
+        "tourDetails",
+        "duration",
+        "destinationId",
+        "categoryId",
+        "type",
+      ],
+      {
+        title: "Package Title",
+        description: "Description",
+        price: "Price",
+        transportationDetails: "Transportation Details",
+        tourDetails: "Tour Details",
+        duration: "Duration",
+        destinationId: "Destination",
+        categoryId: "Package Category",
+        type: "Package Type",
+      },
     );
-    
+
+    if (!requiredFieldsValid) return;
+
+    // Numeric fields validation
+    const numericFieldsValid = validateNumericFields(data, [
+      { field: "price", label: "Price", min: 0.01 },
+      { field: "discountedPrice", label: "Discounted Price", min: 0 },
+      { field: "duration", label: "Duration", min: 1, integer: true },
+    ]);
+
     if (!numericFieldsValid) return;
 
     // Custom validations
@@ -361,14 +446,14 @@ export function MultiHotelManualPackageForm() {
         condition: data.inclusions.length === 0,
         errorMessage: {
           title: "No Inclusions Added",
-          description: "Please add at least one inclusion for the package"
+          description: "Please add at least one inclusion for the package",
         },
-        variant: "destructive"
-      }
+        variant: "destructive",
+      },
     ]);
-    
+
     if (!customValidationsValid) return;
-    
+
     // All validations passed, proceed with submission
     createManualPackageMutation.mutate(data);
   };
@@ -380,7 +465,7 @@ export function MultiHotelManualPackageForm() {
       name: "",
       stars: 3,
       roomType: "",
-      pricePerNight: undefined
+      pricePerNight: undefined,
     });
     setIsHotelDialogOpen(true);
   };
@@ -392,15 +477,15 @@ export function MultiHotelManualPackageForm() {
       name: hotel.name,
       stars: hotel.stars,
       roomType: hotel.roomType || "",
-      pricePerNight: hotel.pricePerNight
+      pricePerNight: hotel.pricePerNight,
     });
     setIsHotelDialogOpen(true);
   };
 
   const handleHotelFormChange = (field: string, value: any) => {
-    setHotelFormData(prev => ({
+    setHotelFormData((prev) => ({
       ...prev,
-      [field]: value
+      [field]: value,
     }));
   };
 
@@ -420,7 +505,7 @@ export function MultiHotelManualPackageForm() {
       name: hotelFormData.name,
       stars: hotelFormData.stars,
       roomType: hotelFormData.roomType || undefined,
-      pricePerNight: hotelFormData.pricePerNight
+      pricePerNight: hotelFormData.pricePerNight,
     };
 
     if (editingHotelIndex !== null) {
@@ -440,39 +525,39 @@ export function MultiHotelManualPackageForm() {
   const handleImageUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
     if (e.target.files && e.target.files.length > 0) {
       const file = e.target.files[0];
-      
+
       // Create URL for preview
       const preview = URL.createObjectURL(file);
-      
+
       // Set as main image if this is the first image
       const isFirstImage = images.length === 0;
-      
+
       // Add to images array with the isMain property
       const newImage = {
         id: Math.random().toString(36).substring(7),
         file: file,
         preview: preview,
-        isMain: isFirstImage
+        isMain: isFirstImage,
       };
-      
-      setImages(prev => [...prev, newImage]);
-      
+
+      setImages((prev) => [...prev, newImage]);
+
       // Reset file input
       if (fileInputRef.current) {
-        fileInputRef.current.value = '';
+        fileInputRef.current.value = "";
       }
     }
   };
-  
+
   const setMainImage = (id: string) => {
-    setImages(prev => 
-      prev.map(image => ({
+    setImages((prev) =>
+      prev.map((image) => ({
         ...image,
-        isMain: image.id === id
-      }))
+        isMain: image.id === id,
+      })),
     );
   };
-  
+
   const addImage = () => {
     // Trigger the hidden file input
     if (fileInputRef.current) {
@@ -482,30 +567,37 @@ export function MultiHotelManualPackageForm() {
 
   const removeImage = (id: string) => {
     // Find the image to remove
-    const imageToRemove = images.find(img => img.id === id);
+    const imageToRemove = images.find((img) => img.id === id);
     const wasMainImage = imageToRemove?.isMain || false;
-    
+
     // Revoke object URL to prevent memory leaks
-    if (imageToRemove && imageToRemove.preview && !imageToRemove.preview.startsWith('https://')) {
+    if (
+      imageToRemove &&
+      imageToRemove.preview &&
+      !imageToRemove.preview.startsWith("https://")
+    ) {
       URL.revokeObjectURL(imageToRemove.preview);
     }
-    
+
     // Remove from state
-    const newImages = images.filter(img => img.id !== id);
-    
+    const newImages = images.filter((img) => img.id !== id);
+
     // If removed image was the main image, set a new main image
     if (wasMainImage && newImages.length > 0) {
       newImages[0].isMain = true;
     }
-    
+
     setImages(newImages);
   };
 
   // Handle adding a new inclusion
   const addInclusion = () => {
     if (!newInclusion.trim()) return;
-    
-    form.setValue("inclusions", [...form.getValues("inclusions"), newInclusion]);
+
+    form.setValue("inclusions", [
+      ...form.getValues("inclusions"),
+      newInclusion,
+    ]);
     setNewInclusion("");
     setShowInclusionSuggestions(false);
   };
@@ -513,14 +605,20 @@ export function MultiHotelManualPackageForm() {
   // Handle removing an inclusion
   const removeInclusion = (index: number) => {
     const currentInclusions = form.getValues("inclusions");
-    form.setValue("inclusions", currentInclusions.filter((_, i) => i !== index));
+    form.setValue(
+      "inclusions",
+      currentInclusions.filter((_, i) => i !== index),
+    );
   };
 
   // Handle adding excluded items
   const addExcludedItem = () => {
     if (newExcludedItem.trim()) {
       const currentExcluded = form.getValues("excludedItems") || [];
-      form.setValue("excludedItems", [...currentExcluded, newExcludedItem.trim()]);
+      form.setValue("excludedItems", [
+        ...currentExcluded,
+        newExcludedItem.trim(),
+      ]);
       setNewExcludedItem("");
     }
   };
@@ -528,15 +626,20 @@ export function MultiHotelManualPackageForm() {
   // Handle removing an excluded item
   const removeExcludedItem = (index: number) => {
     const currentExcluded = form.getValues("excludedItems") || [];
-    form.setValue("excludedItems", currentExcluded.filter((_, i) => i !== index));
+    form.setValue(
+      "excludedItems",
+      currentExcluded.filter((_, i) => i !== index),
+    );
   };
 
   // Handle destination change to automatically set country and city
   const handleDestinationChange = (destinationId: number) => {
     form.setValue("destinationId", destinationId);
-    
+
     // Find the selected destination
-    const selectedDestination = destinations.find(dest => dest.id === destinationId);
+    const selectedDestination = destinations.find(
+      (dest) => dest.id === destinationId,
+    );
     if (selectedDestination) {
       // Auto-populate country and city if available
       if (selectedDestination.countryId) {
@@ -554,21 +657,25 @@ export function MultiHotelManualPackageForm() {
   const filterSuggestions = (input: string, suggestions: string[]) => {
     if (!input) return suggestions;
     const lowerInput = input.toLowerCase();
-    return suggestions.filter(suggestion => 
-      suggestion.toLowerCase().includes(lowerInput)
+    return suggestions.filter((suggestion) =>
+      suggestion.toLowerCase().includes(lowerInput),
     );
   };
 
   // Autocomplete handlers
-  const handleNewHotelInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+  const handleNewHotelInputChange = (
+    e: React.ChangeEvent<HTMLInputElement>,
+  ) => {
     const value = e.target.value;
-    setHotelFormData(prev => ({ ...prev, name: value }));
+    setHotelFormData((prev) => ({ ...prev, name: value }));
     setShowHotelSuggestions(value.length >= 2);
   };
 
   // Removed type field as requested by user
 
-  const handleTransportationInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+  const handleTransportationInputChange = (
+    e: React.ChangeEvent<HTMLInputElement>,
+  ) => {
     const value = e.target.value;
     form.setValue("transportationDetails", value);
     setShowTransportationSuggestions(value.length >= 3);
@@ -580,7 +687,9 @@ export function MultiHotelManualPackageForm() {
     setShowTourSuggestions(value.length >= 3);
   };
 
-  const handleInclusionInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+  const handleInclusionInputChange = (
+    e: React.ChangeEvent<HTMLInputElement>,
+  ) => {
     const value = e.target.value;
     setNewInclusion(value);
     setShowInclusionSuggestions(value.length >= 2);
@@ -589,7 +698,7 @@ export function MultiHotelManualPackageForm() {
   // Click outside handlers to close suggestion dropdowns
   useEffect(() => {
     const handleClickOutside = (e: MouseEvent) => {
-      if (!(e.target as Element).closest('.suggestion-dropdown')) {
+      if (!(e.target as Element).closest(".suggestion-dropdown")) {
         setShowHotelSuggestions(false);
         setShowTransportationSuggestions(false);
         setShowTourSuggestions(false);
@@ -597,9 +706,9 @@ export function MultiHotelManualPackageForm() {
       }
     };
 
-    document.addEventListener('mousedown', handleClickOutside);
+    document.addEventListener("mousedown", handleClickOutside);
     return () => {
-      document.removeEventListener('mousedown', handleClickOutside);
+      document.removeEventListener("mousedown", handleClickOutside);
     };
   }, []);
 
@@ -623,40 +732,48 @@ export function MultiHotelManualPackageForm() {
             <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
               {/* Left Column - Basic Information */}
               <div className="space-y-6">
-                <h2 className="text-lg font-semibold border-b pb-2">Basic Information</h2>
-                
+                <h2 className="text-lg font-semibold border-b pb-2">
+                  Basic Information
+                </h2>
+
                 <FormField
                   control={form.control}
                   name="title"
                   render={({ field }) => (
                     <FormItem>
-                      <FormLabel>Package Title <span className="text-destructive">*</span></FormLabel>
+                      <FormLabel>
+                        Package Title{" "}
+                        <span className="text-destructive">*</span>
+                      </FormLabel>
                       <FormControl>
-                        <Input 
-                          placeholder="e.g., Luxor & Cairo Historical Tour" 
-                          {...field} 
+                        <Input
+                          placeholder="e.g., Luxor & Cairo Historical Tour"
+                          {...field}
                         />
                       </FormControl>
                       <FormMessage />
                     </FormItem>
                   )}
                 />
-                
+
                 <FormField
                   control={form.control}
                   name="description"
                   render={({ field }) => (
                     <FormItem>
-                      <FormLabel>Description <span className="text-destructive">*</span></FormLabel>
+                      <FormLabel>
+                        Description <span className="text-destructive">*</span>
+                      </FormLabel>
                       <FormControl>
-                        <Textarea 
-                          placeholder="Enter package description..." 
-                          rows={5}
-                          {...field} 
+                        <Textarea
+                          placeholder="Enter package description..."
+                          rows={18}
+                          {...field}
                         />
                       </FormControl>
                       <FormDescription>
-                        Provide a detailed description of the package, including key highlights
+                        Provide a detailed description of the package, including
+                        key highlights
                       </FormDescription>
                       <FormMessage />
                     </FormItem>
@@ -669,19 +786,22 @@ export function MultiHotelManualPackageForm() {
                     name="price"
                     render={({ field }) => (
                       <FormItem>
-                        <FormLabel>Price (EGP) <span className="text-destructive">*</span></FormLabel>
+                        <FormLabel>
+                          Price (EGP){" "}
+                          <span className="text-destructive">*</span>
+                        </FormLabel>
                         <FormControl>
-                          <Input 
-                            type="number" 
-                            placeholder="e.g., 1299" 
-                            {...field} 
+                          <Input
+                            type="number"
+                            placeholder="e.g., 1299"
+                            {...field}
                           />
                         </FormControl>
                         <FormMessage />
                       </FormItem>
                     )}
                   />
-                  
+
                   <FormField
                     control={form.control}
                     name="discountedPrice"
@@ -689,10 +809,10 @@ export function MultiHotelManualPackageForm() {
                       <FormItem>
                         <FormLabel>Discounted Price (EGP)</FormLabel>
                         <FormControl>
-                          <Input 
-                            type="number" 
-                            placeholder="e.g., 999" 
-                            {...field} 
+                          <Input
+                            type="number"
+                            placeholder="e.g., 999"
+                            {...field}
                           />
                         </FormControl>
                         <FormDescription>
@@ -713,41 +833,59 @@ export function MultiHotelManualPackageForm() {
                       render={({ field }) => (
                         <FormItem className="flex-1">
                           <FormLabel>Discount Type</FormLabel>
-                          <Select onValueChange={field.onChange} defaultValue={field.value}>
+                          <Select
+                            onValueChange={field.onChange}
+                            defaultValue={field.value}
+                          >
                             <FormControl>
                               <SelectTrigger>
                                 <SelectValue placeholder="Select discount type" />
                               </SelectTrigger>
                             </FormControl>
                             <SelectContent>
-                              <SelectItem value="percentage">Percentage (%)</SelectItem>
-                              <SelectItem value="fixed">Fixed Amount (EGP)</SelectItem>
+                              <SelectItem value="percentage">
+                                Percentage (%)
+                              </SelectItem>
+                              <SelectItem value="fixed">
+                                Fixed Amount (EGP)
+                              </SelectItem>
                             </SelectContent>
                           </Select>
                           <FormMessage />
                         </FormItem>
                       )}
                     />
-                    
+
                     <FormField
                       control={form.control}
                       name="discountValue"
                       render={({ field }) => (
                         <FormItem className="flex-1">
                           <FormLabel>
-                            Discount {form.watch("discountType") === "percentage" ? "(%)" : "(EGP)"}
+                            Discount{" "}
+                            {form.watch("discountType") === "percentage"
+                              ? "(%)"
+                              : "(EGP)"}
                           </FormLabel>
                           <FormControl>
-                            <Input 
-                              type="number" 
-                              placeholder={form.watch("discountType") === "percentage" ? "e.g., 15" : "e.g., 200"} 
+                            <Input
+                              type="number"
+                              placeholder={
+                                form.watch("discountType") === "percentage"
+                                  ? "e.g., 15"
+                                  : "e.g., 200"
+                              }
                               value={field.value || ""}
-                              onChange={(e) => field.onChange(e.target.value ? parseInt(e.target.value) : 0)}
+                              onChange={(e) =>
+                                field.onChange(
+                                  e.target.value ? parseInt(e.target.value) : 0,
+                                )
+                              }
                             />
                           </FormControl>
                           <FormDescription>
-                            {form.watch("discountType") === "percentage" 
-                              ? "Enter percentage (0-100)" 
+                            {form.watch("discountType") === "percentage"
+                              ? "Enter percentage (0-100)"
                               : "Enter fixed amount in EGP"}
                           </FormDescription>
                           <FormMessage />
@@ -764,10 +902,10 @@ export function MultiHotelManualPackageForm() {
                       <FormItem>
                         <FormLabel>Markup (EGP)</FormLabel>
                         <FormControl>
-                          <Input 
-                            type="number" 
-                            placeholder="e.g., 150" 
-                            {...field} 
+                          <Input
+                            type="number"
+                            placeholder="e.g., 150"
+                            {...field}
                           />
                         </FormControl>
                         <FormDescription>
@@ -785,27 +923,35 @@ export function MultiHotelManualPackageForm() {
                     name="duration"
                     render={({ field }) => (
                       <FormItem>
-                        <FormLabel>Duration (days) <span className="text-destructive">*</span></FormLabel>
+                        <FormLabel>
+                          Duration (days){" "}
+                          <span className="text-destructive">*</span>
+                        </FormLabel>
                         <FormControl>
-                          <Input 
-                            type="number" 
-                            placeholder="e.g., 7" 
-                            {...field} 
+                          <Input
+                            type="number"
+                            placeholder="e.g., 7"
+                            {...field}
                           />
                         </FormControl>
                         <FormMessage />
                       </FormItem>
                     )}
                   />
-                  
+
                   <FormField
                     control={form.control}
                     name="destinationId"
                     render={({ field }) => (
                       <FormItem>
-                        <FormLabel>Destination <span className="text-destructive">*</span></FormLabel>
-                        <Select 
-                          onValueChange={(value) => handleDestinationChange(parseInt(value))}
+                        <FormLabel>
+                          Destination{" "}
+                          <span className="text-destructive">*</span>
+                        </FormLabel>
+                        <Select
+                          onValueChange={(value) =>
+                            handleDestinationChange(parseInt(value))
+                          }
                           value={field.value?.toString()}
                         >
                           <FormControl>
@@ -815,7 +961,10 @@ export function MultiHotelManualPackageForm() {
                           </FormControl>
                           <SelectContent>
                             {destinations.map((dest: any) => (
-                              <SelectItem key={dest.id} value={dest.id.toString()}>
+                              <SelectItem
+                                key={dest.id}
+                                value={dest.id.toString()}
+                              >
                                 {dest.name}, {dest.country}
                               </SelectItem>
                             ))}
@@ -835,8 +984,10 @@ export function MultiHotelManualPackageForm() {
                     render={({ field }) => (
                       <FormItem>
                         <FormLabel>Country</FormLabel>
-                        <Select 
-                          onValueChange={(value) => field.onChange(parseInt(value))}
+                        <Select
+                          onValueChange={(value) =>
+                            field.onChange(parseInt(value))
+                          }
                           value={field.value?.toString()}
                         >
                           <FormControl>
@@ -846,7 +997,10 @@ export function MultiHotelManualPackageForm() {
                           </FormControl>
                           <SelectContent>
                             {countries.map((country) => (
-                              <SelectItem key={country.id} value={country.id.toString()}>
+                              <SelectItem
+                                key={country.id}
+                                value={country.id.toString()}
+                              >
                                 {country.name}
                               </SelectItem>
                             ))}
@@ -859,15 +1013,17 @@ export function MultiHotelManualPackageForm() {
                       </FormItem>
                     )}
                   />
-                  
+
                   <FormField
                     control={form.control}
                     name="cityId"
                     render={({ field }) => (
                       <FormItem>
                         <FormLabel>City</FormLabel>
-                        <Select 
-                          onValueChange={(value) => field.onChange(parseInt(value))}
+                        <Select
+                          onValueChange={(value) =>
+                            field.onChange(parseInt(value))
+                          }
                           value={field.value?.toString()}
                         >
                           <FormControl>
@@ -876,11 +1032,20 @@ export function MultiHotelManualPackageForm() {
                             </SelectTrigger>
                           </FormControl>
                           <SelectContent>
-                            {cities.filter(city => !selectedCountry || city.countryId === selectedCountry).map((city) => (
-                              <SelectItem key={city.id} value={city.id.toString()}>
-                                {city.name}
-                              </SelectItem>
-                            ))}
+                            {cities
+                              .filter(
+                                (city) =>
+                                  !selectedCountry ||
+                                  city.countryId === selectedCountry,
+                              )
+                              .map((city) => (
+                                <SelectItem
+                                  key={city.id}
+                                  value={city.id.toString()}
+                                >
+                                  {city.name}
+                                </SelectItem>
+                              ))}
                           </SelectContent>
                         </Select>
                         <FormDescription>
@@ -897,9 +1062,14 @@ export function MultiHotelManualPackageForm() {
                   name="categoryId"
                   render={({ field }) => (
                     <FormItem>
-                      <FormLabel>Package Category <span className="text-destructive">*</span></FormLabel>
-                      <Select 
-                        onValueChange={(value) => field.onChange(parseInt(value))}
+                      <FormLabel>
+                        Package Category{" "}
+                        <span className="text-destructive">*</span>
+                      </FormLabel>
+                      <Select
+                        onValueChange={(value) =>
+                          field.onChange(parseInt(value))
+                        }
                         defaultValue={field.value?.toString()}
                       >
                         <FormControl>
@@ -909,7 +1079,10 @@ export function MultiHotelManualPackageForm() {
                         </FormControl>
                         <SelectContent>
                           {packageCategories.map((category) => (
-                            <SelectItem key={category.id} value={category.id.toString()}>
+                            <SelectItem
+                              key={category.id}
+                              value={category.id.toString()}
+                            >
                               {category.name}
                             </SelectItem>
                           ))}
@@ -931,9 +1104,12 @@ export function MultiHotelManualPackageForm() {
                   render={({ field }) => (
                     <FormItem className="flex flex-row items-center justify-between rounded-lg border p-4">
                       <div className="space-y-0.5">
-                        <FormLabel className="text-base">Featured Package</FormLabel>
+                        <FormLabel className="text-base">
+                          Featured Package
+                        </FormLabel>
                         <FormDescription>
-                          Mark this package as featured to highlight it on the homepage
+                          Mark this package as featured to highlight it on the
+                          homepage
                         </FormDescription>
                       </div>
                       <FormControl>
@@ -949,13 +1125,17 @@ export function MultiHotelManualPackageForm() {
 
               {/* Right Column - Hotels, Details & Images */}
               <div className="space-y-6">
-                <h2 className="text-lg font-semibold border-b pb-2">Hotels & Details</h2>
-                
+                <h2 className="text-lg font-semibold border-b pb-2">
+                  Hotels & Details
+                </h2>
+
                 {/* Hotels Section */}
                 <div className="space-y-2">
                   <div className="flex justify-between items-center">
-                    <FormLabel>Hotels <span className="text-destructive">*</span></FormLabel>
-                    <Button 
+                    <FormLabel>
+                      Hotels <span className="text-destructive">*</span>
+                    </FormLabel>
+                    <Button
                       type="button"
                       variant="outline"
                       size="sm"
@@ -965,11 +1145,13 @@ export function MultiHotelManualPackageForm() {
                       Add Hotel
                     </Button>
                   </div>
-                  
+
                   {hotelFields.length === 0 ? (
                     <div className="text-center p-6 border border-dashed rounded-md">
                       <Hotel className="h-8 w-8 mx-auto text-muted-foreground mb-2" />
-                      <p className="text-sm text-muted-foreground mb-4">No hotels added yet</p>
+                      <p className="text-sm text-muted-foreground mb-4">
+                        No hotels added yet
+                      </p>
                       <Button
                         type="button"
                         onClick={openAddHotelDialog}
@@ -982,32 +1164,36 @@ export function MultiHotelManualPackageForm() {
                   ) : (
                     <div className="space-y-2">
                       {hotelFields.map((hotel, index) => (
-                        <div 
-                          key={hotel.id} 
+                        <div
+                          key={hotel.id}
                           className="p-3 border rounded-md flex justify-between items-center"
                         >
                           <div>
                             <h4 className="font-medium">{hotel.name}</h4>
                             <div className="flex text-sm text-muted-foreground gap-3">
-                              <span className="text-amber-500">{renderStars(hotel.stars)}</span>
+                              <span className="text-amber-500">
+                                {renderStars(hotel.stars)}
+                              </span>
                               {hotel.roomType && <span>{hotel.roomType}</span>}
-                              {hotel.pricePerNight && <span>${hotel.pricePerNight}/night</span>}
+                              {hotel.pricePerNight && (
+                                <span>${hotel.pricePerNight}/night</span>
+                              )}
                             </div>
                           </div>
                           <div className="flex gap-1">
-                            <Button 
-                              variant="ghost" 
-                              size="icon" 
-                              type="button" 
+                            <Button
+                              variant="ghost"
+                              size="icon"
+                              type="button"
                               onClick={() => openEditHotelDialog(index)}
                             >
                               <Edit className="h-4 w-4" />
                             </Button>
-                            <Button 
-                              variant="ghost" 
-                              size="icon" 
+                            <Button
+                              variant="ghost"
+                              size="icon"
                               type="button"
-                              className="text-destructive" 
+                              className="text-destructive"
                               onClick={() => removeHotel(index)}
                             >
                               <Trash className="h-4 w-4" />
@@ -1018,72 +1204,88 @@ export function MultiHotelManualPackageForm() {
                     </div>
                   )}
                 </div>
-                
+
                 <FormField
                   control={form.control}
                   name="transportationDetails"
                   render={({ field }) => (
                     <FormItem className="suggestion-dropdown">
-                      <FormLabel>Transportation Details <span className="text-destructive">*</span></FormLabel>
+                      <FormLabel>
+                        Transportation Details{" "}
+                        <span className="text-destructive">*</span>
+                      </FormLabel>
                       <FormControl>
                         <div className="relative">
-                          <Input 
-                            placeholder="e.g., Private car transfer" 
-                            {...field} 
+                          <Input
+                            placeholder="e.g., Private car transfer"
+                            {...field}
                             onChange={(e) => handleTransportationInputChange(e)}
                           />
-                          {showTransportationSuggestions && transportationSuggestions.length > 0 && (
-                            <div className="absolute z-10 w-full mt-1 max-h-60 overflow-auto bg-white border rounded-md shadow-lg">
-                              {filterSuggestions(field.value, transportationSuggestions).map((suggestion, index) => (
-                                <div
-                                  key={index}
-                                  className="px-4 py-2 cursor-pointer hover:bg-zinc-100"
-                                  onClick={() => {
-                                    form.setValue("transportationDetails", suggestion);
-                                    setShowTransportationSuggestions(false);
-                                  }}
-                                >
-                                  {suggestion}
-                                </div>
-                              ))}
-                            </div>
-                          )}
+                          {showTransportationSuggestions &&
+                            transportationSuggestions.length > 0 && (
+                              <div className="absolute z-10 w-full mt-1 max-h-60 overflow-auto bg-white border rounded-md shadow-lg">
+                                {filterSuggestions(
+                                  field.value,
+                                  transportationSuggestions,
+                                ).map((suggestion, index) => (
+                                  <div
+                                    key={index}
+                                    className="px-4 py-2 cursor-pointer hover:bg-zinc-100"
+                                    onClick={() => {
+                                      form.setValue(
+                                        "transportationDetails",
+                                        suggestion,
+                                      );
+                                      setShowTransportationSuggestions(false);
+                                    }}
+                                  >
+                                    {suggestion}
+                                  </div>
+                                ))}
+                              </div>
+                            )}
                         </div>
                       </FormControl>
                       <FormMessage />
                     </FormItem>
                   )}
                 />
-                
+
                 <FormField
                   control={form.control}
                   name="tourDetails"
                   render={({ field }) => (
                     <FormItem className="suggestion-dropdown">
-                      <FormLabel>Tour Details <span className="text-destructive">*</span></FormLabel>
+                      <FormLabel>
+                        Tour Details <span className="text-destructive">*</span>
+                      </FormLabel>
                       <FormControl>
                         <div className="relative">
-                          <Input 
-                            placeholder="e.g., Pyramids guided tour" 
-                            {...field} 
+                          <Input
+                            placeholder="e.g., Pyramids guided tour"
+                            {...field}
                             onChange={(e) => handleTourInputChange(e)}
                           />
-                          {showTourSuggestions && tourSuggestions.length > 0 && (
-                            <div className="absolute z-10 w-full mt-1 max-h-60 overflow-auto bg-white border rounded-md shadow-lg">
-                              {filterSuggestions(field.value, tourSuggestions).map((suggestion, index) => (
-                                <div
-                                  key={index}
-                                  className="px-4 py-2 cursor-pointer hover:bg-zinc-100"
-                                  onClick={() => {
-                                    form.setValue("tourDetails", suggestion);
-                                    setShowTourSuggestions(false);
-                                  }}
-                                >
-                                  {suggestion}
-                                </div>
-                              ))}
-                            </div>
-                          )}
+                          {showTourSuggestions &&
+                            tourSuggestions.length > 0 && (
+                              <div className="absolute z-10 w-full mt-1 max-h-60 overflow-auto bg-white border rounded-md shadow-lg">
+                                {filterSuggestions(
+                                  field.value,
+                                  tourSuggestions,
+                                ).map((suggestion, index) => (
+                                  <div
+                                    key={index}
+                                    className="px-4 py-2 cursor-pointer hover:bg-zinc-100"
+                                    onClick={() => {
+                                      form.setValue("tourDetails", suggestion);
+                                      setShowTourSuggestions(false);
+                                    }}
+                                  >
+                                    {suggestion}
+                                  </div>
+                                ))}
+                              </div>
+                            )}
                         </div>
                       </FormControl>
                       <FormMessage />
@@ -1091,23 +1293,23 @@ export function MultiHotelManualPackageForm() {
                   )}
                 />
 
-                
-
                 <div className="space-y-3">
-                  <label className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70">Package Images</label>
+                  <label className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70">
+                    Package Images
+                  </label>
                   <div className="grid grid-cols-3 gap-4">
                     {images.map((image) => (
-                      <div 
-                        key={image.id} 
+                      <div
+                        key={image.id}
                         className={cn(
                           "relative aspect-square border rounded overflow-hidden bg-zinc-50",
-                          image.isMain && "ring-2 ring-primary"
+                          image.isMain && "ring-2 ring-primary",
                         )}
                       >
-                        <img 
-                          src={image.preview} 
-                          alt="Preview" 
-                          className="w-full h-full object-cover" 
+                        <img
+                          src={image.preview}
+                          alt="Preview"
+                          className="w-full h-full object-cover"
                         />
                         <div className="absolute top-1 right-1 space-x-1">
                           <Button
@@ -1115,12 +1317,16 @@ export function MultiHotelManualPackageForm() {
                             size="icon"
                             variant="ghost"
                             className={cn(
-                              "h-7 w-7 bg-white rounded-full shadow-sm hover:scale-110 transition-transform", 
-                              image.isMain ? "text-amber-500" : "text-muted-foreground"
+                              "h-7 w-7 bg-white rounded-full shadow-sm hover:scale-110 transition-transform",
+                              image.isMain
+                                ? "text-amber-500"
+                                : "text-muted-foreground",
                             )}
                             onClick={() => setMainImage(image.id)}
                           >
-                            <Star className={`h-3.5 w-3.5 ${image.isMain ? "fill-amber-500" : ""}`} />
+                            <Star
+                              className={`h-3.5 w-3.5 ${image.isMain ? "fill-amber-500" : ""}`}
+                            />
                             <span className="sr-only">Set as main image</span>
                           </Button>
                           <Button
@@ -1148,7 +1354,9 @@ export function MultiHotelManualPackageForm() {
                     >
                       <div className="flex flex-col items-center gap-1">
                         <ImagePlus className="h-6 w-6 text-muted-foreground" />
-                        <span className="text-xs text-muted-foreground">{t("add_image", "Add Image")}</span>
+                        <span className="text-xs text-muted-foreground">
+                          {t("add_image", "Add Image")}
+                        </span>
                       </div>
                     </button>
                   </div>
@@ -1160,14 +1368,18 @@ export function MultiHotelManualPackageForm() {
                     onChange={handleImageUpload}
                   />
                   <FormDescription>
-                    <span className="text-destructive">*</span> ارفع صور الحزمة. يجب رفع صورة واحدة على الأقل. الصورة الأولى أو المميزة ستُستخدم كصورة رئيسية.
+                    <span className="text-destructive">*</span> ارفع صور الحزمة.
+                    يجب رفع صورة واحدة على الأقل. الصورة الأولى أو المميزة
+                    ستُستخدم كصورة رئيسية.
                   </FormDescription>
                 </div>
 
                 {/* Policy Section */}
                 <div className="space-y-6">
-                  <h3 className="text-lg font-semibold border-b pb-2">Policies & Terms</h3>
-                  
+                  <h3 className="text-lg font-semibold border-b pb-2">
+                    Policies & Terms
+                  </h3>
+
                   <FormField
                     control={form.control}
                     name="cancellationPolicy"
@@ -1175,10 +1387,10 @@ export function MultiHotelManualPackageForm() {
                       <FormItem>
                         <FormLabel>Cancellation Policy</FormLabel>
                         <FormControl>
-                          <Textarea 
+                          <Textarea
                             placeholder="Enter cancellation policy details..."
                             rows={3}
-                            {...field} 
+                            {...field}
                           />
                         </FormControl>
                         <FormDescription>
@@ -1196,14 +1408,15 @@ export function MultiHotelManualPackageForm() {
                       <FormItem>
                         <FormLabel>Children Policy</FormLabel>
                         <FormControl>
-                          <Textarea 
+                          <Textarea
                             placeholder="Enter children policy details..."
                             rows={3}
-                            {...field} 
+                            {...field}
                           />
                         </FormControl>
                         <FormDescription>
-                          Specify policies for children, pricing, and age restrictions
+                          Specify policies for children, pricing, and age
+                          restrictions
                         </FormDescription>
                         <FormMessage />
                       </FormItem>
@@ -1217,10 +1430,10 @@ export function MultiHotelManualPackageForm() {
                       <FormItem>
                         <FormLabel>Terms & Conditions</FormLabel>
                         <FormControl>
-                          <Textarea 
+                          <Textarea
                             placeholder="Enter terms and conditions..."
                             rows={4}
-                            {...field} 
+                            {...field}
                           />
                         </FormControl>
                         <FormDescription>
@@ -1240,14 +1453,14 @@ export function MultiHotelManualPackageForm() {
                         value={newExcludedItem}
                         onChange={(e) => setNewExcludedItem(e.target.value)}
                         onKeyPress={(e) => {
-                          if (e.key === 'Enter') {
+                          if (e.key === "Enter") {
                             e.preventDefault();
                             addExcludedItem();
                           }
                         }}
                       />
-                      <Button 
-                        type="button" 
+                      <Button
+                        type="button"
                         onClick={addExcludedItem}
                         disabled={!newExcludedItem.trim()}
                       >
@@ -1257,20 +1470,26 @@ export function MultiHotelManualPackageForm() {
                     </div>
                     {(form.watch("excludedItems")?.length || 0) > 0 && (
                       <div className="flex flex-wrap gap-2">
-                        {(form.watch("excludedItems") || []).map((item, index) => (
-                          <Badge key={index} variant="destructive" className="flex items-center gap-1">
-                            {item}
-                            <Button
-                              type="button"
-                              variant="ghost"
-                              size="sm"
-                              className="h-4 w-4 p-0 hover:bg-red-100"
-                              onClick={() => removeExcludedItem(index)}
+                        {(form.watch("excludedItems") || []).map(
+                          (item, index) => (
+                            <Badge
+                              key={index}
+                              variant="destructive"
+                              className="flex items-center gap-1"
                             >
-                              <X className="h-3 w-3" />
-                            </Button>
-                          </Badge>
-                        ))}
+                              {item}
+                              <Button
+                                type="button"
+                                variant="ghost"
+                                size="sm"
+                                className="h-4 w-4 p-0 hover:bg-red-100"
+                                onClick={() => removeExcludedItem(index)}
+                              >
+                                <X className="h-3 w-3" />
+                              </Button>
+                            </Badge>
+                          ),
+                        )}
                       </div>
                     )}
                     <FormDescription>
@@ -1284,7 +1503,10 @@ export function MultiHotelManualPackageForm() {
                     name="inclusions"
                     render={() => (
                       <FormItem>
-                        <FormLabel>Included Items <span className="text-destructive">*</span></FormLabel>
+                        <FormLabel>
+                          Included Items{" "}
+                          <span className="text-destructive">*</span>
+                        </FormLabel>
                         <div className="space-y-3">
                           <div className="flex gap-2 suggestion-dropdown">
                             <div className="relative flex-1">
@@ -1293,28 +1515,32 @@ export function MultiHotelManualPackageForm() {
                                 value={newInclusion}
                                 onChange={handleInclusionInputChange}
                                 onKeyDown={(e) => {
-                                  if (e.key === 'Enter') {
+                                  if (e.key === "Enter") {
                                     e.preventDefault();
                                     addInclusion();
                                   }
                                 }}
                               />
-                              {showInclusionSuggestions && inclusionSuggestions.length > 0 && (
-                                <div className="absolute z-10 w-full mt-1 max-h-60 overflow-auto bg-white border rounded-md shadow-lg">
-                                  {filterSuggestions(newInclusion, inclusionSuggestions).map((suggestion, index) => (
-                                    <div
-                                      key={index}
-                                      className="px-4 py-2 cursor-pointer hover:bg-zinc-100"
-                                      onClick={() => {
-                                        setNewInclusion(suggestion);
-                                        setShowInclusionSuggestions(false);
-                                      }}
-                                    >
-                                      {suggestion}
-                                    </div>
-                                  ))}
-                                </div>
-                              )}
+                              {showInclusionSuggestions &&
+                                inclusionSuggestions.length > 0 && (
+                                  <div className="absolute z-10 w-full mt-1 max-h-60 overflow-auto bg-white border rounded-md shadow-lg">
+                                    {filterSuggestions(
+                                      newInclusion,
+                                      inclusionSuggestions,
+                                    ).map((suggestion, index) => (
+                                      <div
+                                        key={index}
+                                        className="px-4 py-2 cursor-pointer hover:bg-zinc-100"
+                                        onClick={() => {
+                                          setNewInclusion(suggestion);
+                                          setShowInclusionSuggestions(false);
+                                        }}
+                                      >
+                                        {suggestion}
+                                      </div>
+                                    ))}
+                                  </div>
+                                )}
                             </div>
                             <Button
                               type="button"
@@ -1325,25 +1551,28 @@ export function MultiHotelManualPackageForm() {
                               Add
                             </Button>
                           </div>
-                          
+
                           <div className="flex flex-wrap gap-2 mt-2">
-                            {form.watch("inclusions").map((inclusion, index) => (
-                              <Badge 
-                                key={index} 
-                                variant="secondary"
-                                className="flex items-center gap-1 px-3 py-1.5"
-                              >
-                                {inclusion}
-                                <X
-                                  className="h-3 w-3 cursor-pointer"
-                                  onClick={() => removeInclusion(index)}
-                                />
-                              </Badge>
-                            ))}
+                            {form
+                              .watch("inclusions")
+                              .map((inclusion, index) => (
+                                <Badge
+                                  key={index}
+                                  variant="secondary"
+                                  className="flex items-center gap-1 px-3 py-1.5"
+                                >
+                                  {inclusion}
+                                  <X
+                                    className="h-3 w-3 cursor-pointer"
+                                    onClick={() => removeInclusion(index)}
+                                  />
+                                </Badge>
+                              ))}
                           </div>
                         </div>
                         <FormDescription>
-                          Add what's included in this package (e.g., breakfast, airport transfer)
+                          Add what's included in this package (e.g., breakfast,
+                          airport transfer)
                         </FormDescription>
                         <FormMessage />
                       </FormItem>
@@ -1363,7 +1592,7 @@ export function MultiHotelManualPackageForm() {
               >
                 Cancel
               </Button>
-              <Button 
+              <Button
                 type="submit"
                 disabled={createManualPackageMutation.isPending}
               >
@@ -1373,7 +1602,7 @@ export function MultiHotelManualPackageForm() {
                     Creating...
                   </>
                 ) : (
-                  'Create Manual Package'
+                  "Create Manual Package"
                 )}
               </Button>
             </div>
@@ -1392,10 +1621,15 @@ export function MultiHotelManualPackageForm() {
               Enter the hotel details below.
             </AlertDialogDescription>
           </AlertDialogHeader>
-          
+
           <div className="space-y-4 py-4">
             <div className="space-y-2 suggestion-dropdown">
-              <label htmlFor="hotelName" className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70">Hotel Name <span className="text-destructive">*</span></label>
+              <label
+                htmlFor="hotelName"
+                className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70"
+              >
+                Hotel Name <span className="text-destructive">*</span>
+              </label>
               <div className="relative">
                 <Input
                   id="hotelName"
@@ -1405,12 +1639,18 @@ export function MultiHotelManualPackageForm() {
                 />
                 {showHotelSuggestions && hotelSuggestions.length > 0 && (
                   <div className="absolute z-10 w-full mt-1 max-h-60 overflow-auto bg-white border rounded-md shadow-lg">
-                    {filterSuggestions(hotelFormData.name, hotelSuggestions).map((suggestion, index) => (
+                    {filterSuggestions(
+                      hotelFormData.name,
+                      hotelSuggestions,
+                    ).map((suggestion, index) => (
                       <div
                         key={index}
                         className="px-4 py-2 cursor-pointer hover:bg-zinc-100"
                         onClick={() => {
-                          setHotelFormData(prev => ({ ...prev, name: suggestion }));
+                          setHotelFormData((prev) => ({
+                            ...prev,
+                            name: suggestion,
+                          }));
                           setShowHotelSuggestions(false);
                         }}
                       >
@@ -1421,12 +1661,19 @@ export function MultiHotelManualPackageForm() {
                 )}
               </div>
             </div>
-            
+
             <div className="space-y-2">
-              <label htmlFor="hotelStars" className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70">Stars <span className="text-destructive">*</span></label>
+              <label
+                htmlFor="hotelStars"
+                className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70"
+              >
+                Stars <span className="text-destructive">*</span>
+              </label>
               <Select
                 value={hotelFormData.stars.toString()}
-                onValueChange={(value) => handleHotelFormChange('stars', parseInt(value))}
+                onValueChange={(value) =>
+                  handleHotelFormChange("stars", parseInt(value))
+                }
               >
                 <SelectTrigger>
                   <SelectValue placeholder="Select star rating" />
@@ -1442,24 +1689,32 @@ export function MultiHotelManualPackageForm() {
             </div>
 
             <div className="space-y-2 suggestion-dropdown">
-              <label htmlFor="roomType" className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70">Room Type (Optional)</label>
+              <label
+                htmlFor="roomType"
+                className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70"
+              >
+                Room Type (Optional)
+              </label>
               <div className="relative">
                 <Input
                   id="roomType"
                   placeholder="e.g., Deluxe Room"
                   value={hotelFormData.roomType}
                   onChange={(e) => {
-                    handleHotelFormChange('roomType', e.target.value);
+                    handleHotelFormChange("roomType", e.target.value);
                   }}
                 />
                 {roomTypeSuggestions.length > 0 && hotelFormData.roomType && (
                   <div className="absolute z-10 w-full mt-1 max-h-60 overflow-auto bg-white border rounded-md shadow-lg">
-                    {filterSuggestions(hotelFormData.roomType, roomTypeSuggestions).map((suggestion, index) => (
+                    {filterSuggestions(
+                      hotelFormData.roomType,
+                      roomTypeSuggestions,
+                    ).map((suggestion, index) => (
                       <div
                         key={index}
                         className="px-4 py-2 cursor-pointer hover:bg-zinc-100"
                         onClick={() => {
-                          handleHotelFormChange('roomType', suggestion);
+                          handleHotelFormChange("roomType", suggestion);
                         }}
                       >
                         {suggestion}
@@ -1471,15 +1726,26 @@ export function MultiHotelManualPackageForm() {
             </div>
 
             <div className="space-y-2">
-              <label htmlFor="pricePerNight" className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70">Price Per Night ($) (Optional)</label>
+              <label
+                htmlFor="pricePerNight"
+                className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70"
+              >
+                Price Per Night ($) (Optional)
+              </label>
               <Input
                 id="pricePerNight"
                 type="number"
                 placeholder="e.g., 120"
-                value={hotelFormData.pricePerNight !== undefined ? hotelFormData.pricePerNight : ''}
+                value={
+                  hotelFormData.pricePerNight !== undefined
+                    ? hotelFormData.pricePerNight
+                    : ""
+                }
                 onChange={(e) => {
-                  const value = e.target.value ? parseFloat(e.target.value) : undefined;
-                  handleHotelFormChange('pricePerNight', value);
+                  const value = e.target.value
+                    ? parseFloat(e.target.value)
+                    : undefined;
+                  handleHotelFormChange("pricePerNight", value);
                 }}
               />
             </div>

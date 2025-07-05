@@ -1,0 +1,53 @@
+Error listing packages: error: column "cancellation_policy" does not exist
+    at file:///home/runner/workspace/node_modules/@neondatabase/serverless/index.mjs:1345:74
+    at process.processTicksAndRejections (node:internal/process/task_queues:95:5)
+    at async NeonPreparedQuery.execute (/home/runner/workspace/node_modules/src/neon-serverless/session.ts:102:18)
+    at async DatabaseStorage.listPackages (/home/runner/workspace/server/storage.ts:511:14)
+    at async <anonymous> (/home/runner/workspace/server/routes.ts:546:24) {
+  length: 120,
+  severity: 'ERROR',
+  code: '42703',
+  detail: undefined,
+  hint: undefined,
+  position: '760',
+  internalPosition: undefined,
+  internalQuery: undefined,
+  where: undefined,
+  schema: undefined,
+  table: undefined,
+  column: undefined,
+  dataType: undefined,
+  constraint: undefined,
+  file: 'parse_relation.c',
+  line: '3716',
+  routine: 'errorMissingColumn'
+}
+8:15:53 PM [express] GET /api/packages 200 in 39ms :: []
+8:16:33 PM [express] POST /api/login 200 in 141ms :: {"id":"9","username":"AhmedSh","role":"admin","displayName":"Ahmed Sh","avatarUrl":null}
+Cart GET request - userId: 9 sessionId: undefined
+Found cart items: 5
+Error fetching cart: error: column "cancellation_policy" does not exist
+    at file:///home/runner/workspace/node_modules/@neondatabase/serverless/index.mjs:1345:74
+    at process.processTicksAndRejections (node:internal/process/task_queues:95:5)
+    at async NeonPreparedQuery.execute (/home/runner/workspace/node_modules/src/neon-serverless/session.ts:102:18)
+    at async <anonymous> (/home/runner/workspace/server/routes.ts:186:33)
+    at async Promise.all (index 0)
+    at async <anonymous> (/home/runner/workspace/server/routes.ts:182:29) {
+  length: 120,
+  severity: 'ERROR',
+  code: '42703',
+  detail: undefined,
+  hint: undefined,
+  position: '760',
+  internalPosition: undefined,
+  internalQuery: undefined,
+  where: undefined,
+  schema: undefined,
+  table: undefined,
+  column: undefined,
+  dataType: undefined,
+  constraint: undefined,
+  file: 'parse_relation.c',
+  line: '3716',
+  routine: 'errorMissingColumn'
+}
