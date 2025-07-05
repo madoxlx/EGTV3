@@ -1,14 +1,19 @@
 import React from "react";
 import { useLocation } from "wouter";
-import { Breadcrumb, BreadcrumbItem, BreadcrumbLink } from "@/components/ui/breadcrumb";
+import {
+  Breadcrumb,
+  BreadcrumbItem,
+  BreadcrumbLink,
+} from "@/components/ui/breadcrumb";
 import { Button } from "@/components/ui/button";
 import { MultiHotelManualPackageForm } from "@/components/dashboard/MultiHotelManualPackageForm";
 import { ArrowLeft, Home, Package, Plus, Hotel } from "lucide-react";
+import { useLanguage } from "@/hooks/useLanguage";
 
 export default function CreateManualPackage() {
   const { t } = useLanguage();
   const [, setLocation] = useLocation();
-  
+
   return (
     <div>
       <div className="mb-6 flex flex-wrap items-center justify-between gap-4">
@@ -20,19 +25,25 @@ export default function CreateManualPackage() {
             </BreadcrumbLink>
           </BreadcrumbItem>
           <BreadcrumbItem>
-            <BreadcrumbLink href="/admin/packages" className="flex items-center gap-1">
+            <BreadcrumbLink
+              href="/admin/packages"
+              className="flex items-center gap-1"
+            >
               <Package size={16} />
               <span>Packages</span>
             </BreadcrumbLink>
           </BreadcrumbItem>
           <BreadcrumbItem>
-            <BreadcrumbLink href="/admin/packages/create-manual" className="flex items-center gap-1">
+            <BreadcrumbLink
+              href="/admin/packages/create-manual"
+              className="flex items-center gap-1"
+            >
               <Plus size={16} />
               <span>Create Manual Package</span>
             </BreadcrumbLink>
           </BreadcrumbItem>
         </Breadcrumb>
-        
+
         <Button
           variant="ghost"
           size="sm"
@@ -43,14 +54,18 @@ export default function CreateManualPackage() {
           <span>Back to Packages</span>
         </Button>
       </div>
-      
+
       <div className="bg-white rounded-lg shadow-sm border p-6">
         <div className="flex items-center gap-3 mb-2">
           <Hotel size={24} className="text-primary" />
-          <h1 className="text-2xl font-bold text-zinc-800">Create Manual Package</h1>
+          <h1 className="text-2xl font-bold text-zinc-800">
+            Create Manual Package
+          </h1>
         </div>
         <p className="text-muted-foreground mb-6">
-          Create a fully customized package with multiple hotels, star ratings, and additional details. Smart suggestions will be provided based on previously entered data.
+          Create a fully customized package with multiple hotels, star ratings,
+          and additional details. Smart suggestions will be provided based on
+          previously entered data.
         </p>
         <MultiHotelManualPackageForm />
       </div>
