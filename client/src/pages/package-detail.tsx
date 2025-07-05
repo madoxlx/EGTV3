@@ -761,6 +761,10 @@ export default function PackageDetail() {
                 {/* What's Included/Excluded - Real Data */}
                 <section className="bg-white rounded-xl shadow-md overflow-hidden">
                   <div className="p-6">
+                    {/* Debug included/excluded features */}
+                    {console.log('Included Features:', packageData.includedFeatures)}
+                    {console.log('Excluded Features:', packageData.excludedFeatures)}
+                    {console.log('Legacy Inclusions:', packageData.inclusions)}
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                       <div>
                         <h2 className="text-xl font-bold mb-4">
