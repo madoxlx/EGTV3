@@ -106,6 +106,18 @@ The application uses a comprehensive PostgreSQL schema with the following core e
 
 ## Recent Changes
 
+- **Complete Dual Image Input Implementation for Country/City/Airport Management (July 5, 2025)**: Successfully enhanced CountryCityManagement.tsx with comprehensive dual image input functionality matching destinations management system
+  - Added enhanced ImageField component supporting both URL input and file upload modes with professional toggle interface
+  - Updated all country, city, and airport creation and edit forms to use dual input functionality
+  - Implemented local upload mode state management for each form field with Camera and ImageIcon indicators
+  - Enhanced file upload interface with drag-and-drop styling, loading states, and proper error handling
+  - Added fieldId parameter for unique upload input identification preventing conflicts between multiple forms
+  - Fixed all variable references and TypeScript errors for stable functionality
+  - Applied consistent enhancements to both main and backup versions maintaining codebase consistency
+  - System now provides flexible image management allowing administrators to choose between URL input and direct photo upload
+  - Enhanced form clearing behavior ensuring "Add Country" dialog properly resets all fields when opened
+  - Fixed critical country creation API by adding missing getCountryByCode storage method for proper duplicate checking
+
 - **Airport Management Storage Layer Implementation Complete (July 5, 2025)**: Successfully resolved "storage.listAirports is not a function" runtime errors by implementing complete airport management functionality
   - Added missing airport CRUD methods to IStorage interface: getAirport, listAirports, createAirport, updateAirport, deleteAirport
   - Implemented all airport storage methods in DatabaseStorage class with proper error handling and database operations

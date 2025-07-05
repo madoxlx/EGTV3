@@ -302,15 +302,18 @@ export default function CountryCityManagement() {
     name, 
     label, 
     description, 
-    required = false 
+    required = false,
+    fieldId = 'default'
   }: { 
     form: any; 
     name: string; 
     label: string; 
     description: string; 
     required?: boolean;
+    fieldId?: string;
   }) => {
     const currentValue = form.watch(name);
+    const [localUploadMode, setLocalUploadMode] = useState<'url' | 'upload'>('url');
     
     return (
       <FormField
@@ -326,9 +329,9 @@ export default function CountryCityManagement() {
             <div className="flex gap-2 mb-3">
               <Button
                 type="button"
-                variant={uploadMode === 'url' ? 'default' : 'outline'}
+                variant={localUploadMode === 'url' ? 'default' : 'outline'}
                 size="sm"
-                onClick={() => setUploadMode('url')}
+                onClick={() => setLocalUploadMode('url')}
                 className="flex items-center gap-2"
               >
                 <ImageIcon className="h-4 w-4" />
@@ -336,9 +339,9 @@ export default function CountryCityManagement() {
               </Button>
               <Button
                 type="button"
-                variant={uploadMode === 'upload' ? 'default' : 'outline'}
+                variant={localUploadMode === 'upload' ? 'default' : 'outline'}
                 size="sm"
-                onClick={() => setUploadMode('upload')}
+                onClick={() => setLocalUploadMode('upload')}
                 className="flex items-center gap-2"
               >
                 <Camera className="h-4 w-4" />
@@ -346,7 +349,7 @@ export default function CountryCityManagement() {
               </Button>
             </div>
 
-            {uploadMode === 'url' ? (
+            {localUploadMode === 'url' ? (
               // URL Input Mode
               <FormControl>
                 <Input
@@ -375,11 +378,11 @@ export default function CountryCityManagement() {
                         }
                       }}
                       className="hidden"
-                      id={`${name}-upload`}
+                      id={`${fieldId}-${name}-upload`}
                       disabled={isUploading}
                     />
                     <label
-                      htmlFor={`${name}-upload`}
+                      htmlFor={`${fieldId}-${name}-upload`}
                       className={`cursor-pointer flex flex-col items-center gap-2 ${
                         isUploading ? 'opacity-50 cursor-not-allowed' : ''
                       }`}
@@ -1994,24 +1997,12 @@ export default function CountryCityManagement() {
                           </FormItem>
                         )}
                       />
-                      <FormField
-                        control={cityForm.control}
+                      <ImageField
+                        form={cityForm}
                         name="imageUrl"
-                        render={({ field }) => (
-                          <FormItem>
-                            <FormLabel>Image URL</FormLabel>
-                            <FormControl>
-                              <Input
-                                placeholder="https://example.com/image.jpg"
-                                {...field}
-                              />
-                            </FormControl>
-                            <FormDescription>
-                              URL to an image representing the city
-                            </FormDescription>
-                            <FormMessage />
-                          </FormItem>
-                        )}
+                        label="City Image"
+                        description="URL to an image representing the city or upload a photo"
+                        fieldId="create-city"
                       />
                       <FormField
                         control={cityForm.control}
@@ -2361,24 +2352,12 @@ export default function CountryCityManagement() {
                     </FormItem>
                   )}
                 />
-                <FormField
-                  control={cityForm.control}
+                <ImageField
+                  form={cityForm}
                   name="imageUrl"
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel>Image URL</FormLabel>
-                      <FormControl>
-                        <Input
-                          placeholder="https://example.com/image.jpg"
-                          {...field}
-                        />
-                      </FormControl>
-                      <FormDescription>
-                        URL to an image representing the city
-                      </FormDescription>
-                      <FormMessage />
-                    </FormItem>
-                  )}
+                  label="City Image"
+                  description="URL to an image representing the city or upload a photo"
+                  fieldId="edit-city"
                 />
                 <FormField
                   control={cityForm.control}
@@ -2639,24 +2618,12 @@ export default function CountryCityManagement() {
                           </FormItem>
                         )}
                       />
-                      <FormField
-                        control={airportForm.control}
+                      <ImageField
+                        form={airportForm}
                         name="imageUrl"
-                        render={({ field }) => (
-                          <FormItem>
-                            <FormLabel>Image URL</FormLabel>
-                            <FormControl>
-                              <Input
-                                placeholder="https://example.com/image.jpg"
-                                {...field}
-                              />
-                            </FormControl>
-                            <FormDescription>
-                              URL to an image representing the airport
-                            </FormDescription>
-                            <FormMessage />
-                          </FormItem>
-                        )}
+                        label="Airport Image"
+                        description="URL to an image representing the airport or upload a photo"
+                        fieldId="create-airport"
                       />
                       <FormField
                         control={airportForm.control}
@@ -2906,24 +2873,12 @@ export default function CountryCityManagement() {
                     </FormItem>
                   )}
                 />
-                <FormField
-                  control={airportForm.control}
+                <ImageField
+                  form={airportForm}
                   name="imageUrl"
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel>Image URL</FormLabel>
-                      <FormControl>
-                        <Input
-                          placeholder="https://example.com/image.jpg"
-                          {...field}
-                        />
-                      </FormControl>
-                      <FormDescription>
-                        URL to an image representing the airport
-                      </FormDescription>
-                      <FormMessage />
-                    </FormItem>
-                  )}
+                  label="Airport Image"
+                  description="URL to an image representing the airport or upload a photo"
+                  fieldId="edit-airport"
                 />
                 <FormField
                   control={airportForm.control}

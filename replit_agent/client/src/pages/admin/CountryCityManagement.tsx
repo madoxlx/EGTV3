@@ -245,15 +245,18 @@ export default function CountryCityManagement() {
     name, 
     label, 
     description, 
-    required = false 
+    required = false,
+    fieldId = 'default'
   }: { 
     form: any; 
     name: string; 
     label: string; 
     description: string; 
     required?: boolean;
+    fieldId?: string;
   }) => {
     const currentValue = form.watch(name);
+    const [localUploadMode, setLocalUploadMode] = useState<'url' | 'upload'>('url');
     
     return (
       <FormField
@@ -269,9 +272,9 @@ export default function CountryCityManagement() {
             <div className="flex gap-2 mb-3">
               <Button
                 type="button"
-                variant={uploadMode === 'url' ? 'default' : 'outline'}
+                variant={localUploadMode === 'url' ? 'default' : 'outline'}
                 size="sm"
-                onClick={() => setUploadMode('url')}
+                onClick={() => setLocalUploadMode('url')}
                 className="flex items-center gap-2"
               >
                 <ImageIcon className="h-4 w-4" />
@@ -279,9 +282,9 @@ export default function CountryCityManagement() {
               </Button>
               <Button
                 type="button"
-                variant={uploadMode === 'upload' ? 'default' : 'outline'}
+                variant={localUploadMode === 'upload' ? 'default' : 'outline'}
                 size="sm"
-                onClick={() => setUploadMode('upload')}
+                onClick={() => setLocalUploadMode('upload')}
                 className="flex items-center gap-2"
               >
                 <Camera className="h-4 w-4" />
@@ -289,7 +292,7 @@ export default function CountryCityManagement() {
               </Button>
             </div>
 
-            {uploadMode === 'url' ? (
+            {localUploadMode === 'url' ? (
               // URL Input Mode
               <FormControl>
                 <Input
