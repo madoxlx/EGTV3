@@ -444,7 +444,7 @@ export function MultiHotelManualPackageForm() {
         "duration",
         "destinationId",
         "categoryId",
-        "type",
+
       ],
       {
         title: "Package Title",
@@ -455,7 +455,7 @@ export function MultiHotelManualPackageForm() {
         duration: "Duration",
         destinationId: "Destination",
         categoryId: "Package Category",
-        type: "Package Type",
+
       },
     );
 
