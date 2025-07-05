@@ -108,9 +108,9 @@ const manualPackageFormSchema = z.object({
     .min(3, {
       message: "Transportation details must be at least 3 characters",
     }),
-  tourDetails: z
-    .string()
-    .min(3, { message: "Tour details must be at least 3 characters" }),
+  selectedTourIds: z
+    .array(z.number())
+    .min(1, { message: "At least one tour must be selected" }),
   duration: z.coerce
     .number()
     .positive({ message: "Duration must be a positive number" }),
@@ -175,7 +175,9 @@ export function MultiHotelManualPackageForm() {
   const [showHotelSuggestions, setShowHotelSuggestions] = useState(false);
   const [showTransportationSuggestions, setShowTransportationSuggestions] =
     useState(false);
-  const [showTourSuggestions, setShowTourSuggestions] = useState(false);
+  // State for tour selection
+  const [tourSearchQuery, setTourSearchQuery] = useState("");
+  const [showTourDropdown, setShowTourDropdown] = useState(false);
   const [showInclusionSuggestions, setShowInclusionSuggestions] =
     useState(false);
 
@@ -232,6 +234,11 @@ export function MultiHotelManualPackageForm() {
     queryKey: ["/api/cities"],
   });
 
+  // Fetch tours for the tour selection feature
+  const { data: tours = [] } = useQuery<any[]>({
+    queryKey: ["/api/tours"],
+  });
+
   const form = useForm<ManualPackageFormValues>({
     resolver: zodResolver(manualPackageFormSchema),
     defaultValues: {
@@ -244,7 +251,7 @@ export function MultiHotelManualPackageForm() {
       markup: 0,
       hotels: [],
       transportationDetails: "",
-      tourDetails: "",
+      selectedTourIds: [],
       duration: 1,
       destinationId: undefined,
       countryId: undefined,
@@ -334,6 +341,32 @@ export function MultiHotelManualPackageForm() {
     setTourSuggestions(Array.from(tours));
   }, [packages, hotels]);
 
+  // Tour selection functions
+  const handleTourSelection = (tourId: number) => {
+    const currentTours = form.getValues("selectedTourIds") || [];
+    if (!currentTours.includes(tourId)) {
+      const updatedTours = [...currentTours, tourId];
+      form.setValue("selectedTourIds", updatedTours);
+    }
+    setTourSearchQuery("");
+    setShowTourDropdown(false);
+  };
+
+  const removeTour = (tourIdToRemove: number) => {
+    const currentTours = form.getValues("selectedTourIds") || [];
+    const updatedTours = currentTours.filter(id => id !== tourIdToRemove);
+    form.setValue("selectedTourIds", updatedTours);
+  };
+
+  const filteredTours = tours.filter(tour => 
+    tour.name.toLowerCase().includes(tourSearchQuery.toLowerCase()) &&
+    !form.getValues("selectedTourIds")?.includes(tour.id)
+  );
+
+  const selectedTours = tours.filter(tour => 
+    form.getValues("selectedTourIds")?.includes(tour.id)
+  );
+
   // Create manual package mutation
   const createManualPackageMutation = useMutation({
     mutationFn: async (formData: ManualPackageFormValues) => {
@@ -359,7 +392,13 @@ export function MultiHotelManualPackageForm() {
         })
         .join("\n\n");
 
-      const enhancedDescription = `${formData.description}\n\nHotels:\n${hotelsText}\n\nTransportation: ${formData.transportationDetails}\n\nTour: ${formData.tourDetails}`;
+      // Get selected tour names for description
+      const selectedTourNames = tours
+        .filter(tour => formData.selectedTourIds.includes(tour.id))
+        .map(tour => tour.name)
+        .join(", ");
+
+      const enhancedDescription = `${formData.description}\n\nHotels:\n${hotelsText}\n\nTransportation: ${formData.transportationDetails}\n\nTours: ${selectedTourNames}`;
 
       // Transform the form data to match the API schema
       const packageData = {
@@ -384,6 +423,8 @@ export function MultiHotelManualPackageForm() {
         discountValue: formData.discountValue,
         countryId: formData.countryId,
         cityId: formData.cityId,
+        selectedTourIds: formData.selectedTourIds || [],
+        type: formData.type,
       };
 
       const response = await fetch("/api/admin/packages", {
@@ -811,11 +852,7 @@ export function MultiHotelManualPackageForm() {
     setShowTransportationSuggestions(value.length >= 3);
   };
 
-  const handleTourInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const value = e.target.value;
-    form.setValue("tourDetails", value);
-    setShowTourSuggestions(value.length >= 3);
-  };
+
 
   const handleInclusionInputChange = (
     e: React.ChangeEvent<HTMLInputElement>,
@@ -831,7 +868,7 @@ export function MultiHotelManualPackageForm() {
       if (!(e.target as Element).closest(".suggestion-dropdown")) {
         setShowHotelSuggestions(false);
         setShowTransportationSuggestions(false);
-        setShowTourSuggestions(false);
+        setShowTourDropdown(false);
         setShowInclusionSuggestions(false);
       }
     };
@@ -1386,47 +1423,91 @@ export function MultiHotelManualPackageForm() {
                   )}
                 />
 
-                <FormField
-                  control={form.control}
-                  name="tourDetails"
-                  render={({ field }) => (
-                    <FormItem className="suggestion-dropdown">
-                      <FormLabel>
-                        Tour Details <span className="text-destructive">*</span>
-                      </FormLabel>
-                      <FormControl>
-                        <div className="relative">
-                          <Input
-                            placeholder="e.g., Pyramids guided tour"
-                            {...field}
-                            onChange={(e) => handleTourInputChange(e)}
-                          />
-                          {showTourSuggestions &&
-                            tourSuggestions.length > 0 && (
-                              <div className="absolute z-10 w-full mt-1 max-h-60 overflow-auto bg-white border rounded-md shadow-lg">
-                                {filterSuggestions(
-                                  field.value,
-                                  tourSuggestions,
-                                ).map((suggestion, index) => (
-                                  <div
-                                    key={index}
-                                    className="px-4 py-2 cursor-pointer hover:bg-zinc-100"
-                                    onClick={() => {
-                                      form.setValue("tourDetails", suggestion);
-                                      setShowTourSuggestions(false);
-                                    }}
-                                  >
-                                    {suggestion}
-                                  </div>
-                                ))}
+                {/* Tour Selection Section */}
+                <div className="space-y-3">
+                  <FormLabel>
+                    Select Tours <span className="text-destructive">*</span>
+                  </FormLabel>
+                  
+                  {/* Tour Search Input */}
+                  <div className="relative">
+                    <Input
+                      placeholder="Search tours..."
+                      value={tourSearchQuery}
+                      onChange={(e) => {
+                        setTourSearchQuery(e.target.value);
+                        setShowTourDropdown(e.target.value.length > 0);
+                      }}
+                      onFocus={() => setShowTourDropdown(tourSearchQuery.length > 0)}
+                    />
+                    
+                    {/* Tour Dropdown */}
+                    {showTourDropdown && filteredTours.length > 0 && (
+                      <div className="absolute z-10 w-full mt-1 max-h-60 overflow-auto bg-white border rounded-md shadow-lg">
+                        {filteredTours.map((tour) => (
+                          <div
+                            key={tour.id}
+                            className="px-4 py-3 cursor-pointer hover:bg-zinc-100 border-b last:border-b-0"
+                            onClick={() => handleTourSelection(tour.id)}
+                          >
+                            <div className="font-medium">{tour.name}</div>
+                            <div className="text-sm text-gray-600 truncate">
+                              {tour.description}
+                            </div>
+                            <div className="text-sm text-blue-600">
+                              ${(tour.price / 100).toFixed(2)} • {tour.duration} duration
+                            </div>
+                          </div>
+                        ))}
+                      </div>
+                    )}
+                  </div>
+
+                  {/* Selected Tours Display */}
+                  {selectedTours.length > 0 && (
+                    <div className="space-y-2">
+                      <h4 className="text-sm font-medium text-green-700">
+                        Selected Tours ({selectedTours.length})
+                      </h4>
+                      <div className="space-y-2">
+                        {selectedTours.map((tour) => (
+                          <div
+                            key={tour.id}
+                            className="flex items-center justify-between p-3 bg-green-50 border border-green-200 rounded-md"
+                          >
+                            <div className="flex-1">
+                              <div className="font-medium text-green-800">{tour.name}</div>
+                              <div className="text-sm text-green-600">
+                                ${(tour.price / 100).toFixed(2)} • {tour.duration} duration
                               </div>
-                            )}
-                        </div>
-                      </FormControl>
-                      <FormMessage />
-                    </FormItem>
+                            </div>
+                            <Button
+                              type="button"
+                              variant="ghost"
+                              size="sm"
+                              onClick={() => removeTour(tour.id)}
+                              className="text-red-600 hover:text-red-800 hover:bg-red-100"
+                            >
+                              Remove
+                            </Button>
+                          </div>
+                        ))}
+                      </div>
+                      
+                      {/* Total Tours Price */}
+                      <div className="mt-2 p-2 bg-blue-50 border border-blue-200 rounded text-sm">
+                        <strong>Total Tours Price: ${(selectedTours.reduce((sum, tour) => sum + tour.price, 0) / 100).toFixed(2)}</strong>
+                      </div>
+                    </div>
                   )}
-                />
+
+                  {/* Validation Error for Tours */}
+                  {form.formState.errors.selectedTourIds && (
+                    <p className="text-sm text-destructive">
+                      {form.formState.errors.selectedTourIds.message}
+                    </p>
+                  )}
+                </div>
 
                 <div className="space-y-3">
                   <label className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70">
