@@ -1091,76 +1091,7 @@ export function MultiHotelManualPackageForm() {
                   )}
                 />
 
-                <FormField
-                  control={form.control}
-                  name="inclusions"
-                  render={() => (
-                    <FormItem>
-                      <FormLabel>Inclusions <span className="text-destructive">*</span></FormLabel>
-                      <div className="space-y-3">
-                        <div className="flex gap-2 suggestion-dropdown">
-                          <div className="relative flex-1">
-                            <Input
-                              placeholder="Add an inclusion..."
-                              value={newInclusion}
-                              onChange={handleInclusionInputChange}
-                              onKeyDown={(e) => {
-                                if (e.key === 'Enter') {
-                                  e.preventDefault();
-                                  addInclusion();
-                                }
-                              }}
-                            />
-                            {showInclusionSuggestions && inclusionSuggestions.length > 0 && (
-                              <div className="absolute z-10 w-full mt-1 max-h-60 overflow-auto bg-white border rounded-md shadow-lg">
-                                {filterSuggestions(newInclusion, inclusionSuggestions).map((suggestion, index) => (
-                                  <div
-                                    key={index}
-                                    className="px-4 py-2 cursor-pointer hover:bg-zinc-100"
-                                    onClick={() => {
-                                      setNewInclusion(suggestion);
-                                      setShowInclusionSuggestions(false);
-                                    }}
-                                  >
-                                    {suggestion}
-                                  </div>
-                                ))}
-                              </div>
-                            )}
-                          </div>
-                          <Button
-                            type="button"
-                            onClick={addInclusion}
-                            className="w-[120px]"
-                          >
-                            <Plus className="h-4 w-4 mr-2" />
-                            Add
-                          </Button>
-                        </div>
-                        
-                        <div className="flex flex-wrap gap-2 mt-2">
-                          {form.watch("inclusions").map((inclusion, index) => (
-                            <Badge 
-                              key={index} 
-                              variant="secondary"
-                              className="flex items-center gap-1 px-3 py-1.5"
-                            >
-                              {inclusion}
-                              <X
-                                className="h-3 w-3 cursor-pointer"
-                                onClick={() => removeInclusion(index)}
-                              />
-                            </Badge>
-                          ))}
-                        </div>
-                      </div>
-                      <FormDescription>
-                        Add what's included in this package (e.g., breakfast, airport transfer)
-                      </FormDescription>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
+                
 
                 <div className="space-y-3">
                   <label className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70">Package Images</label>
@@ -1346,6 +1277,78 @@ export function MultiHotelManualPackageForm() {
                       Add items that are not included in this package
                     </FormDescription>
                   </div>
+
+                  {/* Included Items Section */}
+                  <FormField
+                    control={form.control}
+                    name="inclusions"
+                    render={() => (
+                      <FormItem>
+                        <FormLabel>Included Items <span className="text-destructive">*</span></FormLabel>
+                        <div className="space-y-3">
+                          <div className="flex gap-2 suggestion-dropdown">
+                            <div className="relative flex-1">
+                              <Input
+                                placeholder="Add an inclusion..."
+                                value={newInclusion}
+                                onChange={handleInclusionInputChange}
+                                onKeyDown={(e) => {
+                                  if (e.key === 'Enter') {
+                                    e.preventDefault();
+                                    addInclusion();
+                                  }
+                                }}
+                              />
+                              {showInclusionSuggestions && inclusionSuggestions.length > 0 && (
+                                <div className="absolute z-10 w-full mt-1 max-h-60 overflow-auto bg-white border rounded-md shadow-lg">
+                                  {filterSuggestions(newInclusion, inclusionSuggestions).map((suggestion, index) => (
+                                    <div
+                                      key={index}
+                                      className="px-4 py-2 cursor-pointer hover:bg-zinc-100"
+                                      onClick={() => {
+                                        setNewInclusion(suggestion);
+                                        setShowInclusionSuggestions(false);
+                                      }}
+                                    >
+                                      {suggestion}
+                                    </div>
+                                  ))}
+                                </div>
+                              )}
+                            </div>
+                            <Button
+                              type="button"
+                              onClick={addInclusion}
+                              className="w-[120px]"
+                            >
+                              <Plus className="h-4 w-4 mr-2" />
+                              Add
+                            </Button>
+                          </div>
+                          
+                          <div className="flex flex-wrap gap-2 mt-2">
+                            {form.watch("inclusions").map((inclusion, index) => (
+                              <Badge 
+                                key={index} 
+                                variant="secondary"
+                                className="flex items-center gap-1 px-3 py-1.5"
+                              >
+                                {inclusion}
+                                <X
+                                  className="h-3 w-3 cursor-pointer"
+                                  onClick={() => removeInclusion(index)}
+                                />
+                              </Badge>
+                            ))}
+                          </div>
+                        </div>
+                        <FormDescription>
+                          Add what's included in this package (e.g., breakfast, airport transfer)
+                        </FormDescription>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
                 </div>
               </div>
             </div>
