@@ -136,9 +136,12 @@ const countrySchema = z.object({
   description: z.string().optional(),
   imageUrl: z
     .string()
-    .url({ message: "Must be a valid URL" })
     .optional()
-    .or(z.literal("")),
+    .refine((val) => {
+      if (!val || val === "") return true;
+      // Accept URLs starting with http/https or uploaded file paths starting with /uploads
+      return val.startsWith("http") || val.startsWith("/uploads") || val.startsWith("/");
+    }, { message: "Must be a valid URL or uploaded image path" }),
   active: z.boolean().default(true),
 });
 
@@ -149,9 +152,12 @@ const citySchema = z.object({
   description: z.string().optional(),
   imageUrl: z
     .string()
-    .url({ message: "Must be a valid URL" })
     .optional()
-    .or(z.literal("")),
+    .refine((val) => {
+      if (!val || val === "") return true;
+      // Accept URLs starting with http/https or uploaded file paths starting with /uploads
+      return val.startsWith("http") || val.startsWith("/uploads") || val.startsWith("/");
+    }, { message: "Must be a valid URL or uploaded image path" }),
   active: z.boolean().default(true),
 });
 
@@ -166,9 +172,12 @@ const airportSchema = z.object({
   description: z.string().optional(),
   imageUrl: z
     .string()
-    .url({ message: "Must be a valid URL" })
     .optional()
-    .or(z.literal("")),
+    .refine((val) => {
+      if (!val || val === "") return true;
+      // Accept URLs starting with http/https or uploaded file paths starting with /uploads
+      return val.startsWith("http") || val.startsWith("/uploads") || val.startsWith("/");
+    }, { message: "Must be a valid URL or uploaded image path" }),
   active: z.boolean().default(true),
 });
 

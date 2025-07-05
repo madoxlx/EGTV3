@@ -105,7 +105,14 @@ const countrySchema = z.object({
   name: z.string().min(2, { message: "Name must be at least 2 characters" }),
   code: z.string().min(2, { message: "Code must be at least 2 characters" }).max(3),
   description: z.string().optional(),
-  imageUrl: z.string().url({ message: "Must be a valid URL" }).optional().or(z.literal("")),
+  imageUrl: z
+    .string()
+    .optional()
+    .refine((val) => {
+      if (!val || val === "") return true;
+      // Accept URLs starting with http/https or uploaded file paths starting with /uploads
+      return val.startsWith("http") || val.startsWith("/uploads") || val.startsWith("/");
+    }, { message: "Must be a valid URL or uploaded image path" }),
   active: z.boolean().default(true),
 });
 
@@ -114,7 +121,14 @@ const citySchema = z.object({
   name: z.string().min(2, { message: "Name must be at least 2 characters" }),
   countryId: z.number({ message: "Country is required" }),
   description: z.string().optional(),
-  imageUrl: z.string().url({ message: "Must be a valid URL" }).optional().or(z.literal("")),
+  imageUrl: z
+    .string()
+    .optional()
+    .refine((val) => {
+      if (!val || val === "") return true;
+      // Accept URLs starting with http/https or uploaded file paths starting with /uploads
+      return val.startsWith("http") || val.startsWith("/uploads") || val.startsWith("/");
+    }, { message: "Must be a valid URL or uploaded image path" }),
   active: z.boolean().default(true),
 });
 
@@ -124,7 +138,14 @@ const airportSchema = z.object({
   code: z.string().min(2, { message: "Code must be at least 2 characters" }).max(4),
   cityId: z.number({ message: "City is required" }),
   description: z.string().optional(),
-  imageUrl: z.string().url({ message: "Must be a valid URL" }).optional().or(z.literal("")),
+  imageUrl: z
+    .string()
+    .optional()
+    .refine((val) => {
+      if (!val || val === "") return true;
+      // Accept URLs starting with http/https or uploaded file paths starting with /uploads
+      return val.startsWith("http") || val.startsWith("/uploads") || val.startsWith("/");
+    }, { message: "Must be a valid URL or uploaded image path" }),
   active: z.boolean().default(true),
 });
 
