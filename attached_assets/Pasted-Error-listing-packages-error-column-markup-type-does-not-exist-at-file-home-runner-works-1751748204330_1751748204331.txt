@@ -1,0 +1,62 @@
+Error listing packages: error: column "markup_type" does not exist
+    at file:///home/runner/workspace/node_modules/@neondatabase/serverless/index.mjs:1345:74
+    at process.processTicksAndRejections (node:internal/process/task_queues:95:5)
+    at async NeonPreparedQuery.execute (/home/runner/workspace/node_modules/src/neon-serverless/session.ts:102:18)
+    at async DatabaseStorage.listPackages (/home/runner/workspace/server/storage.ts:511:14)
+    at async <anonymous> (/home/runner/workspace/server/routes.ts:546:24) {
+  length: 112,
+  severity: 'ERROR',
+  code: '42703',
+  detail: undefined,
+  hint: undefined,
+  position: '854',
+  internalPosition: undefined,
+  internalQuery: undefined,
+  where: undefined,
+  schema: undefined,
+  table: undefined,
+  column: undefined,
+  dataType: undefined,
+  constraint: undefined,
+  file: 'parse_relation.c',
+  line: '3716',
+  routine: 'errorMissingColumn'
+}
+8:40:47 PM [express] GET /api/packages 200 in 107ms :: []
+8:40:47 PM [express] GET /api/menus/location/footer 200 in 62ms :: {"menu":{"id":1,"name":"Footer Menu","location":"footer","description":null,"active":true,"createdAt"…
+8:40:47 PM [express] GET /api/translations/settings 200 in 28ms :: {"id":1,"default_language":"en","available_languages":["en","ar"],"rtl_languages":["ar"],"auto_transl…
+8:40:47 PM [express] GET /api/translations 200 in 32ms :: [{"id":9,"key":"about","language":"en","value":"About","category":"navigation","created_at":"2025-06-16T10:19:…
+📍 API Route Hit: GET /
+⚠️ No session user found in unified-auth, providing development admin user
+8:41:19 PM [express] GET /api/user 200 in 1ms :: {"id":1,"username":"admin","role":"admin","email":"admin@example.com","fullName":"Admin User","displayName":"Admin"}
+8:41:19 PM [express] GET /api/admin/dashboard-stats 200 in 9ms
+📍 API Route Hit: GET /
+8:41:20 PM [express] GET /api/admin/dashboard-stats 200 in 4ms
+⚠️ No session user found in unified-auth, providing development admin user
+8:41:20 PM [express] GET /api/user 200 in 1ms :: {"id":1,"username":"admin","role":"admin","email":"admin@example.com","fullName":"Admin User","displayName":"Admin"}
+8:41:31 PM [express] GET /api/translations 304 in 86ms :: [{"id":9,"key":"about","language":"en","value":"About","category":"navigation","created_at":"2025-06-16T10:19:…
+8:41:31 PM [express] GET /api/translations/settings 304 in 86ms :: {"id":1,"default_language":"en","available_languages":["en","ar"],"rtl_languages":["ar"],"auto_transl…
+8:41:31 PM [express] GET /api/menus/location/footer 304 in 112ms :: {"menu":{"id":1,"name":"Footer Menu","location":"footer","description":null,"active":true,"createdAt…
+8:42:12 PM [express] GET /api/admin/hotels 200 in 176ms :: [{"id":"83","name":"ahmed sh","description":"ahmed","shortDescription":null,"destinationId":6,"countryId":10,…
+8:42:12 PM [express] GET /api/package-categories 200 in 91ms :: [{"id":6,"name":"Adventure","description":"Thrilling adventure packages for adrenaline seekers","slug":n…
+⚠️ No session user found in unified-auth, providing development admin user
+8:42:13 PM [express] GET /api/user 200 in 1ms :: {"id":1,"username":"admin","role":"admin","email":"admin@example.com","fullName":"Admin User","displayName":"Admin"}
+🔍 Admin check - Session user: undefined
+🔍 Admin check - Request path: /api/admin/tours
+⚠️ No session user found, using temporary admin access for development
+🔑 Temporary admin panel access granted
+🔍 Admin check - Session user: undefined
+🔍 Admin check - Request path: /api/admin/rooms
+⚠️ No session user found, using temporary admin access for development
+🔑 Temporary admin panel access granted
+Admin rooms endpoint called
+🔍 Listing rooms with hotelId: undefined
+8:42:17 PM [express] GET /api/admin/tours 200 in 32ms :: [{"id":19,"name":"Seo KeyWordsa","description":"- agogogogoggogogogo- agogogogoggogogogo- agogogogoggogogogo","…
+✅ Rooms query result: 7 rooms found
+📋 Sample room: { id: 7, name: 'Egypt', hotel_id: 83 }
+Rooms returned from storage: 7 rooms
+8:42:17 PM [express] GET /api/admin/rooms 200 in 33ms :: [{"id":7,"name":"Egypt","description":"1212121","hotel_id":83,"type":"standard","max_occupancy":2,"max_adults":…
+⚠️ No session user found in unified-auth, providing development admin user
+8:42:18 PM [express] GET /api/user 200 in 0ms :: {"id":1,"username":"admin","role":"admin","email":"admin@example.com","fullName":"Admin User","displayName":"Admin"}
+⚠️ No session user found in unified-auth, providing development admin user
+8:42:21 PM [express] GET /api/user 200 in 1ms :: {"id":1,"username":"admin","role":"admin","email":"admin@example.com","fullName":"Admin User","displayName":"Admin"}

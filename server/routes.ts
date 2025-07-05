@@ -540,6 +540,32 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
+  // Database migration endpoint for adding markup_type column
+  app.post("/api/admin/migrate/add-markup-type", isAdmin, async (req, res) => {
+    try {
+      console.log("Running markup_type column migration...");
+      
+      // Add markup_type column to packages table
+      await db.execute(sql`
+        ALTER TABLE packages 
+        ADD COLUMN IF NOT EXISTS markup_type TEXT DEFAULT 'percentage'
+      `);
+      
+      // Set default values for existing packages
+      await db.execute(sql`
+        UPDATE packages 
+        SET markup_type = 'percentage' 
+        WHERE markup_type IS NULL
+      `);
+      
+      console.log("✅ Successfully added markup_type column");
+      res.json({ success: true, message: "markup_type column added successfully" });
+    } catch (error) {
+      console.error("❌ Error in migration:", error);
+      res.status(500).json({ success: false, error: error.message });
+    }
+  });
+
   // Get all packages
   app.get('/api/packages', async (req, res) => {
     try {
