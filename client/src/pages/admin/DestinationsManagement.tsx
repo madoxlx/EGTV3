@@ -183,10 +183,10 @@ export default function DestinationsManagement() {
     },
   });
 
-  // Update Destination Mutation - using apiRequest with alternative endpoint
+  // Update Destination Mutation - using different bypass endpoint
   const updateDestinationMutation = useMutation({
     mutationFn: async ({ id, data }: { id: number; data: DestinationFormValues }) => {
-      return await apiRequest(`/api-admin/destinations/${id}`, {
+      return await apiRequest(`/admin-api/destinations/${id}`, {
         method: 'PUT',
         body: JSON.stringify(data),
       });

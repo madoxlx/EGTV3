@@ -2087,6 +2087,39 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
+  // Additional bypass route with different pattern that Vite won't intercept
+  app.put('/admin-api/destinations/:id', isAdmin, async (req, res) => {
+    try {
+      const id = parseInt(req.params.id);
+      if (isNaN(id)) {
+        return res.status(400).json({ message: 'Invalid destination ID' });
+      }
+
+      console.log(`[BYPASS ROUTE] Updating destination ${id} with data:`, req.body);
+
+      // Verify destination exists
+      const existingDestination = await storage.getDestination(id);
+      if (!existingDestination) {
+        return res.status(404).json({ message: 'Destination not found' });
+      }
+
+      // Parse and validate the update data
+      const updateData = insertDestinationSchema.parse(req.body);
+      
+      // Perform the update operation
+      const updatedDestination = await storage.updateDestination(id, updateData);
+      
+      console.log('[BYPASS ROUTE] Destination updated successfully:', updatedDestination);
+      res.json(updatedDestination);
+    } catch (error) {
+      if (error instanceof z.ZodError) {
+        return res.status(400).json({ message: 'Invalid destination data', errors: error.errors });
+      }
+      console.error('[BYPASS ROUTE] Error updating destination:', error);
+      res.status(500).json({ message: 'Failed to update destination' });
+    }
+  });
+
   // Delete a destination (admin only)
   app.delete('/api/admin/destinations/:id', isAdmin, async (req, res) => {
     try {
