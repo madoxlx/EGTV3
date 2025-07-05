@@ -67,6 +67,7 @@ export interface IStorage {
   getDestination(id: number): Promise<Destination | undefined>;
   listDestinations(active?: boolean): Promise<Destination[]>;
   createDestination(destination: InsertDestination): Promise<Destination>;
+  updateDestination(id: number, destination: Partial<InsertDestination>): Promise<Destination | undefined>;
 
   // Packages
   getPackage(id: number): Promise<Package | undefined>;
@@ -343,6 +344,20 @@ export class DatabaseStorage implements IStorage {
       .values(destination)
       .returning();
     return created;
+  }
+
+  async updateDestination(id: number, destination: Partial<InsertDestination>): Promise<Destination | undefined> {
+    try {
+      const [updatedDestination] = await db
+        .update(destinations)
+        .set(destination)
+        .where(eq(destinations.id, id))
+        .returning();
+      return updatedDestination;
+    } catch (error) {
+      console.error("Error updating destination:", error);
+      return undefined;
+    }
   }
 
   // Packages
