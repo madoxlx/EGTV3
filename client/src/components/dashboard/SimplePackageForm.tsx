@@ -119,7 +119,8 @@ const packageFormSchema = z.object({
   price: z.coerce
     .number()
     .min(0, { message: "Price must be a positive number" }),
-  discountedPrice: z.coerce.number().min(0).optional().nullable(),
+  markup: z.coerce.number().min(0).optional().nullable(),
+  markupType: z.enum(["percentage", "fixed"]).default("percentage"),
   currency: z.string().default("EGP"),
   imageUrl: z.string().optional(),
   galleryUrls: z.array(z.string()).optional(),
@@ -659,7 +660,8 @@ export function PackageCreatorForm({
       shortDescription: "",
       overview: "",
       price: 0,
-      discountedPrice: null,
+      markup: null,
+      markupType: "percentage",
       currency: "EGP",
       imageUrl: "",
       galleryUrls: [],
@@ -787,7 +789,9 @@ export function PackageCreatorForm({
         description: formData.description,
         overview: formData.overview || formData.description,
         price: formData.price || 0,
-        discountedPrice: formData.discountedPrice || Math.round((formData.price || 0) * 0.9),
+        // Map markup fields to existing database schema
+        discountType: formData.markupType || "percentage",
+        discountValue: formData.markup || 0,
 
         // Media
         imageUrl: mainImageUrl,
@@ -1359,7 +1363,9 @@ export function PackageCreatorForm({
           shortDescription: parsedShortDescription,
           overview: existingPackageData.overview || existingPackageData.description || "",
           price: existingPackageData.price || 0,
-          discountedPrice: existingPackageData.discountedPrice || null,
+          // Map from existing database schema
+          markup: existingPackageData.discountValue || null,
+          markupType: existingPackageData.discountType || "percentage",
           currency: existingPackageData.currency || "EGP",
           imageUrl: existingPackageData.imageUrl || "",
           galleryUrls: galleryUrls,
@@ -2263,6 +2269,63 @@ export function PackageCreatorForm({
                 </FormItem>
               )}
             />
+
+            {/* Markup Configuration */}
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+              <FormField
+                control={form.control}
+                name="markupType"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Markup Type</FormLabel>
+                    <Select onValueChange={field.onChange} value={field.value}>
+                      <FormControl>
+                        <SelectTrigger>
+                          <SelectValue placeholder="Select markup type" />
+                        </SelectTrigger>
+                      </FormControl>
+                      <SelectContent>
+                        <SelectItem value="percentage">Percentage (%)</SelectItem>
+                        <SelectItem value="fixed">Fixed Amount (EGP)</SelectItem>
+                      </SelectContent>
+                    </Select>
+                    <FormDescription>
+                      Choose how the markup is calculated
+                    </FormDescription>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+
+              <FormField
+                control={form.control}
+                name="markup"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>
+                      Markup {form.watch("markupType") === "percentage" ? "(%)" : "(EGP)"}
+                    </FormLabel>
+                    <FormControl>
+                      <Input
+                        type="number"
+                        min="0"
+                        step={form.watch("markupType") === "percentage" ? "0.1" : "1"}
+                        placeholder={form.watch("markupType") === "percentage" ? "e.g., 15" : "Enter amount"}
+                        {...field}
+                        value={field.value || ""}
+                        onChange={(e) => field.onChange(e.target.value ? Number(e.target.value) : null)}
+                      />
+                    </FormControl>
+                    <FormDescription>
+                      {form.watch("markupType") === "percentage" 
+                        ? "Enter percentage (0-100)" 
+                        : "Enter fixed amount in EGP"}
+                    </FormDescription>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+            </div>
 
             {/* Language Selection */}
             <FormField

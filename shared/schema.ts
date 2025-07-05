@@ -217,6 +217,7 @@ export const packages = pgTable("packages", {
   termsAndConditions: text("terms_and_conditions"),
   excludedItems: json("excluded_items"), // Array of excluded items
   markup: integer("markup"), // Markup amount in EGP
+  markupType: text("markup_type"), // "percentage" or "fixed"
   discountType: text("discount_type"), // "percentage" or "fixed"
   discountValue: integer("discount_value"), // Discount amount (percentage or EGP)
 
@@ -1272,6 +1273,7 @@ export const insertPackageSchema = createInsertSchema(packages)
     termsAndConditions: true,
     excludedItems: true,
     markup: true,
+    markupType: true,
     discountType: true,
     discountValue: true,
   })
