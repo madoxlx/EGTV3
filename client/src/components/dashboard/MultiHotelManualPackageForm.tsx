@@ -120,6 +120,7 @@ const manualPackageFormSchema = z.object({
   countryId: z.coerce.number().optional(),
   cityId: z.coerce.number().optional(),
   categoryId: z.coerce.number({ required_error: "Please select a category" }),
+  type: z.string().min(2, { message: "Type must be at least 2 characters" }),
   featured: z.boolean().default(false),
   inclusions: z
     .array(z.string())
@@ -249,6 +250,7 @@ export function MultiHotelManualPackageForm() {
       countryId: undefined,
       cityId: undefined,
       categoryId: undefined,
+      type: "manual",
       featured: false,
       inclusions: [],
       excludedItems: [],

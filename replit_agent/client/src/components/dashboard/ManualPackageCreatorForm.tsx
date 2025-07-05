@@ -118,7 +118,7 @@ export function ManualPackageCreatorForm() {
       duration: 1,
       destinationId: undefined,
       categoryId: undefined,
-      type: "",
+      type: "manual",
       featured: false,
       inclusions: [],
     },

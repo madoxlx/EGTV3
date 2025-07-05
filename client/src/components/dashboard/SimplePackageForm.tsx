@@ -677,7 +677,7 @@ export function PackageCreatorForm({
       endDate: new Date(new Date().setDate(new Date().getDate() + 1)),
       validUntil: new Date(new Date().setMonth(new Date().getMonth() + 6)), // Default to 6 months from now
       route: "",
-      type: "",
+      type: "dynamic",
       maxGroupSize: 15,
       language: "english",
       bestTimeToVisit: "",
