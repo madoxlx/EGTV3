@@ -649,23 +649,26 @@ export function MultiHotelManualPackageForm() {
 
   const handleImageUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
     if (e.target.files && e.target.files.length > 0) {
-      const file = e.target.files[0];
+      const files = Array.from(e.target.files);
 
-      // Create URL for preview
-      const preview = URL.createObjectURL(file);
+      // Process each selected file
+      files.forEach((file, index) => {
+        // Create URL for preview
+        const preview = URL.createObjectURL(file);
 
-      // Set as main image if this is the first image
-      const isFirstImage = images.length === 0;
+        // Set as main image if this is the first image overall
+        const isFirstImage = images.length === 0 && index === 0;
 
-      // Add to images array with the isMain property
-      const newImage = {
-        id: Math.random().toString(36).substring(7),
-        file: file,
-        preview: preview,
-        isMain: isFirstImage,
-      };
+        // Add to images array with the isMain property
+        const newImage = {
+          id: Math.random().toString(36).substring(7),
+          file: file,
+          preview: preview,
+          isMain: isFirstImage,
+        };
 
-      setImages((prev) => [...prev, newImage]);
+        setImages((prev) => [...prev, newImage]);
+      });
 
       // Reset file input
       if (fileInputRef.current) {
@@ -1494,6 +1497,7 @@ export function MultiHotelManualPackageForm() {
                     ref={fileInputRef}
                     type="file"
                     accept="image/*"
+                    multiple
                     className="hidden"
                     onChange={handleImageUpload}
                   />

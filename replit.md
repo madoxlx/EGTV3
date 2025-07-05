@@ -106,6 +106,16 @@ The application uses a comprehensive PostgreSQL schema with the following core e
 
 ## Recent Changes
 
+- **Multiple Image Selection Enhancement Complete (July 5, 2025)**: Successfully enabled multiple image selection from file dialog in all package creation forms
+  - **ManualPackageCreatorForm**: Added `multiple` attribute to file input and updated `handleImageUpload` to process multiple files simultaneously
+  - **MultiHotelManualPackageForm**: Enhanced file input to support multiple selection with batch processing of all selected images
+  - **SimplePackageForm**: Already supported multiple image selection with comprehensive upload handling
+  - **Batch Processing**: All selected images get added to gallery simultaneously with proper preview generation
+  - **Smart Main Image**: First selected image automatically becomes main image, users can change via star button selection
+  - **File Dialog Enhancement**: Users can now Ctrl+click or Shift+click to select multiple images at once from file browser
+  - **Consistent Experience**: All three package creation forms now provide identical multiple image selection capabilities
+  - **Error Handling**: Maintained proper upload state management and error handling for batch image processing
+
 - **Dual Package Detail Pages Implementation Complete (July 5, 2025)**: Successfully created separate package detail pages for manual and dynamic packages with intelligent routing system
   - **Manual Package Detail Page**: Created specialized smaller `manual-package-detail.tsx` for manual packages with focused multi-room hotel display
   - **Dynamic Package Detail Page**: Preserved existing comprehensive `package-detail.tsx` for dynamic packages with full booking functionality
