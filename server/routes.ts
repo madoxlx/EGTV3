@@ -2120,6 +2120,38 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
+  // Additional bypass delete route with different pattern that Vite won't intercept
+  app.delete('/admin-api/destinations/:id', isAdmin, async (req, res) => {
+    try {
+      const id = parseInt(req.params.id);
+      if (isNaN(id)) {
+        return res.status(400).json({ message: 'Invalid destination ID' });
+      }
+
+      console.log(`[BYPASS DELETE] Deleting destination ${id}`);
+
+      // Verify destination exists
+      const existingDestination = await storage.getDestination(id);
+      if (!existingDestination) {
+        return res.status(404).json({ message: 'Destination not found' });
+      }
+
+      // Delete the destination
+      const success = await storage.deleteDestination(id);
+      
+      if (success) {
+        console.log('[BYPASS DELETE] Destination deleted successfully');
+        res.status(200).json({ message: 'Destination deleted successfully' });
+      } else {
+        console.log('[BYPASS DELETE] Failed to delete destination');
+        res.status(500).json({ message: 'Failed to delete destination' });
+      }
+    } catch (error) {
+      console.error('[BYPASS DELETE] Error deleting destination:', error);
+      res.status(500).json({ message: 'Failed to delete destination' });
+    }
+  });
+
   // Delete a destination (admin only)
   app.delete('/api/admin/destinations/:id', isAdmin, async (req, res) => {
     try {

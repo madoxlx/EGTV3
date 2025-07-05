@@ -206,22 +206,16 @@ export default function DestinationsManagement() {
     },
   });
 
-  // Delete Destination Mutation
+  // Delete Destination Mutation - using bypass endpoint
   const deleteDestinationMutation = useMutation({
     mutationFn: async (id: number) => {
-      const response = await fetch(`/api/admin/destinations/${id}`, {
+      return await apiRequest(`/admin-api/destinations/${id}`, {
         method: 'DELETE',
       });
-      
-      if (!response.ok) {
-        const errorData = await response.json();
-        throw new Error(errorData.message || 'Failed to delete destination');
-      }
-      
-      return response.json();
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['/api/destinations'] });
+      queryClient.invalidateQueries({ queryKey: ['/admin-api/destinations'] });
       setDeleteConfirmOpen(false);
       setSelectedDestination(null);
       toast({

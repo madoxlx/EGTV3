@@ -68,6 +68,7 @@ export interface IStorage {
   listDestinations(active?: boolean): Promise<Destination[]>;
   createDestination(destination: InsertDestination): Promise<Destination>;
   updateDestination(id: number, destination: Partial<InsertDestination>): Promise<Destination | undefined>;
+  deleteDestination(id: number): Promise<boolean>;
 
   // Packages
   getPackage(id: number): Promise<Package | undefined>;
@@ -357,6 +358,21 @@ export class DatabaseStorage implements IStorage {
     } catch (error) {
       console.error("Error updating destination:", error);
       return undefined;
+    }
+  }
+
+  async deleteDestination(id: number): Promise<boolean> {
+    try {
+      console.log(`Attempting to delete destination with ID: ${id}`);
+      const result = await db
+        .delete(destinations)
+        .where(eq(destinations.id, id));
+      
+      console.log(`Delete destination result:`, result);
+      return true;
+    } catch (error) {
+      console.error("Error deleting destination:", error);
+      return false;
     }
   }
 
