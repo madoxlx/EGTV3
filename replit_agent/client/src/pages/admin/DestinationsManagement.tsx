@@ -152,16 +152,33 @@ export default function DestinationsManagement() {
   const handleImageUpload = async (file: File) => {
     setIsUploadingImage(true);
     try {
-      const formData = new FormData();
-      formData.append('image', file);
+      // Convert file to base64
+      const reader = new FileReader();
+      const base64Promise = new Promise<string>((resolve, reject) => {
+        reader.onload = () => resolve(reader.result as string);
+        reader.onerror = reject;
+        reader.readAsDataURL(file);
+      });
 
+      const base64Data = await base64Promise;
+      
+      // Extract file extension for type
+      const fileExtension = file.name.split('.').pop()?.toLowerCase() || 'jpeg';
+      
       const response = await fetch('/api/upload-image', {
         method: 'POST',
-        body: formData,
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          image: base64Data,
+          type: fileExtension,
+        }),
       });
 
       if (!response.ok) {
-        throw new Error('Image upload failed');
+        const errorData = await response.json();
+        throw new Error(errorData.message || 'Image upload failed');
       }
 
       const result = await response.json();
@@ -175,9 +192,10 @@ export default function DestinationsManagement() {
         description: "Image uploaded successfully",
       });
     } catch (error) {
+      console.error('Image upload error:', error);
       toast({
         title: "Error",
-        description: "Failed to upload image",
+        description: error instanceof Error ? error.message : "Failed to upload image",
         variant: "destructive",
       });
     } finally {
