@@ -154,11 +154,23 @@ export default function PackagesManagement() {
   const filteredPackages = packages.filter(pkg => {
     if (selectedTab === "all") return true;
     if (selectedTab === "featured") return pkg.featured;
+    if (selectedTab === "manual") {
+      // Manual packages are created through manual forms
+      // They usually have Tour Package type or detailed manual creation data
+      return pkg.type?.toLowerCase() === "tour package" || 
+             (pkg.type === null && (pkg.description?.length > 50 || pkg.inclusions));
+    }
+    if (selectedTab === "dynamic") {
+      // Dynamic packages are typically auto-generated or have minimal manual input
+      // They might have null type and minimal description/data
+      return (pkg.type === null && (!pkg.description || pkg.description.length <= 50) && !pkg.inclusions) ||
+             pkg.type?.toLowerCase() === "dynamic";
+    }
     return pkg.type?.toLowerCase() === selectedTab;
   });
 
-  // Get unique package types for tabs
-  const packageTypes = Array.from(new Set(packages.map(pkg => pkg.type?.toLowerCase() || "unknown")));
+  // Get unique package types for tabs, including manual and dynamic
+  const packageTypes = ["manual", "dynamic", ...Array.from(new Set(packages.map(pkg => pkg.type?.toLowerCase() || "unknown")))];
 
   const handleDelete = (id: number) => {
     setDeleteId(id);
@@ -226,10 +238,16 @@ export default function PackagesManagement() {
               <TabsTrigger value="all" className="text-sm">
                 {t('admin.packages.allPackages', 'All Packages')}
               </TabsTrigger>
+              <TabsTrigger value="manual" className="text-sm">
+                {t('admin.packages.manual', 'Manual')}
+              </TabsTrigger>
+              <TabsTrigger value="dynamic" className="text-sm">
+                {t('admin.packages.dynamic', 'Dynamic')}
+              </TabsTrigger>
               <TabsTrigger value="featured" className="text-sm">
                 {t('admin.packages.featured', 'Featured')}
               </TabsTrigger>
-              {packageTypes.map(type => (
+              {packageTypes.filter(type => !['manual', 'dynamic'].includes(type)).map(type => (
                 <TabsTrigger key={type} value={type} className="text-sm capitalize">
                   {t(`admin.packages.types.${type}`, type)}
                 </TabsTrigger>
@@ -285,6 +303,30 @@ export default function PackagesManagement() {
                                 Featured
                               </Badge>
                             )}
+                            
+                            {/* Manual/Dynamic Badge */}
+                            {(() => {
+                              const isManual = pkg.type?.toLowerCase() === "tour package" || 
+                                             (pkg.type === null && (pkg.description?.length > 50 || pkg.inclusions));
+                              const isDynamic = (pkg.type === null && (!pkg.description || pkg.description.length <= 50) && !pkg.inclusions) ||
+                                              pkg.type?.toLowerCase() === "dynamic";
+                              
+                              if (isManual) {
+                                return (
+                                  <Badge className="bg-blue-500 hover:bg-blue-600 text-white">
+                                    Manual
+                                  </Badge>
+                                );
+                              } else if (isDynamic) {
+                                return (
+                                  <Badge className="bg-green-500 hover:bg-green-600 text-white">
+                                    Dynamic
+                                  </Badge>
+                                );
+                              }
+                              return null;
+                            })()}
+                            
                             {pkg.type && (
                               <Badge variant="secondary" className="bg-white/90 text-primary">
                                 {pkg.type}
