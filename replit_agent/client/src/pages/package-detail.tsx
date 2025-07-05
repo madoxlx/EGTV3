@@ -48,6 +48,8 @@ type Package = {
   rating?: number;
   reviewCount?: number;
   slug?: string;
+  selectedTourId?: number | null;
+  tourSelection?: string | null;
 };
 
 type Destination = {

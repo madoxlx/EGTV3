@@ -68,6 +68,8 @@ type Package = {
     icon?: string;
     tooltip?: string;
   }> | null;
+  selectedTourId?: number | null;
+  tourSelection?: string | null;
 };
 
 type Destination = {

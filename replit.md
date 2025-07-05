@@ -106,6 +106,15 @@ The application uses a comprehensive PostgreSQL schema with the following core e
 
 ## Recent Changes
 
+- **Package Creation Forms Analysis and Dynamic Header Fix Complete (July 5, 2025)**: Successfully analyzed both manual and dynamic package creation systems, fixed validation issues, and implemented dynamic headers
+  - **Manual Packages** (`/admin/packages/create-manual`): Use MultiHotelManualPackageForm.tsx with advanced multi-room hotel management
+  - **Dynamic Packages** (`/admin/packages/create`): Use SimplePackageForm.tsx with simpler hotel selection system
+  - Fixed "Package Type" validation error in manual packages by removing obsolete "type" field requirement from validation
+  - Enhanced package detail page headers to dynamically display "Tour Overview" vs "Package Overview" based on tour inclusion
+  - Added missing selectedTourId and tourSelection fields to Package type definitions for proper tour detection
+  - Both package types now work correctly with appropriate validation and display logic
+  - Package ID 13 successfully created with multi-room support: "Sharm El Sheikh Resort (5★)" with 2 different room types
+
 - **Multi-Room Support for Hotel Dialog Enhancement Complete (July 5, 2025)**: Successfully transformed AlertDialogContent component in MultiHotelManualPackageForm.tsx to support comprehensive multi-room management
   - Updated schema structure to support room arrays instead of single room type per hotel
   - Enhanced hotel form data to manage multiple rooms with detailed properties (type, price, occupancy, amenities)
