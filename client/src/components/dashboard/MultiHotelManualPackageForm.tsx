@@ -1001,7 +1001,7 @@ export function MultiHotelManualPackageForm() {
                 />
 
                 <div className="space-y-3">
-                  <FormLabel>Package Images</FormLabel>
+                  <label className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70">Package Images</label>
                   <div className="grid grid-cols-3 gap-4">
                     {images.map((image) => (
                       <div 
@@ -1115,7 +1115,7 @@ export function MultiHotelManualPackageForm() {
           
           <div className="space-y-4 py-4">
             <div className="space-y-2 suggestion-dropdown">
-              <FormLabel htmlFor="hotelName">Hotel Name <span className="text-destructive">*</span></FormLabel>
+              <label htmlFor="hotelName" className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70">Hotel Name <span className="text-destructive">*</span></label>
               <div className="relative">
                 <Input
                   id="hotelName"
@@ -1143,7 +1143,7 @@ export function MultiHotelManualPackageForm() {
             </div>
             
             <div className="space-y-2">
-              <FormLabel htmlFor="hotelStars">Stars <span className="text-destructive">*</span></FormLabel>
+              <label htmlFor="hotelStars" className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70">Stars <span className="text-destructive">*</span></label>
               <Select
                 value={hotelFormData.stars.toString()}
                 onValueChange={(value) => handleHotelFormChange('stars', parseInt(value))}
@@ -1162,7 +1162,7 @@ export function MultiHotelManualPackageForm() {
             </div>
 
             <div className="space-y-2 suggestion-dropdown">
-              <FormLabel htmlFor="roomType">Room Type (Optional)</FormLabel>
+              <label htmlFor="roomType" className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70">Room Type (Optional)</label>
               <div className="relative">
                 <Input
                   id="roomType"
@@ -1191,7 +1191,7 @@ export function MultiHotelManualPackageForm() {
             </div>
 
             <div className="space-y-2">
-              <FormLabel htmlFor="pricePerNight">Price Per Night ($) (Optional)</FormLabel>
+              <label htmlFor="pricePerNight" className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70">Price Per Night ($) (Optional)</label>
               <Input
                 id="pricePerNight"
                 type="number"
