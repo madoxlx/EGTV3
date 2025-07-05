@@ -28,6 +28,7 @@ import SocialMediaBoxDemo from "@/pages/SocialMediaBoxDemo";
 import SailingCruise from "@/pages/sailing-cruise";
 import ZigzagDemo from "@/pages/ZigzagDemo";
 import PackageDetail from "@/pages/package-detail";
+import ManualPackageDetail from "@/pages/manual-package-detail";
 import CartPage from "@/pages/CartPage";
 import CheckoutPage from "@/pages/CheckoutPage";
 import OrderConfirmationPage from "@/pages/OrderConfirmationPage";
@@ -260,7 +261,8 @@ function Router() {
         <Route path="/search/tours" component={ToursSearchResults} />
         <Route path="/search/packages" component={PackagesSearchResults} />
 
-        {/* Package detail page */}
+        {/* Package detail pages */}
+        <Route path="/packages/manual/:id" component={ManualPackageDetail} />
         <Route path="/packages/:id" component={PackageDetail} />
 
         {/* Tours pages */}

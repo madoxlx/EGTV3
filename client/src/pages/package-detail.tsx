@@ -159,6 +159,14 @@ export default function PackageDetail() {
     ? destinations.find((d) => d.id === packageData.destinationId)
     : null;
 
+  // Detect manual packages and redirect to manual package detail page
+  React.useEffect(() => {
+    if (packageData && packageData.title && packageData.title.startsWith("MANUAL:")) {
+      // This is a manual package, redirect to manual package detail page
+      setLocation(`/packages/manual/${packageSlug}`, { replace: true });
+    }
+  }, [packageData, packageSlug, setLocation]);
+
   // Validation function
   const validateBookingForm = () => {
     const errors: { 
