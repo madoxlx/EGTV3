@@ -60,6 +60,7 @@ export interface IStorage {
 
   // Countries
   getCountry(id: number): Promise<Country | undefined>;
+  getCountryByCode(code: string): Promise<Country | undefined>;
   listCountries(active?: boolean): Promise<Country[]>;
   createCountry(country: InsertCountry): Promise<Country>;
   updateCountry(id: number, country: Partial<InsertCountry>): Promise<Country | undefined>;
@@ -255,6 +256,19 @@ export class DatabaseStorage implements IStorage {
       return country || undefined;
     } catch (error) {
       console.error("Error getting country:", error);
+      return undefined;
+    }
+  }
+
+  async getCountryByCode(code: string): Promise<Country | undefined> {
+    try {
+      const [country] = await db
+        .select()
+        .from(countries)
+        .where(eq(countries.code, code));
+      return country || undefined;
+    } catch (error) {
+      console.error("Error getting country by code:", error);
       return undefined;
     }
   }

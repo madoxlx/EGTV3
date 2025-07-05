@@ -1407,6 +1407,18 @@ export default function CountryCityManagement() {
     }
   };
 
+  // Handle opening the create country dialog and ensure form is cleared
+  const handleOpenCreateCountryDialog = () => {
+    countryForm.reset({
+      name: "",
+      code: "",
+      description: "",
+      imageUrl: "",
+      active: true,
+    });
+    setIsCreateCountryDialogOpen(true);
+  };
+
   const handleCreateCityDialogClose = (open: boolean) => {
     setIsCreateCityDialogOpen(open);
     if (!open) {
@@ -1670,7 +1682,7 @@ export default function CountryCityManagement() {
                 onOpenChange={handleCreateCountryDialogClose}
               >
                 <DialogTrigger asChild>
-                  <Button variant="default">
+                  <Button variant="default" onClick={handleOpenCreateCountryDialog}>
                     <Plus className="mr-2 h-4 w-4" /> Add Country
                   </Button>
                 </DialogTrigger>
