@@ -66,7 +66,7 @@ import {
 
 // Define the room entry schema
 const roomEntrySchema = z.object({
-  id: z.string(),
+  id: z.string().optional(),
   type: z.string().min(1, { message: "Room type is required" }),
   pricePerNight: z.coerce.number().positive({ message: "Price must be positive" }),
   maxOccupancy: z.coerce.number().min(1).max(10).default(2),
@@ -505,7 +505,10 @@ export function MultiHotelManualPackageForm() {
     setHotelFormData({
       name: hotel.name,
       stars: hotel.stars,
-      rooms: hotel.rooms || [],
+      rooms: (hotel.rooms || []).map(room => ({
+        ...room,
+        id: room.id || Math.random().toString(36).substring(7),
+      })),
     });
     setIsHotelDialogOpen(true);
   };
