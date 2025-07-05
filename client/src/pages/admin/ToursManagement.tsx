@@ -123,6 +123,8 @@ export default function ToursManagement() {
     queryKey: ["/api/destinations"],
   });
 
+
+
   // Create form
   const form = useForm<TourFormValues>({
     resolver: zodResolver(TourFormSchema),
@@ -332,9 +334,12 @@ export default function ToursManagement() {
                     const category = categories.find((cat: any) => 
                       cat.id === tour.category_id || cat.id === tour.categoryId
                     );
-                    const destination = destinations.find((dest: any) => 
-                      dest.id === tour.destination_id || dest.id === tour.destinationId
-                    );
+                    const destination = destinations.find((dest: any) => {
+                      const destId = parseInt(dest.id);
+                      const tourDestId = tour.destination_id || tour.destinationId;
+                      return destId === tourDestId;
+                    });
+
                     
                     // Determine duration display
                     const durationType = tour.duration_type || tour.durationType || 'days';
