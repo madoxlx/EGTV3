@@ -754,7 +754,7 @@ export default function CountryCityManagement() {
     // Additional validation for image URL
     const customValidationsValid = validateForm(values, [
       {
-        condition: !!values.imageUrl && !values.imageUrl.startsWith('http'),
+        condition: !!values.imageUrl && !values.imageUrl.startsWith('http') && !values.imageUrl.startsWith('/uploads/'),
         errorMessage: {
           title: "Invalid Image URL",
           description: "Please provide a valid URL starting with http:// or https://"
@@ -801,7 +801,7 @@ export default function CountryCityManagement() {
         variant: "destructive"
       },
       {
-        condition: !!values.imageUrl && !values.imageUrl.startsWith('http'),
+        condition: !!values.imageUrl && !values.imageUrl.startsWith('http') && !values.imageUrl.startsWith('/uploads/'),
         errorMessage: {
           title: "Invalid Image URL",
           description: "Please provide a valid URL starting with http:// or https://"
@@ -849,7 +849,7 @@ export default function CountryCityManagement() {
         variant: "destructive"
       },
       {
-        condition: !!values.imageUrl && !values.imageUrl.startsWith('http'),
+        condition: !!values.imageUrl && !values.imageUrl.startsWith('http') && !values.imageUrl.startsWith('/uploads/'),
         errorMessage: {
           title: "Invalid Image URL",
           description: "Please provide a valid URL starting with http:// or https://"
@@ -889,7 +889,7 @@ export default function CountryCityManagement() {
     // Additional validation for image URL
     const customValidationsValid = validateForm(values, [
       {
-        condition: !!values.imageUrl && !values.imageUrl.startsWith('http'),
+        condition: !!values.imageUrl && !values.imageUrl.startsWith('http') && !values.imageUrl.startsWith('/uploads/'),
         errorMessage: {
           title: "Invalid Image URL",
           description: "Please provide a valid URL starting with http:// or https://"
@@ -945,7 +945,7 @@ export default function CountryCityManagement() {
         variant: "destructive"
       },
       {
-        condition: !!values.imageUrl && !values.imageUrl.startsWith('http'),
+        condition: !!values.imageUrl && !values.imageUrl.startsWith('http') && !values.imageUrl.startsWith('/uploads/'),
         errorMessage: {
           title: "Invalid Image URL",
           description: "Please provide a valid URL starting with http:// or https://"
@@ -1002,7 +1002,7 @@ export default function CountryCityManagement() {
         variant: "destructive"
       },
       {
-        condition: !!values.imageUrl && !values.imageUrl.startsWith('http'),
+        condition: !!values.imageUrl && !values.imageUrl.startsWith('http') && !values.imageUrl.startsWith('/uploads/'),
         errorMessage: {
           title: "Invalid Image URL",
           description: "Please provide a valid URL starting with http:// or https://"

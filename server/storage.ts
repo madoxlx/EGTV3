@@ -39,6 +39,8 @@ import {
   hotelToFacilities,
   hotelToHighlights,
   hotelToCleanlinessFeatures,
+  transportTypes,
+  TransportType,
 } from "@shared/schema";
 import { db, pool } from "./db";
 import { eq, and, desc, asc, sql } from "drizzle-orm";
@@ -80,6 +82,9 @@ export interface IStorage {
   createDestination(destination: InsertDestination): Promise<Destination>;
   updateDestination(id: number, destination: Partial<InsertDestination>): Promise<Destination | undefined>;
   deleteDestination(id: number): Promise<boolean>;
+
+  // Transport Types
+  listTransportTypes(): Promise<TransportType[]>;
 
   // Packages
   getPackage(id: number): Promise<Package | undefined>;
@@ -414,6 +419,18 @@ export class DatabaseStorage implements IStorage {
         .orderBy(desc(destinations.createdAt));
     } catch (error) {
       console.error("Error listing destinations:", error);
+      return [];
+    }
+  }
+
+  async listTransportTypes(): Promise<TransportType[]> {
+    try {
+      return await db
+        .select()
+        .from(transportTypes)
+        .orderBy(transportTypes.name);
+    } catch (error) {
+      console.error("Error listing transport types:", error);
       return [];
     }
   }
