@@ -211,6 +211,15 @@ export const packages = pgTable("packages", {
   selectedHotels: json("selected_hotels"),
   rooms: json("rooms"),
 
+  // Policy fields
+  cancellationPolicy: text("cancellation_policy"),
+  childrenPolicy: text("children_policy"),
+  termsAndConditions: text("terms_and_conditions"),
+  excludedItems: json("excluded_items"), // Array of excluded items
+  markup: integer("markup"), // Markup amount in EGP
+  discountType: text("discount_type"), // "percentage" or "fixed"
+  discountValue: integer("discount_value"), // Discount amount (percentage or EGP)
+
   // Audit fields
   createdAt: timestamp("created_at").notNull().defaultNow(),
   updatedAt: timestamp("updated_at").defaultNow(),
@@ -1258,6 +1267,13 @@ export const insertPackageSchema = createInsertSchema(packages)
     startDate: true,
     endDate: true,
     validUntil: true,
+    cancellationPolicy: true,
+    childrenPolicy: true,
+    termsAndConditions: true,
+    excludedItems: true,
+    markup: true,
+    discountType: true,
+    discountValue: true,
   })
   .refine(
     (data) => {
