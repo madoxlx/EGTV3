@@ -1,0 +1,46 @@
+1:33:17 PM [vite] hmr update /src/pages/admin/ToursManagement.tsx, /src/index.css?v=n_2wxWHoXgLr8CX9DCOzI (x5)
+⚠️ No session user found in unified-auth, providing development admin user
+1:37:22 PM [express] GET /api/user 304 in 1ms :: {"id":1,"username":"admin","role":"admin","email":"admin@example.com","fullName":"Admin User","displayName":"Admin"}
+📍 API Route Hit: GET /
+1:37:22 PM [express] GET /api/admin/dashboard-stats 200 in 5ms
+📍 API Route Hit: GET /
+⚠️ No session user found in unified-auth, providing development admin user
+1:37:23 PM [express] GET /api/user 304 in 0ms :: {"id":1,"username":"admin","role":"admin","email":"admin@example.com","fullName":"Admin User","displayName":"Admin"}
+1:37:23 PM [express] GET /api/admin/dashboard-stats 200 in 8ms
+🔍 Admin check - Session user: undefined
+🔍 Admin check - Request path: /api/admin/countries
+⚠️ No session user found, using temporary admin access for development
+🔑 Temporary admin panel access granted
+🔍 Admin check - Session user: undefined
+🔍 Admin check - Request path: /api/admin/cities
+⚠️ No session user found, using temporary admin access for development
+🔑 Temporary admin panel access granted
+1:41:09 PM [express] GET /api/admin/cities 304 in 897ms :: [{"id":29,"name":"Abu Dhabi","countryId":13,"description":"Capital of UAE","imageUrl":null,"active":true,"cre…
+⚠️ No session user found in unified-auth, providing development admin user
+1:41:10 PM [express] GET /api/user 304 in 1ms :: {"id":1,"username":"admin","role":"admin","email":"admin@example.com","fullName":"Admin User","displayName":"Admin"}
+1:41:10 PM [express] GET /api/admin/countries 304 in 1409ms :: [{"id":10,"name":"Egypt","code":"EG","description":"شسيسشيشسيشسيشس","imageUrl":"","active":true,"createdA…
+🔍 Admin check - Session user: undefined
+🔍 Admin check - Request path: /api/admin/destinations/6
+⚠️ No session user found, using temporary admin access for development
+🔑 Temporary admin panel access granted
+Error updating destination: TypeError: storage.updateDestination is not a function
+    at <anonymous> (/home/runner/workspace/server/routes.ts:2050:48)
+    at process.processTicksAndRejections (node:internal/process/task_queues:95:5)
+1:41:23 PM [express] PUT /api/admin/destinations/6 500 in 328ms :: {"message":"Failed to update destination"}
+🔍 Admin check - Session user: undefined
+🔍 Admin check - Request path: /api/admin/destinations
+⚠️ No session user found, using temporary admin access for development
+🔑 Temporary admin panel access granted
+1:41:37 PM [express] POST /api/admin/destinations 201 in 307ms :: {"id":"10","name":"Cairo & Giza","country":"Egypt","countryId":10,"cityId":21,"description":"Explore t…
+1:41:37 PM [express] GET /api/destinations 200 in 77ms :: [{"id":"10","name":"Cairo & Giza","country":"Egypt","countryId":10,"cityId":21,"description":"Explore the pyra…
+🔍 Admin check - Session user: undefined
+🔍 Admin check - Request path: /api/admin/destinations/10
+⚠️ No session user found, using temporary admin access for development
+🔑 Temporary admin panel access granted
+Error updating destination: TypeError: storage.updateDestination is not a function
+    at <anonymous> (/home/runner/workspace/server/routes.ts:2050:48)
+    at process.processTicksAndRejections (node:internal/process/task_queues:95:5)
+1:41:47 PM [express] PUT /api/admin/destinations/10 500 in 73ms :: {"message":"Failed to update destination"}
+
+
+

@@ -125,6 +125,8 @@ export default function ToursManagement() {
 
 
 
+
+
   // Create form
   const form = useForm<TourFormValues>({
     resolver: zodResolver(TourFormSchema),
@@ -334,11 +336,27 @@ export default function ToursManagement() {
                     const category = categories.find((cat: any) => 
                       cat.id === tour.category_id || cat.id === tour.categoryId
                     );
-                    const destination = destinations.find((dest: any) => {
-                      const destId = parseInt(dest.id);
+                    // Find destination with comprehensive type handling
+                    const findDestinationById = (tour: any, destinations: any[]) => {
                       const tourDestId = tour.destination_id || tour.destinationId;
-                      return destId === tourDestId;
-                    });
+                      if (!tourDestId) return null;
+                      
+                      return destinations.find((dest: any) => {
+                        // Convert both to numbers for comparison
+                        const destId = Number(dest.id);
+                        const tDestId = Number(tourDestId);
+                        
+                        // Check if both are valid numbers and equal
+                        if (!isNaN(destId) && !isNaN(tDestId) && destId === tDestId) {
+                          return true;
+                        }
+                        
+                        // Fallback: string comparison
+                        return String(dest.id) === String(tourDestId);
+                      });
+                    };
+                    
+                    const destination = findDestinationById(tour, destinations);
 
                     
                     // Determine duration display
