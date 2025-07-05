@@ -1,0 +1,64 @@
+55:15 PM [express] GET /api/user 304 in 1ms :: {"id":"9","username":"AhmedSh","email":"ahmedsh@egyptexpress.com","role":"admin"}
+🔍 Admin check - Session user: {
+  id: '9',
+  username: 'AhmedSh',
+  role: 'admin',
+  displayName: 'Ahmed Sh',
+  avatarUrl: null,
+  email: 'ahmedsh@egyptexpress.com'
+}
+🔍 Admin check - Request path: /api/admin/cities
+✅ Admin check passed for user: AhmedSh (ID: 9)
+2:55:52 PM [express] POST /api/admin/cities 201 in 59ms :: {"id":30,"name":"Red Sea","countryId":10,"description":"Red Sea محافظة البحر الامر","imageUrl":"https://img.l…
+🔍 Admin check - Session user: {
+  id: '9',
+  username: 'AhmedSh',
+  role: 'admin',
+  displayName: 'Ahmed Sh',
+  avatarUrl: null,
+  email: 'ahmedsh@egyptexpress.com'
+}
+🔍 Admin check - Request path: /api/admin/cities
+✅ Admin check passed for user: AhmedSh (ID: 9)
+2:55:53 PM [express] GET /api/admin/cities 200 in 24ms :: [{"id":29,"name":"Abu Dhabi","countryId":13,"description":"Capital of UAE","imageUrl":null,"active":true,"crea…
+2:55:57 PM [express] GET /api/user 304 in 1ms :: {"id":"9","username":"AhmedSh","email":"ahmedsh@egyptexpress.com","role":"admin"}
+🔍 Admin check - Session user: {
+  id: '9',
+  username: 'AhmedSh',
+  role: 'admin',
+  displayName: 'Ahmed Sh',
+  avatarUrl: null,
+  email: 'ahmedsh@egyptexpress.com'
+}
+🔍 Admin check - Request path: /admin-api/destinations/8
+✅ Admin check passed for user: AhmedSh (ID: 9)
+[BYPASS ROUTE] Updating destination 8 with data: {
+  name: 'Red Sea Coast',
+  country: 'Egypt',
+  countryId: 10,
+  cityId: 30,
+  description: 'Relax on beautiful beaches and enjoy water sports',
+  imageUrl: 'https://images.unsplash.com/photo-1581335167266-5662e1958b2f?q=80&w=800',
+  featured: false
+}
+[BYPASS ROUTE] Destination updated successfully: {
+  id: '8',
+  name: 'Red Sea Coast',
+  country: 'Egypt',
+  countryId: 10,
+  cityId: 30,
+  description: 'Relax on beautiful beaches and enjoy water sports',
+  imageUrl: 'https://images.unsplash.com/photo-1581335167266-5662e1958b2f?q=80&w=800',
+  featured: false,
+  createdAt: 2025-06-16T11:19:14.249Z,
+  updatedAt: 2025-06-16T11:19:14.249Z,
+  createdBy: null,
+  updatedBy: null
+}
+2:56:04 PM [express] GET /api/destinations 200 in 23ms :: [{"id":"6","name":"Cairo & Giza","country":"Egypt","countryId":10,"cityId":21,"description":"Explore the pyram…
+2:59:29 PM [vite] hmr update /src/pages/admin/DestinationsManagement.tsx, /src/index.css?v=1WRJRJDiitxZQwYyZXXKw
+2:59:46 PM [vite] hmr update /src/pages/admin/DestinationsManagement.tsx, /src/index.css?v=1WRJRJDiitxZQwYyZXXKw (x2)
+3:00:08 PM [vite] hmr update /src/pages/admin/DestinationsManagement.tsx, /src/index.css?v=1WRJRJDiitxZQwYyZXXKw (x3)
+3:08:26 PM [vite] hmr update /src/pages/admin/DestinationsManagement.tsx, /src/index.css?v=1WRJRJDiitxZQwYyZXXKw (x4)
+✅ Authenticated user uploading image: AhmedSh
+3:10:51 PM [express] POST /api/upload-image 400 in 1ms :: {"message":"No image data provided"}
