@@ -945,121 +945,6 @@ export function MultiHotelManualPackageForm() {
                     </FormItem>
                   )}
                 />
-
-                {/* Policy Section */}
-                <div className="space-y-6">
-                  <h3 className="text-lg font-semibold border-b pb-2">Policies & Terms</h3>
-                  
-                  <FormField
-                    control={form.control}
-                    name="cancellationPolicy"
-                    render={({ field }) => (
-                      <FormItem>
-                        <FormLabel>Cancellation Policy</FormLabel>
-                        <FormControl>
-                          <Textarea 
-                            placeholder="Enter cancellation policy details..."
-                            rows={3}
-                            {...field} 
-                          />
-                        </FormControl>
-                        <FormDescription>
-                          Specify cancellation terms and conditions
-                        </FormDescription>
-                        <FormMessage />
-                      </FormItem>
-                    )}
-                  />
-
-                  <FormField
-                    control={form.control}
-                    name="childrenPolicy"
-                    render={({ field }) => (
-                      <FormItem>
-                        <FormLabel>Children Policy</FormLabel>
-                        <FormControl>
-                          <Textarea 
-                            placeholder="Enter children policy details..."
-                            rows={3}
-                            {...field} 
-                          />
-                        </FormControl>
-                        <FormDescription>
-                          Specify policies for children, pricing, and age restrictions
-                        </FormDescription>
-                        <FormMessage />
-                      </FormItem>
-                    )}
-                  />
-
-                  <FormField
-                    control={form.control}
-                    name="termsAndConditions"
-                    render={({ field }) => (
-                      <FormItem>
-                        <FormLabel>Terms & Conditions</FormLabel>
-                        <FormControl>
-                          <Textarea 
-                            placeholder="Enter terms and conditions..."
-                            rows={4}
-                            {...field} 
-                          />
-                        </FormControl>
-                        <FormDescription>
-                          Specify general terms and conditions for this package
-                        </FormDescription>
-                        <FormMessage />
-                      </FormItem>
-                    )}
-                  />
-
-                  {/* Excluded Items Section */}
-                  <div className="space-y-4">
-                    <FormLabel>Excluded Items</FormLabel>
-                    <div className="flex gap-2">
-                      <Input
-                        placeholder="Enter excluded item..."
-                        value={newExcludedItem}
-                        onChange={(e) => setNewExcludedItem(e.target.value)}
-                        onKeyPress={(e) => {
-                          if (e.key === 'Enter') {
-                            e.preventDefault();
-                            addExcludedItem();
-                          }
-                        }}
-                      />
-                      <Button 
-                        type="button" 
-                        onClick={addExcludedItem}
-                        disabled={!newExcludedItem.trim()}
-                      >
-                        <Plus className="h-4 w-4 mr-2" />
-                        Add
-                      </Button>
-                    </div>
-                    {(form.watch("excludedItems")?.length || 0) > 0 && (
-                      <div className="flex flex-wrap gap-2">
-                        {(form.watch("excludedItems") || []).map((item, index) => (
-                          <Badge key={index} variant="destructive" className="flex items-center gap-1">
-                            {item}
-                            <Button
-                              type="button"
-                              variant="ghost"
-                              size="sm"
-                              className="h-4 w-4 p-0 hover:bg-red-100"
-                              onClick={() => removeExcludedItem(index)}
-                            >
-                              <X className="h-3 w-3" />
-                            </Button>
-                          </Badge>
-                        ))}
-                      </div>
-                    )}
-                    <FormDescription>
-                      Add items that are not included in this package
-                    </FormDescription>
-                  </div>
-                </div>
               </div>
 
               {/* Right Column - Hotels, Details & Images */}
@@ -1346,6 +1231,121 @@ export function MultiHotelManualPackageForm() {
                   <FormDescription>
                     <span className="text-destructive">*</span> ارفع صور الحزمة. يجب رفع صورة واحدة على الأقل. الصورة الأولى أو المميزة ستُستخدم كصورة رئيسية.
                   </FormDescription>
+                </div>
+
+                {/* Policy Section */}
+                <div className="space-y-6">
+                  <h3 className="text-lg font-semibold border-b pb-2">Policies & Terms</h3>
+                  
+                  <FormField
+                    control={form.control}
+                    name="cancellationPolicy"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel>Cancellation Policy</FormLabel>
+                        <FormControl>
+                          <Textarea 
+                            placeholder="Enter cancellation policy details..."
+                            rows={3}
+                            {...field} 
+                          />
+                        </FormControl>
+                        <FormDescription>
+                          Specify cancellation terms and conditions
+                        </FormDescription>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+
+                  <FormField
+                    control={form.control}
+                    name="childrenPolicy"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel>Children Policy</FormLabel>
+                        <FormControl>
+                          <Textarea 
+                            placeholder="Enter children policy details..."
+                            rows={3}
+                            {...field} 
+                          />
+                        </FormControl>
+                        <FormDescription>
+                          Specify policies for children, pricing, and age restrictions
+                        </FormDescription>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+
+                  <FormField
+                    control={form.control}
+                    name="termsAndConditions"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel>Terms & Conditions</FormLabel>
+                        <FormControl>
+                          <Textarea 
+                            placeholder="Enter terms and conditions..."
+                            rows={4}
+                            {...field} 
+                          />
+                        </FormControl>
+                        <FormDescription>
+                          Specify general terms and conditions for this package
+                        </FormDescription>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+
+                  {/* Excluded Items Section */}
+                  <div className="space-y-4">
+                    <FormLabel>Excluded Items</FormLabel>
+                    <div className="flex gap-2">
+                      <Input
+                        placeholder="Enter excluded item..."
+                        value={newExcludedItem}
+                        onChange={(e) => setNewExcludedItem(e.target.value)}
+                        onKeyPress={(e) => {
+                          if (e.key === 'Enter') {
+                            e.preventDefault();
+                            addExcludedItem();
+                          }
+                        }}
+                      />
+                      <Button 
+                        type="button" 
+                        onClick={addExcludedItem}
+                        disabled={!newExcludedItem.trim()}
+                      >
+                        <Plus className="h-4 w-4 mr-2" />
+                        Add
+                      </Button>
+                    </div>
+                    {(form.watch("excludedItems")?.length || 0) > 0 && (
+                      <div className="flex flex-wrap gap-2">
+                        {(form.watch("excludedItems") || []).map((item, index) => (
+                          <Badge key={index} variant="destructive" className="flex items-center gap-1">
+                            {item}
+                            <Button
+                              type="button"
+                              variant="ghost"
+                              size="sm"
+                              className="h-4 w-4 p-0 hover:bg-red-100"
+                              onClick={() => removeExcludedItem(index)}
+                            >
+                              <X className="h-3 w-3" />
+                            </Button>
+                          </Badge>
+                        ))}
+                      </div>
+                    )}
+                    <FormDescription>
+                      Add items that are not included in this package
+                    </FormDescription>
+                  </div>
                 </div>
               </div>
             </div>
