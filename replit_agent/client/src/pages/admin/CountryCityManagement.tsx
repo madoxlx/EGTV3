@@ -60,7 +60,7 @@ import { useToast } from "@/hooks/use-toast";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
 import { z } from "zod";
-import { Plus, Search, Edit, Trash2, Loader2, GlobeIcon, Landmark, Plane, Check, X, AlertCircle } from "lucide-react";
+import { Plus, Search, Edit, Trash2, Loader2, GlobeIcon, Landmark, Plane, Check, X, AlertCircle, Camera, ImageIcon, Upload } from "lucide-react";
 import { queryClient } from "@/lib/queryClient";
 import { validateForm, validateRequiredFields } from "@/lib/validateForm";
 import { FormRequiredFieldsNote, FormValidationAlert } from "@/components/dashboard/FormValidationAlert";
@@ -150,6 +150,202 @@ export default function CountryCityManagement() {
   const [deleteCountryConfirmOpen, setDeleteCountryConfirmOpen] = useState(false);
   const [deleteCityConfirmOpen, setDeleteCityConfirmOpen] = useState(false);
   const [deleteAirportConfirmOpen, setDeleteAirportConfirmOpen] = useState(false);
+  
+  // Image upload states
+  const [uploadMode, setUploadMode] = useState<'url' | 'upload'>('url');
+  const [isUploading, setIsUploading] = useState(false);
+  const [uploadError, setUploadError] = useState<string | null>(null);
+
+  // Handle image upload with base64 conversion
+  const handleImageUpload = async (file: File): Promise<string> => {
+    return new Promise((resolve, reject) => {
+      setIsUploading(true);
+      setUploadError(null);
+      
+      const reader = new FileReader();
+      reader.onload = async () => {
+        try {
+          const base64Data = reader.result as string;
+          const fileType = file.type.split('/')[1];
+          
+          const response = await fetch('/api/upload-image', {
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({
+              image: base64Data,
+              type: fileType
+            }),
+          });
+
+          if (!response.ok) {
+            let errorMessage = 'Upload failed';
+            try {
+              const errorData = await response.json();
+              errorMessage = errorData.message || errorMessage;
+            } catch {
+              errorMessage = `Upload failed with status ${response.status}`;
+            }
+            throw new Error(errorMessage);
+          }
+
+          const result = await response.json();
+          const imageUrl = result.url || result.imageUrl;
+          
+          if (!imageUrl) {
+            throw new Error('No image URL returned from server');
+          }
+          
+          setIsUploading(false);
+          resolve(imageUrl);
+        } catch (error) {
+          setIsUploading(false);
+          const errorMessage = error instanceof Error ? error.message : 'Upload failed';
+          setUploadError(errorMessage);
+          reject(new Error(errorMessage));
+        }
+      };
+      
+      reader.onerror = () => {
+        setIsUploading(false);
+        const errorMessage = 'Failed to read file';
+        setUploadError(errorMessage);
+        reject(new Error(errorMessage));
+      };
+      
+      reader.readAsDataURL(file);
+    });
+  };
+
+  // ImageField component for dual input (URL or upload)
+  const ImageField = ({ 
+    form, 
+    name, 
+    label, 
+    description, 
+    required = false 
+  }: { 
+    form: any; 
+    name: string; 
+    label: string; 
+    description: string; 
+    required?: boolean;
+  }) => {
+    const currentValue = form.watch(name);
+    
+    return (
+      <FormField
+        control={form.control}
+        name={name}
+        render={({ field }) => (
+          <FormItem>
+            <FormLabel className="text-base font-medium">
+              {label} {required && <span className="text-red-500">*</span>}
+            </FormLabel>
+            
+            {/* Mode Toggle Buttons */}
+            <div className="flex gap-2 mb-3">
+              <Button
+                type="button"
+                variant={uploadMode === 'url' ? 'default' : 'outline'}
+                size="sm"
+                onClick={() => setUploadMode('url')}
+                className="flex items-center gap-2"
+              >
+                <ImageIcon className="h-4 w-4" />
+                Image URL
+              </Button>
+              <Button
+                type="button"
+                variant={uploadMode === 'upload' ? 'default' : 'outline'}
+                size="sm"
+                onClick={() => setUploadMode('upload')}
+                className="flex items-center gap-2"
+              >
+                <Camera className="h-4 w-4" />
+                Upload Photo
+              </Button>
+            </div>
+
+            {uploadMode === 'url' ? (
+              // URL Input Mode
+              <FormControl>
+                <Input
+                  {...field}
+                  placeholder="https://example.com/image.jpg"
+                  disabled={isUploading}
+                />
+              </FormControl>
+            ) : (
+              // File Upload Mode
+              <div className="space-y-3">
+                <FormControl>
+                  <div className="border-2 border-dashed border-gray-300 rounded-lg p-6 text-center">
+                    <input
+                      type="file"
+                      accept="image/*"
+                      onChange={async (e) => {
+                        const file = e.target.files?.[0];
+                        if (file) {
+                          try {
+                            const uploadedUrl = await handleImageUpload(file);
+                            field.onChange(uploadedUrl);
+                          } catch (error) {
+                            console.error('Upload error:', error);
+                          }
+                        }
+                      }}
+                      className="hidden"
+                      id={`${name}-upload`}
+                      disabled={isUploading}
+                    />
+                    <label
+                      htmlFor={`${name}-upload`}
+                      className={`cursor-pointer flex flex-col items-center gap-2 ${
+                        isUploading ? 'opacity-50 cursor-not-allowed' : ''
+                      }`}
+                    >
+                      <Upload className="h-8 w-8 text-gray-400" />
+                      <span className="text-sm font-medium text-gray-600">
+                        {isUploading ? 'Uploading...' : 'Click to upload image'}
+                      </span>
+                      <span className="text-xs text-gray-500">
+                        PNG, JPG, JPEG up to 10MB
+                      </span>
+                    </label>
+                  </div>
+                </FormControl>
+                
+                {uploadError && (
+                  <div className="text-red-600 text-sm">{uploadError}</div>
+                )}
+              </div>
+            )}
+
+            {/* Image Preview */}
+            {currentValue && (
+              <div className="mt-3">
+                <div className="text-sm font-medium text-gray-700 mb-2">Preview:</div>
+                <img
+                  src={currentValue}
+                  alt="Preview"
+                  className="w-32 h-24 object-cover rounded-lg border"
+                  onError={(e) => {
+                    const target = e.target as HTMLImageElement;
+                    target.style.display = 'none';
+                  }}
+                />
+              </div>
+            )}
+
+            <FormDescription>{description}</FormDescription>
+            <FormMessage />
+          </FormItem>
+        )}
+      />
+    );
+  };
 
   // Query countries
   const { data: countries = [], isLoading: isLoadingCountries } = useQuery<Country[]>({
@@ -1018,19 +1214,11 @@ export default function CountryCityManagement() {
                           </FormItem>
                         )}
                       />
-                      <FormField
-                        control={countryForm.control}
+                      <ImageField
+                        form={countryForm}
                         name="imageUrl"
-                        render={({ field }) => (
-                          <FormItem>
-                            <FormLabel>Image URL</FormLabel>
-                            <FormControl>
-                              <Input placeholder="https://example.com/image.jpg" {...field} />
-                            </FormControl>
-                            <FormDescription>URL to an image representing the country</FormDescription>
-                            <FormMessage />
-                          </FormItem>
-                        )}
+                        label="Country Image"
+                        description="URL to an image representing the country or upload a photo"
                       />
                       <FormField
                         control={countryForm.control}
@@ -1230,19 +1418,11 @@ export default function CountryCityManagement() {
                           </FormItem>
                         )}
                       />
-                      <FormField
-                        control={cityForm.control}
+                      <ImageField
+                        form={cityForm}
                         name="imageUrl"
-                        render={({ field }) => (
-                          <FormItem>
-                            <FormLabel>Image URL</FormLabel>
-                            <FormControl>
-                              <Input placeholder="https://example.com/image.jpg" {...field} />
-                            </FormControl>
-                            <FormDescription>URL to an image representing the city</FormDescription>
-                            <FormMessage />
-                          </FormItem>
-                        )}
+                        label="City Image"
+                        description="URL to an image representing the city or upload a photo"
                       />
                       <FormField
                         control={cityForm.control}
@@ -1421,19 +1601,11 @@ export default function CountryCityManagement() {
                     </FormItem>
                   )}
                 />
-                <FormField
-                  control={countryForm.control}
+                <ImageField
+                  form={countryForm}
                   name="imageUrl"
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel>Image URL</FormLabel>
-                      <FormControl>
-                        <Input placeholder="https://example.com/image.jpg" {...field} />
-                      </FormControl>
-                      <FormDescription>URL to an image representing the country</FormDescription>
-                      <FormMessage />
-                    </FormItem>
-                  )}
+                  label="Country Image"
+                  description="URL to an image representing the country or upload a photo"
                 />
                 <FormField
                   control={countryForm.control}
@@ -1551,19 +1723,11 @@ export default function CountryCityManagement() {
                     </FormItem>
                   )}
                 />
-                <FormField
-                  control={cityForm.control}
+                <ImageField
+                  form={cityForm}
                   name="imageUrl"
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel>Image URL</FormLabel>
-                      <FormControl>
-                        <Input placeholder="https://example.com/image.jpg" {...field} />
-                      </FormControl>
-                      <FormDescription>URL to an image representing the city</FormDescription>
-                      <FormMessage />
-                    </FormItem>
-                  )}
+                  label="City Image"
+                  description="URL to an image representing the city or upload a photo"
                 />
                 <FormField
                   control={cityForm.control}
@@ -1770,19 +1934,11 @@ export default function CountryCityManagement() {
                           </FormItem>
                         )}
                       />
-                      <FormField
-                        control={airportForm.control}
+                      <ImageField
+                        form={airportForm}
                         name="imageUrl"
-                        render={({ field }) => (
-                          <FormItem>
-                            <FormLabel>Image URL</FormLabel>
-                            <FormControl>
-                              <Input placeholder="https://example.com/image.jpg" {...field} />
-                            </FormControl>
-                            <FormDescription>URL to an image representing the airport</FormDescription>
-                            <FormMessage />
-                          </FormItem>
-                        )}
+                        label="Airport Image"
+                        description="URL to an image representing the airport or upload a photo"
                       />
                       <FormField
                         control={airportForm.control}
@@ -1992,19 +2148,11 @@ export default function CountryCityManagement() {
                     </FormItem>
                   )}
                 />
-                <FormField
-                  control={airportForm.control}
+                <ImageField
+                  form={airportForm}
                   name="imageUrl"
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel>Image URL</FormLabel>
-                      <FormControl>
-                        <Input placeholder="https://example.com/image.jpg" {...field} />
-                      </FormControl>
-                      <FormDescription>URL to an image representing the airport</FormDescription>
-                      <FormMessage />
-                    </FormItem>
-                  )}
+                  label="Airport Image"
+                  description="URL to an image representing the airport or upload a photo"
                 />
                 <FormField
                   control={airportForm.control}
