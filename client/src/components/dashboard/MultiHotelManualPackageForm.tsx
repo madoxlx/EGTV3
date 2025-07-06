@@ -478,7 +478,16 @@ export function MultiHotelManualPackageForm({
   // Handle click outside tour dropdown
   useEffect(() => {
     function handleClickOutside(event: MouseEvent) {
-      if (tourDropdownRef.current && !tourDropdownRef.current.contains(event.target as Node)) {
+      const target = event.target as HTMLElement;
+      
+      // Don't close if clicking on the search input or dropdown
+      if (tourDropdownRef.current && !tourDropdownRef.current.contains(target)) {
+        // Also check if clicking on the search input itself
+        const searchInput = document.querySelector('input[placeholder*="Search tours"]');
+        if (searchInput && searchInput.contains(target)) {
+          return; // Don't close
+        }
+        
         console.log('Clicked outside tour dropdown, closing');
         setShowTourDropdown(false);
       }
@@ -520,13 +529,16 @@ export function MultiHotelManualPackageForm({
     };
 
     const updatedSelectedTours = [...selectedToursWithPrices, newSelectedTour];
+    console.log('About to update selected tours state...');
     setSelectedToursWithPrices(updatedSelectedTours);
     console.log('Updated selected tours:', updatedSelectedTours);
 
     // Update form field
     const tourIds = updatedSelectedTours.map(tour => tour.id);
+    console.log('About to update form field...');
     form.setValue("selectedTourIds", tourIds);
     console.log('Updated form selectedTourIds:', tourIds);
+    console.log('Tour selection process completed successfully!');
 
     setTourSearchQuery("");
     setShowTourDropdown(false);
@@ -1752,7 +1764,7 @@ export function MultiHotelManualPackageForm({
                   </FormLabel>
                   
                   {/* Tour Search Input */}
-                  <div className="relative">
+                  <div className="relative" ref={tourDropdownRef}>
                     <Input
                       placeholder="Search tours... (double-click to see all tours)"
                       value={tourSearchQuery}
@@ -1773,7 +1785,7 @@ export function MultiHotelManualPackageForm({
                         !selectedToursWithPrices.some(selected => selected.id === tour.id)
                       ).length > 0
                     ) && (
-                      <div ref={tourDropdownRef} className="absolute z-10 w-full mt-1 max-h-60 overflow-auto bg-white border rounded-md shadow-lg">
+                      <div className="absolute z-10 w-full mt-1 max-h-60 overflow-auto bg-white border rounded-md shadow-lg">
                         {/* Close Button */}
                         <div className="flex justify-between items-center p-2 border-b bg-gray-50">
                           <span className="text-sm font-medium text-gray-700">Select Tours</span>
@@ -1792,9 +1804,11 @@ export function MultiHotelManualPackageForm({
                             key={tour.id}
                             className="px-4 py-3 cursor-pointer hover:bg-zinc-100 border-b last:border-b-0"
                             onClick={(e) => {
+                              e.preventDefault();
                               e.stopPropagation();
                               console.log('Tour clicked:', tour.id, tour.name);
                               handleTourSelection(tour.id);
+                              // Don't close dropdown immediately, let user select multiple tours
                             }}
                           >
                             <div className="font-medium">{tour.name}</div>
