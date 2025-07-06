@@ -106,6 +106,16 @@ The application uses a comprehensive PostgreSQL schema with the following core e
 
 ## Recent Changes
 
+- **Package Cost Summary Implementation Complete (July 6, 2025)**: Successfully implemented comprehensive cost calculation summary at bottom of manual package creation form
+  - **Two-Column Layout**: Added Hotels & Accommodation breakdown (left) and Tours & Activities breakdown (right)
+  - **Hotel Details**: Shows each hotel with star ratings, room count, individual room types and pricing per night
+  - **Tour Details**: Displays selected tours with custom pricing and duration information
+  - **Real-Time Calculations**: Total accommodation cost, total tours cost, and combined package total
+  - **Professional Design**: Blue-themed responsive layout with white cards for individual items
+  - **Form Integration**: Uses form.watch("hotels") and selectedToursWithPrices for accurate data display
+  - **Validation Fix**: Added missing tourDetails field to schema and form defaults to resolve "Missing Required Fields" error
+  - **Admin Benefits**: Provides complete cost visibility before package publishing with markup reminder note
+
 - **Tour Selection UX Enhancement Complete (July 6, 2025)**: Successfully enhanced tour selection with improved dropdown interface and user experience
   - **Added Close Button**: Implemented close button (X) in tour dropdown header for easy dismissal
   - **Click-Outside Functionality**: Added click-outside detection to automatically close dropdown when clicking elsewhere

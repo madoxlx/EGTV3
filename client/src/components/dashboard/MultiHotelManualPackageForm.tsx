@@ -108,6 +108,7 @@ const manualPackageFormSchema = z.object({
     .min(3, {
       message: "Transportation details must be at least 3 characters",
     }),
+  tourDetails: z.string().optional(),
   selectedTourIds: z
     .array(z.number())
     .optional(),
@@ -287,6 +288,7 @@ export function MultiHotelManualPackageForm({
       markup: 0,
       hotels: [],
       transportationDetails: "",
+      tourDetails: "",
       selectedTourIds: [],
       duration: 1,
       destinationId: undefined,
@@ -406,6 +408,7 @@ export function MultiHotelManualPackageForm({
         markup: packageData?.markup || 0,
         hotels: parseJSONField(packageData?.hotels),
         transportationDetails: packageData?.transportationDetails || "",
+        tourDetails: packageData?.tourDetails || "",
         selectedTourIds: parseJSONField(packageData?.tourSelection),
         duration: packageData?.duration || 1,
         destinationId: packageData?.destinationId,
