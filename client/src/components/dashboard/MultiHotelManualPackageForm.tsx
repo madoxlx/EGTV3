@@ -462,6 +462,15 @@ export function MultiHotelManualPackageForm({
           console.log('Created hotels from rooms data:', hotelsData);
         }
       }
+
+      // If still no structured data, try to parse from description text
+      if (hotelsData.length === 0 && packageData?.description) {
+        const parsedFromDescription = parseHotelDataFromDescription(packageData.description);
+        if (parsedFromDescription.length > 0) {
+          hotelsData = parsedFromDescription;
+          console.log('Parsed hotels from description:', hotelsData);
+        }
+      }
       
       console.log('Parsed hotels data:', hotelsData);
       console.log('Available package fields:', Object.keys(packageData || {}));
@@ -475,6 +484,16 @@ export function MultiHotelManualPackageForm({
       }
       if (selectedTourIds.length === 0) {
         selectedTourIds = parseJSONField(packageData?.tours, []);
+      }
+
+      // If no structured tour data, try to parse from description text
+      let parsedTours = [];
+      if (selectedTourIds.length === 0 && packageData?.description) {
+        parsedTours = parseToursFromDescription(packageData.description);
+        if (parsedTours.length > 0) {
+          selectedTourIds = parsedTours.map(t => t.id);
+          console.log('Parsed tours from description:', parsedTours);
+        }
       }
       
       console.log('Parsed tour selection:', selectedTourIds);
@@ -1294,6 +1313,87 @@ export function MultiHotelManualPackageForm({
       document.removeEventListener("mousedown", handleClickOutside);
     };
   }, []);
+
+  // Parse hotel data from description text
+  const parseHotelDataFromDescription = (description: string) => {
+    const hotels = [];
+    
+    // Look for hotel patterns in the description
+    const hotelMatch = description.match(/Hotels:\s*\n([^]*?)(?=\n\n|\nRooms:|\nTransportation:|$)/);
+    const roomsMatch = description.match(/Rooms:\s*\n([^]*?)(?=\n\n|\nTransportation:|$)/);
+    
+    if (hotelMatch) {
+      const hotelLine = hotelMatch[1].trim();
+      // Extract hotel name and stars: "sadasdasdaasdasd (3★)"
+      const hotelInfo = hotelLine.match(/^(.+?)\s*\((\d+)★\)$/);
+      
+      if (hotelInfo) {
+        const hotelName = hotelInfo[1].trim();
+        const stars = parseInt(hotelInfo[2]);
+        
+        const rooms = [];
+        if (roomsMatch) {
+          const roomLines = roomsMatch[1].split('\n').filter(line => line.trim().startsWith('•'));
+          roomLines.forEach((line, index) => {
+            // Extract room info: "• asdasd - $232/night (Max: 2 guests)"
+            const roomInfo = line.match(/•\s*(.+?)\s*-\s*\$(\d+)\/night\s*\(Max:\s*(\d+)\s*guests\)/);
+            if (roomInfo) {
+              rooms.push({
+                id: `room-${index}`,
+                type: roomInfo[1].trim(),
+                pricePerNight: parseInt(roomInfo[2]),
+                maxOccupancy: parseInt(roomInfo[3]),
+                amenities: []
+              });
+            }
+          });
+        }
+        
+        hotels.push({
+          id: 'parsed-hotel',
+          name: hotelName,
+          stars: stars,
+          rooms: rooms
+        });
+      }
+    }
+    
+    return hotels;
+  };
+
+  // Parse tours from description text
+  const parseToursFromDescription = (description: string) => {
+    const tours = [];
+    
+    // Look for tours pattern: "Tours: Ultimate Egypt Cultural Heritage Tour (2300 EGP), Alexandria Day Trip from Cairo (1500 EGP)"
+    const toursMatch = description.match(/Tours:\s*([^]*?)(?=\n\n|$)/);
+    
+    if (toursMatch) {
+      const toursLine = toursMatch[1].trim();
+      // Split by comma and extract tour names and prices
+      const tourEntries = toursLine.split(',').map(t => t.trim());
+      
+      tourEntries.forEach((entry, index) => {
+        // Extract tour name and price: "Ultimate Egypt Cultural Heritage Tour (2300 EGP)"
+        const tourInfo = entry.match(/^(.+?)\s*\((\d+)\s*EGP\)$/);
+        if (tourInfo) {
+          const tourName = tourInfo[1].trim();
+          const price = parseInt(tourInfo[2]);
+          
+          tours.push({
+            id: `parsed-tour-${index}`,
+            name: tourName,
+            description: `Tour: ${tourName}`,
+            duration: 1,
+            originalPrice: price * 100, // Convert to cents
+            customPrice: price
+          });
+        }
+      });
+    }
+    
+    return tours;
+  };
 
   // Generate star emoji based on rating
   const renderStars = (rating: number) => {
