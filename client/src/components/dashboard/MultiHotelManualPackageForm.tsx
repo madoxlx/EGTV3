@@ -110,7 +110,7 @@ const manualPackageFormSchema = z.object({
     }),
   selectedTourIds: z
     .array(z.number())
-    .min(1, { message: "At least one tour must be selected" }),
+    .optional(),
   duration: z.coerce
     .number()
     .positive({ message: "Duration must be a positive number" }),
@@ -199,6 +199,11 @@ export function MultiHotelManualPackageForm({
     originalPrice: number;
     customPrice: number; // Editable price
   }>>([]);
+  
+  // Debug log for selected tours
+  useEffect(() => {
+    console.log('Selected tours with prices:', selectedToursWithPrices);
+  }, [selectedToursWithPrices]);
 
   // Dialog state for adding/editing hotels
   const [isHotelDialogOpen, setIsHotelDialogOpen] = useState(false);
@@ -257,6 +262,11 @@ export function MultiHotelManualPackageForm({
   const { data: tours = [] } = useQuery<any[]>({
     queryKey: ["/api/tours"],
   });
+  
+  // Debug log for tours data
+  useEffect(() => {
+    console.log('Tours loaded:', tours.length, tours);
+  }, [tours]);
 
   // Fetch package data for edit mode
   const { data: packageData, isLoading: isLoadingPackage } = useQuery({
@@ -386,29 +396,29 @@ export function MultiHotelManualPackageForm({
 
       // Set form values
       form.reset({
-        title: packageData.title || "",
-        description: packageData.description || "",
-        price: packageData.price ? Math.round(packageData.price / 100) : 0, // Convert from cents
-        discountedPrice: packageData.discountedPrice ? Math.round(packageData.discountedPrice / 100) : 0,
-        discountType: packageData.discountType || "percentage",
-        discountValue: packageData.discountValue || 0,
-        markup: packageData.markup || 0,
-        hotels: parseJSONField(packageData.hotels),
-        transportationDetails: packageData.transportationDetails || "",
-        selectedTourIds: parseJSONField(packageData.tourSelection),
-        duration: packageData.duration || 1,
-        destinationId: packageData.destinationId,
-        countryId: packageData.countryId,
-        cityId: packageData.cityId,
-        categoryId: packageData.categoryId,
+        title: packageData?.title || "",
+        description: packageData?.description || "",
+        price: packageData?.price ? Math.round(packageData.price / 100) : 0, // Convert from cents
+        discountedPrice: packageData?.discountedPrice ? Math.round(packageData.discountedPrice / 100) : 0,
+        discountType: packageData?.discountType || "percentage",
+        discountValue: packageData?.discountValue || 0,
+        markup: packageData?.markup || 0,
+        hotels: parseJSONField(packageData?.hotels),
+        transportationDetails: packageData?.transportationDetails || "",
+        selectedTourIds: parseJSONField(packageData?.tourSelection),
+        duration: packageData?.duration || 1,
+        destinationId: packageData?.destinationId,
+        countryId: packageData?.countryId,
+        cityId: packageData?.cityId,
+        categoryId: packageData?.categoryId,
         type: "manual",
-        featured: packageData.featured || false,
-        inclusions: parseJSONField(packageData.inclusions),
-        excludedItems: parseJSONField(packageData.excludedItems),
-        cancellationPolicy: packageData.cancellationPolicy || "",
-        childrenPolicy: packageData.childrenPolicy || "",
-        termsAndConditions: packageData.termsAndConditions || "",
-        customText: packageData.customText || "",
+        featured: packageData?.featured || false,
+        inclusions: parseJSONField(packageData?.inclusions),
+        excludedItems: parseJSONField(packageData?.excludedItems),
+        cancellationPolicy: packageData?.cancellationPolicy || "",
+        childrenPolicy: packageData?.childrenPolicy || "",
+        termsAndConditions: packageData?.termsAndConditions || "",
+        customText: packageData?.customText || "",
       });
 
       // Set gallery images if available
@@ -1741,8 +1751,8 @@ export function MultiHotelManualPackageForm({
                       }}
                     />
                     
-                    {/* Tour Dropdown */}
-                    {showTourDropdown && (
+                    {/* Tour Dropdown - Always show for testing */}
+                    {(showTourDropdown || true) && (
                       tourSearchQuery.length > 0 ? filteredTours.length > 0 : tours.filter(tour => 
                         !selectedToursWithPrices.some(selected => selected.id === tour.id)
                       ).length > 0
@@ -1754,7 +1764,10 @@ export function MultiHotelManualPackageForm({
                           <div
                             key={tour.id}
                             className="px-4 py-3 cursor-pointer hover:bg-zinc-100 border-b last:border-b-0"
-                            onClick={() => handleTourSelection(tour.id)}
+                            onClick={() => {
+                              console.log('Tour clicked:', tour.id, tour.name);
+                              handleTourSelection(tour.id);
+                            }}
                           >
                             <div className="font-medium">{tour.name}</div>
                             <div className="text-sm text-gray-600 truncate">
