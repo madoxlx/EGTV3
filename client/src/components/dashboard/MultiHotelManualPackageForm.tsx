@@ -480,24 +480,22 @@ export function MultiHotelManualPackageForm({
     function handleClickOutside(event: MouseEvent) {
       const target = event.target as HTMLElement;
       
-      // Don't close if clicking on the search input or dropdown
+      // Don't close if clicking on the search input or dropdown content
       if (tourDropdownRef.current && !tourDropdownRef.current.contains(target)) {
-        // Also check if clicking on the search input itself
-        const searchInput = document.querySelector('input[placeholder*="Search tours"]');
-        if (searchInput && searchInput.contains(target)) {
-          return; // Don't close
-        }
-        
         console.log('Clicked outside tour dropdown, closing');
         setShowTourDropdown(false);
       }
     }
     
-    document.addEventListener('mousedown', handleClickOutside);
+    // Only add listener when dropdown is open
+    if (showTourDropdown) {
+      document.addEventListener('mousedown', handleClickOutside);
+    }
+    
     return () => {
       document.removeEventListener('mousedown', handleClickOutside);
     };
-  }, []);
+  }, [showTourDropdown]);
 
   // Tour selection functions
   const handleTourSelection = (tourId: number) => {
@@ -1815,15 +1813,15 @@ export function MultiHotelManualPackageForm({
                         {(tourSearchQuery.length > 0 ? filteredTours : tours.filter(tour => 
                           !selectedToursWithPrices.some(selected => selected.id === tour.id)
                         ).slice(0, 10)).map((tour) => (
-                          <div
+                          <button
                             key={tour.id}
-                            className="px-4 py-3 cursor-pointer hover:bg-zinc-100 border-b last:border-b-0"
-                            onClick={(e) => {
+                            type="button"
+                            className="w-full px-4 py-3 text-left cursor-pointer hover:bg-zinc-100 border-b last:border-b-0 focus:bg-zinc-100 focus:outline-none"
+                            onMouseDown={(e) => {
                               e.preventDefault();
                               e.stopPropagation();
                               console.log('Tour clicked:', tour.id, tour.name);
                               handleTourSelection(tour.id);
-                              // Don't close dropdown immediately, let user select multiple tours
                             }}
                           >
                             <div className="font-medium">{tour.name}</div>
@@ -1833,7 +1831,7 @@ export function MultiHotelManualPackageForm({
                             <div className="text-sm text-blue-600">
                               ${(tour.price / 100).toFixed(2)} • {tour.duration} duration
                             </div>
-                          </div>
+                          </button>
                         ))}
                       </div>
                     )}
