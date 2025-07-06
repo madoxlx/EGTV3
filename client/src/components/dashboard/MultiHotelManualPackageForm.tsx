@@ -129,6 +129,7 @@ const manualPackageFormSchema = z.object({
   cancellationPolicy: z.string().optional(),
   childrenPolicy: z.string().optional(),
   termsAndConditions: z.string().optional(),
+  customText: z.string().optional(),
 });
 
 type ManualPackageFormValues = z.infer<typeof manualPackageFormSchema>;
@@ -264,6 +265,7 @@ export function MultiHotelManualPackageForm() {
       cancellationPolicy: "",
       childrenPolicy: "",
       termsAndConditions: "",
+      customText: "",
     },
   });
 
@@ -425,6 +427,7 @@ export function MultiHotelManualPackageForm() {
         cityId: formData.cityId,
         selectedTourIds: formData.selectedTourIds || [],
         type: formData.type,
+        customText: formData.customText,
       };
 
       const response = await fetch("/api/admin/packages", {
@@ -941,6 +944,26 @@ export function MultiHotelManualPackageForm() {
                       <FormDescription>
                         Provide a detailed description of the package, including
                         key highlights
+                      </FormDescription>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+
+                <FormField
+                  control={form.control}
+                  name="customText"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>Custom Display Text</FormLabel>
+                      <FormControl>
+                        <Input
+                          placeholder="e.g., Cairo hotel or smaller"
+                          {...field}
+                        />
+                      </FormControl>
+                      <FormDescription>
+                        Custom text to display on the package detail page below "Book This Package"
                       </FormDescription>
                       <FormMessage />
                     </FormItem>

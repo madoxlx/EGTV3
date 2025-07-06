@@ -216,6 +216,9 @@ export const packages = pgTable("packages", {
   childrenPolicy: text("children_policy"),
   termsAndConditions: text("terms_and_conditions"),
   excludedItems: json("excluded_items"), // Array of excluded items
+  
+  // Custom display text for manual packages
+  customText: text("custom_text"), // Custom editable text for package display
   markup: integer("markup"), // Markup amount in EGP
   markupType: text("markup_type"), // "percentage" or "fixed"
   discountType: text("discount_type"), // "percentage" or "fixed"
