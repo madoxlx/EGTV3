@@ -106,6 +106,16 @@ The application uses a comprehensive PostgreSQL schema with the following core e
 
 ## Recent Changes
 
+- **Manual Package Edit Form Data Retrieval Fix Complete (July 6, 2025)**: Successfully resolved all data retrieval issues in manual package edit forms
+  - **Hotel Data Extraction**: Enhanced form to extract hotel names, star ratings, and room details from description field when not in proper JSON fields
+  - **Tour Data Extraction**: Implemented intelligent tour matching system that maps tours from description to actual database records with correct IDs and pricing
+  - **Transportation Data Extraction**: Added extraction of transportation details from description field into proper transportationDetails form field
+  - **City and Category Retrieval**: Fixed city dropdown filtering based on selected country and ensured package category dropdown is properly populated
+  - **Description Cleanup**: Modified form submission to store data in proper JSON fields (selectedHotels, rooms, transportationDetails) instead of embedding in description
+  - **Data Storage Enhancement**: Updated both create and update mutations to use structured data fields while keeping descriptions clean
+  - **Smart Data Parsing**: Added robust parsing logic that handles both structured JSON data and legacy description-based data for backward compatibility
+  - **Tour Matching Algorithm**: Implemented name-based matching to connect tours from descriptions with actual database tour records for accurate form population
+
 - **Separate Package Management Pages Implementation Complete (July 6, 2025)**: Successfully separated package management into dedicated pages for dynamic and manual packages
   - **Dynamic Packages Page**: Updated `/admin/packages` to show only dynamic packages (created via `/admin/packages/create`)
   - **Manual Packages Page**: Created new `/admin/manual-packages` page to show only manual packages (created via `/admin/packages/create-manual`)
