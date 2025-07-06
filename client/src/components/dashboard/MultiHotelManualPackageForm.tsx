@@ -466,12 +466,22 @@ export function MultiHotelManualPackageForm({
 
   // Tour selection functions
   const handleTourSelection = (tourId: number) => {
+    console.log('Attempting to select tour with ID:', tourId);
+    
     const selectedTour = tours.find(tour => tour.id === tourId);
-    if (!selectedTour) return;
+    console.log('Found tour:', selectedTour);
+    
+    if (!selectedTour) {
+      console.log('Tour not found!');
+      return;
+    }
 
     // Check if tour is already selected
     const isAlreadySelected = selectedToursWithPrices.some(tour => tour.id === tourId);
-    if (isAlreadySelected) return;
+    if (isAlreadySelected) {
+      console.log('Tour already selected');
+      return;
+    }
 
     // Add tour to selected tours with editable price
     const newSelectedTour = {
@@ -485,10 +495,12 @@ export function MultiHotelManualPackageForm({
 
     const updatedSelectedTours = [...selectedToursWithPrices, newSelectedTour];
     setSelectedToursWithPrices(updatedSelectedTours);
+    console.log('Updated selected tours:', updatedSelectedTours);
 
     // Update form field
     const tourIds = updatedSelectedTours.map(tour => tour.id);
     form.setValue("selectedTourIds", tourIds);
+    console.log('Updated form selectedTourIds:', tourIds);
 
     setTourSearchQuery("");
     setShowTourDropdown(false);
@@ -1732,12 +1744,12 @@ export function MultiHotelManualPackageForm({
                     {/* Tour Dropdown */}
                     {showTourDropdown && (
                       tourSearchQuery.length > 0 ? filteredTours.length > 0 : tours.filter(tour => 
-                        !form.getValues("selectedTourIds")?.includes(tour.id)
+                        !selectedToursWithPrices.some(selected => selected.id === tour.id)
                       ).length > 0
                     ) && (
                       <div className="absolute z-10 w-full mt-1 max-h-60 overflow-auto bg-white border rounded-md shadow-lg">
                         {(tourSearchQuery.length > 0 ? filteredTours : tours.filter(tour => 
-                          !form.getValues("selectedTourIds")?.includes(tour.id)
+                          !selectedToursWithPrices.some(selected => selected.id === tour.id)
                         )).map((tour) => (
                           <div
                             key={tour.id}
