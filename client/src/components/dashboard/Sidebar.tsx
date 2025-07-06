@@ -245,23 +245,23 @@ export function Sidebar({ collapsed, onToggle, location }: SidebarProps) {
       submenuItems: [
         {
           icon: <List size={16} />,
-          label: t("admin.sidebar.allPackages", "All Packages"),
+          label: t("admin.sidebar.dynamicPackages", "Dynamic Packages"),
           href: "/admin/packages",
         },
         {
           icon: <Plus size={16} />,
-          label: t("admin.sidebar.createPackage", "Create Package"),
+          label: t("admin.sidebar.createPackage", "Create Dynamic"),
           href: "/admin/packages/create",
+        },
+        {
+          icon: <List size={16} />,
+          label: t("admin.sidebar.manualPackages", "Manual Packages"),
+          href: "/admin/manual-packages",
         },
         {
           icon: <Plus size={16} />,
           label: t("admin.sidebar.createManual", "Create Manual"),
           href: "/admin/packages/create-manual",
-        },
-        {
-          icon: <Star size={16} />,
-          label: t("admin.sidebar.featuredPackages", "Featured Packages"),
-          href: "/admin/packages?filter=featured",
         },
         {
           icon: <Tag size={16} />,

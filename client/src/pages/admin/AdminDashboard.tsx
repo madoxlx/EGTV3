@@ -452,10 +452,16 @@ export default function AdminDashboard() {
                 </CardHeader>
                 <CardContent className="space-y-2">
                   <Button asChild className="w-full">
-                    <Link href="/admin/packages">{t('admin.dashboard.view_all_packages', 'View All Packages')}</Link>
+                    <Link href="/admin/packages">Dynamic Packages</Link>
+                  </Button>
+                  <Button asChild className="w-full">
+                    <Link href="/admin/manual-packages">Manual Packages</Link>
                   </Button>
                   <Button asChild variant="outline" className="w-full">
-                    <Link href="/admin/packages/create">{t('admin.dashboard.create_package', 'Create Package')}</Link>
+                    <Link href="/admin/packages/create">Create Dynamic</Link>
+                  </Button>
+                  <Button asChild variant="outline" className="w-full">
+                    <Link href="/admin/packages/create-manual">Create Manual</Link>
                   </Button>
                   <Button asChild variant="outline" className="w-full">
                     <Link href="/admin/packages/categories">{t('admin.dashboard.package_categories', 'Package Categories')}</Link>

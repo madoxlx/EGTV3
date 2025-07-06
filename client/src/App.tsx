@@ -45,6 +45,7 @@ import {
 
 // Admin Pages
 import PackagesManagement from "@/pages/admin/PackagesManagement";
+import ManualPackagesManagement from "@/pages/admin/ManualPackagesManagement";
 import PackageCreatorPage from "@/pages/admin/PackageCreatorPage";
 import CreateManualPackage from "@/pages/admin/CreateManualPackage";
 import EditManualPackage from "@/pages/admin/EditManualPackage";
@@ -128,6 +129,7 @@ function Router() {
             component={PackageCategoriesPage}
           />
           <AdminRoute path="/admin/packages" component={PackagesManagement} />
+          <AdminRoute path="/admin/manual-packages" component={ManualPackagesManagement} />
           <AdminRoute
             path="/admin/advanced-users"
             component={AdvancedUserManagement}

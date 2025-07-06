@@ -79,9 +79,22 @@ export default function PackagesManagement() {
   const { t } = useLanguage();
 
   // Fetch packages
-  const { data: packages = [], isLoading } = useQuery<Package[]>({
+  const { data: allPackages = [], isLoading } = useQuery<Package[]>({
     queryKey: ['/api/packages'],
     retry: 1,
+  });
+
+  // Filter only dynamic packages
+  const packages = allPackages.filter(pkg => {
+    // Dynamic packages detection logic:
+    // 1. Type is explicitly "dynamic"
+    // 2. NOT manual packages (excluding manual types and MANUAL: prefix)
+    // 3. Packages with minimal manual creation data
+    return pkg.type?.toLowerCase() === "dynamic" || 
+           (!pkg.title?.startsWith("MANUAL:") && 
+            pkg.type?.toLowerCase() !== "manual" && 
+            pkg.type?.toLowerCase() !== "tour package" && 
+            (pkg.type === null && (!pkg.description || pkg.description.length <= 200) && !pkg.inclusions));
   });
 
   // Delete mutation
@@ -150,27 +163,15 @@ export default function PackagesManagement() {
     }
   });
 
-  // Filter packages based on tab
+  // Filter packages based on tab (already filtered for dynamic packages)
   const filteredPackages = packages.filter(pkg => {
     if (selectedTab === "all") return true;
     if (selectedTab === "featured") return pkg.featured;
-    if (selectedTab === "manual") {
-      // Manual packages are created through manual forms
-      // They usually have Tour Package type or detailed manual creation data
-      return pkg.type?.toLowerCase() === "tour package" || 
-             (pkg.type === null && (pkg.description?.length > 50 || pkg.inclusions));
-    }
-    if (selectedTab === "dynamic") {
-      // Dynamic packages are typically auto-generated or have minimal manual input
-      // They might have null type and minimal description/data
-      return (pkg.type === null && (!pkg.description || pkg.description.length <= 50) && !pkg.inclusions) ||
-             pkg.type?.toLowerCase() === "dynamic";
-    }
     return pkg.type?.toLowerCase() === selectedTab;
   });
 
-  // Get unique package types for tabs, including manual and dynamic
-  const packageTypes = ["manual", "dynamic", ...Array.from(new Set(packages.map(pkg => pkg.type?.toLowerCase() || "unknown")))];
+  // Get unique package types for tabs
+  const packageTypes = Array.from(new Set(packages.map(pkg => pkg.type?.toLowerCase() || "unknown")));
 
   const handleDelete = (id: number) => {
     setDeleteId(id);
@@ -202,15 +203,14 @@ export default function PackagesManagement() {
   return (
     <div>
       <div className="flex justify-between items-center mb-6">
-        <h1 className="text-2xl font-bold text-zinc-900">{t('admin.packages.title', 'Packages')}</h1>
+        <div className="flex items-center gap-3">
+          <Package className="h-6 w-6 text-primary" />
+          <h1 className="text-2xl font-bold text-zinc-900">Dynamic Packages</h1>
+        </div>
         <div className="flex gap-2">
-          <Button variant="outline" size="sm" className="gap-1" onClick={() => setLocation("/admin/packages/create-manual")}>
-            <Plus size={16} />
-            <span>{t('admin.packages.manualPackage', 'Manual Package')}</span>
-          </Button>
           <Button size="sm" className="gap-1" onClick={() => setLocation("/admin/packages/create")}>
             <Plus size={16} />
-            <span>{t('admin.packages.createPackage', 'Create Package')}</span>
+            <span>Create Dynamic Package</span>
           </Button>
         </div>
       </div>
@@ -236,18 +236,12 @@ export default function PackagesManagement() {
             }}>
             <TabsList className="mb-4">
               <TabsTrigger value="all" className="text-sm">
-                {t('admin.packages.allPackages', 'All Packages')}
-              </TabsTrigger>
-              <TabsTrigger value="manual" className="text-sm">
-                {t('admin.packages.manual', 'Manual')}
-              </TabsTrigger>
-              <TabsTrigger value="dynamic" className="text-sm">
-                {t('admin.packages.dynamic', 'Dynamic')}
+                All Dynamic Packages
               </TabsTrigger>
               <TabsTrigger value="featured" className="text-sm">
-                {t('admin.packages.featured', 'Featured')}
+                Featured
               </TabsTrigger>
-              {packageTypes.filter(type => !['manual', 'dynamic'].includes(type)).map(type => (
+              {packageTypes.filter(type => type !== 'unknown').map(type => (
                 <TabsTrigger key={type} value={type} className="text-sm capitalize">
                   {t(`admin.packages.types.${type}`, type)}
                 </TabsTrigger>
@@ -258,11 +252,11 @@ export default function PackagesManagement() {
               {filteredPackages.length === 0 ? (
                 <div className="bg-white border rounded-md p-8 text-center">
                   <Package className="h-12 w-12 mx-auto text-zinc-300 mb-3" />
-                  <h3 className="text-lg font-medium text-zinc-800 mb-1">{t('admin.packages.noPackages', 'No Packages Found')}</h3>
-                  <p className="text-zinc-500 mb-4">{t('admin.packages.noPackagesDescription', 'There are no packages in this category yet.')}</p>
+                  <h3 className="text-lg font-medium text-zinc-800 mb-1">No Dynamic Packages Found</h3>
+                  <p className="text-zinc-500 mb-4">Create your first dynamic package to get started.</p>
                   <Button onClick={() => setLocation("/admin/packages/create")}>
                     <Plus size={16} className="mr-2" />
-                    {t('admin.packages.createPackage', 'Create Package')}
+                    Create Dynamic Package
                   </Button>
                 </div>
               ) : (
@@ -304,28 +298,10 @@ export default function PackagesManagement() {
                               </Badge>
                             )}
                             
-                            {/* Manual/Dynamic Badge */}
-                            {(() => {
-                              const isManual = pkg.type?.toLowerCase() === "tour package" || 
-                                             (pkg.type === null && (pkg.description?.length > 50 || pkg.inclusions));
-                              const isDynamic = (pkg.type === null && (!pkg.description || pkg.description.length <= 50) && !pkg.inclusions) ||
-                                              pkg.type?.toLowerCase() === "dynamic";
-                              
-                              if (isManual) {
-                                return (
-                                  <Badge className="bg-blue-500 hover:bg-blue-600 text-white">
-                                    Manual
-                                  </Badge>
-                                );
-                              } else if (isDynamic) {
-                                return (
-                                  <Badge className="bg-green-500 hover:bg-green-600 text-white">
-                                    Dynamic
-                                  </Badge>
-                                );
-                              }
-                              return null;
-                            })()}
+                            {/* Dynamic Badge - since this page only shows dynamic packages */}
+                            <Badge className="bg-green-500 hover:bg-green-600 text-white">
+                              Dynamic
+                            </Badge>
                             
                             {pkg.type && (
                               <Badge variant="secondary" className="bg-white/90 text-primary">
