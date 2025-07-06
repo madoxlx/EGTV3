@@ -4908,8 +4908,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
   // Get all translations
   app.get('/api/translations', async (req, res) => {
     try {
-      const category = req.query.category as string | undefined;
-      const translations = await storage.listTranslations(category);
+      const translations = await storage.listTranslations();
       res.json(translations);
     } catch (error) {
       console.error('Error fetching translations:', error);
@@ -4955,38 +4954,9 @@ export async function registerRoutes(app: Express): Promise<Server> {
   // Create new translation (admin only)
   app.post('/api/admin/translations', isAdmin, async (req, res) => {
     try {
-      // Parse the data from the request
       const translationData = insertTranslationSchema.parse(req.body);
-      
-      // Manually insert directly into the database to bypass date issues
-      try {
-        // Use parameterized query to avoid SQL injection
-        const inserted = await db.insert(translations).values({
-          key,
-          language: 'en', // Set default language to English
-          value: defaultText, // Use value column
-          enText: defaultText,
-          arText: null,
-          category,
-          context: `Auto-detected from ${path.relative('.', filePath)}`,
-          createdAt: new Date(),
-          updatedAt: new Date()
-        }).returning();
-        const newTranslation = inserted[0];
-        if (newTranslation && newTranslation.id) {
-          console.log(`✓ Added: "${translationData.key}" with ID: ${newTranslation.id}`);
-          res.json(newTranslation);
-        } else {
-          console.log(`✗ Failed to add: "${translationData.key}" - No ID returned`);
-          res.status(500).json({ message: 'Failed to create translation' });
-        }
-      } catch (dbError: any) {
-        // Check for duplicate key error
-        if (dbError.code === '23505') {
-          return res.status(409).json({ message: 'A translation with this key already exists' });
-        }
-        throw dbError; // Re-throw for the outer catch
-      }
+      const newTranslation = await storage.createTranslation(translationData);
+      res.json(newTranslation);
     } catch (error) {
       if (error instanceof z.ZodError) {
         return res.status(400).json({ message: 'Invalid translation data', errors: error.errors });

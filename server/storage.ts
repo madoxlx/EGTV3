@@ -32,6 +32,9 @@ import {
   menus,
   Menu,
   InsertMenu,
+  translations,
+  Translation,
+  InsertTranslation,
   hotelFacilities,
   hotelHighlights,
   cleanlinessFeatures,
@@ -135,8 +138,12 @@ export interface IStorage {
   createTourCategory(category: any): Promise<any>;
 
   // Translations
-  listTranslations(language?: string): Promise<any[]>;
-  createTranslation(translation: any): Promise<any>;
+  listTranslations(): Promise<Translation[]>;
+  getTranslation(id: number): Promise<Translation | undefined>;
+  getTranslationByKey(key: string): Promise<Translation | undefined>;
+  createTranslation(translation: InsertTranslation): Promise<Translation>;
+  updateTranslation(id: number, translation: Partial<InsertTranslation>): Promise<Translation | undefined>;
+  deleteTranslation(id: number): Promise<boolean>;
 
   // Language Settings
   getSiteLanguageSettings(): Promise<any[]>;
@@ -1109,48 +1116,66 @@ export class DatabaseStorage implements IStorage {
   }
 
   // Translations
-  async listTranslations(language?: string): Promise<any[]> {
+  async listTranslations(): Promise<Translation[]> {
     try {
-      const client = await pool.connect();
-      let result;
-      if (language !== undefined) {
-        result = await client.query(
-          'SELECT * FROM translations WHERE language = $1 ORDER BY "key"',
-          [language],
-        );
-      } else {
-        result = await client.query(
-          'SELECT * FROM translations ORDER BY "key"',
-        );
-      }
-      client.release();
-      return result.rows || [];
+      return await db.select().from(translations).orderBy(asc(translations.key));
     } catch (error) {
       console.error("Error listing translations:", error);
       return [];
     }
   }
 
-  async createTranslation(translation: any): Promise<any> {
+  async getTranslation(id: number): Promise<Translation | undefined> {
     try {
-      const client = await pool.connect();
-      const result = await client.query(
-        'INSERT INTO translations ("key", language, value, en_text, ar_text, context, category) VALUES ($1, $2, $3, $4, $5, $6, $7) RETURNING *',
-        [
-          translation.key,
-          translation.language || "en",
-          translation.value,
-          translation.enText || translation.value,
-          translation.arText,
-          translation.context,
-          translation.category,
-        ],
-      );
-      client.release();
-      return result.rows[0] || null;
+      const result = await db.select().from(translations).where(eq(translations.id, id));
+      return result[0];
+    } catch (error) {
+      console.error("Error getting translation:", error);
+      return undefined;
+    }
+  }
+
+  async getTranslationByKey(key: string): Promise<Translation | undefined> {
+    try {
+      const result = await db.select().from(translations).where(eq(translations.key, key));
+      return result[0];
+    } catch (error) {
+      console.error("Error getting translation by key:", error);
+      return undefined;
+    }
+  }
+
+  async createTranslation(translation: InsertTranslation): Promise<Translation> {
+    try {
+      const result = await db.insert(translations).values(translation).returning();
+      return result[0];
     } catch (error) {
       console.error("Error creating translation:", error);
       throw error;
+    }
+  }
+
+  async updateTranslation(id: number, translation: Partial<InsertTranslation>): Promise<Translation | undefined> {
+    try {
+      const result = await db
+        .update(translations)
+        .set({ ...translation, updatedAt: new Date() })
+        .where(eq(translations.id, id))
+        .returning();
+      return result[0];
+    } catch (error) {
+      console.error("Error updating translation:", error);
+      return undefined;
+    }
+  }
+
+  async deleteTranslation(id: number): Promise<boolean> {
+    try {
+      const result = await db.delete(translations).where(eq(translations.id, id));
+      return (result.rowCount || 0) > 0;
+    } catch (error) {
+      console.error("Error deleting translation:", error);
+      return false;
     }
   }
 

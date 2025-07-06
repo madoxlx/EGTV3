@@ -515,11 +515,9 @@ export const hotelsRelations = relations(hotels, ({ many, one }) => ({
 // Translations schema
 export const translations = pgTable("translations", {
   id: serial("id").primaryKey(),
-  key: text("key").notNull().unique(), // Ensure key is unique
-  language: text("language").notNull(), // Add language column
-  value: text("value").notNull(), // Use value column instead of enText/arText
-  enText: text("en_text"), // Keep for backward compatibility
-  arText: text("ar_text"), // Keep for backward compatibility
+  key: text("key").notNull().unique(),
+  enText: text("en_text").notNull(),
+  arText: text("ar_text"),
   context: text("context"),
   category: text("category"),
   createdAt: timestamp("created_at").notNull().defaultNow(),
@@ -1537,12 +1535,12 @@ export const insertTransportDurationSchema = createInsertSchema(
   status: true,
 });
 
-export const insertTranslationSchema = createInsertSchema(translations).pick({
-  key: true,
-  language: true,
-  value: true,
-  context: true,
-  category: true,
+export const insertTranslationSchema = createInsertSchema(translations).omit({
+  id: true,
+  createdAt: true,
+  updatedAt: true,
+  createdBy: true,
+  updatedBy: true,
 });
 
 export const insertSiteLanguageSettingsSchema = createInsertSchema(
