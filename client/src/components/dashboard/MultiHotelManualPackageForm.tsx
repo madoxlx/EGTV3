@@ -189,6 +189,16 @@ export function MultiHotelManualPackageForm({
   const [showTourDropdown, setShowTourDropdown] = useState(false);
   const [showInclusionSuggestions, setShowInclusionSuggestions] =
     useState(false);
+  
+  // State for selected tours with editable prices
+  const [selectedToursWithPrices, setSelectedToursWithPrices] = useState<Array<{
+    id: number;
+    name: string;
+    description: string;
+    duration: string;
+    originalPrice: number;
+    customPrice: number; // Editable price
+  }>>([]);
 
   // Dialog state for adding/editing hotels
   const [isHotelDialogOpen, setIsHotelDialogOpen] = useState(false);
@@ -429,34 +439,83 @@ export function MultiHotelManualPackageForm({
         setSelectedCity(packageData.cityId);
       }
 
+      // Set selected tours with prices
+      const selectedTourIds = parseJSONField(packageData.tourSelection);
+      if (selectedTourIds.length > 0 && tours.length > 0) {
+        const selectedToursData = selectedTourIds.map((tourId: number) => {
+          const tour = tours.find(t => t.id === tourId);
+          if (tour) {
+            return {
+              id: tour.id,
+              name: tour.name,
+              description: tour.description || "",
+              duration: tour.duration || "",
+              originalPrice: tour.price || 0,
+              customPrice: Math.round((tour.price || 0) / 100), // Convert to EGP
+            };
+          }
+          return null;
+        }).filter(Boolean);
+        
+        setSelectedToursWithPrices(selectedToursData);
+      }
+
       console.log('Form populated with package data');
     }
-  }, [isEditMode, packageData, isLoadingPackage, form]);
+  }, [isEditMode, packageData, isLoadingPackage, form, tours]);
 
   // Tour selection functions
   const handleTourSelection = (tourId: number) => {
-    const currentTours = form.getValues("selectedTourIds") || [];
-    if (!currentTours.includes(tourId)) {
-      const updatedTours = [...currentTours, tourId];
-      form.setValue("selectedTourIds", updatedTours);
-    }
+    const selectedTour = tours.find(tour => tour.id === tourId);
+    if (!selectedTour) return;
+
+    // Check if tour is already selected
+    const isAlreadySelected = selectedToursWithPrices.some(tour => tour.id === tourId);
+    if (isAlreadySelected) return;
+
+    // Add tour to selected tours with editable price
+    const newSelectedTour = {
+      id: selectedTour.id,
+      name: selectedTour.name,
+      description: selectedTour.description || "",
+      duration: selectedTour.duration || "",
+      originalPrice: selectedTour.price || 0,
+      customPrice: Math.round((selectedTour.price || 0) / 100), // Convert to EGP and make editable
+    };
+
+    const updatedSelectedTours = [...selectedToursWithPrices, newSelectedTour];
+    setSelectedToursWithPrices(updatedSelectedTours);
+
+    // Update form field
+    const tourIds = updatedSelectedTours.map(tour => tour.id);
+    form.setValue("selectedTourIds", tourIds);
+
     setTourSearchQuery("");
     setShowTourDropdown(false);
   };
 
   const removeTour = (tourIdToRemove: number) => {
-    const currentTours = form.getValues("selectedTourIds") || [];
-    const updatedTours = currentTours.filter(id => id !== tourIdToRemove);
-    form.setValue("selectedTourIds", updatedTours);
+    const updatedSelectedTours = selectedToursWithPrices.filter(tour => tour.id !== tourIdToRemove);
+    setSelectedToursWithPrices(updatedSelectedTours);
+
+    // Update form field
+    const tourIds = updatedSelectedTours.map(tour => tour.id);
+    form.setValue("selectedTourIds", tourIds);
+  };
+
+  const updateTourPrice = (tourId: number, newPrice: number) => {
+    setSelectedToursWithPrices(prev => 
+      prev.map(tour => 
+        tour.id === tourId 
+          ? { ...tour, customPrice: newPrice }
+          : tour
+      )
+    );
   };
 
   const filteredTours = tours.filter(tour => 
     tour.name.toLowerCase().includes(tourSearchQuery.toLowerCase()) &&
-    !form.getValues("selectedTourIds")?.includes(tour.id)
-  );
-
-  const selectedTours = tours.filter(tour => 
-    form.getValues("selectedTourIds")?.includes(tour.id)
+    !selectedToursWithPrices.some(selected => selected.id === tour.id)
   );
 
   // Create manual package mutation
@@ -484,13 +543,22 @@ export function MultiHotelManualPackageForm({
         })
         .join("\n\n");
 
-      // Get selected tour names for description
-      const selectedTourNames = tours
-        .filter(tour => formData.selectedTourIds.includes(tour.id))
-        .map(tour => tour.name)
-        .join(", ");
+      // Get selected tour names for description with custom prices
+      const tourText = selectedToursWithPrices.length > 0
+        ? selectedToursWithPrices
+            .map(tour => `${tour.name} (${tour.customPrice} EGP)`)
+            .join(", ")
+        : "";
+      
+      // Prepare tour data with custom prices for storage
+      const tourPriceData = selectedToursWithPrices.map(tour => ({
+        id: tour.id,
+        name: tour.name,
+        customPrice: tour.customPrice * 100, // Convert back to cents for storage
+        originalPrice: tour.originalPrice
+      }));
 
-      const enhancedDescription = `${formData.description}\n\nHotels:\n${hotelsText}\n\nTransportation: ${formData.transportationDetails}\n\nTours: ${selectedTourNames}`;
+      const enhancedDescription = `${formData.description}\n\nHotels:\n${hotelsText}\n\nTransportation: ${formData.transportationDetails}${tourText ? `\n\nTours: ${tourText}` : ""}`;
 
       // Transform the form data to match the API schema
       const packageData = {
@@ -516,6 +584,7 @@ export function MultiHotelManualPackageForm({
         countryId: formData.countryId,
         cityId: formData.cityId,
         selectedTourIds: formData.selectedTourIds || [],
+        tourPriceData: tourPriceData, // Custom tour prices
         type: formData.type,
         customText: formData.customText,
       };
@@ -582,14 +651,22 @@ export function MultiHotelManualPackageForm({
         })
         .join("\n\n");
 
-      const tourText = formData.selectedTourIds?.length
-        ? `\n\nTour: ${tours
-            .filter((tour) => formData.selectedTourIds?.includes(tour.id))
-            .map((tour) => tour.name)
-            .join(", ")}`
+      // Get selected tour names for description with custom prices
+      const tourText = selectedToursWithPrices.length > 0
+        ? selectedToursWithPrices
+            .map(tour => `${tour.name} (${tour.customPrice} EGP)`)
+            .join(", ")
         : "";
+      
+      // Prepare tour data with custom prices for storage
+      const tourPriceData = selectedToursWithPrices.map(tour => ({
+        id: tour.id,
+        name: tour.name,
+        customPrice: tour.customPrice * 100, // Convert back to cents for storage
+        originalPrice: tour.originalPrice
+      }));
 
-      const enhancedDescription = `${formData.description}\n\nHotels:\n${hotelsText}\n\nTransportation: ${formData.transportationDetails}${tourText}`;
+      const enhancedDescription = `${formData.description}\n\nHotels:\n${hotelsText}\n\nTransportation: ${formData.transportationDetails}${tourText ? `\n\nTours: ${tourText}` : ""}`;
 
       const payload = {
         ...formData,
@@ -598,6 +675,7 @@ export function MultiHotelManualPackageForm({
         galleryUrls,
         price: formData.price * 100, // Convert to cents
         discountedPrice: formData.discountedPrice ? formData.discountedPrice * 100 : null,
+        tourPriceData: tourPriceData, // Custom tour prices
         type: "manual",
       };
 
@@ -1680,39 +1758,79 @@ export function MultiHotelManualPackageForm({
                   </div>
 
                   {/* Selected Tours Display */}
-                  {selectedTours.length > 0 && (
+                  {selectedToursWithPrices.length > 0 && (
                     <div className="space-y-2">
                       <h4 className="text-sm font-medium text-green-700">
-                        Selected Tours ({selectedTours.length})
+                        Selected Tours ({selectedToursWithPrices.length})
                       </h4>
-                      <div className="space-y-2">
-                        {selectedTours.map((tour) => (
+                      <div className="space-y-3">
+                        {selectedToursWithPrices.map((tour) => (
                           <div
                             key={tour.id}
-                            className="flex items-center justify-between p-3 bg-green-50 border border-green-200 rounded-md"
+                            className="p-4 bg-green-50 border border-green-200 rounded-md"
                           >
-                            <div className="flex-1">
-                              <div className="font-medium text-green-800">{tour.name}</div>
-                              <div className="text-sm text-green-600">
-                                ${(tour.price / 100).toFixed(2)} • {tour.duration} duration
+                            <div className="flex items-start justify-between mb-3">
+                              <div className="flex-1">
+                                <div className="font-medium text-green-800">{tour.name}</div>
+                                <div className="text-sm text-green-600 mt-1">
+                                  {tour.description}
+                                </div>
+                                <div className="text-sm text-gray-600 mt-1">
+                                  Duration: {tour.duration}
+                                </div>
+                              </div>
+                              <Button
+                                type="button"
+                                variant="ghost"
+                                size="sm"
+                                onClick={() => removeTour(tour.id)}
+                                className="text-red-600 hover:text-red-800 hover:bg-red-100"
+                              >
+                                Remove
+                              </Button>
+                            </div>
+                            
+                            {/* Editable Price Section */}
+                            <div className="grid grid-cols-2 gap-4">
+                              <div>
+                                <label className="text-xs font-medium text-gray-700">
+                                  Original Price (EGP)
+                                </label>
+                                <div className="text-sm text-gray-600 mt-1">
+                                  {(tour.originalPrice / 100).toFixed(2)} EGP
+                                </div>
+                              </div>
+                              <div>
+                                <label className="text-xs font-medium text-gray-700">
+                                  Custom Price (EGP) <span className="text-red-500">*</span>
+                                </label>
+                                <Input
+                                  type="number"
+                                  min="0"
+                                  step="0.01"
+                                  value={tour.customPrice}
+                                  onChange={(e) => updateTourPrice(tour.id, parseFloat(e.target.value) || 0)}
+                                  className="mt-1 text-sm"
+                                  placeholder="Enter custom price"
+                                />
                               </div>
                             </div>
-                            <Button
-                              type="button"
-                              variant="ghost"
-                              size="sm"
-                              onClick={() => removeTour(tour.id)}
-                              className="text-red-600 hover:text-red-800 hover:bg-red-100"
-                            >
-                              Remove
-                            </Button>
                           </div>
                         ))}
                       </div>
                       
                       {/* Total Tours Price */}
-                      <div className="mt-2 p-2 bg-blue-50 border border-blue-200 rounded text-sm">
-                        <strong>Total Tours Price: ${(selectedTours.reduce((sum, tour) => sum + tour.price, 0) / 100).toFixed(2)}</strong>
+                      <div className="mt-3 p-3 bg-blue-50 border border-blue-200 rounded">
+                        <div className="text-sm">
+                          <div className="flex justify-between">
+                            <span>Total Original Price:</span>
+                            <span>{(selectedToursWithPrices.reduce((sum, tour) => sum + tour.originalPrice, 0) / 100).toFixed(2)} EGP</span>
+                          </div>
+                          <div className="flex justify-between font-medium text-blue-700 mt-1">
+                            <span>Total Custom Price:</span>
+                            <span>{selectedToursWithPrices.reduce((sum, tour) => sum + tour.customPrice, 0).toFixed(2)} EGP</span>
+                          </div>
+                        </div>
                       </div>
                     </div>
                   )}
