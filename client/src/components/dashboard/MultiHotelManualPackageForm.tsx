@@ -512,6 +512,11 @@ export function MultiHotelManualPackageForm({
     form.setValue("selectedTourIds", tourIds);
     console.log('Updated form selectedTourIds:', tourIds);
 
+    // Close dropdown after selection
+    setShowTourDropdown(false);
+    setTourSearchQuery("");
+    console.log('Dropdown closed after tour selection');
+
     setTourSearchQuery("");
     setShowTourDropdown(false);
   };
@@ -1751,8 +1756,8 @@ export function MultiHotelManualPackageForm({
                       }}
                     />
                     
-                    {/* Tour Dropdown - Always show for testing */}
-                    {(showTourDropdown || true) && (
+                    {/* Tour Dropdown */}
+                    {showTourDropdown && (
                       tourSearchQuery.length > 0 ? filteredTours.length > 0 : tours.filter(tour => 
                         !selectedToursWithPrices.some(selected => selected.id === tour.id)
                       ).length > 0
