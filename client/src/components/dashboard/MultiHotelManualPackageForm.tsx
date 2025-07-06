@@ -270,11 +270,48 @@ export function MultiHotelManualPackageForm({
     console.log('Tours loaded:', tours.length, tours);
   }, [tours]);
 
-  // Fetch package data for edit mode
-  const { data: packageData, isLoading: isLoadingPackage } = useQuery({
+  // Fetch package data for edit mode - try both admin and public endpoints
+  const { data: packageDataResponse, isLoading: isLoadingPackage, error: packageError } = useQuery({
     queryKey: ["/api/admin/packages", packageId],
     enabled: isEditMode && !!packageId,
+    retry: 1,
+    queryFn: async () => {
+      // Try admin endpoint first
+      try {
+        const response = await fetch(`/api/admin/packages/${packageId}`, {
+          credentials: 'include',
+        });
+        if (response.ok) {
+          return await response.json();
+        }
+      } catch (error) {
+        console.warn('Admin endpoint failed, trying public endpoint');
+      }
+      
+      // Fallback to public endpoint
+      const response = await fetch(`/api/packages/${packageId}`);
+      if (!response.ok) {
+        throw new Error(`Failed to fetch package: ${response.statusText}`);
+      }
+      return await response.json();
+    }
   });
+
+  // Extract package data from response (handle both array and object responses)
+  const packageData = React.useMemo(() => {
+    if (!packageDataResponse) return null;
+    
+    console.log('Raw package data response:', packageDataResponse);
+    
+    // If it's an array, get the first item (or find by ID)
+    if (Array.isArray(packageDataResponse)) {
+      const foundPackage = packageDataResponse.find(pkg => pkg.id === packageId || pkg.id === String(packageId));
+      return foundPackage || packageDataResponse[0] || null;
+    }
+    
+    // If it's an object, use it directly
+    return packageDataResponse;
+  }, [packageDataResponse, packageId]);
 
   const form = useForm<ManualPackageFormValues>({
     resolver: zodResolver(manualPackageFormSchema),
@@ -386,75 +423,123 @@ export function MultiHotelManualPackageForm({
       console.log('Loading package data for edit:', packageData);
       
       // Parse JSON fields safely
-      const parseJSONField = (field: any) => {
+      const parseJSONField = (field: any, fallback: any = []) => {
+        if (!field) return fallback;
         if (typeof field === 'string') {
           try {
-            return JSON.parse(field);
-          } catch {
-            return [];
+            const parsed = JSON.parse(field);
+            return Array.isArray(parsed) ? parsed : fallback;
+          } catch (e) {
+            console.warn('Failed to parse JSON field:', field, e);
+            return fallback;
           }
         }
-        return Array.isArray(field) ? field : [];
+        return Array.isArray(field) ? field : fallback;
       };
 
-      // Set form values
-      form.reset({
-        title: packageData?.title || "",
+      // Parse hotels data with proper structure - check multiple possible field names
+      let hotelsData = parseJSONField(packageData?.hotels, []);
+      
+      // Check alternative field names for hotels data
+      if (hotelsData.length === 0) {
+        hotelsData = parseJSONField(packageData?.selectedHotels, []);
+      }
+      if (hotelsData.length === 0) {
+        hotelsData = parseJSONField(packageData?.hotelData, []);
+      }
+      
+      // If still no hotels data, check if rooms data exists and create hotel structure
+      if (hotelsData.length === 0) {
+        const roomsData = parseJSONField(packageData?.rooms, []);
+        if (roomsData.length > 0) {
+          // Group rooms by hotel (if hotel info is in rooms) or create a default hotel
+          hotelsData = [{
+            id: 'default-hotel',
+            name: 'Hotel from Package Data',
+            stars: 3,
+            rooms: roomsData
+          }];
+          console.log('Created hotels from rooms data:', hotelsData);
+        }
+      }
+      
+      console.log('Parsed hotels data:', hotelsData);
+      console.log('Available package fields:', Object.keys(packageData || {}));
+      console.log('Raw selectedHotels field:', packageData?.selectedHotels);
+      console.log('Raw rooms field:', packageData?.rooms);
+
+      // Parse selected tour IDs - check multiple possible field names  
+      let selectedTourIds = parseJSONField(packageData?.tourSelection, []);
+      if (selectedTourIds.length === 0) {
+        selectedTourIds = parseJSONField(packageData?.selectedTourIds, []);
+      }
+      if (selectedTourIds.length === 0) {
+        selectedTourIds = parseJSONField(packageData?.tours, []);
+      }
+      
+      console.log('Parsed tour selection:', selectedTourIds);
+
+      // Set form values with proper data conversion
+      const formData = {
+        title: packageData?.title?.replace('MANUAL:', '') || "",
         description: packageData?.description || "",
         price: packageData?.price ? Math.round(packageData.price / 100) : 0, // Convert from cents
         discountedPrice: packageData?.discountedPrice ? Math.round(packageData.discountedPrice / 100) : 0,
         discountType: packageData?.discountType || "percentage",
         discountValue: packageData?.discountValue || 0,
         markup: packageData?.markup || 0,
-        hotels: parseJSONField(packageData?.hotels),
+        hotels: hotelsData,
         transportationDetails: packageData?.transportationDetails || "",
         tourDetails: packageData?.tourDetails || "",
-        selectedTourIds: parseJSONField(packageData?.tourSelection),
+        selectedTourIds: selectedTourIds,
         duration: packageData?.duration || 1,
-        destinationId: packageData?.destinationId,
-        countryId: packageData?.countryId,
-        cityId: packageData?.cityId,
-        categoryId: packageData?.categoryId,
+        destinationId: packageData?.destinationId || undefined,
+        countryId: packageData?.countryId || undefined,
+        cityId: packageData?.cityId || undefined,
+        categoryId: packageData?.categoryId || undefined,
         type: "manual",
-        featured: packageData?.featured || false,
-        inclusions: parseJSONField(packageData?.inclusions),
-        excludedItems: parseJSONField(packageData?.excludedItems),
+        featured: Boolean(packageData?.featured),
+        inclusions: parseJSONField(packageData?.inclusions, []),
+        excludedItems: parseJSONField(packageData?.excludedItems, []),
         cancellationPolicy: packageData?.cancellationPolicy || "",
         childrenPolicy: packageData?.childrenPolicy || "",
         termsAndConditions: packageData?.termsAndConditions || "",
         customText: packageData?.customText || "",
-      });
+      };
+
+      console.log('Form data to populate:', formData);
+      form.reset(formData);
 
       // Set gallery images if available
-      if (packageData.galleryUrls) {
-        const galleryData = parseJSONField(packageData.galleryUrls);
-        const imageData = galleryData.map((url: string, index: number) => ({
+      const galleryUrls = parseJSONField(packageData?.galleryUrls, []);
+      if (galleryUrls.length > 0) {
+        const imageData = galleryUrls.map((url: string, index: number) => ({
           id: `existing-${index}`,
           file: null,
           preview: url,
-          isMain: index === 0 || url === packageData.mainImage
+          isMain: false
         }));
         setImages(imageData);
       }
 
       // Set main image
-      if (packageData.mainImage && !images.find(img => img.isMain)) {
+      if (packageData?.imageUrl) {
         setImages(prev => [
-          { id: 'main-existing', file: null, preview: packageData.mainImage, isMain: true },
+          { id: 'main-existing', file: null, preview: packageData.imageUrl, isMain: true },
           ...prev.map(img => ({ ...img, isMain: false }))
         ]);
       }
 
       // Set location states
-      if (packageData.countryId) {
+      if (packageData?.countryId) {
         setSelectedCountry(packageData.countryId);
+        console.log('Updated selectedCountryId state to:', packageData.countryId);
       }
-      if (packageData.cityId) {
+      if (packageData?.cityId) {
         setSelectedCity(packageData.cityId);
       }
 
-      // Set selected tours with prices
-      const selectedTourIds = parseJSONField(packageData.tourSelection);
+      // Set selected tours with prices when tours are loaded
       if (selectedTourIds.length > 0 && tours.length > 0) {
         const selectedToursData = selectedTourIds.map((tourId: number) => {
           const tour = tours.find(t => t.id === tourId);
@@ -463,7 +548,7 @@ export function MultiHotelManualPackageForm({
               id: tour.id,
               name: tour.name,
               description: tour.description || "",
-              duration: tour.duration || "",
+              duration: `${tour.duration} days` || "",
               originalPrice: tour.price || 0,
               customPrice: Math.round((tour.price || 0) / 100), // Convert to EGP
             };
@@ -471,6 +556,7 @@ export function MultiHotelManualPackageForm({
           return null;
         }).filter(Boolean);
         
+        console.log('Setting selected tours with prices:', selectedToursData);
         setSelectedToursWithPrices(selectedToursData);
       }
 
@@ -1221,9 +1307,56 @@ export function MultiHotelManualPackageForm({
     return stars.join("");
   };
 
+  // Show loading state while fetching package data in edit mode
+  if (isEditMode && isLoadingPackage) {
+    return (
+      <Card className="border-none shadow-none">
+        <CardContent className="p-6">
+          <div className="flex items-center justify-center space-x-2">
+            <Loader2 className="h-6 w-6 animate-spin" />
+            <span>Loading package data...</span>
+          </div>
+        </CardContent>
+      </Card>
+    );
+  }
+
+  // Show error state if package data failed to load
+  if (isEditMode && packageError) {
+    return (
+      <Card className="border-none shadow-none">
+        <CardContent className="p-6">
+          <div className="text-center text-red-600">
+            <p>Failed to load package data: {packageError.message}</p>
+            <Button 
+              onClick={() => window.location.reload()} 
+              className="mt-4"
+              variant="outline"
+            >
+              Try Again
+            </Button>
+          </div>
+        </CardContent>
+      </Card>
+    );
+  }
+
   return (
     <Card className="border-none shadow-none">
       <CardContent className="p-0">
+        {/* Show edit mode info */}
+        {isEditMode && packageData && (
+          <div className="mb-6 p-4 bg-blue-50 border border-blue-200 rounded-lg">
+            <div className="flex items-center gap-2">
+              <Edit className="h-5 w-5 text-blue-600" />
+              <h3 className="font-medium text-blue-900">Editing Manual Package</h3>
+            </div>
+            <p className="text-sm text-blue-700 mt-1">
+              Package ID: {packageData.id} | All existing data has been loaded into the form fields.
+            </p>
+          </div>
+        )}
+        
         <Form {...form}>
           <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-8">
             <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
