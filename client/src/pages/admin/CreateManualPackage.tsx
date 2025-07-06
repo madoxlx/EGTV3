@@ -6,7 +6,7 @@ import {
   BreadcrumbLink,
 } from "@/components/ui/breadcrumb";
 import { Button } from "@/components/ui/button";
-import { MultiHotelManualPackageForm } from "@/components/dashboard/MultiHotelManualPackageForm";
+import MultiHotelManualPackageForm from "@/components/dashboard/MultiHotelManualPackageForm";
 import { ArrowLeft, Home, Package, Plus, Hotel } from "lucide-react";
 import { useLanguage } from "@/hooks/use-language";
 

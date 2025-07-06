@@ -2352,3 +2352,5 @@ export function MultiHotelManualPackageForm({
     </Card>
   );
 }
+
+export default MultiHotelManualPackageForm;
