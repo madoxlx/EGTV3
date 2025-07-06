@@ -515,6 +515,11 @@ export function MultiHotelManualPackageForm({
     const isAlreadySelected = selectedToursWithPrices.some(tour => tour.id === tourId);
     if (isAlreadySelected) {
       console.log('Tour already selected');
+      toast({
+        title: "Tour Already Selected",
+        description: "This tour is already added to your package",
+        variant: "default",
+      });
       return;
     }
 
@@ -540,8 +545,15 @@ export function MultiHotelManualPackageForm({
     console.log('Updated form selectedTourIds:', tourIds);
     console.log('Tour selection process completed successfully!');
 
+    // Show success message
+    toast({
+      title: "Tour Added",
+      description: `${selectedTour.name} has been added to your package`,
+      variant: "default",
+    });
+
     setTourSearchQuery("");
-    setShowTourDropdown(false);
+    // Don't close dropdown immediately to allow multiple selections
   };
 
   const removeTour = (tourIdToRemove: number) => {
@@ -563,10 +575,13 @@ export function MultiHotelManualPackageForm({
     );
   };
 
-  const filteredTours = tours.filter(tour => 
-    tour.name.toLowerCase().includes(tourSearchQuery.toLowerCase()) &&
-    !selectedToursWithPrices.some(selected => selected.id === tour.id)
-  );
+  const filteredTours = React.useMemo(() => {
+    return tours.filter(tour => {
+      const matchesSearch = tour.name.toLowerCase().includes(tourSearchQuery.toLowerCase());
+      const notAlreadySelected = !selectedToursWithPrices.some(selected => selected.id === tour.id);
+      return matchesSearch && notAlreadySelected;
+    });
+  }, [tours, tourSearchQuery, selectedToursWithPrices]);
 
   // Create manual package mutation
   const createManualPackageMutation = useMutation({
@@ -1799,7 +1814,7 @@ export function MultiHotelManualPackageForm({
                         </div>
                         {(tourSearchQuery.length > 0 ? filteredTours : tours.filter(tour => 
                           !selectedToursWithPrices.some(selected => selected.id === tour.id)
-                        )).map((tour) => (
+                        ).slice(0, 10)).map((tour) => (
                           <div
                             key={tour.id}
                             className="px-4 py-3 cursor-pointer hover:bg-zinc-100 border-b last:border-b-0"
@@ -1826,11 +1841,17 @@ export function MultiHotelManualPackageForm({
 
                   {/* Selected Tours Display */}
                   {selectedToursWithPrices.length > 0 && (
-                    <div className="space-y-2">
-                      <h4 className="text-sm font-medium text-green-700">
-                        Selected Tours ({selectedToursWithPrices.length})
-                      </h4>
-                      <div className="space-y-3">
+                    <div className="space-y-3 mt-4">
+                      <div className="flex items-center justify-between">
+                        <h4 className="text-sm font-medium text-green-700">
+                          Selected Tours ({selectedToursWithPrices.length})
+                        </h4>
+                        <Badge variant="outline" className="bg-green-50 text-green-700 border-green-200">
+                          Total: {selectedToursWithPrices.reduce((sum, tour) => sum + tour.customPrice, 0).toFixed(2)} EGP
+                        </Badge>
+                      </div>
+                      
+                      <div className="space-y-3 max-h-80 overflow-y-auto">
                         {selectedToursWithPrices.map((tour) => (
                           <div
                             key={tour.id}
@@ -1838,7 +1859,12 @@ export function MultiHotelManualPackageForm({
                           >
                             <div className="flex items-start justify-between mb-3">
                               <div className="flex-1">
-                                <div className="font-medium text-green-800">{tour.name}</div>
+                                <div className="flex items-center gap-2 mb-1">
+                                  <div className="font-medium text-green-800">{tour.name}</div>
+                                  <Badge variant="secondary" className="text-xs">
+                                    ID: {tour.id}
+                                  </Badge>
+                                </div>
                                 <div className="text-sm text-green-600 mt-1">
                                   {tour.description}
                                 </div>
@@ -1853,23 +1879,23 @@ export function MultiHotelManualPackageForm({
                                 onClick={() => removeTour(tour.id)}
                                 className="text-red-600 hover:text-red-800 hover:bg-red-100"
                               >
-                                Remove
+                                <X className="h-4 w-4" />
                               </Button>
                             </div>
                             
                             {/* Editable Price Section */}
                             <div className="grid grid-cols-2 gap-4">
-                              <div>
+                              <div className="p-2 bg-white rounded border">
                                 <label className="text-xs font-medium text-gray-700">
-                                  Original Price (EGP)
+                                  Original Price
                                 </label>
-                                <div className="text-sm text-gray-600 mt-1">
+                                <div className="text-sm font-semibold text-gray-800 mt-1">
                                   {(tour.originalPrice / 100).toFixed(2)} EGP
                                 </div>
                               </div>
-                              <div>
+                              <div className="p-2 bg-white rounded border">
                                 <label className="text-xs font-medium text-gray-700">
-                                  Custom Price (EGP) <span className="text-red-500">*</span>
+                                  Custom Price <span className="text-red-500">*</span>
                                 </label>
                                 <Input
                                   type="number"
@@ -1877,28 +1903,21 @@ export function MultiHotelManualPackageForm({
                                   step="0.01"
                                   value={tour.customPrice}
                                   onChange={(e) => updateTourPrice(tour.id, parseFloat(e.target.value) || 0)}
-                                  className="mt-1 text-sm"
-                                  placeholder="Enter custom price"
+                                  className="mt-1 text-sm h-8"
+                                  placeholder="Enter price"
                                 />
                               </div>
                             </div>
                           </div>
                         ))}
                       </div>
-                      
-                      {/* Total Tours Price */}
-                      <div className="mt-3 p-3 bg-blue-50 border border-blue-200 rounded">
-                        <div className="text-sm">
-                          <div className="flex justify-between">
-                            <span>Total Original Price:</span>
-                            <span>{(selectedToursWithPrices.reduce((sum, tour) => sum + tour.originalPrice, 0) / 100).toFixed(2)} EGP</span>
-                          </div>
-                          <div className="flex justify-between font-medium text-blue-700 mt-1">
-                            <span>Total Custom Price:</span>
-                            <span>{selectedToursWithPrices.reduce((sum, tour) => sum + tour.customPrice, 0).toFixed(2)} EGP</span>
-                          </div>
-                        </div>
-                      </div>
+                    </div>
+                  )}
+
+                  {/* Empty State */}
+                  {selectedToursWithPrices.length === 0 && (
+                    <div className="mt-4 p-4 border-2 border-dashed border-gray-200 rounded-lg text-center">
+                      <p className="text-sm text-gray-500">No tours selected yet. Search and click on tours above to add them to your package.</p>
                     </div>
                   )}
 
