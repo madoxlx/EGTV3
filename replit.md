@@ -106,13 +106,13 @@ The application uses a comprehensive PostgreSQL schema with the following core e
 
 ## Recent Changes
 
-- **Tour Selection Debug Enhancement Complete (July 6, 2025)**: Successfully enhanced tour selection debugging and visibility in manual package creation form
-  - **Added Comprehensive Debugging**: Added console logging for tour clicks, tour data loading, and selected tour state changes
-  - **Enhanced Tour Dropdown Visibility**: Made tour dropdown always visible during testing to identify selection issues
-  - **Fixed Form Validation**: Made selectedTourIds field optional to prevent validation interference with tour selection
-  - **State Management Verification**: Confirmed tours loading correctly (8 tours) and state management properly implemented
-  - **Click Handler Enhancement**: Added detailed logging to track tour selection attempts and form field updates
-  - **Testing Infrastructure**: Tour selection functionality ready for user testing with comprehensive debugging output
+- **Tour Selection UX Enhancement Complete (July 6, 2025)**: Successfully enhanced tour selection with improved dropdown interface and user experience
+  - **Added Close Button**: Implemented close button (X) in tour dropdown header for easy dismissal
+  - **Click-Outside Functionality**: Added click-outside detection to automatically close dropdown when clicking elsewhere
+  - **Enhanced Dropdown Header**: Added professional header with "Select Tours" title and close button
+  - **Improved Open Logic**: Tour dropdown now opens on focus, typing, or double-click for better accessibility
+  - **Debugging Infrastructure**: Maintained comprehensive console logging for tour selection tracking
+  - **User Experience**: Professional dropdown interface with proper close controls and intuitive behavior
 
 - **Specialized Manual Package Edit Form Implementation Complete (July 6, 2025)**: Successfully created dedicated edit form for manual packages with complete data pre-population
   - **Dedicated Edit Route**: Added `/admin/packages/edit-manual/:id` route with specialized EditManualPackage component

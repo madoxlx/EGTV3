@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm, useFieldArray } from "react-hook-form";
 import { useMutation, useQuery } from "@tanstack/react-query";
@@ -187,6 +187,7 @@ export function MultiHotelManualPackageForm({
   // State for tour selection
   const [tourSearchQuery, setTourSearchQuery] = useState("");
   const [showTourDropdown, setShowTourDropdown] = useState(false);
+  const tourDropdownRef = useRef<HTMLDivElement>(null);
   const [showInclusionSuggestions, setShowInclusionSuggestions] =
     useState(false);
   
@@ -473,6 +474,20 @@ export function MultiHotelManualPackageForm({
       console.log('Form populated with package data');
     }
   }, [isEditMode, packageData, isLoadingPackage, form, tours]);
+
+  // Handle click outside tour dropdown
+  useEffect(() => {
+    function handleClickOutside(event: MouseEvent) {
+      if (tourDropdownRef.current && !tourDropdownRef.current.contains(event.target as Node)) {
+        setShowTourDropdown(false);
+      }
+    }
+    
+    document.addEventListener('mousedown', handleClickOutside);
+    return () => {
+      document.removeEventListener('mousedown', handleClickOutside);
+    };
+  }, []);
 
   // Tour selection functions
   const handleTourSelection = (tourId: number) => {
@@ -1742,22 +1757,33 @@ export function MultiHotelManualPackageForm({
                       value={tourSearchQuery}
                       onChange={(e) => {
                         setTourSearchQuery(e.target.value);
-                        setShowTourDropdown(e.target.value.length > 0);
+                        setShowTourDropdown(true);
                       }}
-                      onFocus={() => setShowTourDropdown(tourSearchQuery.length > 0)}
+                      onFocus={() => setShowTourDropdown(true)}
                       onDoubleClick={() => {
                         setTourSearchQuery("");
                         setShowTourDropdown(true);
                       }}
                     />
                     
-                    {/* Tour Dropdown - Always show for testing */}
-                    {(showTourDropdown || true) && (
+                    {/* Tour Dropdown */}
+                    {showTourDropdown && (
                       tourSearchQuery.length > 0 ? filteredTours.length > 0 : tours.filter(tour => 
                         !selectedToursWithPrices.some(selected => selected.id === tour.id)
                       ).length > 0
                     ) && (
-                      <div className="absolute z-10 w-full mt-1 max-h-60 overflow-auto bg-white border rounded-md shadow-lg">
+                      <div ref={tourDropdownRef} className="absolute z-10 w-full mt-1 max-h-60 overflow-auto bg-white border rounded-md shadow-lg">
+                        {/* Close Button */}
+                        <div className="flex justify-between items-center p-2 border-b bg-gray-50">
+                          <span className="text-sm font-medium text-gray-700">Select Tours</span>
+                          <button
+                            type="button"
+                            onClick={() => setShowTourDropdown(false)}
+                            className="p-1 hover:bg-gray-200 rounded"
+                          >
+                            <X className="w-4 h-4 text-gray-500" />
+                          </button>
+                        </div>
                         {(tourSearchQuery.length > 0 ? filteredTours : tours.filter(tour => 
                           !selectedToursWithPrices.some(selected => selected.id === tour.id)
                         )).map((tour) => (
