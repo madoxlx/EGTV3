@@ -2229,23 +2229,23 @@ export function MultiHotelManualPackageForm({
                 {/* Hotels & Rooms Section */}
                 <div className="space-y-3">
                   <h4 className="font-medium text-blue-700">Hotels & Accommodation</h4>
-                  {selectedHotels.length > 0 ? (
+                  {form.watch("hotels")?.length > 0 ? (
                     <div className="space-y-2">
-                      {selectedHotels.map((hotel) => {
-                        const hotelRooms = selectedRooms.filter(room => room.hotel_id === hotel.id);
-                        const hotelTotal = hotelRooms.reduce((sum, room) => {
-                          const customPrice = room.customPrice || (room.price / 100);
-                          return sum + customPrice;
-                        }, 0);
+                      {form.watch("hotels").map((hotel, index) => {
+                        const hotelTotal = hotel.rooms?.reduce((sum, room) => {
+                          return sum + (room.pricePerNight || 0);
+                        }, 0) || 0;
                         
                         return (
-                          <div key={hotel.id} className="bg-white p-3 rounded border">
+                          <div key={index} className="bg-white p-3 rounded border">
                             <div className="font-medium text-sm">{hotel.name}</div>
-                            <div className="text-xs text-gray-600 mb-2">{hotelRooms.length} room(s)</div>
-                            {hotelRooms.map((room) => (
-                              <div key={room.id} className="flex justify-between text-xs text-gray-700">
-                                <span>{room.name || room.room_type}</span>
-                                <span>{(room.customPrice || (room.price / 100)).toFixed(2)} EGP</span>
+                            <div className="text-xs text-gray-600 mb-2">
+                              ⭐ {hotel.stars} stars • {hotel.rooms?.length || 0} room(s)
+                            </div>
+                            {hotel.rooms?.map((room, roomIndex) => (
+                              <div key={roomIndex} className="flex justify-between text-xs text-gray-700">
+                                <span>{room.type}</span>
+                                <span>{room.pricePerNight.toFixed(2)} EGP/night</span>
                               </div>
                             ))}
                             <div className="flex justify-between font-medium text-sm border-t pt-1 mt-1">
@@ -2257,7 +2257,7 @@ export function MultiHotelManualPackageForm({
                       })}
                     </div>
                   ) : (
-                    <p className="text-sm text-gray-500 italic">No hotels selected</p>
+                    <p className="text-sm text-gray-500 italic">No hotels added yet</p>
                   )}
                 </div>
 
@@ -2288,7 +2288,7 @@ export function MultiHotelManualPackageForm({
                       ))}
                     </div>
                   ) : (
-                    <p className="text-sm text-gray-500 italic">No tours selected</p>
+                    <p className="text-sm text-gray-500 italic">No tours selected yet</p>
                   )}
                 </div>
               </div>
@@ -2299,12 +2299,9 @@ export function MultiHotelManualPackageForm({
                   <div className="flex justify-between text-sm">
                     <span>Total Accommodation Cost:</span>
                     <span className="font-medium">
-                      {selectedHotels.reduce((total, hotel) => {
-                        const hotelRooms = selectedRooms.filter(room => room.hotel_id === hotel.id);
-                        return total + hotelRooms.reduce((sum, room) => {
-                          return sum + (room.customPrice || (room.price / 100));
-                        }, 0);
-                      }, 0).toFixed(2)} EGP
+                      {(form.watch("hotels")?.reduce((total, hotel) => {
+                        return total + (hotel.rooms?.reduce((sum, room) => sum + (room.pricePerNight || 0), 0) || 0);
+                      }, 0) || 0).toFixed(2)} EGP
                     </span>
                   </div>
                   <div className="flex justify-between text-sm">
@@ -2317,12 +2314,9 @@ export function MultiHotelManualPackageForm({
                     <span>Package Total:</span>
                     <span>
                       {(
-                        selectedHotels.reduce((total, hotel) => {
-                          const hotelRooms = selectedRooms.filter(room => room.hotel_id === hotel.id);
-                          return total + hotelRooms.reduce((sum, room) => {
-                            return sum + (room.customPrice || (room.price / 100));
-                          }, 0);
-                        }, 0) + 
+                        (form.watch("hotels")?.reduce((total, hotel) => {
+                          return total + (hotel.rooms?.reduce((sum, room) => sum + (room.pricePerNight || 0), 0) || 0);
+                        }, 0) || 0) + 
                         selectedToursWithPrices.reduce((sum, tour) => sum + tour.customPrice, 0)
                       ).toFixed(2)} EGP
                     </span>
