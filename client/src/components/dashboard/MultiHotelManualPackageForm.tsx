@@ -2219,6 +2219,121 @@ export function MultiHotelManualPackageForm({
 
             <FormRequiredFieldsNote />
 
+            {/* Package Cost Summary */}
+            <div className="bg-blue-50 border border-blue-200 rounded-lg p-6 space-y-4">
+              <h3 className="text-lg font-semibold text-blue-800 border-b border-blue-200 pb-2">
+                Package Cost Summary
+              </h3>
+              
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                {/* Hotels & Rooms Section */}
+                <div className="space-y-3">
+                  <h4 className="font-medium text-blue-700">Hotels & Accommodation</h4>
+                  {selectedHotels.length > 0 ? (
+                    <div className="space-y-2">
+                      {selectedHotels.map((hotel) => {
+                        const hotelRooms = selectedRooms.filter(room => room.hotel_id === hotel.id);
+                        const hotelTotal = hotelRooms.reduce((sum, room) => {
+                          const customPrice = room.customPrice || (room.price / 100);
+                          return sum + customPrice;
+                        }, 0);
+                        
+                        return (
+                          <div key={hotel.id} className="bg-white p-3 rounded border">
+                            <div className="font-medium text-sm">{hotel.name}</div>
+                            <div className="text-xs text-gray-600 mb-2">{hotelRooms.length} room(s)</div>
+                            {hotelRooms.map((room) => (
+                              <div key={room.id} className="flex justify-between text-xs text-gray-700">
+                                <span>{room.name || room.room_type}</span>
+                                <span>{(room.customPrice || (room.price / 100)).toFixed(2)} EGP</span>
+                              </div>
+                            ))}
+                            <div className="flex justify-between font-medium text-sm border-t pt-1 mt-1">
+                              <span>Hotel Total:</span>
+                              <span className="text-blue-600">{hotelTotal.toFixed(2)} EGP</span>
+                            </div>
+                          </div>
+                        );
+                      })}
+                    </div>
+                  ) : (
+                    <p className="text-sm text-gray-500 italic">No hotels selected</p>
+                  )}
+                </div>
+
+                {/* Tours Section */}
+                <div className="space-y-3">
+                  <h4 className="font-medium text-blue-700">Tours & Activities</h4>
+                  {selectedToursWithPrices.length > 0 ? (
+                    <div className="space-y-2">
+                      {selectedToursWithPrices.map((tour) => (
+                        <div key={tour.id} className="bg-white p-3 rounded border">
+                          <div className="flex justify-between items-start">
+                            <div className="flex-1">
+                              <div className="font-medium text-sm">{tour.name}</div>
+                              <div className="text-xs text-gray-600">Duration: {tour.duration}</div>
+                            </div>
+                            <div className="text-right">
+                              <div className="text-sm font-medium text-blue-600">
+                                {tour.customPrice.toFixed(2)} EGP
+                              </div>
+                              {tour.originalPrice !== (tour.customPrice * 100) && (
+                                <div className="text-xs text-gray-500 line-through">
+                                  {(tour.originalPrice / 100).toFixed(2)} EGP
+                                </div>
+                              )}
+                            </div>
+                          </div>
+                        </div>
+                      ))}
+                    </div>
+                  ) : (
+                    <p className="text-sm text-gray-500 italic">No tours selected</p>
+                  )}
+                </div>
+              </div>
+
+              {/* Total Summary */}
+              <div className="border-t border-blue-200 pt-4">
+                <div className="bg-white rounded-lg p-4 space-y-2">
+                  <div className="flex justify-between text-sm">
+                    <span>Total Accommodation Cost:</span>
+                    <span className="font-medium">
+                      {selectedHotels.reduce((total, hotel) => {
+                        const hotelRooms = selectedRooms.filter(room => room.hotel_id === hotel.id);
+                        return total + hotelRooms.reduce((sum, room) => {
+                          return sum + (room.customPrice || (room.price / 100));
+                        }, 0);
+                      }, 0).toFixed(2)} EGP
+                    </span>
+                  </div>
+                  <div className="flex justify-between text-sm">
+                    <span>Total Tours Cost:</span>
+                    <span className="font-medium">
+                      {selectedToursWithPrices.reduce((sum, tour) => sum + tour.customPrice, 0).toFixed(2)} EGP
+                    </span>
+                  </div>
+                  <div className="flex justify-between text-lg font-bold text-blue-800 border-t pt-2">
+                    <span>Package Total:</span>
+                    <span>
+                      {(
+                        selectedHotels.reduce((total, hotel) => {
+                          const hotelRooms = selectedRooms.filter(room => room.hotel_id === hotel.id);
+                          return total + hotelRooms.reduce((sum, room) => {
+                            return sum + (room.customPrice || (room.price / 100));
+                          }, 0);
+                        }, 0) + 
+                        selectedToursWithPrices.reduce((sum, tour) => sum + tour.customPrice, 0)
+                      ).toFixed(2)} EGP
+                    </span>
+                  </div>
+                  <div className="text-xs text-gray-600 text-center mt-2">
+                    *Final package price may include additional markup as configured in package settings
+                  </div>
+                </div>
+              </div>
+            </div>
+
             <div className="flex justify-end gap-4">
               <Button
                 type="button"
