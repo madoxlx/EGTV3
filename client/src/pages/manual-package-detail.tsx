@@ -98,7 +98,7 @@ export default function ManualPackageDetail() {
 
   // Handle edit navigation
   const handleEdit = () => {
-    navigate(`/admin/packages/edit/${packageId}`);
+    navigate(`/admin/packages/edit-manual/${packageId}`);
   };
 
   // Handle share functionality

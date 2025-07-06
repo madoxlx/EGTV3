@@ -5,6 +5,7 @@ import { useMutation, useQuery } from "@tanstack/react-query";
 import { z } from "zod";
 import { useLocation } from "wouter";
 import { useLanguage } from "@/hooks/use-language";
+import { apiRequest, queryClient } from "@/lib/queryClient";
 import {
   Form,
   FormControl,
@@ -134,7 +135,15 @@ const manualPackageFormSchema = z.object({
 
 type ManualPackageFormValues = z.infer<typeof manualPackageFormSchema>;
 
-export function MultiHotelManualPackageForm() {
+interface MultiHotelManualPackageFormProps {
+  isEditMode?: boolean;
+  packageId?: number;
+}
+
+export function MultiHotelManualPackageForm({ 
+  isEditMode = false, 
+  packageId 
+}: MultiHotelManualPackageFormProps = {}) {
   const { toast } = useToast();
   const { t } = useLanguage();
   const [_, navigate] = useLocation();
@@ -240,6 +249,12 @@ export function MultiHotelManualPackageForm() {
     queryKey: ["/api/tours"],
   });
 
+  // Fetch package data for edit mode
+  const { data: packageData, isLoading: isLoadingPackage } = useQuery({
+    queryKey: ["/api/admin/packages", packageId],
+    enabled: isEditMode && !!packageId,
+  });
+
   const form = useForm<ManualPackageFormValues>({
     resolver: zodResolver(manualPackageFormSchema),
     defaultValues: {
@@ -342,6 +357,82 @@ export function MultiHotelManualPackageForm() {
     setTransportationSuggestions(Array.from(transportations));
     setTourSuggestions(Array.from(tours));
   }, [packages, hotels]);
+
+  // Populate form with package data for edit mode
+  useEffect(() => {
+    if (isEditMode && packageData && !isLoadingPackage) {
+      console.log('Loading package data for edit:', packageData);
+      
+      // Parse JSON fields safely
+      const parseJSONField = (field: any) => {
+        if (typeof field === 'string') {
+          try {
+            return JSON.parse(field);
+          } catch {
+            return [];
+          }
+        }
+        return Array.isArray(field) ? field : [];
+      };
+
+      // Set form values
+      form.reset({
+        title: packageData.title || "",
+        description: packageData.description || "",
+        price: packageData.price ? Math.round(packageData.price / 100) : 0, // Convert from cents
+        discountedPrice: packageData.discountedPrice ? Math.round(packageData.discountedPrice / 100) : 0,
+        discountType: packageData.discountType || "percentage",
+        discountValue: packageData.discountValue || 0,
+        markup: packageData.markup || 0,
+        hotels: parseJSONField(packageData.hotels),
+        transportationDetails: packageData.transportationDetails || "",
+        selectedTourIds: parseJSONField(packageData.tourSelection),
+        duration: packageData.duration || 1,
+        destinationId: packageData.destinationId,
+        countryId: packageData.countryId,
+        cityId: packageData.cityId,
+        categoryId: packageData.categoryId,
+        type: "manual",
+        featured: packageData.featured || false,
+        inclusions: parseJSONField(packageData.inclusions),
+        excludedItems: parseJSONField(packageData.excludedItems),
+        cancellationPolicy: packageData.cancellationPolicy || "",
+        childrenPolicy: packageData.childrenPolicy || "",
+        termsAndConditions: packageData.termsAndConditions || "",
+        customText: packageData.customText || "",
+      });
+
+      // Set gallery images if available
+      if (packageData.galleryUrls) {
+        const galleryData = parseJSONField(packageData.galleryUrls);
+        const imageData = galleryData.map((url: string, index: number) => ({
+          id: `existing-${index}`,
+          file: null,
+          preview: url,
+          isMain: index === 0 || url === packageData.mainImage
+        }));
+        setImages(imageData);
+      }
+
+      // Set main image
+      if (packageData.mainImage && !images.find(img => img.isMain)) {
+        setImages(prev => [
+          { id: 'main-existing', file: null, preview: packageData.mainImage, isMain: true },
+          ...prev.map(img => ({ ...img, isMain: false }))
+        ]);
+      }
+
+      // Set location states
+      if (packageData.countryId) {
+        setSelectedCountry(packageData.countryId);
+      }
+      if (packageData.cityId) {
+        setSelectedCity(packageData.cityId);
+      }
+
+      console.log('Form populated with package data');
+    }
+  }, [isEditMode, packageData, isLoadingPackage, form]);
 
   // Tour selection functions
   const handleTourSelection = (tourId: number) => {
@@ -467,6 +558,94 @@ export function MultiHotelManualPackageForm() {
     },
   });
 
+  // Update manual package mutation
+  const updateManualPackageMutation = useMutation({
+    mutationFn: async (formData: ManualPackageFormValues) => {
+      if (!packageId) throw new Error("Package ID is required for update");
+
+      // Get the main image URL (or keep existing if none is set)
+      const mainImage = images.find((img) => img.isMain);
+      const mainImageUrl = mainImage ? mainImage.preview : packageData?.mainImage || "";
+
+      // Get all gallery image URLs
+      const galleryUrls = images.map((img) => img.preview);
+
+      // Build a more detailed description that includes all hotels and their rooms
+      const hotelsText = formData.hotels
+        .map((hotel) => {
+          const roomsText = hotel.rooms
+            .map(
+              (room) =>
+                `  • ${room.type} - $${room.pricePerNight}/night (Max: ${room.maxOccupancy} guests)`
+            )
+            .join("\n");
+          return `${hotel.name} (${hotel.stars}★)\nRooms:\n${roomsText}`;
+        })
+        .join("\n\n");
+
+      const tourText = formData.selectedTourIds?.length
+        ? `\n\nTour: ${tours
+            .filter((tour) => formData.selectedTourIds?.includes(tour.id))
+            .map((tour) => tour.name)
+            .join(", ")}`
+        : "";
+
+      const enhancedDescription = `${formData.description}\n\nHotels:\n${hotelsText}\n\nTransportation: ${formData.transportationDetails}${tourText}`;
+
+      const payload = {
+        ...formData,
+        description: enhancedDescription,
+        mainImage: mainImageUrl,
+        galleryUrls,
+        price: formData.price * 100, // Convert to cents
+        discountedPrice: formData.discountedPrice ? formData.discountedPrice * 100 : null,
+        type: "manual",
+      };
+
+      console.log("Updating package with payload:", payload);
+
+      const response = await apiRequest(`/api/admin/packages/${packageId}`, {
+        method: "PUT",
+        body: JSON.stringify(payload),
+      });
+
+      if (!response.ok) {
+        const errorData = await response.text();
+        console.error("Update error response:", errorData);
+        
+        try {
+          const errorJson = JSON.parse(errorData);
+          throw new Error(errorJson.message || "Failed to update package");
+        } catch {
+          throw new Error(errorData || "Failed to update package");
+        }
+      }
+
+      return response.json();
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["/api/admin/packages"] });
+      queryClient.invalidateQueries({ queryKey: ["/api/packages"] });
+      queryClient.invalidateQueries({ queryKey: ["/api/admin/packages", packageId] });
+
+      toast({
+        title: "Manual Package Updated",
+        description: "The manual package was updated successfully",
+        variant: "default",
+      });
+
+      // Navigate back to package detail or packages list
+      navigate(`/packages/manual/${packageId}`);
+    },
+    onError: (error: Error) => {
+      toast({
+        title: "Error updating manual package",
+        description: error.message,
+        variant: "destructive",
+      });
+    },
+  });
+
   const onSubmit = (data: ManualPackageFormValues) => {
     // Validation for hotels
     if (data.hotels.length === 0) {
@@ -531,7 +710,12 @@ export function MultiHotelManualPackageForm() {
     if (!customValidationsValid) return;
 
     // All validations passed, proceed with submission
-    createManualPackageMutation.mutate(data);
+    // Call appropriate mutation based on mode
+    if (isEditMode) {
+      updateManualPackageMutation.mutate(data);
+    } else {
+      createManualPackageMutation.mutate(data);
+    }
   };
 
   // Hotel dialog handlers
@@ -1844,15 +2028,30 @@ export function MultiHotelManualPackageForm() {
               </Button>
               <Button
                 type="submit"
-                disabled={createManualPackageMutation.isPending}
+                disabled={
+                  isEditMode 
+                    ? updateManualPackageMutation.isPending || isLoadingPackage
+                    : createManualPackageMutation.isPending
+                }
               >
-                {createManualPackageMutation.isPending ? (
-                  <>
-                    <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                    Creating...
-                  </>
+                {isEditMode ? (
+                  updateManualPackageMutation.isPending ? (
+                    <>
+                      <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                      Updating...
+                    </>
+                  ) : (
+                    "Update Manual Package"
+                  )
                 ) : (
-                  "Create Manual Package"
+                  createManualPackageMutation.isPending ? (
+                    <>
+                      <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                      Creating...
+                    </>
+                  ) : (
+                    "Create Manual Package"
+                  )
                 )}
               </Button>
             </div>

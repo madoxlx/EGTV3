@@ -47,6 +47,7 @@ import {
 import PackagesManagement from "@/pages/admin/PackagesManagement";
 import PackageCreatorPage from "@/pages/admin/PackageCreatorPage";
 import CreateManualPackage from "@/pages/admin/CreateManualPackage";
+import EditManualPackage from "@/pages/admin/EditManualPackage";
 import UsersManagement from "@/pages/admin/UsersManagement";
 import ToursManagement from "@/pages/admin/ToursManagement";
 import TourCreatorPage from "@/pages/admin/TourCreatorPage";
@@ -117,6 +118,10 @@ function Router() {
           <AdminRoute
             path="/admin/packages/create-manual"
             component={CreateManualPackage}
+          />
+          <AdminRoute
+            path="/admin/packages/edit-manual/:id"
+            component={EditManualPackage}
           />
           <AdminRoute
             path="/admin/packages/categories"
