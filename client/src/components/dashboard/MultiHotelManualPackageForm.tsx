@@ -479,6 +479,7 @@ export function MultiHotelManualPackageForm({
   useEffect(() => {
     function handleClickOutside(event: MouseEvent) {
       if (tourDropdownRef.current && !tourDropdownRef.current.contains(event.target as Node)) {
+        console.log('Clicked outside tour dropdown, closing');
         setShowTourDropdown(false);
       }
     }
@@ -1790,7 +1791,8 @@ export function MultiHotelManualPackageForm({
                           <div
                             key={tour.id}
                             className="px-4 py-3 cursor-pointer hover:bg-zinc-100 border-b last:border-b-0"
-                            onClick={() => {
+                            onClick={(e) => {
+                              e.stopPropagation();
                               console.log('Tour clicked:', tour.id, tour.name);
                               handleTourSelection(tour.id);
                             }}
