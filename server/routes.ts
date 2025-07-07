@@ -2372,6 +2372,12 @@ export async function registerRoutes(app: Express): Promise<Server> {
       // Remove validation-only fields that shouldn't be stored
       delete processedData.allowFormSubmission;
       
+      // Remove automatic timestamp fields that should be handled by database defaults
+      delete processedData.createdAt;
+      delete processedData.updatedAt;
+      delete processedData.createdBy;
+      delete processedData.updatedBy;
+      
       console.log('Processed package data:', JSON.stringify(processedData));
       
       // If destinationId is provided, verify it exists
@@ -2443,6 +2449,12 @@ export async function registerRoutes(app: Express): Promise<Server> {
       if (processedData.validUntil) {
         processedData.validUntil = new Date(processedData.validUntil);
       }
+      
+      // Remove automatic timestamp fields that should be handled by database defaults
+      delete processedData.createdAt;
+      delete processedData.updatedAt;
+      delete processedData.createdBy;
+      delete processedData.updatedBy;
       
       console.log('Creating package with processed data...');
       

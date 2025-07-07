@@ -109,7 +109,8 @@ The application uses a comprehensive PostgreSQL schema with the following core e
 - **Critical Package Creation Date Conversion Fix Complete (July 7, 2025)**: Successfully resolved "value.toISOString is not a function" error preventing package creation
   - **Client-Side Fix**: Updated SimplePackageForm.tsx to properly convert date fields (startDate, endDate, validUntil) using `new Date()` before calling `.toISOString()`
   - **Server-Side Fix**: Added missing `validUntil` date conversion in both `/api/admin/packages` and `/api-admin/packages` endpoints
-  - **Database Integration**: Fixed Drizzle ORM timestamp field processing to receive proper Date objects instead of strings
+  - **Automatic Field Cleanup**: Removed automatic timestamp fields (createdAt, updatedAt, createdBy, updatedBy) from data before database insertion to prevent conflicts
+  - **Database Integration**: Fixed Drizzle ORM timestamp field processing to receive proper Date objects and let database handle automatic fields
   - **Duration Calculation**: Enhanced duration calculation to handle both Date objects and date strings properly
   - **Complete Resolution**: Package creation forms now work without date conversion errors, enabling full package management functionality
 
