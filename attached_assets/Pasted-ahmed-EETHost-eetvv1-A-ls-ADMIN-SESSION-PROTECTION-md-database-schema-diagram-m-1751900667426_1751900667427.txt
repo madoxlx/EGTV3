@@ -1,0 +1,27 @@
+ahmed@EETHost:~/eetvv1/A$ ls
+ ADMIN_SESSION_PROTECTION.md                 database_schema_diagram.md     minimal-auth-test.ts         shared                            test-hotel-features-fix.ts
+ FORMS_ANALYSIS.md                           debug-hotel-features.ts        package-lock.json            simple-seed.ts                    test-hotel-features.ts
+ PLATFORM_ANALYSIS_REPORT.md                 debug-translations-schema.ts   package-scripts.js           simple-server.js                  test-login.ts
+'Sahara Journeys'                            dev-server.js                  package.json                 sqlite.db                         test-minimal-api-call.ts
+ TOURS_EDIT_IMPLEMENTATION.md                direct-test-auth.js            populate-translations.ts     standalone-server.ts              test-package-10-db.ts
+ add-active-column-to-tours.ts               dist                           postcss.config.js            start-app.js                      test-registration.js
+ add-arabic-fields-to-packages.ts            drizzle.config.json            public                       start-auth-server.ts              test-registration.ts
+ add-essential-translations.ts               exports                        push-schema.ts               start-dev-server.js               test-schema-validation.ts
+ add-gallery-urls-column.ts                  fix-admin-role.ts              replit.md                    start-dev.js                      test-seeding.ts
+ add-hotel-fields.ts                         fix-admin-translations.js      replit_agent                 start-fixed-server.js             test-server-auth.ts
+ add-included-excluded-features-columns.ts   fix-dashboard-duplicates.js    reset-menus.ts               start-server.js                   test-server-env.ts
+ add-markup-type-column.ts                   fix-database-complete.ts       run-markup-migration.ts      start-server.sh                   test-simplified-features.ts
+ add-markup-type-simple.ts                   fix-footer-menu.ts             run-seed.ts                  tailwind.config.ts                test-storage-direct.ts
+ add-test-restaurant-data.ts                 fix-login-summary.md           seed-comprehensive-data.ts   test-airport-functionality.ts     test-tours-edit.js
+ add-tour-policies-columns.ts                fix-markup-type-database.ts    seed-packages.ts             test-api-and-check-db.ts          test-translations-complete.ts
+ add-tour-policies-migration.ts              fix-packages-schema.ts         seed-real-data.ts            test-api-data-flow.ts             test-translations-system.ts
+ app.pid                                     fix-registration.js            seed-rooms.ts                test-auth-complete.ts             test_cookies.txt
+ attached_assets                             fix-sidebar-duplication.js     seed-sample-data.ts          test-auth-direct.js               theme.json
+ check-features-column.ts                    fix-translations-schema.ts     seed-users.ts                test-auth-session.ts              tsconfig.json
+ client                                      fix-translations-system.ts     server                       test-create-hotel-api.ts          update-admin-inputs.js
+ complete-translations-fix.ts                fix-translations-value.ts      server.pid                   test-db-connection.ts             update-menu-route.ts
+ cookies.txt                                 get-hotel-amenities.js         setup-database.js            test-enhanced-error-handling.ts   update-schema-fields.ts
+ create-admin-user.ts                        init-db-direct.ts              setup-for-remix.ts           test-enhanced-features.ts         verify-package-edit-fix.ts
+ create-tables-direct.ts                     login_test.txt                 setup-language-settings.ts   test-gemini-api.ts                vite.config.ts
+ data                                        migrate.ts                     setup-new-db.ts              test-hotel-creation-features.ts   working-auth-server.js
+ahmed@EETHost:~/eetvv1/A$
