@@ -16,7 +16,7 @@ import {
 import { useAuth } from "@/hooks/use-auth";
 import { useLanguage } from "@/hooks/use-language";
 import { useCart } from "@/hooks/useCart";
-import { LanguageSwitcher } from "@/components/LanguageSwitcher";
+import { LanguageSwitcher, LanguageToggle } from "@/components/ui/language-switcher";
 import { Badge } from "@/components/ui/badge";
 import {
   DropdownMenu,
@@ -339,6 +339,16 @@ const Header: React.FC = () => {
               >
                 {t('nav.contact', 'Contact Us')}
               </Link>
+            </li>
+
+            {/* Language Toggle for Mobile */}
+            <li className="border-t pt-3">
+              <div className="flex items-center justify-between">
+                <span className="font-medium text-gray-700">
+                  {t('nav.language', 'Language')}
+                </span>
+                <LanguageToggle />
+              </div>
             </li>
 
             {user ? (

@@ -6,6 +6,7 @@ import { Toaster } from "@/components/ui/toaster";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { AuthProvider, useAuth } from "@/hooks/use-auth";
 import { LanguageProvider } from "@/hooks/use-language";
+import { FloatingLanguageSwitcher } from "@/components/ui/floating-language-switcher";
 import { ProtectedRoute } from "@/lib/protected-route";
 import { AdminRoute } from "@/lib/admin-route";
 import {
@@ -298,6 +299,13 @@ function Router() {
 
         <Route component={NotFound} />
       </Switch>
+      
+      {/* Floating Language Switcher - Available site-wide */}
+      <FloatingLanguageSwitcher 
+        position="bottom-right" 
+        autoHide={true}
+        autoHideDelay={8000}
+      />
     </Layout>
   );
 }

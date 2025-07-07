@@ -2,7 +2,7 @@ import React, { useState } from "react";
 import { Sidebar } from "./Sidebar";
 import { Button } from "@/components/ui/button";
 import { ExternalLink, User } from "lucide-react";
-import { LanguageSwitcher } from "@/components/LanguageSwitcher";
+import { LanguageSwitcher } from "@/components/ui/language-switcher";
 import { ProfileMenu } from "./ProfileMenu";
 import { useLanguage } from "@/hooks/use-language";
 import { Link } from "wouter";
@@ -61,7 +61,7 @@ export function DashboardLayout({ children, location }: DashboardLayoutProps) {
               )}
             </div>
             <div className="flex items-center space-x-4">
-              <LanguageSwitcher />
+              <LanguageSwitcher variant="compact" showLabel={false} />
               <Link href="/">
                 <Button variant="outline" size="sm" className="gap-2">
                   <ExternalLink size={18} />
