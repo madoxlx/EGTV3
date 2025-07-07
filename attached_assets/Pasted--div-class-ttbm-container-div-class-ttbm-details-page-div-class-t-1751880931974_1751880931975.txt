@@ -1,0 +1,463 @@
+<div class="ttbm_container">
+				<div class="ttbm_details_page">
+                    <div class="ttbm_details_page_header">
+                        <div class="ttbm_default__title">
+	<h1>SHARM EL SHEIKH GETAWAY</h1>
+</div>                        <div class="dFlex justifyStart">
+							 
+																<div class="ttbm_list_info location_name " data-placeholder="">
+			<span class="fas fa-map-marker-alt"></span>
+			SHARM EL SHEIKH , Egypt		</div>
+							</div>
+                    </div>
+					<div class="ttbm_content_area">
+						<div class="ttbm_content__left">
+												<div class="superSlider placeholder_area fdColumn">
+						<div class="dFlex mp_slider-wrapper  ">
+												<div class="sliderAllItem">
+														<div class="sliderItem activeSlide" data-slide-index="1" data-target-popup="superSlider" data-placeholder="">
+									<div data-bg-image="https://egyptexpresstvl.com/wp-content/uploads/2024/12/sharm-beach.jpg" style="background-image: url(&quot;https://egyptexpresstvl.com/wp-content/uploads/2024/12/sharm-beach.jpg&quot;); background-size: cover; min-height: 430.729px;"></div>
+								</div>
+																<div class="sliderItem nextSlider" data-slide-index="2" data-target-popup="superSlider" data-placeholder="">
+									<div data-bg-image="https://egyptexpresstvl.com/wp-content/uploads/2024/12/Quad_biking_in_Sharm_El_Sheik.jpg" style="background-image: url(&quot;https://egyptexpresstvl.com/wp-content/uploads/2024/12/Quad_biking_in_Sharm_El_Sheik.jpg&quot;); background-size: cover; min-height: 430.729px;"></div>
+								</div>
+																<div class="sliderItem nextSlider" data-slide-index="3" data-target-popup="superSlider" data-placeholder="">
+									<div data-bg-image="https://egyptexpresstvl.com/wp-content/uploads/2024/12/bedouin_night_at_sharm.jpg" style="background-image: url(&quot;https://egyptexpresstvl.com/wp-content/uploads/2024/12/bedouin_night_at_sharm.jpg&quot;); background-size: cover; min-height: 430.729px;"></div>
+								</div>
+																<div class="sliderItem nextSlider" data-slide-index="4" data-target-popup="superSlider" data-placeholder="">
+									<div data-bg-image="https://egyptexpresstvl.com/wp-content/uploads/2024/12/diving_coral_in_Sharm_El_Sheik.jpg" style="background-image: url(&quot;https://egyptexpresstvl.com/wp-content/uploads/2024/12/diving_coral_in_Sharm_El_Sheik.jpg&quot;); background-size: cover; min-height: 430.729px;"></div>
+								</div>
+																<div class="sliderItem prevSlider" data-slide-index="5" data-target-popup="superSlider" data-placeholder="">
+									<div data-bg-image="https://egyptexpresstvl.com/wp-content/uploads/2024/12/The_Walk_of_Peace_in_sharm.jpg" style="background-image: url(&quot;https://egyptexpresstvl.com/wp-content/uploads/2024/12/The_Walk_of_Peace_in_sharm.jpg&quot;); background-size: cover; min-height: 430.729px;"></div>
+								</div>
+																			<div class="iconIndicator prevItem">
+						<span class="fas fa-chevron-circle-left"></span>
+					</div>
+					<div class="iconIndicator nextItem">
+						<span class="fas fa-chevron-circle-right"></span>
+					</div>
+										</div>
+										<div class="sliderShowcase right style_1">
+												<div class="sliderShowcaseItem" data-slide-target="1" data-placeholder="">
+							<div data-bg-image="https://egyptexpresstvl.com/wp-content/uploads/2024/12/sharm-beach.jpg" style="background-image: url(&quot;https://egyptexpresstvl.com/wp-content/uploads/2024/12/sharm-beach.jpg&quot;); background-size: cover; min-height: 100.261px;"></div>
+						</div>
+												<div class="sliderShowcaseItem" data-slide-target="2" data-placeholder="">
+							<div data-bg-image="https://egyptexpresstvl.com/wp-content/uploads/2024/12/Quad_biking_in_Sharm_El_Sheik.jpg" style="background-image: url(&quot;https://egyptexpresstvl.com/wp-content/uploads/2024/12/Quad_biking_in_Sharm_El_Sheik.jpg&quot;); background-size: cover; min-height: 100.261px;"></div>
+						</div>
+												<div class="sliderShowcaseItem" data-slide-target="3" data-placeholder="">
+							<div data-bg-image="https://egyptexpresstvl.com/wp-content/uploads/2024/12/bedouin_night_at_sharm.jpg" style="background-image: url(&quot;https://egyptexpresstvl.com/wp-content/uploads/2024/12/bedouin_night_at_sharm.jpg&quot;); background-size: cover; min-height: 100.261px;"></div>
+						</div>
+												<div class="sliderShowcaseItem" data-target-popup="superSlider" data-placeholder="">
+							<div data-bg-image="https://egyptexpresstvl.com/wp-content/uploads/2024/12/diving_coral_in_Sharm_El_Sheik.jpg" style="background-image: url(&quot;https://egyptexpresstvl.com/wp-content/uploads/2024/12/diving_coral_in_Sharm_El_Sheik.jpg&quot;); background-size: cover; min-height: 100.261px;"></div>
+							<div class="sliderMoreItem">
+								<span class="fas fa-plus"></span>
+								1								<span class="far fa-image"></span>
+							</div>
+						</div>
+											</div>
+											</div>
+																	<div class="sliderPopup" data-popup="superSlider">
+						<div class="superSlider">
+							<div class="popupHeader">
+								<h2>SHARM EL SHEIKH GETAWAY</h2>
+								<span class="fas fa-times popupClose"></span>
+							</div>
+							<div class="popupBody">
+													<div class="sliderAllItem">
+														<div class="sliderItem activeSlide" data-slide-index="1" data-target-popup="superSlider" data-placeholder="">
+									<div data-bg-image="https://egyptexpresstvl.com/wp-content/uploads/2024/12/sharm-beach.jpg" style="background-image: url(&quot;https://egyptexpresstvl.com/wp-content/uploads/2024/12/sharm-beach.jpg&quot;); background-size: cover;"></div>
+								</div>
+																<div class="sliderItem nextSlider" data-slide-index="2" data-target-popup="superSlider" data-placeholder="">
+									<div data-bg-image="https://egyptexpresstvl.com/wp-content/uploads/2024/12/Quad_biking_in_Sharm_El_Sheik.jpg" style="background-image: url(&quot;https://egyptexpresstvl.com/wp-content/uploads/2024/12/Quad_biking_in_Sharm_El_Sheik.jpg&quot;); background-size: cover;"></div>
+								</div>
+																<div class="sliderItem nextSlider" data-slide-index="3" data-target-popup="superSlider" data-placeholder="">
+									<div data-bg-image="https://egyptexpresstvl.com/wp-content/uploads/2024/12/bedouin_night_at_sharm.jpg" style="background-image: url(&quot;https://egyptexpresstvl.com/wp-content/uploads/2024/12/bedouin_night_at_sharm.jpg&quot;); background-size: cover;"></div>
+								</div>
+																<div class="sliderItem nextSlider" data-slide-index="4" data-target-popup="superSlider" data-placeholder="">
+									<div data-bg-image="https://egyptexpresstvl.com/wp-content/uploads/2024/12/diving_coral_in_Sharm_El_Sheik.jpg" style="background-image: url(&quot;https://egyptexpresstvl.com/wp-content/uploads/2024/12/diving_coral_in_Sharm_El_Sheik.jpg&quot;); background-size: cover;"></div>
+								</div>
+																<div class="sliderItem prevSlider" data-slide-index="5" data-target-popup="superSlider" data-placeholder="">
+									<div data-bg-image="https://egyptexpresstvl.com/wp-content/uploads/2024/12/The_Walk_of_Peace_in_sharm.jpg" style="background-image: url(&quot;https://egyptexpresstvl.com/wp-content/uploads/2024/12/The_Walk_of_Peace_in_sharm.jpg&quot;); background-size: cover;"></div>
+								</div>
+																			<div class="iconIndicator prevItem">
+						<span class="fas fa-chevron-circle-left"></span>
+					</div>
+					<div class="iconIndicator nextItem">
+						<span class="fas fa-chevron-circle-right"></span>
+					</div>
+										</div>
+												</div>
+							<div class="popupFooter">
+													<div class="slideIndicator">
+														<div class="slideIndicatorItem" data-slide-target="1">
+									<div data-bg-image="https://egyptexpresstvl.com/wp-content/uploads/2024/12/sharm-beach-300x200.jpg" style="background-image: url(&quot;https://egyptexpresstvl.com/wp-content/uploads/2024/12/sharm-beach-300x200.jpg&quot;); background-size: cover;"></div>
+								</div>
+																<div class="slideIndicatorItem" data-slide-target="2">
+									<div data-bg-image="https://egyptexpresstvl.com/wp-content/uploads/2024/12/Quad_biking_in_Sharm_El_Sheik-300x200.jpg" style="background-image: url(&quot;https://egyptexpresstvl.com/wp-content/uploads/2024/12/Quad_biking_in_Sharm_El_Sheik-300x200.jpg&quot;); background-size: cover;"></div>
+								</div>
+																<div class="slideIndicatorItem" data-slide-target="3">
+									<div data-bg-image="https://egyptexpresstvl.com/wp-content/uploads/2024/12/bedouin_night_at_sharm-300x200.jpg" style="background-image: url(&quot;https://egyptexpresstvl.com/wp-content/uploads/2024/12/bedouin_night_at_sharm-300x200.jpg&quot;); background-size: cover;"></div>
+								</div>
+																<div class="slideIndicatorItem" data-slide-target="4">
+									<div data-bg-image="https://egyptexpresstvl.com/wp-content/uploads/2024/12/diving_coral_in_Sharm_El_Sheik-300x200.jpg" style="background-image: url(&quot;https://egyptexpresstvl.com/wp-content/uploads/2024/12/diving_coral_in_Sharm_El_Sheik-300x200.jpg&quot;); background-size: cover;"></div>
+								</div>
+																<div class="slideIndicatorItem" data-slide-target="5">
+									<div data-bg-image="https://egyptexpresstvl.com/wp-content/uploads/2024/12/The_Walk_of_Peace_in_sharm-300x200.jpg" style="background-image: url(&quot;https://egyptexpresstvl.com/wp-content/uploads/2024/12/The_Walk_of_Peace_in_sharm-300x200.jpg&quot;); background-size: cover;"></div>
+								</div>
+													</div>
+												</div>
+						</div>
+					</div>
+										</div>
+																	<div class="flexWrap item_section">
+                        
+			<div class="item_icon">
+				<i class="fas fa-clock"></i>
+				Duration :				<strong>
+					5 Days 4 Nights 				</strong>
+			</div>
+		                        
+                        			<div class="item_icon">
+				<i class="fas fa-coins"></i>
+						<span>The Price :</span>
+		<strong class="price-value"><span class="woocommerce-Price-amount amount"><bdi>350&nbsp;<span class="woocommerce-Price-currencySymbol">USD</span></bdi></span></strong>
+				</div>
+		                        
+                                                
+                        		
+			<div class="item_icon">
+				<i class="fas fa-map-marker"></i>
+				Location :&nbsp;
+				<strong>SHARM EL SHEIKH</strong>
+			</div>
+
+		                        
+                        
+                        
+                                <div class="item_icon">
+            <i class="fas fa-language"></i>
+            Language : <strong>English</strong>        </div>
+	                        
+					</div>
+                    							<div class="ttbm_description mp_wp_editor" data-placeholder="">
+	<h2>Overview</h2>
+	<p>This holiday package includes 4 nights accommodation in one of Sharm El Sheikh hotels with all-inclusive meals (breakfast, lunch, dinner, snacks, and drinks). Enjoy a full-day boat trip with snorkeling, a quad bike desert safari with Bedouin dinner and show, and a Soho Square city tour. All excursions are conducted in air-conditioned vehicles. Sharm El Sheikh airport transfers are included. Prices cover all taxes and service charges for a hassle-free experience.</p>
+	
+	</div>
+							
+																<div class="ttbm_default_widget">
+					<h4 class="ttbm_title_style_2" data-placeholder="">
+			Schedule Details 		</h4>
+				<div class="ttbm_widget_content ttbm_day_wise_details">
+										<div class="day_wise_details_item">
+							<h5 class="day_wise_details_item_title justifyBetween" data-open-icon="fa-chevron-down" data-close-icon="fa-chevron-up" data-collapse-target="#ttbm_day_datails_0">
+								Day 1								<span data-icon="" class="fas fa-chevron-up"></span>
+							</h5>
+							<div data-collapse="#ttbm_day_datails_0" style="display: block;" class="mActive">
+								<div class="day_wise_details_item_details mp_wp_editor">
+																		<p>Upon arrival at Sharm El Sheikh Airport, you will be greeted by our representative, who will assist you with customs and check-out procedures. You will then be transferred to your hotel for check-in. Overnight in Sharm El Sheikh.<br>Meals: Lunch, Dinner</p>																	</div>
+							</div>
+						</div>
+											<div class="day_wise_details_item">
+							<h5 class="day_wise_details_item_title justifyBetween" data-open-icon="fa-chevron-down" data-close-icon="fa-chevron-up" data-collapse-target="#ttbm_day_datails_1">
+								Day 2								<span data-icon="" class="fas fa-chevron-down"></span>
+							</h5>
+							<div data-collapse="#ttbm_day_datails_1">
+								<div class="day_wise_details_item_details mp_wp_editor">
+																		<p>Begin your day with an early departure at 8:30 AM from the hotel to Sharm El Sheikh Port. Board a boat and start your journey to explore Garden Reef, Shark’s Bay, Ras Nasrani, and occasionally Wood Reef or Jackson Reef. Enjoy lunch on board, typically featuring grilled fish or kofta with rice and salad. Return to Sharm El Sheikh Port by 5:00 PM.<br>Meals: Breakfast, Lunch, Dinner</p>																	</div>
+							</div>
+						</div>
+											<div class="day_wise_details_item">
+							<h5 class="day_wise_details_item_title justifyBetween" data-open-icon="fa-chevron-down" data-close-icon="fa-chevron-up" data-collapse-target="#ttbm_day_datails_2">
+								Day 3								<span data-icon="" class="fas fa-chevron-down"></span>
+							</h5>
+							<div data-collapse="#ttbm_day_datails_2">
+								<div class="day_wise_details_item_details mp_wp_editor">
+																		<p>Spend the morning enjoying the sun and beach. At 3:00 PM, our representative will pick you up for a quad bike desert safari. Visit a Bedouin village to experience their culture, enjoy a traditional dinner with performances of Tanoura and belly dancing, and sip authentic Bedouin tea. Afterward, you will be transferred back to your hotel.<br>Meals: Breakfast, Lunch, Dinner</p>																	</div>
+							</div>
+						</div>
+											<div class="day_wise_details_item">
+							<h5 class="day_wise_details_item_title justifyBetween" data-open-icon="fa-chevron-down" data-close-icon="fa-chevron-up" data-collapse-target="#ttbm_day_datails_3">
+								Day 4								<span data-icon="" class="fas fa-chevron-down"></span>
+							</h5>
+							<div data-collapse="#ttbm_day_datails_3">
+								<div class="day_wise_details_item_details mp_wp_editor">
+																		<p>After breakfast, spend the day at leisure or join an optional submarine trip ($60 per person). This 20-minute drive to the dock leads to an underwater adventure in a semi-submarine, offering views of the vibrant marine life through large side windows. After the trip, return to your hotel for a brief rest.</p> <p>In the evening at 7:00 PM, a local guide will take you to the Old Market, where you’ll visit the impressive El Sahaba Mosque and enjoy last-minute shopping. Next, head to SOHO Square for entertainment, including the Dancing Fountain show and ice-skating performances. Return to your hotel for an overnight stay.<br>Meals: Breakfast, Lunch, Dinner</p>																	</div>
+							</div>
+						</div>
+											<div class="day_wise_details_item">
+							<h5 class="day_wise_details_item_title justifyBetween" data-open-icon="fa-chevron-down" data-close-icon="fa-chevron-up" data-collapse-target="#ttbm_day_datails_4">
+								Day 5								<span data-icon="" class="fas fa-chevron-down"></span>
+							</h5>
+							<div data-collapse="#ttbm_day_datails_4">
+								<div class="day_wise_details_item_details mp_wp_editor">
+																		<p>After breakfast, check out of your hotel. At the scheduled time, our representative will transfer you to the airport and assist with departure formalities.<br>Meals: Breakfast</p>																	</div>
+							</div>
+						</div>
+								</div>
+		</div>
+								
+<div class="allCenter ttbm_date_time_select">
+  <div class="justifyCenter ttbm_select_date_area">
+    <h5 class="textWhite">
+      Package&nbsp;Validity : &nbsp;July 11, 2025&nbsp;-&nbsp;October 31, 2025    </h5>
+  </div>
+</div>
+				<div class="ttbm_registration_area availability_section">
+			<input type="hidden" name="ttbm_id" value="2042">
+						<div class="ttbm_booking_panel placeholder_area">
+													<form action="" method="post" class="mp_tour_ticket_form">
+					<input type="hidden" name="ttbm_start_date" id="ttbm_tour_datetime" value="2025-05-01 14:00">
+					<input type="hidden" name="ttbm_total_price" id="ttbm_total_price" value="0">
+												<div class="ttbm_ticket_area">
+			<div class="ttbm_default_widget">
+								<div class="ttbm_widget_content" data-placeholder="">
+					<table class="mp_tour_ticket_type">
+						<thead>
+                            <tr>
+                                <th class="textL">Name</th>
+                                <th>Price</th>
+                                <th>Count of Rooms</th>
+                            </tr>
+						</thead>
+						<tbody>
+														<tr>
+									<th>
+                                        <div class="person-info">
+                                                                                        Per Person in Double Room                                        </div>
+                                        									</th>
+									<th class="textCenter">
+																				<span><span class="woocommerce-Price-amount amount">350&nbsp;<span class="woocommerce-Price-currencySymbol">USD</span></span> </span>
+									</th>
+									<td>					<div data-ticket-type-name="PerPersoninDoubleRoom">
+														<div class="groupContent qtyIncDec" data-ticket-type-name="PerPersoninDoubleRoom">
+									<div class="decQty addonGroupContent">
+										<span class="fas fa-minus"></span>
+									</div>
+									<label>
+										<input type="text" class="formControl inputIncDec" data-price="350" name="ticket_qty[]" value="0" min="0" max="2">
+									</label>
+									<div class="incQty addonGroupContent">
+										<span class="fas fa-plus"></span>
+									</div>
+								</div>
+												</div>
+				</td>
+								</tr>
+
+								<tr>
+									<td colspan="3">
+										<input type="hidden" name="tour_id[]" value="2042">
+										<input type="hidden" name="ticket_name[]" value="Per Person in Double Room">
+										<input type="hidden" name="ticket_max_qty[]" value="0">
+									</td>
+								</tr>
+																							<tr>
+									<th>
+                                        <div class="person-info">
+                                                                                        Per Person in Triple Room                                        </div>
+                                        									</th>
+									<th class="textCenter">
+																				<span><span class="woocommerce-Price-amount amount">350&nbsp;<span class="woocommerce-Price-currencySymbol">USD</span></span> </span>
+									</th>
+									<td>					<div data-ticket-type-name="PerPersoninTripleRoom">
+														<div class="groupContent qtyIncDec" data-ticket-type-name="PerPersoninTripleRoom">
+									<div class="decQty addonGroupContent">
+										<span class="fas fa-minus"></span>
+									</div>
+									<label>
+										<input type="text" class="formControl inputIncDec" data-price="350" name="ticket_qty[]" value="0" min="0" max="3">
+									</label>
+									<div class="incQty addonGroupContent">
+										<span class="fas fa-plus"></span>
+									</div>
+								</div>
+												</div>
+				</td>
+								</tr>
+
+								<tr>
+									<td colspan="3">
+										<input type="hidden" name="tour_id[]" value="2042">
+										<input type="hidden" name="ticket_name[]" value="Per Person in Triple Room">
+										<input type="hidden" name="ticket_max_qty[]" value="0">
+									</td>
+								</tr>
+																					</tbody>
+					</table>
+				</div>
+			</div>
+					<div class="ttbm_default_widget ttbm_extra_service_area" style="display: none;">
+						<h2 class="extra_service_title">Avaliable Extras </h2>
+			<div class="ttbm_widget_content" data-placeholder="">
+				<table class="mp_tour_ticket_extra">
+					<thead>
+					<tr>
+						<th>Name</th>
+						<th>Price</th>
+						<th>Count of Extra</th>
+					</tr>
+					</thead>
+					<tbody>
+												<tr>
+								<th>
+																		Child                                    									    <div class="mT_xs">					<span>6-11 years old sharing parent`s room without extra bed</span>
+					</div>
+                                    								</th>
+								<td class="text-center"><span class="woocommerce-Price-amount amount">175&nbsp;<span class="woocommerce-Price-currencySymbol">USD</span></span> </td>
+								<td>					<div data-ticket-type-name="Child">
+														<div class="groupContent qtyIncDec" data-ticket-type-name="Child">
+									<div class="decQty addonGroupContent">
+										<span class="fas fa-minus"></span>
+									</div>
+									<label>
+										<input type="text" class="formControl inputIncDec" data-price="175" name="service_qty[]" value="0" min="0" max="1">
+									</label>
+									<div class="incQty addonGroupContent">
+										<span class="fas fa-plus"></span>
+									</div>
+								</div>
+												</div>
+				</td>
+							</tr>
+							<tr>
+								<td colspan="3">
+									<input type="hidden" name="tour_id[]" value="2042">
+									<input type="hidden" name="service_name[]" value="Child">
+									<input type="hidden" name="service_max_qty[]" value="0">
+																	</td>
+							</tr>
+													<tr>
+								<th>
+																		Optional Submarine Trip                                    									    <div class="mT_xs">					<span>20 minutes per person</span>
+					</div>
+                                    								</th>
+								<td class="text-center"><span class="woocommerce-Price-amount amount">60&nbsp;<span class="woocommerce-Price-currencySymbol">USD</span></span> </td>
+								<td>					<div data-ticket-type-name="OptionalSubmarineTrip">
+														<div class="groupContent qtyIncDec" data-ticket-type-name="OptionalSubmarineTrip">
+									<div class="decQty addonGroupContent">
+										<span class="fas fa-minus"></span>
+									</div>
+									<label>
+										<input type="text" class="formControl inputIncDec" data-price="60" name="service_qty[]" value="0" min="0" max="10">
+									</label>
+									<div class="incQty addonGroupContent">
+										<span class="fas fa-plus"></span>
+									</div>
+								</div>
+												</div>
+				</td>
+							</tr>
+							<tr>
+								<td colspan="3">
+									<input type="hidden" name="tour_id[]" value="2042">
+									<input type="hidden" name="service_name[]" value="Optional Submarine Trip">
+									<input type="hidden" name="service_max_qty[]" value="0">
+																	</td>
+							</tr>
+											</tbody>
+				</table>
+			</div>
+		</div>
+			</div>
+				<div class="dLayout_xs justifyBetween ttbm_book_now_area" data-placeholder="">
+			<div class="fdColumn">
+				<p><strong> Quantity : </strong>&nbsp;<span class="tour_qty">0</span></p>
+				<p><strong> Total : </strong>&nbsp;<span class="tour_price" data-total-price="0">0&nbsp;USD</span></p>
+			</div>
+									<button class="dButton ttbm_book_now " type="button" id="bookNowButton">
+				<span class="fas fa-cart-plus"></span>
+				Book Now			</button>
+			<button type="submit" name="add-to-cart" value="2043" class="dNone ttbm_add_to_cart">
+				Book Now			</button>
+		</div>
+		<div>
+			<p>
+			Hotel rates are subject to change based on occupancy levels.
+			<br>
+			Rates are not applicable during peak periods.
+			</p>
+		</div>
+					</form>
+															</div>
+		</div>
+															
+							
+							
+							                            						</div>
+						<div class="ttbm_content__right">
+									<div class="ttbm_default_widget">
+					<h4 class="ttbm_title_style_2" data-placeholder="">
+			What's Included		</h4>
+				<div class="ttbm_widget_content">
+				<ul>
+											<li>
+							<span class="circleIcon_xs fas fas fa-check"></span>
+							4 Nights stay at 4 stars hotel in Sharm El Sheikh (e.g. Parrotel Aquapark Resort / Charmillion Sea Life / Double Tree By Hilton Sharks Bay / Naama Waves Resort / Xperience Kiroseiz or similar						</li>
+												<li>
+							<span class="circleIcon_xs fas fas fa-check"></span>
+							Accommodation on All inclusive basis.						</li>
+												<li>
+							<span class="circleIcon_xs fas fas fa-check"></span>
+							All entrance fees.						</li>
+												<li>
+							<span class="circleIcon_xs fas fas fa-check"></span>
+							All taxes and services.						</li>
+												<li>
+							<span class="circleIcon_xs fas fas fa-check"></span>
+							All tours and excursions are with A/C vehicle.						</li>
+												<li>
+							<span class="circleIcon_xs fas fas fa-check"></span>
+							All transfers.						</li>
+												<li>
+							<span class="circleIcon_xs fas fas fa-check"></span>
+							Excursions as per itinerary.						</li>
+												<li>
+							<span class="circleIcon_xs fas fas fa-check"></span>
+							Meet and assist at all destinations.						</li>
+										</ul>
+			</div>
+		</div>
+										<div class="ttbm_default_widget">
+					<h4 class="ttbm_title_style_2" data-placeholder="">
+			What's Excluded		</h4>
+				<div class="ttbm_widget_content">
+				<ul>
+												<li>
+								<span class="circleIcon_xs fas fa-xmark"></span>
+								Any other items not mentioned.							</li>
+														<li>
+								<span class="circleIcon_xs fas fa-xmark"></span>
+								Egypt entry Visa.							</li>
+														<li>
+								<span class="circleIcon_xs fas fa-xmark"></span>
+								International or Domestic Flights Tickets							</li>
+														<li>
+								<span class="circleIcon_xs fas fa-xmark"></span>
+								Meals during the tour, unless otherwise specified							</li>
+														<li>
+								<span class="circleIcon_xs fas fa-xmark"></span>
+								Optional Tours mentioned in the itinerary.							</li>
+														<li>
+								<span class="circleIcon_xs fas fa-xmark"></span>
+								Overseas Travel Insurance.							</li>
+														<li>
+								<span class="circleIcon_xs fas fa-xmark"></span>
+								Porterage &amp; Personal expenses							</li>
+														<li>
+								<span class="circleIcon_xs fas fa-xmark"></span>
+								Tipping.							</li>
+											</ul>
+			</div>
+		</div>
+																									<div class="ttbm_default_widget">
+					<h4 class="ttbm_title_style_2" data-placeholder="">
+			Location Map		</h4>
+				<div class="ttbm_widget_content ttbm_map_area">
+				<iframe id="gmap_canvas" src="https://maps.google.com/maps?q=SHARM EL SHEIKH&amp;t=&amp;z=12&amp;ie=UTF8&amp;iwloc=&amp;output=embed" frameborder="0" scrolling="no" marginheight="0" marginwidth="0"></iframe>
+			</div>
+		</div>
+																																			</div>
+					</div>
+				</div>
+			</div>
