@@ -575,172 +575,37 @@ export default function PackageDetail() {
                       <Tabs
                         defaultValue={`day${packageData.itinerary[0]?.day || 1}`}
                       >
-                        <TabsList className="grid w-full grid-cols-3 text-xs sm:text-sm">
-                          {packageData.itinerary.length <= 3 ? (
-                            packageData.itinerary.map((day, index) => (
-                              <TabsTrigger key={index} value={`day${day.day}`}>
-                                Day {day.day}
-                              </TabsTrigger>
-                            ))
-                          ) : (
-                            <>
-                              <TabsTrigger value="day1">
-                                Day 1-
-                                {Math.ceil(packageData.itinerary.length / 3)}
-                              </TabsTrigger>
-                              <TabsTrigger value="day2">
-                                Day{" "}
-                                {Math.ceil(packageData.itinerary.length / 3) +
-                                  1}
-                                -
-                                {Math.ceil(
-                                  (packageData.itinerary.length * 2) / 3,
-                                )}
-                              </TabsTrigger>
-                              <TabsTrigger value="day3">
-                                Day{" "}
-                                {Math.ceil(
-                                  (packageData.itinerary.length * 2) / 3,
-                                ) + 1}
-                                -{packageData.itinerary.length}
-                              </TabsTrigger>
-                            </>
-                          )}
+                        <TabsList className={`grid w-full text-xs sm:text-sm`} style={{gridTemplateColumns: `repeat(${packageData.itinerary.length}, minmax(0, 1fr))`}}>
+                          {packageData.itinerary.map((day, index) => (
+                            <TabsTrigger key={index} value={`day${day.day}`}>
+                              Day {day.day}
+                            </TabsTrigger>
+                          ))}
                         </TabsList>
 
-                        {packageData.itinerary.length <= 3 ? (
-                          // Individual day tabs for shorter itineraries
-                          packageData.itinerary.map((day, index) => (
-                            <TabsContent
-                              key={index}
-                              value={`day${day.day}`}
-                              className="p-3 sm:p-4"
-                            >
-                              <h3 className="text-lg sm:text-xl font-semibold mb-2 sm:mb-3">
-                                Day {day.day}: {day.title}
-                              </h3>
-                              <p className="text-sm sm:text-base mb-3 sm:mb-4 text-neutral-700 leading-relaxed">
-                                {day.description}
-                              </p>
-                              {day.image && (
-                                <div className="mt-3 sm:mt-4">
-                                  <img
-                                    src={day.image}
-                                    alt={day.title}
-                                    className="rounded-lg h-36 sm:h-48 w-full max-w-md object-cover"
-                                  />
-                                </div>
-                              )}
-                            </TabsContent>
-                          ))
-                        ) : (
-                          // Grouped tabs for longer itineraries
-                          <>
-                            <TabsContent value="day1" className="p-3 sm:p-4">
-                              <div className="space-y-4">
-                                {packageData.itinerary
-                                  ?.filter(
-                                    (_, index) =>
-                                      index <
-                                      Math.ceil(
-                                        (packageData.itinerary?.length || 0) / 3,
-                                      ),
-                                  )
-                                  .map((day, index) => (
-                                    <div
-                                      key={index}
-                                      className="border-b border-gray-100 pb-4 last:border-b-0"
-                                    >
-                                      <h3 className="font-bold text-lg mb-2">
-                                        Day {day.day}: {day.title}
-                                      </h3>
-                                      <p className="text-neutral-700 leading-relaxed mb-3">
-                                        {day.description}
-                                      </p>
-                                      {day.image && (
-                                        <img
-                                          src={day.image}
-                                          alt={day.title}
-                                          className="rounded-lg h-32 sm:h-40 w-full max-w-sm object-cover"
-                                        />
-                                      )}
-                                    </div>
-                                  ))}
+                        {packageData.itinerary.map((day, index) => (
+                          <TabsContent
+                            key={index}
+                            value={`day${day.day}`}
+                            className="p-3 sm:p-4"
+                          >
+                            <h3 className="text-lg sm:text-xl font-semibold mb-2 sm:mb-3">
+                              Day {day.day}: {day.title}
+                            </h3>
+                            <p className="text-sm sm:text-base mb-3 sm:mb-4 text-neutral-700 leading-relaxed">
+                              {day.description}
+                            </p>
+                            {day.image && (
+                              <div className="mt-3 sm:mt-4">
+                                <img
+                                  src={day.image}
+                                  alt={day.title}
+                                  className="rounded-lg h-36 sm:h-48 w-full max-w-md object-cover"
+                                />
                               </div>
-                            </TabsContent>
-
-                            <TabsContent value="day2" className="p-3 sm:p-4">
-                              <div className="space-y-4">
-                                {packageData.itinerary
-                                  ?.filter(
-                                    (_, index) =>
-                                      index >=
-                                        Math.ceil(
-                                          (packageData.itinerary?.length || 0) / 3,
-                                        ) &&
-                                      index <
-                                        Math.ceil(
-                                          ((packageData.itinerary?.length || 0) * 2) /
-                                            3,
-                                        ),
-                                  )
-                                  .map((day, index) => (
-                                    <div
-                                      key={index}
-                                      className="border-b border-gray-100 pb-4 last:border-b-0"
-                                    >
-                                      <h3 className="font-bold text-lg mb-2">
-                                        Day {day.day}: {day.title}
-                                      </h3>
-                                      <p className="text-neutral-700 leading-relaxed mb-3">
-                                        {day.description}
-                                      </p>
-                                      {day.image && (
-                                        <img
-                                          src={day.image}
-                                          alt={day.title}
-                                          className="rounded-lg h-32 sm:h-40 w-full max-w-sm object-cover"
-                                        />
-                                      )}
-                                    </div>
-                                  ))}
-                              </div>
-                            </TabsContent>
-
-                            <TabsContent value="day3" className="p-3 sm:p-4">
-                              <div className="space-y-4">
-                                {packageData.itinerary
-                                  ?.filter(
-                                    (_, index) =>
-                                      index >=
-                                      Math.ceil(
-                                        ((packageData.itinerary?.length || 0) * 2) / 3,
-                                      ),
-                                  )
-                                  .map((day, index) => (
-                                    <div
-                                      key={index}
-                                      className="border-b border-gray-100 pb-4 last:border-b-0"
-                                    >
-                                      <h3 className="font-bold text-lg mb-2">
-                                        Day {day.day}: {day.title}
-                                      </h3>
-                                      <p className="text-neutral-700 leading-relaxed mb-3">
-                                        {day.description}
-                                      </p>
-                                      {day.image && (
-                                        <img
-                                          src={day.image}
-                                          alt={day.title}
-                                          className="rounded-lg h-32 sm:h-40 w-full max-w-sm object-cover"
-                                        />
-                                      )}
-                                    </div>
-                                  ))}
-                              </div>
-                            </TabsContent>
-                          </>
-                        )}
+                            )}
+                          </TabsContent>
+                        ))}
                       </Tabs>
                     ) : (
                       <div className="bg-gray-50 rounded-lg p-8 text-center">
