@@ -167,8 +167,12 @@ const PackagesPage: React.FC = () => {
       <div className="min-h-screen bg-gray-50 py-8">
         <div className="container mx-auto px-4">
           <div className="text-center">
-            <h1 className="text-2xl font-bold text-red-600 mb-4">Error Loading Packages</h1>
-            <p className="text-gray-600">Unable to load travel packages. Please try again later.</p>
+            <h1 className="text-2xl font-bold text-red-600 mb-4">
+              {t('packages.error', 'Error Loading Packages')}
+            </h1>
+            <p className="text-gray-600">
+              {t('packages.errorMessage', 'Unable to load travel packages. Please try again later.')}
+            </p>
           </div>
         </div>
       </div>
@@ -176,13 +180,15 @@ const PackagesPage: React.FC = () => {
   }
 
   return (
-    <div className="min-h-screen bg-gray-50 py-8">
+    <div className={`min-h-screen bg-gray-50 py-8 ${isRTL ? 'font-arabic' : ''}`} dir={isRTL ? 'rtl' : 'ltr'}>
       <div className="container mx-auto px-4">
         {/* Header */}
         <div className="mb-8">
-          <h1 className="text-4xl font-bold text-gray-900 mb-4">Travel Packages</h1>
+          <h1 className="text-4xl font-bold text-gray-900 mb-4">
+            {t('packages.title', 'Travel Packages')}
+          </h1>
           <p className="text-lg text-gray-600 max-w-2xl">
-            Discover our carefully curated travel packages to the most beautiful destinations in the Middle East and North Africa.
+            {t('packages.subtitle', 'Discover our carefully curated travel packages to the most beautiful destinations in the Middle East and North Africa.')}
           </p>
         </div>
 
@@ -192,7 +198,7 @@ const PackagesPage: React.FC = () => {
           <div className="relative">
             <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 h-5 w-5" />
             <Input
-              placeholder="Search packages..."
+              placeholder={t('packages.searchPlaceholder', 'Search packages...')}
               value={searchTerm}
               onChange={(e) => setSearchTerm(e.target.value)}
               className="pl-10 py-3 text-lg"
@@ -203,24 +209,24 @@ const PackagesPage: React.FC = () => {
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-4">
             <Select value={sortBy} onValueChange={setSortBy}>
               <SelectTrigger>
-                <SelectValue placeholder="Sort by" />
+                <SelectValue placeholder={t('packages.sortBy', 'Sort by')} />
               </SelectTrigger>
               <SelectContent>
-                <SelectItem value="featured">Featured First</SelectItem>
-                <SelectItem value="price-low">Price: Low to High</SelectItem>
-                <SelectItem value="price-high">Price: High to Low</SelectItem>
-                <SelectItem value="duration-short">Duration: Short to Long</SelectItem>
-                <SelectItem value="duration-long">Duration: Long to Short</SelectItem>
-                <SelectItem value="rating">Highest Rated</SelectItem>
+                <SelectItem value="featured">{t('packages.featured', 'Featured First')}</SelectItem>
+                <SelectItem value="price-low">{t('packages.priceLowHigh', 'Price: Low to High')}</SelectItem>
+                <SelectItem value="price-high">{t('packages.priceHighLow', 'Price: High to Low')}</SelectItem>
+                <SelectItem value="duration-short">{t('packages.durationShort', 'Duration: Short to Long')}</SelectItem>
+                <SelectItem value="duration-long">{t('packages.durationLong', 'Duration: Long to Short')}</SelectItem>
+                <SelectItem value="rating">{t('packages.highestRated', 'Highest Rated')}</SelectItem>
               </SelectContent>
             </Select>
 
             <Select value={filterCategory} onValueChange={setFilterCategory}>
               <SelectTrigger>
-                <SelectValue placeholder="Category" />
+                <SelectValue placeholder={t('packages.category', 'Category')} />
               </SelectTrigger>
               <SelectContent>
-                <SelectItem value="all">All Categories</SelectItem>
+                <SelectItem value="all">{t('packages.allCategories', 'All Categories')}</SelectItem>
                 {categories.map((category) => (
                   <SelectItem key={category as string} value={category as string}>
                     {category as string}
@@ -231,25 +237,25 @@ const PackagesPage: React.FC = () => {
 
             <Select value={filterDuration} onValueChange={setFilterDuration}>
               <SelectTrigger>
-                <SelectValue placeholder="Duration" />
+                <SelectValue placeholder={t('packages.duration', 'Duration')} />
               </SelectTrigger>
               <SelectContent>
-                <SelectItem value="all">Any Duration</SelectItem>
-                <SelectItem value="short">1-3 Days</SelectItem>
-                <SelectItem value="medium">4-7 Days</SelectItem>
-                <SelectItem value="long">8+ Days</SelectItem>
+                <SelectItem value="all">{t('packages.anyDuration', 'Any Duration')}</SelectItem>
+                <SelectItem value="short">{t('packages.shortDays', '1-3 Days')}</SelectItem>
+                <SelectItem value="medium">{t('packages.mediumDays', '4-7 Days')}</SelectItem>
+                <SelectItem value="long">{t('packages.longDays', '8+ Days')}</SelectItem>
               </SelectContent>
             </Select>
 
             <Select value={filterPrice} onValueChange={setFilterPrice}>
               <SelectTrigger>
-                <SelectValue placeholder="Price Range" />
+                <SelectValue placeholder={t('packages.priceRange', 'Price Range')} />
               </SelectTrigger>
               <SelectContent>
-                <SelectItem value="all">Any Price</SelectItem>
-                <SelectItem value="budget">Under 30,000 EGP</SelectItem>
-                <SelectItem value="mid">30,000 - 80,000 EGP</SelectItem>
-                <SelectItem value="luxury">80,000+ EGP</SelectItem>
+                <SelectItem value="all">{t('packages.anyPrice', 'Any Price')}</SelectItem>
+                <SelectItem value="budget">{t('packages.budget', 'Under 30,000 EGP')}</SelectItem>
+                <SelectItem value="mid">{t('packages.midRange', '30,000 - 80,000 EGP')}</SelectItem>
+                <SelectItem value="luxury">{t('packages.luxury', '80,000+ EGP')}</SelectItem>
               </SelectContent>
             </Select>
 
@@ -261,7 +267,7 @@ const PackagesPage: React.FC = () => {
               setFilterPrice("all");
             }}>
               <Filter className="mr-2 h-4 w-4" />
-              Clear Filters
+              {t('packages.clearFilters', 'Clear Filters')}
             </Button>
           </div>
         </div>
@@ -269,7 +275,7 @@ const PackagesPage: React.FC = () => {
         {/* Results Count */}
         <div className="mb-6">
           <p className="text-gray-600">
-            {isLoading ? "Loading..." : `${filteredPackages.length} package${filteredPackages.length !== 1 ? 's' : ''} found`}
+            {isLoading ? t('packages.loading', 'Loading...') : `${filteredPackages.length} ${t('packages.packageCount', filteredPackages.length === 1 ? 'package found' : 'packages found')}`}
           </p>
         </div>
 
@@ -325,7 +331,7 @@ const PackagesPage: React.FC = () => {
                   {/* Featured Badge */}
                   {pkg.featured && (
                     <Badge className="absolute top-3 left-3 bg-primary text-white">
-                      Featured
+                      {t('packages.featured', 'Featured')}
                     </Badge>
                   )}
                   
@@ -369,12 +375,12 @@ const PackagesPage: React.FC = () => {
                   <div className="flex flex-wrap gap-2 mt-3">
                     <Badge variant="secondary" className="text-xs">
                       <Calendar className="mr-1 h-3 w-3" />
-                      {pkg.duration} days
+                      {pkg.duration} {t('packages.days', 'days')}
                     </Badge>
                     {pkg.maxGroupSize && (
                       <Badge variant="secondary" className="text-xs">
                         <Users className="mr-1 h-3 w-3" />
-                        Max {pkg.maxGroupSize}
+                        {t('packages.max', 'Max')} {pkg.maxGroupSize}
                       </Badge>
                     )}
                     {pkg.destination && (
@@ -401,7 +407,7 @@ const PackagesPage: React.FC = () => {
                         ))}
                       </div>
                       <span className="ml-2 text-sm text-gray-600">
-                        {pkg.rating} ({pkg.reviewCount} reviews)
+                        {pkg.rating} ({pkg.reviewCount} {t('packages.reviews', 'reviews')})
                       </span>
                     </div>
                   )}
@@ -433,7 +439,7 @@ const PackagesPage: React.FC = () => {
                   <div className="flex space-x-2">
                     <Link href={`/packages/${pkg.slug || pkg.id}`} className="flex-1">
                       <Button className="w-full bg-primary hover:bg-primary/90">
-                        View Details
+                        {t('packages.viewDetails', 'View Details')}
                       </Button>
                     </Link>
                     <Button 
@@ -454,7 +460,7 @@ const PackagesPage: React.FC = () => {
         {!isLoading && filteredPackages.length > 0 && (
           <div className="text-center mt-12">
             <p className="text-gray-600 mb-4">
-              Showing all {filteredPackages.length} packages
+              {t('packages.showingAll', 'Showing all')} {filteredPackages.length} {t('packages.packagesText', 'packages')}
             </p>
           </div>
         )}

@@ -11,12 +11,14 @@ import {
 } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { useToast } from "@/hooks/use-toast";
+import { useLanguage } from "@/hooks/use-language";
 import { Loader2, Heart, Map, MapPin, GlobeIcon } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { useState, useEffect } from "react";
 
 export default function DestinationsPage() {
   const { toast } = useToast();
+  const { t, isRTL } = useLanguage();
   const [filter, setFilter] = useState<string>("all");
   
   // Favorites state management (localStorage-based)
@@ -94,11 +96,13 @@ export default function DestinationsPage() {
   }
   
   return (
-    <div className="container mx-auto px-4 py-12">
+    <div className={`container mx-auto px-4 py-12 ${isRTL ? 'font-arabic' : ''}`} dir={isRTL ? 'rtl' : 'ltr'}>
       <div className="mb-8 text-center">
-        <h1 className="text-4xl font-bold mb-4">Explore Destinations</h1>
+        <h1 className="text-4xl font-bold mb-4">
+          {t('destinations.title', 'Explore Destinations')}
+        </h1>
         <p className="text-xl text-muted-foreground max-w-2xl mx-auto">
-          Discover the most breathtaking destinations across the Middle East and find your next adventure
+          {t('destinations.subtitle', 'Discover the most breathtaking destinations across the Middle East and find your next adventure')}
         </p>
       </div>
       
@@ -112,7 +116,7 @@ export default function DestinationsPage() {
             onClick={() => setFilter("all")}
           >
             <GlobeIcon className="w-4 h-4 inline mr-2" />
-            All Destinations
+            {t('destinations.all', 'All Destinations')}
           </button>
           <button
             className={`px-4 py-2 rounded-md ${
@@ -121,7 +125,7 @@ export default function DestinationsPage() {
             onClick={() => setFilter("favorites")}
           >
             <Heart className="w-4 h-4 inline mr-2" /> 
-            My Favorites ({favorites.size})
+            {t('destinations.favorites', 'My Favorites')} ({favorites.size})
           </button>
         </div>
       </div>
@@ -129,11 +133,15 @@ export default function DestinationsPage() {
       {filter === "favorites" && favorites.size === 0 && (
         <div className="text-center py-12">
           <Heart className="h-16 w-16 mx-auto text-gray-300 mb-4" />
-          <h3 className="text-xl font-medium mb-2">No favorites yet</h3>
+          <h3 className="text-xl font-medium mb-2">
+            {t('destinations.noFavorites', 'No favorites yet')}
+          </h3>
           <p className="text-muted-foreground mb-6">
-            Start adding destinations to your favorites to see them here
+            {t('destinations.noFavoritesDesc', 'Start adding destinations to your favorites to see them here')}
           </p>
-          <Button onClick={() => setFilter("all")}>Explore Destinations</Button>
+          <Button onClick={() => setFilter("all")}>
+            {t('destinations.explore', 'Explore Destinations')}
+          </Button>
         </div>
       )}
       

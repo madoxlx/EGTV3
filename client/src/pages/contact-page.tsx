@@ -14,6 +14,7 @@ import {
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { useToast } from "@/hooks/use-toast";
+import { useLanguage } from "@/hooks/use-language";
 import { Loader2, MapPin, Mail, Phone, Send } from "lucide-react";
 
 const contactSchema = z.object({
@@ -27,6 +28,7 @@ type ContactFormValues = z.infer<typeof contactSchema>;
 
 export default function ContactPage() {
   const { toast } = useToast();
+  const { t, isRTL } = useLanguage();
   const [isSubmitting, setIsSubmitting] = useState(false);
 
   const form = useForm<ContactFormValues>({
@@ -58,12 +60,14 @@ export default function ContactPage() {
   };
 
   return (
-    <div className="container mx-auto px-4 py-12">
+    <div className={`container mx-auto px-4 py-12 ${isRTL ? 'font-arabic' : ''}`} dir={isRTL ? 'rtl' : 'ltr'}>
       <div className="max-w-5xl mx-auto">
         <div className="text-center mb-12">
-          <h1 className="text-4xl font-bold mb-6">Contact Us</h1>
+          <h1 className="text-4xl font-bold mb-6">
+            {t('contact.title', 'Contact Us')}
+          </h1>
           <p className="text-xl text-muted-foreground max-w-2xl mx-auto">
-            Have questions, tips, or just want to say hello? We'd love to hear from you.
+            {t('contact.subtitle', 'Have questions, tips, or just want to say hello? We\'d love to hear from you.')}
           </p>
         </div>
 
@@ -71,10 +75,11 @@ export default function ContactPage() {
           {/* Contact Information */}
           <div className="bg-primary/10 p-8 rounded-xl">
             <div className="mb-8">
-              <h2 className="text-2xl font-bold mb-6">Get in Touch</h2>
+              <h2 className="text-2xl font-bold mb-6">
+                {t('contact.getInTouch', 'Get in Touch')}
+              </h2>
               <p className="mb-6 text-muted-foreground">
-                Our team of travel experts is ready to help you plan your perfect Middle Eastern adventure. 
-                Reach out to us through any of these channels:
+                {t('contact.description', 'Our team of travel experts is ready to help you plan your perfect Middle Eastern adventure. Reach out to us through any of these channels:')}
               </p>
               
               <div className="space-y-4">
@@ -83,8 +88,12 @@ export default function ContactPage() {
                     <MapPin className="h-5 w-5 text-primary" />
                   </div>
                   <div>
-                    <h3 className="font-medium">Our Office</h3>
-                    <p className="text-muted-foreground">123 Adventure Lane, Dubai, UAE</p>
+                    <h3 className="font-medium">
+                      {t('contact.office', 'Our Office')}
+                    </h3>
+                    <p className="text-muted-foreground">
+                      {t('contact.address', '123 Adventure Lane, Dubai, UAE')}
+                    </p>
                   </div>
                 </div>
                 
@@ -93,8 +102,12 @@ export default function ContactPage() {
                     <Mail className="h-5 w-5 text-primary" />
                   </div>
                   <div>
-                    <h3 className="font-medium">Email Us</h3>
-                    <p className="text-muted-foreground">hello@saharatravel.example</p>
+                    <h3 className="font-medium">
+                      {t('contact.email', 'Email Us')}
+                    </h3>
+                    <p className="text-muted-foreground">
+                      {t('contact.emailAddress', 'hello@saharatravel.example')}
+                    </p>
                   </div>
                 </div>
                 
@@ -103,27 +116,33 @@ export default function ContactPage() {
                     <Phone className="h-5 w-5 text-primary" />
                   </div>
                   <div>
-                    <h3 className="font-medium">Call Us</h3>
-                    <p className="text-muted-foreground">+971 4 123 4567</p>
+                    <h3 className="font-medium">
+                      {t('contact.phone', 'Call Us')}
+                    </h3>
+                    <p className="text-muted-foreground">
+                      {t('contact.phoneNumber', '+971 4 123 4567')}
+                    </p>
                   </div>
                 </div>
               </div>
             </div>
             
             <div>
-              <h3 className="text-lg font-medium mb-4">Office Hours</h3>
+              <h3 className="text-lg font-medium mb-4">
+                {t('contact.officeHours', 'Office Hours')}
+              </h3>
               <div className="space-y-2 text-muted-foreground">
                 <div className="flex justify-between">
-                  <span>Monday - Friday:</span>
-                  <span>9:00 AM - 6:00 PM</span>
+                  <span>{t('contact.monday', 'Monday')} - {t('contact.friday', 'Friday')}:</span>
+                  <span>{t('contact.weekdayHours', '9:00 AM - 6:00 PM')}</span>
                 </div>
                 <div className="flex justify-between">
-                  <span>Saturday:</span>
-                  <span>10:00 AM - 4:00 PM</span>
+                  <span>{t('contact.saturday', 'Saturday')}:</span>
+                  <span>{t('contact.saturdayHours', '10:00 AM - 4:00 PM')}</span>
                 </div>
                 <div className="flex justify-between">
-                  <span>Sunday:</span>
-                  <span>Closed</span>
+                  <span>{t('contact.sunday', 'Sunday')}:</span>
+                  <span>{t('contact.closed', 'Closed')}</span>
                 </div>
               </div>
             </div>
@@ -145,7 +164,9 @@ export default function ContactPage() {
             </div>
             
             <div className="p-6">
-              <h2 className="text-2xl font-bold mb-6 text-center">Send Us a Message</h2>
+              <h2 className="text-2xl font-bold mb-6 text-center">
+                {t('contact.sendMessage', 'Send Us a Message')}
+              </h2>
               
               <Form {...form}>
                 <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
@@ -155,9 +176,9 @@ export default function ContactPage() {
                       name="name"
                       render={({ field }) => (
                         <FormItem>
-                          <FormLabel>Name</FormLabel>
+                          <FormLabel>{t('contact.form.name', 'Name')}</FormLabel>
                           <FormControl>
-                            <Input placeholder="Your name" {...field} />
+                            <Input placeholder={t('contact.form.namePlaceholder', 'Your name')} {...field} />
                           </FormControl>
                           <FormMessage />
                         </FormItem>
@@ -169,9 +190,9 @@ export default function ContactPage() {
                       name="email"
                       render={({ field }) => (
                         <FormItem>
-                          <FormLabel>Email</FormLabel>
+                          <FormLabel>{t('contact.form.email', 'Email')}</FormLabel>
                           <FormControl>
-                            <Input placeholder="Your email address" {...field} />
+                            <Input placeholder={t('contact.form.emailPlaceholder', 'Your email address')} {...field} />
                           </FormControl>
                           <FormMessage />
                         </FormItem>
@@ -184,9 +205,9 @@ export default function ContactPage() {
                     name="subject"
                     render={({ field }) => (
                       <FormItem>
-                        <FormLabel>Subject</FormLabel>
+                        <FormLabel>{t('contact.form.subject', 'Subject')}</FormLabel>
                         <FormControl>
-                          <Input placeholder="What's this about?" {...field} />
+                          <Input placeholder={t('contact.form.subjectPlaceholder', 'What\'s this about?')} {...field} />
                         </FormControl>
                         <FormMessage />
                       </FormItem>
@@ -198,10 +219,10 @@ export default function ContactPage() {
                     name="message"
                     render={({ field }) => (
                       <FormItem>
-                        <FormLabel>Message</FormLabel>
+                        <FormLabel>{t('contact.form.message', 'Message')}</FormLabel>
                         <FormControl>
                           <Textarea 
-                            placeholder="Your message here..." 
+                            placeholder={t('contact.form.messagePlaceholder', 'Your message here...')} 
                             className="min-h-[120px] resize-none"
                             {...field} 
                           />
@@ -220,12 +241,12 @@ export default function ContactPage() {
                       {isSubmitting ? (
                         <>
                           <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                          Sending...
+                          {t('contact.form.sending', 'Sending...')}
                         </>
                       ) : (
                         <>
                           <Send className="mr-2 h-4 w-4" />
-                          Send Message
+                          {t('contact.form.sendMessage', 'Send Message')}
                         </>
                       )}
                     </Button>
