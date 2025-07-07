@@ -2553,16 +2553,11 @@ export async function registerRoutes(app: Express): Promise<Server> {
         }
       }
 
-      // Handle date fields
-      if (processedData.startDate) {
-        processedData.startDate = new Date(processedData.startDate);
-      }
-      if (processedData.endDate) {
-        processedData.endDate = new Date(processedData.endDate);
-      }
-      if (processedData.validUntil) {
-        processedData.validUntil = new Date(processedData.validUntil);
-      }
+      // Handle date fields - temporarily remove to prevent database schema errors
+      // TODO: Re-enable after database schema migration includes timestamp columns
+      delete processedData.startDate;
+      delete processedData.endDate;
+      delete processedData.validUntil;
 
       // Map form field names to database field names and handle type conversions
       if (processedData.name) {
@@ -2660,16 +2655,11 @@ export async function registerRoutes(app: Express): Promise<Server> {
         }
       }
 
-      // Handle date fields
-      if (processedData.startDate) {
-        processedData.startDate = new Date(processedData.startDate);
-      }
-      if (processedData.endDate) {
-        processedData.endDate = new Date(processedData.endDate);
-      }
-      if (processedData.validUntil) {
-        processedData.validUntil = new Date(processedData.validUntil);
-      }
+      // Handle date fields - temporarily remove to prevent database schema errors
+      // TODO: Re-enable after database schema migration includes timestamp columns
+      delete processedData.startDate;
+      delete processedData.endDate;
+      delete processedData.validUntil;
 
       // Convert string numeric fields to numbers
       if (processedData.price) {
