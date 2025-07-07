@@ -29,6 +29,12 @@ if [ ! -d "node_modules" ]; then
     fi
 fi
 
+# Check for cross-env specifically (common missing dependency)
+if ! npm list cross-env > /dev/null 2>&1; then
+    echo "📦 Installing missing cross-env package..."
+    npm install cross-env
+fi
+
 # Check if .env file exists
 if [ ! -f ".env" ]; then
     echo "⚠️  No .env file found. Creating sample .env file..."
