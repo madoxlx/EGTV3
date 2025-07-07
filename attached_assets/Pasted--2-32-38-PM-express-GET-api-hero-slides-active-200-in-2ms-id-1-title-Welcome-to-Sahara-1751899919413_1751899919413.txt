@@ -1,0 +1,134 @@
+
+2:32:38 PM [express] GET /api/hero-slides/active 200 in 2ms :: [{"id":1,"title":"Welcome to Sahara Journeys","subtitle":"Discover the Magic of the Middle East","descrip…
+2:32:39 PM [express] GET /api/countries 200 in 90ms :: [{"id":10,"name":"Egypt","code":"EG","description":"شسيسشيشسيشسيشس","imageUrl":"/uploads/image-1751733761268.jpeg…
+2:32:39 PM [express] GET /api/cities 200 in 88ms :: [{"id":29,"name":"Abu Dhabi","countryId":13,"description":"Capital of UAE","imageUrl":null,"active":true,"createdAt"…
+2:32:39 PM [express] GET /api/destinations 200 in 87ms :: [{"id":"17","name":"Pyramids of Giza","country":"Egypt","countryId":19,"cityId":41,"description":"Ancient wond…
+Error listing packages: error: column "has_arabic_version" does not exist
+    at file:///home/runner/workspace/node_modules/@neondatabase/serverless/index.mjs:1345:74
+    at process.processTicksAndRejections (node:internal/process/task_queues:95:5)
+    at async NeonPreparedQuery.execute (/home/runner/workspace/node_modules/src/neon-serverless/session.ts:102:18)
+    at async DatabaseStorage.listPackages (/home/runner/workspace/server/storage.ts:518:14)
+    at async <anonymous> (/home/runner/workspace/server/routes.ts:572:24) {
+  length: 119,
+  severity: 'ERROR',
+  code: '42703',
+  detail: undefined,
+  hint: undefined,
+  position: '919',
+  internalPosition: undefined,
+  internalQuery: undefined,
+  where: undefined,
+  schema: undefined,
+  table: undefined,
+  column: undefined,
+  dataType: undefined,
+  constraint: undefined,
+  file: 'parse_relation.c',
+  line: '3716',
+  routine: 'errorMissingColumn'
+}
+2:32:39 PM [express] GET /api/packages 200 in 109ms :: []
+2:32:39 PM [express] GET /api/tour-categories 200 in 122ms :: [{"id":7,"name":"Adventure Tours","description":"Exciting desert and adventure experiences","slug":"Advent…
+2:32:39 PM [express] GET /api/menus/location/footer 200 in 44ms :: {"menu":{"id":1,"name":"Footer Menu","location":"footer","description":null,"active":true,"createdAt"…
+2:32:39 PM [express] GET /api/translations/settings 200 in 30ms :: {"id":1,"default_language":"en","available_languages":"[\"en\",\"ar\"]","rtl_languages":"[\"ar\"]","a…
+2:32:39 PM [express] GET /api/translations 200 in 87ms :: [{"id":518,"key":",","enText":",","arText":"","context":"Auto-detected from client/src/pages/admin/AdvancedHot…
+2:32:56 PM [express] GET /api/translations/settings 304 in 92ms :: {"id":1,"default_language":"en","available_languages":"[\"en\",\"ar\"]","rtl_languages":"[\"ar\"]","a…
+2:32:56 PM [express] GET /api/menus/location/footer 304 in 118ms :: {"menu":{"id":1,"name":"Footer Menu","location":"footer","description":null,"active":true,"createdAt…
+2:32:56 PM [express] GET /api/translations 304 in 160ms :: [{"id":518,"key":",","enText":",","arText":"","context":"Auto-detected from client/src/pages/admin/AdvancedHo…
+2:33:10 PM [express] POST /api/login 400 in 130ms :: {"message":"Invalid username or password"}
+2:33:15 PM [express] GET /api/hero-slides/active 304 in 0ms :: [{"id":1,"title":"Welcome to Sahara Journeys","subtitle":"Discover the Magic of the Middle East","descrip…
+2:33:15 PM [express] GET /api/cities 304 in 23ms :: [{"id":29,"name":"Abu Dhabi","countryId":13,"description":"Capital of UAE","imageUrl":null,"active":true,"createdAt"…
+2:33:15 PM [express] GET /api/destinations 304 in 90ms :: [{"id":"17","name":"Pyramids of Giza","country":"Egypt","countryId":19,"cityId":41,"description":"Ancient wond…
+2:33:15 PM [express] GET /api/countries 304 in 89ms :: [{"id":10,"name":"Egypt","code":"EG","description":"شسيسشيشسيشسيشس","imageUrl":"/uploads/image-1751733761268.jpeg…
+2:33:15 PM [express] GET /api/tour-categories 304 in 88ms :: [{"id":7,"name":"Adventure Tours","description":"Exciting desert and adventure experiences","slug":"Adventu…
+Error listing packages: error: column "has_arabic_version" does not exist
+    at file:///home/runner/workspace/node_modules/@neondatabase/serverless/index.mjs:1345:74
+    at process.processTicksAndRejections (node:internal/process/task_queues:95:5)
+    at async NeonPreparedQuery.execute (/home/runner/workspace/node_modules/src/neon-serverless/session.ts:102:18)
+    at async DatabaseStorage.listPackages (/home/runner/workspace/server/storage.ts:518:14)
+    at async <anonymous> (/home/runner/workspace/server/routes.ts:572:24) {
+  length: 119,
+  severity: 'ERROR',
+  code: '42703',
+  detail: undefined,
+  hint: undefined,
+  position: '919',
+  internalPosition: undefined,
+  internalQuery: undefined,
+  where: undefined,
+  schema: undefined,
+  table: undefined,
+  column: undefined,
+  dataType: undefined,
+  constraint: undefined,
+  file: 'parse_relation.c',
+  line: '3716',
+  routine: 'errorMissingColumn'
+}
+2:33:15 PM [express] GET /api/packages 304 in 88ms :: []
+2:38:39 PM [express] GET /api/hero-slides/active 304 in 0ms :: [{"id":1,"title":"Welcome to Sahara Journeys","subtitle":"Discover the Magic of the Middle East","descrip…
+2:38:40 PM [express] GET /api/tour-categories 304 in 635ms :: [{"id":7,"name":"Adventure Tours","description":"Exciting desert and adventure experiences","slug":"Advent…
+2:38:40 PM [express] GET /api/destinations 304 in 198ms :: [{"id":"17","name":"Pyramids of Giza","country":"Egypt","countryId":19,"cityId":41,"description":"Ancient won…
+2:38:40 PM [express] GET /api/cities 304 in 607ms :: [{"id":29,"name":"Abu Dhabi","countryId":13,"description":"Capital of UAE","imageUrl":null,"active":true,"createdAt…
+Error listing packages: error: column "has_arabic_version" does not exist
+    at file:///home/runner/workspace/node_modules/@neondatabase/serverless/index.mjs:1345:74
+    at process.processTicksAndRejections (node:internal/process/task_queues:95:5)
+    at async NeonPreparedQuery.execute (/home/runner/workspace/node_modules/src/neon-serverless/session.ts:102:18)
+    at async DatabaseStorage.listPackages (/home/runner/workspace/server/storage.ts:518:14)
+    at async <anonymous> (/home/runner/workspace/server/routes.ts:572:24) {
+  length: 119,
+  severity: 'ERROR',
+  code: '42703',
+  detail: undefined,
+  hint: undefined,
+  position: '919',
+  internalPosition: undefined,
+  internalQuery: undefined,
+  where: undefined,
+  schema: undefined,
+  table: undefined,
+  column: undefined,
+  dataType: undefined,
+  constraint: undefined,
+  file: 'parse_relation.c',
+  line: '3716',
+  routine: 'errorMissingColumn'
+}
+2:38:40 PM [express] GET /api/packages 304 in 253ms :: []
+2:38:40 PM [express] GET /api/menus/location/footer 304 in 309ms :: {"menu":{"id":1,"name":"Footer Menu","location":"footer","description":null,"active":true,"createdAt…
+2:38:40 PM [express] GET /api/translations/settings 304 in 28ms :: {"id":1,"default_language":"en","available_languages":"[\"en\",\"ar\"]","rtl_languages":"[\"ar\"]","a…
+2:38:40 PM [express] GET /api/translations 304 in 118ms :: [{"id":518,"key":",","enText":",","arText":"","context":"Auto-detected from client/src/pages/admin/AdvancedHo…
+2:38:40 PM [express] GET /api/countries 304 in 1147ms :: [{"id":10,"name":"Egypt","code":"EG","description":"شسيسشيشسيشسيشس","imageUrl":"/uploads/image-1751733761268.jp…
+2:51:58 PM [express] GET /api/hero-slides/active 304 in 1ms :: [{"id":1,"title":"Welcome to Sahara Journeys","subtitle":"Discover the Magic of the Middle East","descrip…
+2:51:59 PM [express] GET /api/tour-categories 304 in 594ms :: [{"id":7,"name":"Adventure Tours","description":"Exciting desert and adventure experiences","slug":"Advent…
+2:51:59 PM [express] GET /api/countries 304 in 592ms :: [{"id":10,"name":"Egypt","code":"EG","description":"شسيسشيشسيشسيشس","imageUrl":"/uploads/image-1751733761268.jpe…
+Error listing packages: error: column "has_arabic_version" does not exist
+    at file:///home/runner/workspace/node_modules/@neondatabase/serverless/index.mjs:1345:74
+    at process.processTicksAndRejections (node:internal/process/task_queues:95:5)
+    at async NeonPreparedQuery.execute (/home/runner/workspace/node_modules/src/neon-serverless/session.ts:102:18)
+    at async DatabaseStorage.listPackages (/home/runner/workspace/server/storage.ts:518:14)
+    at async <anonymous> (/home/runner/workspace/server/routes.ts:572:24) {
+  length: 119,
+  severity: 'ERROR',
+  code: '42703',
+  detail: undefined,
+  hint: undefined,
+  position: '919',
+  internalPosition: undefined,
+  internalQuery: undefined,
+  where: undefined,
+  schema: undefined,
+  table: undefined,
+  column: undefined,
+  dataType: undefined,
+  constraint: undefined,
+  file: 'parse_relation.c',
+  line: '3716',
+  routine: 'errorMissingColumn'
+}
+2:51:59 PM [express] GET /api/packages 304 in 611ms :: []
+2:51:59 PM [express] GET /api/menus/location/footer 304 in 92ms :: {"menu":{"id":1,"name":"Footer Menu","location":"footer","description":null,"active":true,"createdAt"…
+2:51:59 PM [express] GET /api/translations 304 in 107ms :: [{"id":518,"key":",","enText":",","arText":"","context":"Auto-detected from client/src/pages/admin/AdvancedHo…
+2:51:59 PM [express] GET /api/translations/settings 304 in 28ms :: {"id":1,"default_language":"en","available_languages":"[\"en\",\"ar\"]","rtl_languages":"[\"ar\"]","a…
+2:51:59 PM [express] GET /api/cities 304 in 1183ms :: [{"id":29,"name":"Abu Dhabi","countryId":13,"description":"Capital of UAE","imageUrl":null,"active":true,"createdA…
+2:51:59 PM [express] GET /api/destinations 304 in 1186ms :: [{"id":"17","name":"Pyramids of Giza","country":"Egypt","countryId":19,"cityId":41,"description":"Ancient wo…
