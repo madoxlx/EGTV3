@@ -55,7 +55,7 @@ interface DashboardStats {
 }
 
 export default function AdminDashboard() {
-  const { t } = useLanguage();
+  const { t, isRTL } = useLanguage();
   const { data: stats, isLoading } = useQuery<DashboardStats>({
     queryKey: ['/api/admin/dashboard-stats'],
   });
@@ -103,7 +103,7 @@ export default function AdminDashboard() {
   };
 
   return (
-    <div>
+    <div className={`${isRTL ? 'font-arabic' : ''}`} dir={isRTL ? 'rtl' : 'ltr'}>
       <div className="space-y-6 p-6">
         {/* Header */}
         <div className="flex items-center justify-between">

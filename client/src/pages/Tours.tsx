@@ -542,7 +542,7 @@ const Tours: React.FC = () => {
   console.log('Tours error:', toursError);
 
   return (
-    <div className="container mx-auto px-4 py-8">
+    <div className={`container mx-auto px-4 py-8 ${isRTL ? 'font-arabic' : ''}`} dir={isRTL ? 'rtl' : 'ltr'}>
       {/* Header */}
       <div className="mb-8 text-center">
         <h1 className="text-4xl font-bold mb-4 bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent">

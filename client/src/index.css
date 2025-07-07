@@ -39,6 +39,68 @@
   }
 }
 
+/* RTL and Arabic text improvements */
+@layer base {
+  /* Ensure proper text direction for Arabic */
+  [dir="rtl"] {
+    text-align: right;
+  }
+  
+  [dir="rtl"] .text-left {
+    text-align: right !important;
+  }
+  
+  [dir="rtl"] .text-right {
+    text-align: left !important;
+  }
+  
+  /* Fix common layout issues in RTL */
+  [dir="rtl"] .ml-auto {
+    margin-left: 0 !important;
+    margin-right: auto !important;
+  }
+  
+  [dir="rtl"] .mr-auto {
+    margin-right: 0 !important;
+    margin-left: auto !important;
+  }
+  
+  /* Fix padding and margins for RTL */
+  [dir="rtl"] .pl-4 {
+    padding-left: 0 !important;
+    padding-right: 1rem !important;
+  }
+  
+  [dir="rtl"] .pr-4 {
+    padding-right: 0 !important;
+    padding-left: 1rem !important;
+  }
+  
+  /* Button and form styling improvements for RTL */
+  [dir="rtl"] .ml-2 {
+    margin-left: 0 !important;
+    margin-right: 0.5rem !important;
+  }
+  
+  [dir="rtl"] .mr-2 {
+    margin-right: 0 !important;
+    margin-left: 0.5rem !important;
+  }
+  
+  /* Icon positioning for RTL */
+  [dir="rtl"] .flex-row-reverse {
+    flex-direction: row !important;
+  }
+  
+  /* Text input alignment for Arabic */
+  [dir="rtl"] input[type="text"],
+  [dir="rtl"] input[type="email"],
+  [dir="rtl"] input[type="search"],
+  [dir="rtl"] textarea {
+    text-align: right;
+  }
+}
+
 /* Custom scrollbar styles */
 @layer components {
   .custom-scrollbar {

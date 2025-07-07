@@ -9,10 +9,10 @@ import SocialMediaBox from "@/components/SocialMediaBox";
 import { useLanguage } from "@/hooks/use-language";
 
 const Home: React.FC = () => {
-  const { t } = useLanguage();
+  const { t, isRTL } = useLanguage();
   
   return (
-    <>
+    <div className={isRTL ? 'font-arabic' : ''} dir={isRTL ? 'rtl' : 'ltr'}>
       <HeroSlider />
       <BookingTabs />
       <FeaturedOffers />
@@ -40,7 +40,7 @@ const Home: React.FC = () => {
           </div>
         </div>
       </div>
-    </>
+    </div>
   );
 };
 

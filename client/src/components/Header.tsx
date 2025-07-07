@@ -87,7 +87,7 @@ const Header: React.FC = () => {
   };
 
   return (
-    <header className="bg-white shadow-sm sticky top-0 z-50">
+    <header className={`bg-white shadow-sm sticky top-0 z-50 ${isRTL ? 'font-arabic' : ''}`} dir={isRTL ? 'rtl' : 'ltr'}>
       <div className="container mx-auto px-4 py-3 flex justify-between items-center">
         <div className="flex items-center">
           <Link

@@ -5,10 +5,10 @@ import { Link } from "wouter";
 import { useLanguage } from "@/hooks/use-language";
 
 export default function AboutPage() {
-  const { t } = useLanguage();
+  const { t, isRTL } = useLanguage();
   
   return (
-    <div className="container mx-auto px-4 py-12">
+    <div className={`container mx-auto px-4 py-12 ${isRTL ? 'font-arabic' : ''}`} dir={isRTL ? 'rtl' : 'ltr'}>
       <div className="max-w-4xl mx-auto">
         <div className="text-center mb-12">
           <h1 className="text-4xl font-bold mb-6">{t('about.title', 'About Sahara Travel')}</h1>
