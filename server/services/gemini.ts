@@ -1,4 +1,5 @@
 import { GoogleGenerativeAI } from "@google/generative-ai";
+import { API_KEYS } from "../config/api-keys";
 
 /**
  * Gemini AI service for machine translations
@@ -10,18 +11,21 @@ class GeminiService {
   private imagineModel: string = "gemini-pro-vision";
   
   constructor() {
-    const apiKey = process.env.GOOGLE_AI_API_KEY || "";
+    // Try multiple sources for API key
+    const apiKey = process.env.GOOGLE_AI_API_KEY || 
+                   process.env.GOOGLE_API_KEY || 
+                   process.env.GEMINI_API_KEY ||
+                   API_KEYS.GOOGLE_AI_API_KEY;
+    
     console.log("🔑 Google AI API Key status:", apiKey ? `Found (${apiKey.substring(0, 10)}...)` : "Not found");
     console.log("🔍 Full environment check:", {
       hasGoogleAIKey: !!process.env.GOOGLE_AI_API_KEY,
       hasOldGoogleKey: !!process.env.GOOGLE_API_KEY,
+      hasGeminiKey: !!process.env.GEMINI_API_KEY,
       nodeEnv: process.env.NODE_ENV,
-      keyLength: apiKey ? apiKey.length : 0
+      keyLength: apiKey ? apiKey.length : 0,
+      usingFallback: !process.env.GOOGLE_AI_API_KEY && !process.env.GOOGLE_API_KEY && !process.env.GEMINI_API_KEY
     });
-    
-    if (!apiKey) {
-      console.error("❌ No Google AI API key found! Please check your .env file.");
-    }
     
     this.genAI = new GoogleGenerativeAI(apiKey);
   }
