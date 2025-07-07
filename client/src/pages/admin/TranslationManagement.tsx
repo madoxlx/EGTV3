@@ -308,13 +308,43 @@ export default function TranslationManagement() {
         description: data.message || "Batch translation has been completed successfully.",
       });
     },
-    onError: (error) => {
-      toast({
-        title: "Batch translation error",
-        description: "Failed to complete batch translation.",
-        variant: "destructive",
-      });
+    onError: (error: any) => {
       console.error("Batch translation error:", error);
+      
+      // Parse enhanced error messages from backend
+      const errorMessage = error?.message || '';
+      
+      if (errorMessage.includes('QUOTA_EXCEEDED')) {
+        const message = errorMessage.split('|')[1] || 'Google AI quota exceeded';
+        toast({
+          title: "Google AI Quota Exceeded",
+          description: message + " Please try again later or upgrade your API plan.",
+          variant: "destructive",
+          duration: 8000,
+        });
+      } else if (errorMessage.includes('RATE_LIMITED')) {
+        const message = errorMessage.split('|')[1] || 'Too many requests';
+        toast({
+          title: "Rate Limited",
+          description: message + " Please wait a moment before trying again.",
+          variant: "destructive",
+          duration: 6000,
+        });
+      } else if (errorMessage.includes('API_KEY_INVALID')) {
+        const message = errorMessage.split('|')[1] || 'Invalid API key';
+        toast({
+          title: "API Configuration Error",
+          description: message,
+          variant: "destructive",
+          duration: 8000,
+        });
+      } else {
+        toast({
+          title: "Batch translation error",
+          description: "Failed to complete batch translation. Please try again later.",
+          variant: "destructive",
+        });
+      }
     },
   });
 
@@ -333,13 +363,43 @@ export default function TranslationManagement() {
         description: data.message || "Item translated successfully.",
       });
     },
-    onError: (error) => {
-      toast({
-        title: "Translation Error",
-        description: "Failed to machine translate this item.",
-        variant: "destructive",
-      });
+    onError: (error: any) => {
       console.error("Machine translation error:", error);
+      
+      // Parse enhanced error messages from backend
+      const errorMessage = error?.message || '';
+      
+      if (errorMessage.includes('QUOTA_EXCEEDED')) {
+        const message = errorMessage.split('|')[1] || 'Google AI quota exceeded';
+        toast({
+          title: "Google AI Quota Exceeded",
+          description: message + " Please try again later or upgrade your API plan.",
+          variant: "destructive",
+          duration: 8000,
+        });
+      } else if (errorMessage.includes('RATE_LIMITED')) {
+        const message = errorMessage.split('|')[1] || 'Too many requests';
+        toast({
+          title: "Rate Limited", 
+          description: message + " Please wait a moment before trying again.",
+          variant: "destructive",
+          duration: 6000,
+        });
+      } else if (errorMessage.includes('API_KEY_INVALID')) {
+        const message = errorMessage.split('|')[1] || 'Invalid API key';
+        toast({
+          title: "API Configuration Error",
+          description: message,
+          variant: "destructive",
+          duration: 8000,
+        });
+      } else {
+        toast({
+          title: "Translation Error",
+          description: "Failed to machine translate this item. Please try again later.",
+          variant: "destructive",
+        });
+      }
     },
   });
 

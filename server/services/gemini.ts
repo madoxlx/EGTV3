@@ -31,9 +31,30 @@ English text: "${text}"`;
       const translatedText = response.text();
       
       return translatedText.trim();
-    } catch (error) {
+    } catch (error: any) {
       console.error("Error translating text with Gemini:", error);
-      throw new Error(`Translation failed: ${error instanceof Error ? error.message : String(error)}`);
+      
+      // Handle specific Gemini API errors with user-friendly messages
+      if (error.status === 429) {
+        const isQuotaExceeded = error.message?.includes('exceeded your current quota') || 
+                               error.message?.includes('Too Many Requests');
+        
+        if (isQuotaExceeded) {
+          throw new Error('QUOTA_EXCEEDED|The Google AI free tier quota has been exceeded. Please try again later or upgrade your API plan for higher limits.');
+        }
+        throw new Error('RATE_LIMITED|Too many translation requests. Please wait a moment and try again.');
+      }
+      
+      if (error.status === 403) {
+        throw new Error('API_KEY_INVALID|Google AI API key is invalid or has insufficient permissions. Please check your API key configuration.');
+      }
+      
+      if (error.status === 400) {
+        throw new Error('INVALID_REQUEST|The translation request format is invalid. Please contact support.');
+      }
+      
+      // Generic error for other cases
+      throw new Error(`TRANSLATION_ERROR|Translation service temporarily unavailable: ${error.message || 'Unknown error'}`);
     }
   }
 
@@ -99,11 +120,30 @@ ${combinedText}`;
         id: item.id,
         translation: translationMap.get(item.id) || ""
       }));
-    } catch (error) {
+    } catch (error: any) {
       console.error("Error batch translating with Gemini:", error);
-      console.log("GOOGLE_API_KEY:", process.env.GOOGLE_API_KEY);
-
-      throw new Error(`Batch translation failed: ${error instanceof Error ? error.message : String(error)}`);
+      
+      // Handle specific Gemini API errors with user-friendly messages
+      if (error.status === 429) {
+        const isQuotaExceeded = error.message?.includes('exceeded your current quota') || 
+                               error.message?.includes('Too Many Requests');
+        
+        if (isQuotaExceeded) {
+          throw new Error('QUOTA_EXCEEDED|The Google AI free tier quota has been exceeded. Please try again later or upgrade your API plan for higher limits.');
+        }
+        throw new Error('RATE_LIMITED|Too many translation requests. Please wait a moment and try again.');
+      }
+      
+      if (error.status === 403) {
+        throw new Error('API_KEY_INVALID|Google AI API key is invalid or has insufficient permissions. Please check your API key configuration.');
+      }
+      
+      if (error.status === 400) {
+        throw new Error('INVALID_REQUEST|The batch translation request format is invalid. Please contact support.');
+      }
+      
+      // Generic error for other cases
+      throw new Error(`TRANSLATION_ERROR|Batch translation service temporarily unavailable: ${error.message || 'Unknown error'}`);
     }
   }
 

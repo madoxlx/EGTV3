@@ -5057,11 +5057,28 @@ export async function registerRoutes(app: Express): Promise<Server> {
           translation: updatedTranslation,
           message: 'Translation completed successfully'
         });
-      } catch (transError) {
+      } catch (transError: any) {
         console.error('Gemini translation error:', transError);
+        
+        // Handle specific Gemini API errors and pass structured error to frontend
+        const errorMessage = transError instanceof Error ? transError.message : String(transError);
+        
+        // Check if this is a structured error from Gemini service
+        if (errorMessage.includes('QUOTA_EXCEEDED') || 
+            errorMessage.includes('RATE_LIMITED') || 
+            errorMessage.includes('API_KEY_INVALID') ||
+            errorMessage.includes('TRANSLATION_ERROR')) {
+          // Pass the structured error message directly to frontend
+          return res.status(500).json({ 
+            success: false,
+            message: errorMessage 
+          });
+        }
+        
+        // Generic error for unstructured errors
         res.status(500).json({ 
           success: false,
-          message: `Translation service error: ${transError instanceof Error ? transError.message : String(transError)}` 
+          message: `Translation service error: ${errorMessage}` 
         });
       }
     } catch (error) {
@@ -5190,11 +5207,28 @@ export async function registerRoutes(app: Express): Promise<Server> {
           processed: updatedTranslations.length,
           translations: updatedTranslations
         });
-      } catch (batchError) {
+      } catch (batchError: any) {
         console.error('Batch translation error:', batchError);
+        
+        // Handle specific Gemini API errors and pass structured error to frontend
+        const errorMessage = batchError instanceof Error ? batchError.message : String(batchError);
+        
+        // Check if this is a structured error from Gemini service
+        if (errorMessage.includes('QUOTA_EXCEEDED') || 
+            errorMessage.includes('RATE_LIMITED') || 
+            errorMessage.includes('API_KEY_INVALID') ||
+            errorMessage.includes('TRANSLATION_ERROR')) {
+          // Pass the structured error message directly to frontend
+          return res.status(500).json({ 
+            success: false,
+            message: errorMessage 
+          });
+        }
+        
+        // Generic error for unstructured errors
         res.status(500).json({ 
           success: false,
-          message: `Batch translation error: ${batchError instanceof Error ? batchError.message : String(batchError)}` 
+          message: `Batch translation error: ${errorMessage}` 
         });
       }
     } catch (error) {
