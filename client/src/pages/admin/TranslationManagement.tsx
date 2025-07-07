@@ -928,7 +928,8 @@ export default function TranslationManagement() {
                 </CardContent>
               </Card>
               
-              {/* Translation Memory Card */}
+              {/* Translation Memory Card - Hidden */}
+              {false && (
               <Card>
                 <CardHeader>
                   <CardTitle className="text-base flex items-center gap-2">
@@ -945,8 +946,10 @@ export default function TranslationManagement() {
                   </Button>
                 </CardContent>
               </Card>
+              )}
               
-              {/* Bulk Operations Card */}
+              {/* Bulk Operations Card - Hidden */}
+              {false && (
               <Card>
                 <CardHeader>
                   <CardTitle className="text-base flex items-center gap-2">
@@ -989,6 +992,7 @@ export default function TranslationManagement() {
                   </div>
                 </CardContent>
               </Card>
+              )}
               
               {/* Missing Translations Overview Card */}
               <Card>
