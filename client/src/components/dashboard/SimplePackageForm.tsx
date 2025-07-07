@@ -832,11 +832,23 @@ export function PackageCreatorForm({
         infantCount: formData.infantCount,
         maxGroupSize: formData.maxGroupSize || 15,
 
-        // Package features and inclusions
-        includedFeatures: formData.includedFeatures || [],
-        inclusions: formData.includedFeatures || [],
-        excludedFeatures: excludedItemsList,
-        excludedItems: excludedItemsList,
+        // Package features and inclusions - Combine predefined and custom features
+        includedFeatures: [
+          ...(formData.includedFeatures || []), 
+          ...customIncludedFeatures
+        ],
+        inclusions: [
+          ...(formData.includedFeatures || []), 
+          ...customIncludedFeatures
+        ],
+        excludedFeatures: [
+          ...excludedItemsList, 
+          ...customExcludedFeatures
+        ],
+        excludedItems: [
+          ...excludedItemsList, 
+          ...customExcludedFeatures
+        ],
         optionalExcursions: optionalExcursions,
 
         // Accommodation and packing
