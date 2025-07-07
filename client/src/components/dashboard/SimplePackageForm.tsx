@@ -832,23 +832,11 @@ export function PackageCreatorForm({
         infantCount: formData.infantCount,
         maxGroupSize: formData.maxGroupSize || 15,
 
-        // Package features and inclusions - Combine predefined and custom features
-        includedFeatures: [
-          ...(formData.includedFeatures || []), 
-          ...customIncludedFeatures
-        ],
-        inclusions: [
-          ...(formData.includedFeatures || []), 
-          ...customIncludedFeatures
-        ],
-        excludedFeatures: [
-          ...excludedItemsList, 
-          ...customExcludedFeatures
-        ],
-        excludedItems: [
-          ...excludedItemsList, 
-          ...customExcludedFeatures
-        ],
+        // Package features and inclusions - Use custom features arrays only
+        includedFeatures: customIncludedFeatures,
+        inclusions: customIncludedFeatures,
+        excludedFeatures: customExcludedFeatures,
+        excludedItems: customExcludedFeatures,
         optionalExcursions: optionalExcursions,
 
         // Accommodation and packing
@@ -950,6 +938,17 @@ export function PackageCreatorForm({
 
         // Reset any component state
         setImages([]);
+        setSelectedTours([]);
+        setSelectedTravellerTypes([]);
+        setPackItems([]);
+        setItineraryItems([]);
+        setExcludedItemsList([]);
+        setAccommodationHighlights([]);
+        setTravelRouteItems([]);
+        setOptionalExcursions([]);
+        // Clear custom included/excluded features arrays
+        setCustomIncludedFeatures([]);
+        setCustomExcludedFeatures([]);
         setPricingRules([
           {
             id: "adult",
@@ -1324,9 +1323,9 @@ export function PackageCreatorForm({
         setExcludedItemsList(parsedExcludedItems);
         setAccommodationHighlights(parsedAccommodationHighlights);
         
-        // Set custom included and excluded features state
-        setCustomIncludedFeatures(parsedIncludedFeatures);
-        setCustomExcludedFeatures(parsedExcludedFeatures);
+        // Set custom included and excluded features state (ensure fresh arrays)
+        setCustomIncludedFeatures([...parsedIncludedFeatures]);
+        setCustomExcludedFeatures([...parsedExcludedFeatures]);
 
         // Set selected tour if exists
         // Handle multiple tour IDs from existing package data
@@ -1406,8 +1405,8 @@ export function PackageCreatorForm({
           endDate: endDate,
           validUntil: existingPackageData.validUntil ? new Date(existingPackageData.validUntil) : new Date(new Date().setMonth(new Date().getMonth() + 6)),
           pricingMode: "per_booking", // Default if not available
-          includedFeatures: parsedIncludedFeatures,
-          excludedFeatures: parsedExcludedFeatures,
+          includedFeatures: [], // Keep form field empty, use component state instead
+          excludedFeatures: [], // Keep form field empty, use component state instead
           excludedItems: parsedExcludedItems,
           idealFor: parsedIdealFor,
           whatToPack: parsedWhatToPack,
