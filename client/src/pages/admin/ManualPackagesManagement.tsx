@@ -269,7 +269,7 @@ export default function ManualPackagesManagement() {
                         </div>
                         <DropdownMenu>
                           <DropdownMenuTrigger asChild>
-                            <Button variant="ghost" size="sm" className="opacity-0 group-hover:opacity-100 transition-opacity">
+                            <Button variant="ghost" size="sm" className="opacity-100 transition-opacity">
                               <MoreVertical size={16} />
                             </Button>
                           </DropdownMenuTrigger>
@@ -401,7 +401,7 @@ export default function ManualPackagesManagement() {
                         </div>
                         <DropdownMenu>
                           <DropdownMenuTrigger asChild>
-                            <Button variant="ghost" size="sm" className="opacity-0 group-hover:opacity-100 transition-opacity">
+                            <Button variant="ghost" size="sm" className="opacity-100 transition-opacity">
                               <MoreVertical size={16} />
                             </Button>
                           </DropdownMenuTrigger>
