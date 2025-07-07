@@ -7,6 +7,7 @@ import { TooltipProvider } from "@/components/ui/tooltip";
 import { AuthProvider, useAuth } from "@/hooks/use-auth";
 import { LanguageProvider } from "@/hooks/use-language";
 import { FloatingLanguageSwitcher } from "@/components/ui/floating-language-switcher";
+import FloatingWhatsApp from "@/components/FloatingWhatsApp";
 import { ProtectedRoute } from "@/lib/protected-route";
 import { AdminRoute } from "@/lib/admin-route";
 import {
@@ -306,6 +307,9 @@ function Router() {
         autoHide={true}
         autoHideDelay={8000}
       />
+      
+      {/* Floating WhatsApp Button - Only on non-admin pages */}
+      <FloatingWhatsApp />
     </Layout>
   );
 }

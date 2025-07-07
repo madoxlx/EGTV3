@@ -106,6 +106,15 @@ The application uses a comprehensive PostgreSQL schema with the following core e
 
 ## Recent Changes
 
+- **Floating WhatsApp Button Implementation Complete (July 7, 2025)**: Successfully added professional WhatsApp contact button for +201152117102
+  - **Smart Visibility**: Button appears only after scrolling past the hero slider (500px threshold)
+  - **Footer-Aware Positioning**: Automatically stops and freezes 220px above footer to avoid overlap
+  - **Admin Page Exclusion**: Hidden on all /admin/* routes to maintain clean admin interface
+  - **Professional Design**: Green WhatsApp colors with hover effects, scaling animations, and tooltip
+  - **Universal Accessibility**: Available on all public pages (home, packages, tours, destinations, contact, etc.)
+  - **Pre-filled Message**: Opens WhatsApp with customized message about Sahara Journeys travel packages
+  - **Smooth Animations**: Pulse animation when idle, scale effects on hover, smooth position transitions
+
 - **Critical Packages API Database Fix Complete (July 7, 2025)**: Successfully resolved "has_arabic_version column does not exist" error that was causing packages API to return empty arrays
   - **Root Cause Analysis**: Database schema included Arabic translation fields but they weren't physically present in the actual database table
   - **Arabic Fields Migration**: Added 17 missing Arabic translation columns to packages table including has_arabic_version, title_ar, description_ar, and all JSONB fields
