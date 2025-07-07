@@ -812,17 +812,17 @@ export function PackageCreatorForm({
         duration:
           formData.startDate && formData.endDate
             ? Math.ceil(
-                (formData.endDate.getTime() - formData.startDate.getTime()) /
+                (new Date(formData.endDate).getTime() - new Date(formData.startDate).getTime()) /
                   (1000 * 3600 * 24),
               )
             : 7,
         startDate:
-          formData.startDate?.toISOString() || new Date().toISOString(),
+          formData.startDate ? new Date(formData.startDate).toISOString() : new Date().toISOString(),
         endDate:
-          formData.endDate?.toISOString() ||
+          formData.endDate ? new Date(formData.endDate).toISOString() :
           new Date(Date.now() + 7 * 24 * 60 * 60 * 1000).toISOString(),
         validUntil:
-          formData.validUntil?.toISOString() ||
+          formData.validUntil ? new Date(formData.validUntil).toISOString() :
           new Date(Date.now() + 6 * 30 * 24 * 60 * 60 * 1000).toISOString(), // Default to 6 months from now
 
         // Traveler information
