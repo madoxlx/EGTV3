@@ -103,7 +103,7 @@ export default function ManualPackagesManagement() {
       const response = await fetch(`/api/admin/packages/${id}`, {
         method: 'DELETE',
       });
-      
+
       if (!response.ok) {
         throw new Error('Failed to delete package');
       }
@@ -125,7 +125,7 @@ export default function ManualPackagesManagement() {
       });
     }
   });
-  
+
   // Update slug mutation
   const updateSlugMutation = useMutation({
     mutationFn: async ({ id, slug }: { id: number, slug: string }) => {
@@ -136,12 +136,12 @@ export default function ManualPackagesManagement() {
         },
         body: JSON.stringify({ slug }),
       });
-      
+
       if (!response.ok) {
         const errorData = await response.json().catch(() => ({}));
         throw new Error(errorData.message || 'Failed to update package URL');
       }
-      
+
       return response.json();
     },
     onSuccess: () => {
@@ -179,14 +179,14 @@ export default function ManualPackagesManagement() {
       deleteMutation.mutate(deleteId);
     }
   };
-  
+
   const handleSlugEdit = (id: number, title: string) => {
     const pkg = packages.find(p => p.id === id);
     const suggestedSlug = pkg?.slug || title.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/-+/g, '-').replace(/^-|-$/g, '');
     setSlugPackageId(id);
     setSlugValue(suggestedSlug);
   };
-  
+
   const confirmSlugUpdate = () => {
     if (slugPackageId && slugValue.trim()) {
       updateSlugMutation.mutate({ 
@@ -260,7 +260,7 @@ export default function ManualPackagesManagement() {
                     <CardHeader className="pb-2">
                       <div className="flex items-start justify-between">
                         <div className="flex-1">
-                          <CardTitle className="text-lg line-clamp-2">
+                          <CardTitle className="text-lg truncate">
                             {pkg.title?.replace('MANUAL:', '') || 'Untitled Package'}
                           </CardTitle>
                           <CardDescription className="mt-1 line-clamp-2">
@@ -309,7 +309,7 @@ export default function ManualPackagesManagement() {
                         </DropdownMenu>
                       </div>
                     </CardHeader>
-                    
+
                     <CardContent className="pt-0">
                       <div className="flex items-center justify-between text-sm text-muted-foreground mb-3">
                         <div className="flex items-center gap-2">
@@ -323,7 +323,7 @@ export default function ManualPackagesManagement() {
                           </Badge>
                         )}
                       </div>
-                      
+
                       <div className="flex items-center justify-between">
                         <div className="flex flex-col">
                           {pkg.discountedPrice && pkg.discountedPrice < pkg.price ? (
@@ -341,7 +341,7 @@ export default function ManualPackagesManagement() {
                             </span>
                           )}
                         </div>
-                        
+
                         <div className="flex items-center gap-1">
                           <Badge variant="outline" className="text-xs">
                             Manual
@@ -352,7 +352,7 @@ export default function ManualPackagesManagement() {
                   </Card>
                 ))}
               </div>
-              
+
               {filteredPackages.length === 0 && (
                 <div className="text-center py-12">
                   <Package className="h-12 w-12 text-muted-foreground mx-auto mb-4" />
@@ -392,7 +392,7 @@ export default function ManualPackagesManagement() {
                     <CardHeader className="pb-2">
                       <div className="flex items-start justify-between">
                         <div className="flex-1">
-                          <CardTitle className="text-lg line-clamp-2">
+                          <CardTitle className="text-lg truncate">
                             {pkg.title?.replace('MANUAL:', '') || 'Untitled Package'}
                           </CardTitle>
                           <CardDescription className="mt-1 line-clamp-2">
@@ -441,7 +441,7 @@ export default function ManualPackagesManagement() {
                         </DropdownMenu>
                       </div>
                     </CardHeader>
-                    
+
                     <CardContent className="pt-0">
                       <div className="flex items-center justify-between text-sm text-muted-foreground mb-3">
                         <div className="flex items-center gap-2">
@@ -453,7 +453,7 @@ export default function ManualPackagesManagement() {
                           Featured
                         </Badge>
                       </div>
-                      
+
                       <div className="flex items-center justify-between">
                         <div className="flex flex-col">
                           {pkg.discountedPrice && pkg.discountedPrice < pkg.price ? (
@@ -471,7 +471,7 @@ export default function ManualPackagesManagement() {
                             </span>
                           )}
                         </div>
-                        
+
                         <div className="flex items-center gap-1">
                           <Badge variant="outline" className="text-xs">
                             Manual
@@ -482,7 +482,7 @@ export default function ManualPackagesManagement() {
                   </Card>
                 ))}
               </div>
-              
+
               {filteredPackages.filter(pkg => pkg.featured).length === 0 && (
                 <div className="text-center py-12">
                   <Star className="h-12 w-12 text-muted-foreground mx-auto mb-4" />
