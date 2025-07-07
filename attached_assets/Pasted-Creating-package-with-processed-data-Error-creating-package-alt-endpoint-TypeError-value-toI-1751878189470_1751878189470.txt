@@ -1,0 +1,187 @@
+Creating package with processed data...
+Error creating package (alt endpoint): TypeError: value.toISOString is not a function
+    at PgTimestamp.mapToDriverValue (/home/runner/workspace/node_modules/src/pg-core/columns/timestamp.ts:66:16)
+    at <anonymous> (/home/runner/workspace/node_modules/src/sql/sql.ts:223:69)
+    at Array.map (<anonymous>)
+    at SQL.buildQueryFromSourceParams (/home/runner/workspace/node_modules/src/sql/sql.ts:148:30)
+    at <anonymous> (/home/runner/workspace/node_modules/src/sql/sql.ts:170:17)
+    at Array.map (<anonymous>)
+    at SQL.buildQueryFromSourceParams (/home/runner/workspace/node_modules/src/sql/sql.ts:148:30)
+    at <anonymous> (/home/runner/workspace/node_modules/src/sql/sql.ts:174:17)
+    at Array.map (<anonymous>)
+    at SQL.buildQueryFromSourceParams (/home/runner/workspace/node_modules/src/sql/sql.ts:148:30)
+    at <anonymous> (/home/runner/workspace/node_modules/src/sql/sql.ts:124:23)
+    at Object.startActiveSpan (/home/runner/workspace/node_modules/src/tracing.ts:27:11)
+    at SQL.toQuery (/home/runner/workspace/node_modules/src/sql/sql.ts:123:17)
+    at PgDialect.sqlToQuery (/home/runner/workspace/node_modules/src/pg-core/dialect.ts:591:14)
+    at <anonymous> (/home/runner/workspace/node_modules/src/pg-core/query-builders/insert.ts:405:19)
+    at Object.startActiveSpan (/home/runner/workspace/node_modules/src/tracing.ts:27:11)
+    at QueryPromise._prepare (/home/runner/workspace/node_modules/src/pg-core/query-builders/insert.ts:400:17)
+    at <anonymous> (/home/runner/workspace/node_modules/src/pg-core/query-builders/insert.ts:422:16)
+    at Object.startActiveSpan (/home/runner/workspace/node_modules/src/tracing.ts:27:11)
+    at QueryPromise.execute (/home/runner/workspace/node_modules/src/pg-core/query-builders/insert.ts:421:17)
+    at QueryPromise.then (/home/runner/workspace/node_modules/src/query-promise.ts:31:15)
+    at process.processTicksAndRejections (node:internal/process/task_queues:95:5)
+Processed data that caused error: {
+  "title": "Lorem Ipsum",
+  "shortDescription": "\"Neque porro quisquam est qui dolorem ipsum quia dolor sit amet, consectetur, adipisci velit...\"",
+  "description": "",
+  "overview": "\"Neque porro quisquam est qui dolorem ipsum quia dolor sit amet, consectetur, adipisci velit...\"\n",
+  "price": "2323",
+  "discountType": "fixed",
+  "discountValue": 80,
+  "imageUrl": "/uploads/image-1751877844697.webp",
+  "galleryUrls": [
+    "/uploads/image-1751877844697.webp",
+    "/uploads/image-1751877844959.jpg",
+    "/uploads/image-1751877844981.jpg",
+    "/uploads/image-1751877847733.jpg",
+    "/uploads/image-1751877861151.webp"
+  ],
+  "destinationId": 6,
+  "category": "6",
+  "categoryId": 6,
+  "countryId": 10,
+  "cityId": 21,
+  "route": "OCT To April",
+  "itinerary": [
+    {
+      "day": 1,
+      "title": "\"Neque porro quisquam est qui dolorem ipsum quia dolor sit amet, consectetur, adipisci velit...\"",
+      "description": "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Vivamus id accumsan elit. Nullam metus ligula, dapibus auctor orci eu, vestibulum tempus risus. Vivamus ut posuere enim. Maecenas elementum quis augue sed pellentesque. Praesent velit urna, lobortis at blandit laoreet, maximus id neque. Maecenas in bibendum felis. Orci varius natoque penatibus et magnis dis parturient montes, nascetur ridiculus mus. Fusce aliquet ultrices maximus. Quisque ultrices pharetra ullamcorper. Etiam bibendum magna leo, id condimentum nibh auctor quis. In ut fringilla dolor. Integer ut dui vel eros efficitur faucibus luctus id nisl. Sed lacinia tempus mattis.\n\n",
+      "image": ""
+    },
+    {
+      "day": 2,
+      "title": "\"Neque porro quisquam est qui dolorem ipsum quia dolor sit amet, consectetur, adipisci velit...\"",
+      "description": "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Vivamus id accumsan elit. Nullam metus ligula, dapibus auctor orci eu, vestibulum tempus risus. Vivamus ut posuere enim. Maecenas elementum quis augue sed pellentesque. Praesent velit urna, lobortis at blandit laoreet, maximus id neque. Maecenas in bibendum felis. Orci varius natoque penatibus et magnis dis parturient montes, nascetur ridiculus mus. Fusce aliquet ultrices maximus. Quisque ultrices pharetra ullamcorper. Etiam bibendum magna leo, id condimentum nibh auctor quis. In ut fringilla dolor. Integer ut dui vel eros efficitur faucibus luctus id nisl. Sed lacinia tempus mattis.\n\n",
+      "image": ""
+    },
+    {
+      "day": 3,
+      "title": "\"Neque porro quisquam est qui dolorem ipsum quia dolor sit amet, consectetur, adipisci velit...\"",
+      "description": "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Vivamus id accumsan elit. Nullam metus ligula, dapibus auctor orci eu, vestibulum tempus risus. Vivamus ut posuere enim. Maecenas elementum quis augue sed pellentesque. Praesent velit urna, lobortis at blandit laoreet, maximus id neque. Maecenas in bibendum felis. Orci varius natoque penatibus et magnis dis parturient montes, nascetur ridiculus mus. Fusce aliquet ultrices maximus. Quisque ultrices pharetra ullamcorper. Etiam bibendum magna leo, id condimentum nibh auctor quis. In ut fringilla dolor. Integer ut dui vel eros efficitur faucibus luctus id nisl. Sed lacinia tempus mattis.\n\n",
+      "image": ""
+    }
+  ],
+  "duration": 1,
+  "startDate": "2025-07-07T08:41:23.046Z",
+  "endDate": "2025-07-08T08:41:23.046Z",
+  "validUntil": "2025-07-23T21:00:00.000Z",
+  "idealFor": [
+    "families",
+    "couples"
+  ],
+  "adultCount": 2,
+  "childrenCount": 0,
+  "infantCount": 0,
+  "maxGroupSize": 15,
+  "includedFeatures": [
+    "breakfast",
+    "dinner",
+    "welcome_drink",
+    "lunch"
+  ],
+  "inclusions": [
+    "breakfast",
+    "dinner",
+    "welcome_drink",
+    "lunch"
+  ],
+  "excludedFeatures": [],
+  "excludedItems": [],
+  "optionalExcursions": [],
+  "accommodationHighlights": [
+    {
+      "title": "Car",
+      "description": "Stay at 5 star hotel in cairo or samillar",
+      "icon": "Hotel"
+    }
+  ],
+  "whatToPack": [],
+  "travelRoute": [
+    "cairo",
+    "domiatt",
+    "aswan",
+    "asuite",
+    "luxor"
+  ],
+  "tourSelection": [
+    19
+  ],
+  "selectedTourIds": [
+    19
+  ],
+  "selectedHotels": [
+    "83"
+  ],
+  "rooms": [
+    {
+      "id": 7,
+      "name": "Egypt",
+      "description": "1212121",
+      "hotelId": 83,
+      "hotelName": "ahmed sh",
+      "type": "standard",
+      "maxOccupancy": 2,
+      "maxAdults": 2,
+      "price": 20003,
+      "originalPrice": 20003,
+      "discountedPrice": null,
+      "currency": "EGP",
+      "size": "23213",
+      "bedType": "double",
+      "view": "ocean",
+      "amenities": [
+        "wifi",
+        "minibar",
+        "ac",
+        "safe",
+        "tv",
+        "balcony"
+      ],
+      "imageUrl": "blob:https://47b4f646-e135-48be-a8e8-26dde171cc03-00-nbejjxnqp4zb.kirk.replit.dev:8080/0fa30693-323f-417a-b7e0-9ff4a2261530",
+      "available": true,
+      "status": "active",
+      "customPrice": 20003,
+      "customDiscount": 0
+    },
+    {
+      "id": 6,
+      "name": "ahmed showky",
+      "description": "asdsadasdas",
+      "hotelId": 83,
+      "hotelName": "ahmed sh",
+      "type": "deluxe",
+      "maxOccupancy": 3,
+      "maxAdults": 2,
+      "maxChildren": 1,
+      "price": 4343343,
+      "originalPrice": 4343343,
+      "discountedPrice": null,
+      "currency": "EGP",
+      "size": "12121",
+      "bedType": "double",
+      "view": "ocean",
+      "amenities": [
+        "ac",
+        "safe"
+      ],
+      "imageUrl": "blob:https://47b4f646-e135-48be-a8e8-26dde171cc03-00-nbejjxnqp4zb.kirk.replit.dev:8080/90f82911-bbff-473d-93b2-8173c0010217",
+      "available": true,
+      "status": "active",
+      "customPrice": 4343343,
+      "customDiscount": 0
+    }
+  ],
+  "transportation": "private_car",
+  "transportationPrice": "2323",
+  "transportationDetails": [],
+  "pricingMode": "per_booking",
+  "language": "english",
+  "bestTimeToVisit": "OCT To April",
+  "rating": 45,
+  "featured": true,
+  "type": "Tour Package"
+}
+8:49:50 AM [express] POST /api-admin/packages 500 in 4ms :: {"message":"Failed to create package","error":"value.toISOString is not a function"}

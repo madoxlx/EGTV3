@@ -2330,6 +2330,9 @@ export async function registerRoutes(app: Express): Promise<Server> {
       if (processedData.endDate) {
         processedData.endDate = new Date(processedData.endDate);
       }
+      if (processedData.validUntil) {
+        processedData.validUntil = new Date(processedData.validUntil);
+      }
 
       // Map form field names to database field names and handle type conversions
       if (processedData.name) {
@@ -2436,6 +2439,9 @@ export async function registerRoutes(app: Express): Promise<Server> {
       }
       if (processedData.endDate) {
         processedData.endDate = new Date(processedData.endDate);
+      }
+      if (processedData.validUntil) {
+        processedData.validUntil = new Date(processedData.validUntil);
       }
       
       console.log('Creating package with processed data...');

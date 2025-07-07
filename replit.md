@@ -106,6 +106,13 @@ The application uses a comprehensive PostgreSQL schema with the following core e
 
 ## Recent Changes
 
+- **Critical Package Creation Date Conversion Fix Complete (July 7, 2025)**: Successfully resolved "value.toISOString is not a function" error preventing package creation
+  - **Client-Side Fix**: Updated SimplePackageForm.tsx to properly convert date fields (startDate, endDate, validUntil) using `new Date()` before calling `.toISOString()`
+  - **Server-Side Fix**: Added missing `validUntil` date conversion in both `/api/admin/packages` and `/api-admin/packages` endpoints
+  - **Database Integration**: Fixed Drizzle ORM timestamp field processing to receive proper Date objects instead of strings
+  - **Duration Calculation**: Enhanced duration calculation to handle both Date objects and date strings properly
+  - **Complete Resolution**: Package creation forms now work without date conversion errors, enabling full package management functionality
+
 - **Package Cards Image Placeholder Implementation Complete (July 7, 2025)**: Successfully added consistent gray placeholder images with "No Image" text for all package listing pages
   - **Manual Packages Management**: Added image placeholders to both "All" and "Featured" tabs showing gray background with black "No Image" text
   - **Dynamic Packages Management**: Updated existing placeholder from package icon to consistent gray background with "No Image" text
