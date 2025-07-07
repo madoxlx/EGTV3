@@ -58,6 +58,7 @@ import {
   Search,
   Check,
   LucideProps,
+  Languages,
 } from "lucide-react";
 
 // A simple component to dynamically use Lucide icons based on string name
@@ -236,6 +237,43 @@ const packageFormSchema = z.object({
   // Status
   featured: z.boolean().default(false),
   slug: z.string().optional(),
+
+  // Arabic translation fields
+  hasArabicVersion: z.boolean().default(false),
+  titleAr: z.string().optional(),
+  descriptionAr: z.string().optional(),
+  shortDescriptionAr: z.string().optional(),
+  overviewAr: z.string().optional(),
+  bestTimeToVisitAr: z.string().optional(),
+  cancellationPolicyAr: z.string().optional(),
+  childrenPolicyAr: z.string().optional(),
+  termsAndConditionsAr: z.string().optional(),
+  customTextAr: z.string().optional(),
+  includedFeaturesAr: z.array(z.string()).optional(),
+  excludedFeaturesAr: z.array(z.string()).optional(),
+  idealForAr: z.array(z.string()).optional(),
+  itineraryAr: z.array(z.object({
+    day: z.number(),
+    title: z.string(),
+    description: z.string(),
+    image: z.string().optional(),
+  })).optional(),
+  whatToPackAr: z.array(z.object({
+    item: z.string(),
+    icon: z.string().optional(),
+    tooltip: z.string().optional(),
+  })).optional(),
+  travelRouteAr: z.array(z.object({
+    order: z.number(),
+    location: z.string(),
+    description: z.string(),
+    estimatedTime: z.string().optional(),
+  })).optional(),
+  optionalExcursionsAr: z.array(z.object({
+    name: z.string(),
+    price: z.number(),
+    description: z.string().optional(),
+  })).optional(),
 }).refine((data) => {
   // Require at least one image: either imageUrl or at least one URL in galleryUrls
   const hasMainImage = data.imageUrl && data.imageUrl.trim() !== '';
@@ -708,6 +746,19 @@ export function PackageCreatorForm({
       pricingMode: "per_booking",
       featured: false,
       slug: "",
+      // Arabic fields
+      hasArabicVersion: false,
+      titleAr: "",
+      descriptionAr: "",
+      shortDescriptionAr: "",
+      overviewAr: "",
+      bestTimeToVisitAr: "",
+      includedFeaturesAr: [],
+      excludedFeaturesAr: [],
+      cancellationPolicyAr: "",
+      childrenPolicyAr: "",
+      termsAndConditionsAr: "",
+      customTextAr: "",
     },
   });
 
@@ -870,6 +921,20 @@ export function PackageCreatorForm({
         rating: 45,
         featured: true,
         type: "dynamic", // Always set as dynamic for packages created via /admin/packages/create
+
+        // Arabic translation fields
+        hasArabicVersion: formData.hasArabicVersion || false,
+        titleAr: formData.titleAr || "",
+        descriptionAr: formData.descriptionAr || "",
+        shortDescriptionAr: formData.shortDescriptionAr || "",
+        overviewAr: formData.overviewAr || "",
+        bestTimeToVisitAr: formData.bestTimeToVisitAr || "",
+        includedFeaturesAr: formData.includedFeaturesAr || [],
+        excludedFeaturesAr: formData.excludedFeaturesAr || [],
+        cancellationPolicyAr: formData.cancellationPolicyAr || "",
+        childrenPolicyAr: formData.childrenPolicyAr || "",
+        termsAndConditionsAr: formData.termsAndConditionsAr || "",
+        customTextAr: formData.customTextAr || "",
       };
 
       // Log final payload for debugging
@@ -1336,6 +1401,18 @@ export function PackageCreatorForm({
         // Set custom traveler types state (ensure fresh array)
         setCustomTravelerTypes([...parsedIdealFor]);
 
+        // Parse Arabic fields
+        const parsedIncludedFeaturesAr = existingPackageData.includedFeaturesAr
+          ? typeof existingPackageData.includedFeaturesAr === "string"
+            ? JSON.parse(existingPackageData.includedFeaturesAr)
+            : existingPackageData.includedFeaturesAr
+          : [];
+        const parsedExcludedFeaturesAr = existingPackageData.excludedFeaturesAr
+          ? typeof existingPackageData.excludedFeaturesAr === "string"
+            ? JSON.parse(existingPackageData.excludedFeaturesAr)
+            : existingPackageData.excludedFeaturesAr
+          : [];
+
         // Set selected tour if exists
         // Handle multiple tour IDs from existing package data
         if (existingPackageData.selectedTourIds && Array.isArray(existingPackageData.selectedTourIds)) {
@@ -1431,6 +1508,19 @@ export function PackageCreatorForm({
           maxGroupSize: existingPackageData.maxGroupSize || 15,
           featured: existingPackageData.featured || false,
           slug: existingPackageData.slug || "",
+          // Arabic fields
+          hasArabicVersion: existingPackageData.hasArabicVersion || false,
+          titleAr: existingPackageData.titleAr || "",
+          descriptionAr: existingPackageData.descriptionAr || "",
+          shortDescriptionAr: existingPackageData.shortDescriptionAr || "",
+          overviewAr: existingPackageData.overviewAr || "",
+          bestTimeToVisitAr: existingPackageData.bestTimeToVisitAr || "",
+          includedFeaturesAr: parsedIncludedFeaturesAr,
+          excludedFeaturesAr: parsedExcludedFeaturesAr,
+          cancellationPolicyAr: existingPackageData.cancellationPolicyAr || "",
+          childrenPolicyAr: existingPackageData.childrenPolicyAr || "",
+          termsAndConditionsAr: existingPackageData.termsAndConditionsAr || "",
+          customTextAr: existingPackageData.customTextAr || "",
         });
 
         // Force update the form control values directly as a backup
@@ -2011,7 +2101,7 @@ export function PackageCreatorForm({
           )}
         </div>
         <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
-          <TabsList className="grid w-full grid-cols-7">
+          <TabsList className="grid w-full grid-cols-8">
             <TabsTrigger value="basic">Basic Info</TabsTrigger>
             <TabsTrigger value="pricing">Pricing Rules</TabsTrigger>
             <TabsTrigger value="accommodation">Hotel & Rooms</TabsTrigger>
@@ -2019,6 +2109,10 @@ export function PackageCreatorForm({
             <TabsTrigger value="itinerary">Itinerary</TabsTrigger>
             <TabsTrigger value="whatTopack">What to Pack</TabsTrigger>
             <TabsTrigger value="travelRoute">Travel Route</TabsTrigger>
+            <TabsTrigger value="arabic">
+              <Languages className="h-4 w-4 mr-1" />
+              Arabic
+            </TabsTrigger>
           </TabsList>
 
           {/* Basic Info Tab */}
@@ -4687,6 +4781,355 @@ export function PackageCreatorForm({
                   </Button>
                 </div>
               </div>
+            </div>
+          </TabsContent>
+
+          {/* Arabic Translation Tab */}
+          <TabsContent value="arabic" className="space-y-6 pt-4">
+            <div className="space-y-6">
+              {/* Arabic Version Toggle */}
+              <div className="border rounded-lg p-4">
+                <FormField
+                  control={form.control}
+                  name="hasArabicVersion"
+                  render={({ field }) => (
+                    <FormItem className="flex flex-row items-center justify-between">
+                      <div className="space-y-0.5">
+                        <FormLabel className="text-base flex items-center gap-2">
+                          <Languages className="h-5 w-5" />
+                          Enable Arabic Version
+                        </FormLabel>
+                        <div className="text-sm text-muted-foreground">
+                          Create an Arabic translation for this package
+                        </div>
+                      </div>
+                      <FormControl>
+                        <Switch
+                          checked={field.value}
+                          onCheckedChange={field.onChange}
+                        />
+                      </FormControl>
+                    </FormItem>
+                  )}
+                />
+              </div>
+
+              {/* Show Arabic fields only when Arabic version is enabled */}
+              {form.watch("hasArabicVersion") && (
+                <div className="space-y-6">
+                  {/* Basic Arabic Information */}
+                  <div className="border rounded-lg p-4 space-y-4">
+                    <h3 className="text-lg font-semibold">Basic Information (Arabic)</h3>
+                    
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                      <FormField
+                        control={form.control}
+                        name="titleAr"
+                        render={({ field }) => (
+                          <FormItem>
+                            <FormLabel>Arabic Package Name</FormLabel>
+                            <FormControl>
+                              <Input 
+                                {...field} 
+                                placeholder="اسم الباقة بالعربية"
+                                dir="rtl"
+                                className="text-right"
+                              />
+                            </FormControl>
+                            <FormMessage />
+                          </FormItem>
+                        )}
+                      />
+
+                      <FormField
+                        control={form.control}
+                        name="shortDescriptionAr"
+                        render={({ field }) => (
+                          <FormItem>
+                            <FormLabel>Arabic Short Description</FormLabel>
+                            <FormControl>
+                              <Input 
+                                {...field} 
+                                placeholder="وصف مختصر بالعربية"
+                                dir="rtl"
+                                className="text-right"
+                              />
+                            </FormControl>
+                            <FormMessage />
+                          </FormItem>
+                        )}
+                      />
+                    </div>
+
+                    <FormField
+                      control={form.control}
+                      name="descriptionAr"
+                      render={({ field }) => (
+                        <FormItem>
+                          <FormLabel>Arabic Description</FormLabel>
+                          <FormControl>
+                            <Textarea 
+                              {...field} 
+                              placeholder="وصف مفصل للباقة بالعربية"
+                              dir="rtl"
+                              className="text-right min-h-[100px]"
+                            />
+                          </FormControl>
+                          <FormMessage />
+                        </FormItem>
+                      )}
+                    />
+
+                    <FormField
+                      control={form.control}
+                      name="overviewAr"
+                      render={({ field }) => (
+                        <FormItem>
+                          <FormLabel>Arabic Overview</FormLabel>
+                          <FormControl>
+                            <Textarea 
+                              {...field} 
+                              placeholder="نظرة عامة بالعربية"
+                              dir="rtl"
+                              className="text-right min-h-[100px]"
+                            />
+                          </FormControl>
+                          <FormMessage />
+                        </FormItem>
+                      )}
+                    />
+
+                    <FormField
+                      control={form.control}
+                      name="bestTimeToVisitAr"
+                      render={({ field }) => (
+                        <FormItem>
+                          <FormLabel>Best Time to Visit (Arabic)</FormLabel>
+                          <FormControl>
+                            <Textarea 
+                              {...field} 
+                              placeholder="أفضل وقت للزيارة بالعربية"
+                              dir="rtl"
+                              className="text-right"
+                            />
+                          </FormControl>
+                          <FormMessage />
+                        </FormItem>
+                      )}
+                    />
+                  </div>
+
+                  {/* Arabic Features */}
+                  <div className="border rounded-lg p-4 space-y-4">
+                    <h3 className="text-lg font-semibold">Features (Arabic)</h3>
+                    
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                      {/* Arabic Included Features */}
+                      <div>
+                        <Label className="text-sm font-medium">Included Features (Arabic)</Label>
+                        <p className="text-xs text-muted-foreground mb-2">
+                          Add Arabic translations for included features
+                        </p>
+                        <div className="space-y-2">
+                          <div className="flex gap-2">
+                            <Input
+                              placeholder="ميزة مضمنة بالعربية"
+                              dir="rtl"
+                              className="text-right"
+                              onKeyPress={(e) => {
+                                if (e.key === 'Enter') {
+                                  e.preventDefault();
+                                  const input = e.target as HTMLInputElement;
+                                  if (input.value.trim()) {
+                                    const currentFeatures = form.getValues("includedFeaturesAr") || [];
+                                    form.setValue("includedFeaturesAr", [...currentFeatures, input.value.trim()]);
+                                    input.value = '';
+                                  }
+                                }
+                              }}
+                            />
+                            <Button
+                              type="button"
+                              size="sm"
+                              onClick={(e) => {
+                                const input = (e.target as HTMLElement).previousElementSibling as HTMLInputElement;
+                                if (input?.value.trim()) {
+                                  const currentFeatures = form.getValues("includedFeaturesAr") || [];
+                                  form.setValue("includedFeaturesAr", [...currentFeatures, input.value.trim()]);
+                                  input.value = '';
+                                }
+                              }}
+                            >
+                              <Plus className="h-4 w-4" />
+                            </Button>
+                          </div>
+                          <div className="space-y-1 max-h-32 overflow-y-auto">
+                            {(form.watch("includedFeaturesAr") || []).map((feature: string, index: number) => (
+                              <div key={index} className="flex items-center justify-between p-2 bg-green-50 rounded border">
+                                <span className="text-sm text-green-800" dir="rtl">{feature}</span>
+                                <Button
+                                  type="button"
+                                  variant="ghost"
+                                  size="sm"
+                                  onClick={() => {
+                                    const currentFeatures = form.getValues("includedFeaturesAr") || [];
+                                    form.setValue("includedFeaturesAr", currentFeatures.filter((_, i) => i !== index));
+                                  }}
+                                  className="text-green-600 hover:text-green-800 h-6 w-6 p-0"
+                                >
+                                  <X className="h-3 w-3" />
+                                </Button>
+                              </div>
+                            ))}
+                          </div>
+                        </div>
+                      </div>
+
+                      {/* Arabic Excluded Features */}
+                      <div>
+                        <Label className="text-sm font-medium">Excluded Features (Arabic)</Label>
+                        <p className="text-xs text-muted-foreground mb-2">
+                          Add Arabic translations for excluded features
+                        </p>
+                        <div className="space-y-2">
+                          <div className="flex gap-2">
+                            <Input
+                              placeholder="ميزة غير مضمنة بالعربية"
+                              dir="rtl"
+                              className="text-right"
+                              onKeyPress={(e) => {
+                                if (e.key === 'Enter') {
+                                  e.preventDefault();
+                                  const input = e.target as HTMLInputElement;
+                                  if (input.value.trim()) {
+                                    const currentFeatures = form.getValues("excludedFeaturesAr") || [];
+                                    form.setValue("excludedFeaturesAr", [...currentFeatures, input.value.trim()]);
+                                    input.value = '';
+                                  }
+                                }
+                              }}
+                            />
+                            <Button
+                              type="button"
+                              size="sm"
+                              onClick={(e) => {
+                                const input = (e.target as HTMLElement).previousElementSibling as HTMLInputElement;
+                                if (input?.value.trim()) {
+                                  const currentFeatures = form.getValues("excludedFeaturesAr") || [];
+                                  form.setValue("excludedFeaturesAr", [...currentFeatures, input.value.trim()]);
+                                  input.value = '';
+                                }
+                              }}
+                            >
+                              <Plus className="h-4 w-4" />
+                            </Button>
+                          </div>
+                          <div className="space-y-1 max-h-32 overflow-y-auto">
+                            {(form.watch("excludedFeaturesAr") || []).map((feature: string, index: number) => (
+                              <div key={index} className="flex items-center justify-between p-2 bg-red-50 rounded border">
+                                <span className="text-sm text-red-800" dir="rtl">{feature}</span>
+                                <Button
+                                  type="button"
+                                  variant="ghost"
+                                  size="sm"
+                                  onClick={() => {
+                                    const currentFeatures = form.getValues("excludedFeaturesAr") || [];
+                                    form.setValue("excludedFeaturesAr", currentFeatures.filter((_, i) => i !== index));
+                                  }}
+                                  className="text-red-600 hover:text-red-800 h-6 w-6 p-0"
+                                >
+                                  <X className="h-3 w-3" />
+                                </Button>
+                              </div>
+                            ))}
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+
+                  {/* Arabic Policies */}
+                  <div className="border rounded-lg p-4 space-y-4">
+                    <h3 className="text-lg font-semibold">Policies (Arabic)</h3>
+                    
+                    <FormField
+                      control={form.control}
+                      name="cancellationPolicyAr"
+                      render={({ field }) => (
+                        <FormItem>
+                          <FormLabel>Cancellation Policy (Arabic)</FormLabel>
+                          <FormControl>
+                            <Textarea 
+                              {...field} 
+                              placeholder="سياسة الإلغاء بالعربية"
+                              dir="rtl"
+                              className="text-right min-h-[80px]"
+                            />
+                          </FormControl>
+                          <FormMessage />
+                        </FormItem>
+                      )}
+                    />
+
+                    <FormField
+                      control={form.control}
+                      name="childrenPolicyAr"
+                      render={({ field }) => (
+                        <FormItem>
+                          <FormLabel>Children Policy (Arabic)</FormLabel>
+                          <FormControl>
+                            <Textarea 
+                              {...field} 
+                              placeholder="سياسة الأطفال بالعربية"
+                              dir="rtl"
+                              className="text-right min-h-[80px]"
+                            />
+                          </FormControl>
+                          <FormMessage />
+                        </FormItem>
+                      )}
+                    />
+
+                    <FormField
+                      control={form.control}
+                      name="termsAndConditionsAr"
+                      render={({ field }) => (
+                        <FormItem>
+                          <FormLabel>Terms & Conditions (Arabic)</FormLabel>
+                          <FormControl>
+                            <Textarea 
+                              {...field} 
+                              placeholder="الشروط والأحكام بالعربية"
+                              dir="rtl"
+                              className="text-right min-h-[100px]"
+                            />
+                          </FormControl>
+                          <FormMessage />
+                        </FormItem>
+                      )}
+                    />
+
+                    <FormField
+                      control={form.control}
+                      name="customTextAr"
+                      render={({ field }) => (
+                        <FormItem>
+                          <FormLabel>Custom Text (Arabic)</FormLabel>
+                          <FormControl>
+                            <Textarea 
+                              {...field} 
+                              placeholder="نص مخصص بالعربية"
+                              dir="rtl"
+                              className="text-right min-h-[80px]"
+                            />
+                          </FormControl>
+                          <FormMessage />
+                        </FormItem>
+                      )}
+                    />
+                  </div>
+                </div>
+              )}
             </div>
           </TabsContent>
         </Tabs>

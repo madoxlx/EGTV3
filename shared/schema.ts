@@ -216,8 +216,6 @@ export const packages = pgTable("packages", {
   childrenPolicy: text("children_policy"),
   termsAndConditions: text("terms_and_conditions"),
   excludedItems: json("excluded_items"), // Array of excluded items
-  includedFeatures: json("included_features"), // Array of included features as strings
-  excludedFeatures: json("excluded_features"), // Array of excluded features as strings
   
   // Custom display text for manual packages
   customText: text("custom_text"), // Custom editable text for package display
@@ -225,6 +223,25 @@ export const packages = pgTable("packages", {
   markupType: text("markup_type"), // "percentage" or "fixed"
   discountType: text("discount_type"), // "percentage" or "fixed"
   discountValue: integer("discount_value"), // Discount amount (percentage or EGP)
+
+  // Arabic translation fields
+  hasArabicVersion: boolean("has_arabic_version").default(false),
+  titleAr: text("title_ar"),
+  descriptionAr: text("description_ar"),
+  shortDescriptionAr: text("short_description_ar"),
+  overviewAr: text("overview_ar"),
+  bestTimeToVisitAr: text("best_time_to_visit_ar"),
+  cancellationPolicyAr: text("cancellation_policy_ar"),
+  childrenPolicyAr: text("children_policy_ar"),
+  termsAndConditionsAr: text("terms_and_conditions_ar"),
+  customTextAr: text("custom_text_ar"),
+  includedFeaturesAr: json("included_features_ar"), // Array of Arabic included features
+  excludedFeaturesAr: json("excluded_features_ar"), // Array of Arabic excluded features
+  idealForAr: json("ideal_for_ar"), // Array of Arabic ideal traveler types
+  itineraryAr: json("itinerary_ar"), // Arabic itinerary data
+  whatToPackAr: json("what_to_pack_ar"), // Arabic packing information
+  travelRouteAr: json("travel_route_ar"), // Arabic travel route information
+  optionalExcursionsAr: json("optional_excursions_ar"), // Arabic optional excursions
 
   // Audit fields
   createdAt: timestamp("created_at").notNull().defaultNow(),
