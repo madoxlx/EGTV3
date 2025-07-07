@@ -1,0 +1,19 @@
+🔍 Admin check - Request path: /api/admin/translations/batch-translate
+✅ Admin check passed for user: AhmedSh (ID: 9)
+Error batch translating with Gemini: GoogleGenerativeAIFetchError: [GoogleGenerativeAI Error]: Error fetching from https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent: [403 Forbidden] Method doesn't allow unregistered callers (callers without established identity). Please use API Key or other form of API consumer identity to call this API.
+    at handleResponseNotOk (file:///home/runner/workspace/node_modules/@google/generative-ai/dist/index.mjs:432:11)
+    at process.processTicksAndRejections (node:internal/process/task_queues:95:5)
+    at async makeRequest (file:///home/runner/workspace/node_modules/@google/generative-ai/dist/index.mjs:401:9)
+    at async generateContent (file:///home/runner/workspace/node_modules/@google/generative-ai/dist/index.mjs:865:22)
+    at async GeminiService.batchTranslateToArabic (/home/runner/workspace/server/services/gemini.ts:72:22)
+    at async <anonymous> (/home/runner/workspace/server/routes.ts:5174:36) {
+  status: 403,
+  statusText: 'Forbidden',
+  errorDetails: undefined
+}
+GOOGLE_API_KEY: 
+Batch translation error: Error: Batch translation failed: [GoogleGenerativeAI Error]: Error fetching from https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent: [403 Forbidden] Method doesn't allow unregistered callers (callers without established identity). Please use API Key or other form of API consumer identity to call this API.
+    at GeminiService.batchTranslateToArabic (/home/runner/workspace/server/services/gemini.ts:106:13)
+    at process.processTicksAndRejections (node:internal/process/task_queues:95:5)
+    at async <anonymous> (/home/runner/workspace/server/routes.ts:5174:36)
+7:29:07 AM [express] POST /api/admin/translations/batch-translate 500 in 528ms :: {"success":false,"message":"Batch translation error: Batch translation failed: [Google…
