@@ -10,7 +10,8 @@ class GeminiService {
   private imagineModel: string = "gemini-pro-vision";
   
   constructor() {
-    const apiKey = process.env.GOOGLE_API_KEY || "";
+    const apiKey = process.env.GOOGLE_AI_API_KEY || "";
+    console.log("🔑 Google AI API Key status:", apiKey ? `Found (${apiKey.substring(0, 10)}...)` : "Not found");
     this.genAI = new GoogleGenerativeAI(apiKey);
   }
 
