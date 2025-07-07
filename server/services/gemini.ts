@@ -12,6 +12,17 @@ class GeminiService {
   constructor() {
     const apiKey = process.env.GOOGLE_AI_API_KEY || "";
     console.log("🔑 Google AI API Key status:", apiKey ? `Found (${apiKey.substring(0, 10)}...)` : "Not found");
+    console.log("🔍 Full environment check:", {
+      hasGoogleAIKey: !!process.env.GOOGLE_AI_API_KEY,
+      hasOldGoogleKey: !!process.env.GOOGLE_API_KEY,
+      nodeEnv: process.env.NODE_ENV,
+      keyLength: apiKey ? apiKey.length : 0
+    });
+    
+    if (!apiKey) {
+      console.error("❌ No Google AI API key found! Please check your .env file.");
+    }
+    
     this.genAI = new GoogleGenerativeAI(apiKey);
   }
 
