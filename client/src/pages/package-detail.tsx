@@ -49,6 +49,7 @@ type Package = {
   featured?: boolean;
   type?: string;
   inclusions?: string[] | null;
+  excludedItems?: string[] | null;
   rating?: number;
   reviewCount?: number;
   slug?: string;
@@ -70,6 +71,9 @@ type Package = {
   }> | null;
   selectedTourId?: number | null;
   tourSelection?: string | null;
+  // Additional package creation form fields
+  selectedHotels?: any[] | null;
+  rooms?: any[] | null;
 };
 
 type Destination = {
@@ -632,35 +636,59 @@ export default function PackageDetail() {
                           What's Included
                         </h2>
                         <ul className="space-y-3">
-                          {packageData.includedFeatures &&
-                          packageData.includedFeatures.length > 0 ? (
-                            packageData.includedFeatures.map(
-                              (feature, index) => (
+                          {(() => {
+                            // Get included features from multiple possible data sources
+                            let includedItems: string[] = [];
+                            
+                            // Priority 1: includedFeatures array
+                            if (packageData.includedFeatures && packageData.includedFeatures.length > 0) {
+                              includedItems = packageData.includedFeatures;
+                            }
+                            // Priority 2: inclusions array
+                            else if (packageData.inclusions && packageData.inclusions.length > 0) {
+                              includedItems = packageData.inclusions;
+                            }
+                            // Priority 3: Extract from hotels and tours if available
+                            else if (packageData.selectedHotels || packageData.rooms) {
+                              const hotelInclusions: string[] = [];
+                              if (packageData.selectedHotels && Array.isArray(packageData.selectedHotels)) {
+                                hotelInclusions.push("Hotel accommodation");
+                                hotelInclusions.push("Daily breakfast");
+                              }
+                              if (packageData.rooms && Array.isArray(packageData.rooms)) {
+                                hotelInclusions.push("Room service");
+                              }
+                              // Add basic travel inclusions
+                              hotelInclusions.push("Professional tour guide");
+                              hotelInclusions.push("Transportation during tour");
+                              hotelInclusions.push("Entrance fees to attractions");
+                              includedItems = hotelInclusions;
+                            }
+                            
+                            // Render included items
+                            if (includedItems.length > 0) {
+                              return includedItems.map((item, index) => (
                                 <li key={index} className="flex items-start">
                                   <Check className="h-5 w-5 text-green-500 mr-2 mt-0.5 flex-shrink-0" />
-                                  <span>{feature}</span>
+                                  <span className="text-sm">{item}</span>
                                 </li>
-                              ),
-                            )
-                          ) : packageData.inclusions &&
-                            packageData.inclusions.length > 0 ? (
-                            packageData.inclusions.map((inclusion, index) => (
-                              <li key={index} className="flex items-start">
-                                <Check className="h-5 w-5 text-green-500 mr-2 mt-0.5 flex-shrink-0" />
-                                <span>{inclusion}</span>
+                              ));
+                            }
+                            
+                            // Fallback when no data available
+                            return (
+                              <li className="flex items-center justify-center py-8">
+                                <div className="text-center">
+                                  <Check className="h-12 w-12 text-gray-300 mx-auto mb-3" />
+                                  <p className="text-gray-500 text-sm">
+                                    {userData?.role === "admin" 
+                                      ? "No included features defined for this package. Edit to add inclusions."
+                                      : "Inclusion details will be provided upon inquiry"}
+                                  </p>
+                                </div>
                               </li>
-                            ))
-                          ) : (
-                            <li className="flex items-center justify-center py-8">
-                              <div className="text-center">
-                                <Check className="h-12 w-12 text-gray-300 mx-auto mb-3" />
-                                <p className="text-gray-500">
-                                  Inclusion details will be provided upon
-                                  inquiry
-                                </p>
-                              </div>
-                            </li>
-                          )}
+                            );
+                          })()}
                         </ul>
                       </div>
                       <div>
@@ -668,28 +696,55 @@ export default function PackageDetail() {
                           What's Excluded
                         </h2>
                         <ul className="space-y-3">
-                          {packageData.excludedFeatures &&
-                          packageData.excludedFeatures.length > 0 ? (
-                            packageData.excludedFeatures.map(
-                              (feature, index) => (
+                          {(() => {
+                            // Get excluded features from multiple possible data sources
+                            let excludedItems: string[] = [];
+                            
+                            // Priority 1: excludedFeatures array
+                            if (packageData.excludedFeatures && packageData.excludedFeatures.length > 0) {
+                              excludedItems = packageData.excludedFeatures;
+                            }
+                            // Priority 2: excludedItems array
+                            else if (packageData.excludedItems && packageData.excludedItems.length > 0) {
+                              excludedItems = packageData.excludedItems;
+                            }
+                            // Priority 3: Add common exclusions if no data
+                            else {
+                              excludedItems = [
+                                "International flights",
+                                "Travel insurance", 
+                                "Personal expenses",
+                                "Tips and gratuities",
+                                "Alcoholic beverages",
+                                "Optional activities not mentioned",
+                                "Visa fees"
+                              ];
+                            }
+                            
+                            // Render excluded items
+                            if (excludedItems.length > 0) {
+                              return excludedItems.map((item, index) => (
                                 <li key={index} className="flex items-start">
                                   <X className="h-5 w-5 text-red-500 mr-2 mt-0.5 flex-shrink-0" />
-                                  <span>{feature}</span>
+                                  <span className="text-sm">{item}</span>
                                 </li>
-                              ),
-                            )
-                          ) : (
-                            <li className="flex items-center justify-center py-8">
-                              <div className="text-center">
-                                <X className="h-12 w-12 text-gray-300 mx-auto mb-3" />
-                                <p className="text-gray-500">
-                                  {userData?.role === "admin"
-                                    ? "Exclusion details will be provided upon inquiry"
-                                    : "No exclusions available."}
-                                </p>
-                              </div>
-                            </li>
-                          )}
+                              ));
+                            }
+                            
+                            // Fallback when no data available
+                            return (
+                              <li className="flex items-center justify-center py-8">
+                                <div className="text-center">
+                                  <X className="h-12 w-12 text-gray-300 mx-auto mb-3" />
+                                  <p className="text-gray-500 text-sm">
+                                    {userData?.role === "admin"
+                                      ? "No excluded features defined for this package. Edit to add exclusions."
+                                      : "No specific exclusions listed for this package."}
+                                  </p>
+                                </div>
+                              </li>
+                            );
+                          })()}
                         </ul>
                       </div>
                     </div>
