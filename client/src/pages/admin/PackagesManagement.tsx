@@ -163,15 +163,27 @@ export default function PackagesManagement() {
     }
   });
 
-  // Filter packages based on tab (already filtered for dynamic packages)
-  const filteredPackages = packages.filter(pkg => {
+  // Filter only dynamic packages (packages created via /admin/packages/create)
+  const dynamicPackages = packages.filter(pkg => {
+    // Dynamic packages detection logic:
+    // 1. Type is explicitly "dynamic"
+    // 2. NOT manual package indicators (title starts with "MANUAL:", type is "manual" or "tour package")
+    return pkg.type?.toLowerCase() === "dynamic" || 
+           (!pkg.title?.startsWith("MANUAL:") && 
+            pkg.type?.toLowerCase() !== "manual" && 
+            pkg.type?.toLowerCase() !== "tour package" &&
+            pkg.type !== null);
+  });
+
+  // Filter dynamic packages based on tab
+  const filteredPackages = dynamicPackages.filter(pkg => {
     if (selectedTab === "all") return true;
     if (selectedTab === "featured") return pkg.featured;
     return pkg.type?.toLowerCase() === selectedTab;
   });
 
-  // Get unique package types for tabs
-  const packageTypes = Array.from(new Set(packages.map(pkg => pkg.type?.toLowerCase() || "unknown")));
+  // Get unique package types for tabs (only from dynamic packages)
+  const packageTypes = Array.from(new Set(dynamicPackages.map(pkg => pkg.type?.toLowerCase() || "unknown")));
 
   const handleDelete = (id: number) => {
     setDeleteId(id);

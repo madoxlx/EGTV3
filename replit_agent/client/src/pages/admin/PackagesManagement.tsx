@@ -149,15 +149,27 @@ export default function PackagesManagement() {
     }
   });
 
-  // Filter packages based on tab
-  const filteredPackages = packages.filter(pkg => {
+  // Filter only dynamic packages (packages created via /admin/packages/create)
+  const dynamicPackages = packages.filter(pkg => {
+    // Dynamic packages detection logic:
+    // 1. Type is explicitly "dynamic"
+    // 2. NOT manual package indicators (title starts with "MANUAL:", type is "manual" or "tour package")
+    return pkg.type?.toLowerCase() === "dynamic" || 
+           (!pkg.title?.startsWith("MANUAL:") && 
+            pkg.type?.toLowerCase() !== "manual" && 
+            pkg.type?.toLowerCase() !== "tour package" &&
+            pkg.type !== null);
+  });
+
+  // Filter dynamic packages based on tab
+  const filteredPackages = dynamicPackages.filter(pkg => {
     if (selectedTab === "all") return true;
     if (selectedTab === "featured") return pkg.featured;
     return pkg.type?.toLowerCase() === selectedTab;
   });
 
-  // Get unique package types for tabs
-  const packageTypes = Array.from(new Set(packages.map(pkg => pkg.type?.toLowerCase() || "unknown")));
+  // Get unique package types for tabs (only from dynamic packages)
+  const packageTypes = Array.from(new Set(dynamicPackages.map(pkg => pkg.type?.toLowerCase() || "unknown")));
 
   const handleDelete = (id: number) => {
     setDeleteId(id);
@@ -189,15 +201,18 @@ export default function PackagesManagement() {
   return (
     <DashboardLayout>
       <div className="flex justify-between items-center mb-6">
-        <h1 className="text-2xl font-bold text-zinc-900">Packages</h1>
+        <div className="flex items-center gap-3">
+          <Package className="h-6 w-6 text-primary" />
+          <h1 className="text-2xl font-bold text-zinc-900">Dynamic Packages</h1>
+        </div>
         <div className="flex gap-2">
-          <Button variant="outline" size="sm" className="gap-1" onClick={() => setLocation("/admin/packages/create-manual")}>
-            <Plus size={16} />
-            <span>Manual Package</span>
+          <Button variant="outline" size="sm" className="gap-1" onClick={() => setLocation("/admin/manual-packages")}>
+            <Package size={16} />
+            <span>View Manual Packages</span>
           </Button>
           <Button size="sm" className="gap-1" onClick={() => setLocation("/admin/packages/create")}>
             <Plus size={16} />
-            <span>Create Package</span>
+            <span>Create Dynamic Package</span>
           </Button>
         </div>
       </div>
@@ -239,11 +254,11 @@ export default function PackagesManagement() {
               {filteredPackages.length === 0 ? (
                 <div className="bg-white border rounded-md p-8 text-center">
                   <Package className="h-12 w-12 mx-auto text-zinc-300 mb-3" />
-                  <h3 className="text-lg font-medium text-zinc-800 mb-1">No Packages Found</h3>
-                  <p className="text-zinc-500 mb-4">There are no packages in this category yet.</p>
+                  <h3 className="text-lg font-medium text-zinc-800 mb-1">No Dynamic Packages Found</h3>
+                  <p className="text-zinc-500 mb-4">There are no dynamic packages in this category yet. Create your first dynamic package to get started.</p>
                   <Button onClick={() => setLocation("/admin/packages/create")}>
                     <Plus size={16} className="mr-2" />
-                    Create Package
+                    Create Dynamic Package
                   </Button>
                 </div>
               ) : (
@@ -284,7 +299,10 @@ export default function PackagesManagement() {
                                 Featured
                               </Badge>
                             )}
-                            {pkg.type && (
+                            <Badge variant="secondary" className="bg-blue-100 text-blue-800">
+                              Dynamic
+                            </Badge>
+                            {pkg.type && pkg.type !== "dynamic" && (
                               <Badge variant="secondary" className="bg-white/90 text-primary">
                                 {pkg.type}
                               </Badge>
