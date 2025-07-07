@@ -1134,19 +1134,26 @@ export function PackageCreatorForm({ packageId }: PackageCreatorFormProps) {
                         field.onChange(parseInt(value));
                       }} 
                       value={field.value?.toString()}
-                      disabled={!selectedCountryId}
+                      disabled={!selectedCountryId && !form.getValues("countryId")}
                     >
                       <FormControl>
                         <SelectTrigger 
                           id="package-city"
                           className="city-select admin-select"
                         >
-                          <SelectValue placeholder={selectedCountryId ? "Select a city" : "Select a country first"} />
+                          <SelectValue placeholder={
+                            selectedCountryId || form.getValues("countryId") 
+                              ? "Select a city" 
+                              : "Select a country first"
+                          } />
                         </SelectTrigger>
                       </FormControl>
                       <SelectContent>
                         {Array.isArray(cities) && cities
-                          .filter((city: any) => city.countryId === selectedCountryId)
+                          .filter((city: any) => {
+                            const currentCountryId = selectedCountryId || form.getValues("countryId");
+                            return currentCountryId && city.countryId === currentCountryId;
+                          })
                           .map((city: any) => (
                             <SelectItem key={city.id} value={city.id.toString()}>
                               {city.name}

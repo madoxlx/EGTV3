@@ -2114,9 +2114,10 @@ export function PackageCreatorForm({
                         {Array.isArray(cities) &&
                           cities
                             .filter(
-                              (city: any) =>
-                                city.countryId === selectedCountryId || 
-                                city.countryId === form.getValues("countryId"),
+                              (city: any) => {
+                                const currentCountryId = selectedCountryId || form.getValues("countryId");
+                                return currentCountryId && city.countryId === currentCountryId;
+                              }
                             )
                             .map((city: any) => (
                               <SelectItem
