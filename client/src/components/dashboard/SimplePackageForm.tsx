@@ -865,9 +865,7 @@ export function PackageCreatorForm({
         // Additional metadata
         rating: 45,
         featured: true,
-        type:
-          categoryOptions.find((c) => c.value === formData.category)?.label ||
-          "Tour Package",
+        type: "dynamic", // Always set as dynamic for packages created via /admin/packages/create
       };
 
       // Log final payload for debugging
