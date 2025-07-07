@@ -2116,7 +2116,16 @@ export function PackageCreatorForm({
                             .filter(
                               (city: any) => {
                                 const currentCountryId = selectedCountryId || form.getValues("countryId");
-                                return currentCountryId && city.countryId === currentCountryId;
+                                console.log("City filter debug:", {
+                                  cityName: city.name,
+                                  cityCountryId: city.countryId,
+                                  cityCountryIdType: typeof city.countryId,
+                                  currentCountryId: currentCountryId,
+                                  currentCountryIdType: typeof currentCountryId,
+                                  matches: city.countryId === currentCountryId,
+                                  matchesNumber: Number(city.countryId) === Number(currentCountryId)
+                                });
+                                return currentCountryId && (city.countryId === currentCountryId || Number(city.countryId) === Number(currentCountryId));
                               }
                             )
                             .map((city: any) => (
