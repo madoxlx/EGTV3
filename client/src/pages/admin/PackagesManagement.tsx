@@ -85,16 +85,19 @@ export default function PackagesManagement() {
   });
 
   // Filter only dynamic packages
+  console.log("All packages data:", allPackages);
   const packages = allPackages.filter(pkg => {
     // Dynamic packages detection logic:
     // 1. Type is explicitly "dynamic"
     // 2. NOT manual packages (excluding manual types and MANUAL: prefix)
-    // 3. Packages with minimal manual creation data
-    return pkg.type?.toLowerCase() === "dynamic" || 
-           (!pkg.title?.startsWith("MANUAL:") && 
-            pkg.type?.toLowerCase() !== "manual" && 
-            pkg.type?.toLowerCase() !== "tour package" && 
-            (pkg.type === null && (!pkg.description || pkg.description.length <= 200) && !pkg.inclusions));
+    const isDynamic = pkg.type?.toLowerCase() === "dynamic";
+    const isNotManual = !pkg.title?.startsWith("MANUAL:") && 
+                       pkg.type?.toLowerCase() !== "manual" && 
+                       pkg.type?.toLowerCase() !== "tour package";
+    
+    console.log(`Package ${pkg.id}: ${pkg.title}, type: ${pkg.type}, isDynamic: ${isDynamic}, isNotManual: ${isNotManual}`);
+    
+    return isDynamic || (isNotManual && !pkg.type);
   });
 
   // Delete mutation
@@ -164,15 +167,18 @@ export default function PackagesManagement() {
   });
 
   // Filter only dynamic packages (packages created via /admin/packages/create)
-  const dynamicPackages = packages.filter(pkg => {
+  const dynamicPackages = allPackages.filter(pkg => {
     // Dynamic packages detection logic:
     // 1. Type is explicitly "dynamic"
     // 2. NOT manual package indicators (title starts with "MANUAL:", type is "manual" or "tour package")
-    return pkg.type?.toLowerCase() === "dynamic" || 
-           (!pkg.title?.startsWith("MANUAL:") && 
-            pkg.type?.toLowerCase() !== "manual" && 
-            pkg.type?.toLowerCase() !== "tour package" &&
-            pkg.type !== null);
+    const isDynamic = pkg.type?.toLowerCase() === "dynamic";
+    const isNotManual = !pkg.title?.startsWith("MANUAL:") && 
+                       pkg.type?.toLowerCase() !== "manual" && 
+                       pkg.type?.toLowerCase() !== "tour package";
+    
+    console.log(`Package ${pkg.id}: ${pkg.title}, type: ${pkg.type}, isDynamic: ${isDynamic}, isNotManual: ${isNotManual}`);
+    
+    return isDynamic || (isNotManual && !pkg.type);
   });
 
   // Filter dynamic packages based on tab
