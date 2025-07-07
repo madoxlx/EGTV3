@@ -486,6 +486,10 @@ export function PackageCreatorForm({
   const [customExcludedFeatures, setCustomExcludedFeatures] = useState<string[]>([]);
   const [travelRouteItems, setTravelRouteItems] = useState<string[]>([]);
   const [newRouteStop, setNewRouteStop] = useState<string>("");
+  
+  // Custom traveler types state
+  const [newTravelerType, setNewTravelerType] = useState<string>("");
+  const [customTravelerTypes, setCustomTravelerTypes] = useState<string[]>([]);
 
   // Packing list section
   const [packItems, setPackItems] = useState<
@@ -826,7 +830,7 @@ export function PackageCreatorForm({
           new Date(Date.now() + 6 * 30 * 24 * 60 * 60 * 1000).toISOString(), // Default to 6 months from now
 
         // Traveler information
-        idealFor: selectedTravellerTypes,
+        idealFor: customTravelerTypes,
         adultCount: formData.adultCount,
         childrenCount: formData.childrenCount,
         infantCount: formData.infantCount,
@@ -949,6 +953,8 @@ export function PackageCreatorForm({
         // Clear custom included/excluded features arrays
         setCustomIncludedFeatures([]);
         setCustomExcludedFeatures([]);
+        // Clear custom traveler types array
+        setCustomTravelerTypes([]);
         setPricingRules([
           {
             id: "adult",
@@ -1326,6 +1332,9 @@ export function PackageCreatorForm({
         // Set custom included and excluded features state (ensure fresh arrays)
         setCustomIncludedFeatures([...parsedIncludedFeatures]);
         setCustomExcludedFeatures([...parsedExcludedFeatures]);
+        
+        // Set custom traveler types state (ensure fresh array)
+        setCustomTravelerTypes([...parsedIdealFor]);
 
         // Set selected tour if exists
         // Handle multiple tour IDs from existing package data
@@ -1408,7 +1417,7 @@ export function PackageCreatorForm({
           includedFeatures: [], // Keep form field empty, use component state instead
           excludedFeatures: [], // Keep form field empty, use component state instead
           excludedItems: parsedExcludedItems,
-          idealFor: parsedIdealFor,
+          idealFor: [], // Keep form field empty, use component state instead
           whatToPack: parsedWhatToPack,
           itinerary: parsedItinerary,
           accommodationHighlights: parsedAccommodationHighlights,
@@ -1638,6 +1647,23 @@ export function PackageCreatorForm({
     const updatedFeatures = customExcludedFeatures.filter((_, i) => i !== index);
     setCustomExcludedFeatures(updatedFeatures);
     form.setValue("excludedFeatures", updatedFeatures);
+  };
+
+  // Handler for adding custom traveler types
+  const handleAddTravelerType = () => {
+    if (newTravelerType.trim()) {
+      const updatedTypes = [...customTravelerTypes, newTravelerType.trim()];
+      setCustomTravelerTypes(updatedTypes);
+      form.setValue("idealFor", updatedTypes);
+      setNewTravelerType("");
+    }
+  };
+
+  // Handler for removing custom traveler types
+  const handleRemoveTravelerType = (index: number) => {
+    const updatedTypes = customTravelerTypes.filter((_, i) => i !== index);
+    setCustomTravelerTypes(updatedTypes);
+    form.setValue("idealFor", updatedTypes);
   };
 
   // Function to filter tours based on search query
@@ -3939,57 +3965,60 @@ export function PackageCreatorForm({
             </div>
 
             {/* Ideal Traveler Types */}
-            <FormField
-              control={form.control}
-              name="idealFor"
-              render={() => (
-                <FormItem>
-                  <div className="mb-4">
-                    <FormLabel>Ideal For (Traveler Types)</FormLabel>
-                    <FormDescription>
-                      Select the types of travelers this package is best suited for
-                    </FormDescription>
-                  </div>
-                  <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-                    {travellerTypes.map((type) => (
-                      <FormItem
-                        key={type.id}
-                        className="flex items-center space-x-3 space-y-0 rounded-md border p-4 border-blue-200 bg-blue-50"
+            <div className="p-4 border rounded-md bg-blue-50">
+              <div className="mb-4">
+                <Label className="text-sm font-medium">Ideal For (Traveler Types)</Label>
+                <p className="text-xs text-muted-foreground mt-1">
+                  Add types of travelers this package is best suited for
+                </p>
+              </div>
+              
+              {/* Display existing traveler types */}
+              {customTravelerTypes.length > 0 && (
+                <div className="mb-4 space-y-2">
+                  {customTravelerTypes.map((type, index) => (
+                    <div key={index} className="flex items-center justify-between p-2 bg-blue-100 rounded border">
+                      <span className="text-sm text-blue-800">{type}</span>
+                      <Button
+                        type="button"
+                        variant="ghost"
+                        size="sm"
+                        onClick={() => handleRemoveTravelerType(index)}
+                        className="text-blue-600 hover:text-blue-800 hover:bg-blue-200 h-6 w-6 p-0"
                       >
-                        <FormControl>
-                          <Checkbox
-                            checked={
-                              Array.isArray(form.watch("idealFor")) &&
-                              form.watch("idealFor")?.includes(type.id)
-                            }
-                            onCheckedChange={(checked) => {
-                              const currentTypes = form.watch("idealFor") || [];
-                              if (checked) {
-                                form.setValue("idealFor", [
-                                  ...currentTypes,
-                                  type.id,
-                                ]);
-                              } else {
-                                form.setValue(
-                                  "idealFor",
-                                  currentTypes.filter(
-                                    (value) => value !== type.id,
-                                  ),
-                                );
-                              }
-                            }}
-                          />
-                        </FormControl>
-                        <FormLabel className="font-normal cursor-pointer text-blue-700">
-                          {type.label}
-                        </FormLabel>
-                      </FormItem>
-                    ))}
-                  </div>
-                  <FormMessage />
-                </FormItem>
+                        <X className="h-3 w-3" />
+                      </Button>
+                    </div>
+                  ))}
+                </div>
               )}
-            />
+
+              {/* Input for new traveler type */}
+              <div className="flex gap-2">
+                <Input
+                  placeholder="Enter traveler type (e.g., Families with children, Adventure seekers)"
+                  value={newTravelerType}
+                  onChange={(e) => setNewTravelerType(e.target.value)}
+                  onKeyPress={(e) => {
+                    if (e.key === 'Enter') {
+                      e.preventDefault();
+                      handleAddTravelerType();
+                    }
+                  }}
+                  className="flex-1"
+                />
+                <Button
+                  type="button"
+                  onClick={handleAddTravelerType}
+                  disabled={!newTravelerType.trim()}
+                  size="sm"
+                  className="px-4 bg-blue-600 hover:bg-blue-700"
+                >
+                  <Plus className="h-4 w-4 mr-1" />
+                  Add
+                </Button>
+              </div>
+            </div>
 
             {/* Optional Excursions */}
             <div className="border-t pt-6">
