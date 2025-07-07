@@ -1110,12 +1110,11 @@ export function PackageCreatorForm({
         },
         {
           condition:
-            data.includedFeatures === undefined ||
-            (data.includedFeatures && data.includedFeatures.length === 0),
+            !customIncludedFeatures || customIncludedFeatures.length === 0,
           errorMessage: {
             title: "No Features Selected",
             description:
-              "Please select at least one included feature for the package",
+              "Please add at least one included feature for the package",
           },
           variant: "destructive",
         },
@@ -1306,12 +1305,28 @@ export function PackageCreatorForm({
               : existingPackageData.accommodationHighlights
             : [];
 
+        // Parse included_features and excluded_features arrays
+        const parsedIncludedFeatures = existingPackageData.includedFeatures
+          ? typeof existingPackageData.includedFeatures === "string"
+            ? JSON.parse(existingPackageData.includedFeatures)
+            : existingPackageData.includedFeatures
+          : [];
+        const parsedExcludedFeatures = existingPackageData.excludedFeatures
+          ? typeof existingPackageData.excludedFeatures === "string"
+            ? JSON.parse(existingPackageData.excludedFeatures)
+            : existingPackageData.excludedFeatures
+          : [];
+
         // Set component state for complex fields
         setSelectedTravellerTypes(parsedIdealFor);
         setPackItems(parsedWhatToPack);
         setItineraryItems(parsedItinerary);
         setExcludedItemsList(parsedExcludedItems);
         setAccommodationHighlights(parsedAccommodationHighlights);
+        
+        // Set custom included and excluded features state
+        setCustomIncludedFeatures(parsedIncludedFeatures);
+        setCustomExcludedFeatures(parsedExcludedFeatures);
 
         // Set selected tour if exists
         // Handle multiple tour IDs from existing package data
@@ -1391,7 +1406,8 @@ export function PackageCreatorForm({
           endDate: endDate,
           validUntil: existingPackageData.validUntil ? new Date(existingPackageData.validUntil) : new Date(new Date().setMonth(new Date().getMonth() + 6)),
           pricingMode: "per_booking", // Default if not available
-          includedFeatures: inclusions,
+          includedFeatures: parsedIncludedFeatures,
+          excludedFeatures: parsedExcludedFeatures,
           excludedItems: parsedExcludedItems,
           idealFor: parsedIdealFor,
           whatToPack: parsedWhatToPack,
@@ -1596,6 +1612,7 @@ export function PackageCreatorForm({
     if (newIncludedFeature.trim()) {
       const updatedFeatures = [...customIncludedFeatures, newIncludedFeature.trim()];
       setCustomIncludedFeatures(updatedFeatures);
+      form.setValue("includedFeatures", updatedFeatures);
       setNewIncludedFeature("");
     }
   };
@@ -1604,6 +1621,7 @@ export function PackageCreatorForm({
   const handleRemoveIncludedFeature = (index: number) => {
     const updatedFeatures = customIncludedFeatures.filter((_, i) => i !== index);
     setCustomIncludedFeatures(updatedFeatures);
+    form.setValue("includedFeatures", updatedFeatures);
   };
 
   // Handler for adding custom excluded features
@@ -1611,6 +1629,7 @@ export function PackageCreatorForm({
     if (newExcludedFeature.trim()) {
       const updatedFeatures = [...customExcludedFeatures, newExcludedFeature.trim()];
       setCustomExcludedFeatures(updatedFeatures);
+      form.setValue("excludedFeatures", updatedFeatures);
       setNewExcludedFeature("");
     }
   };
@@ -1619,6 +1638,7 @@ export function PackageCreatorForm({
   const handleRemoveExcludedFeature = (index: number) => {
     const updatedFeatures = customExcludedFeatures.filter((_, i) => i !== index);
     setCustomExcludedFeatures(updatedFeatures);
+    form.setValue("excludedFeatures", updatedFeatures);
   };
 
   // Function to filter tours based on search query
@@ -3807,71 +3827,16 @@ export function PackageCreatorForm({
               )}
             </div>
 
-            <FormField
-              control={form.control}
-              name="includedFeatures"
-              render={() => (
-                <FormItem>
-                  <div className="mb-4">
-                    <FormLabel>Included Features</FormLabel>
-                    <FormDescription>
-                      Select the features that are included in this package
-                    </FormDescription>
-                  </div>
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                    {features.map((feature) => (
-                      <FormItem
-                        key={feature.id}
-                        className="flex items-center space-x-3 space-y-0 rounded-md border p-4"
-                      >
-                        <FormControl>
-                          <Checkbox
-                            checked={
-                              Array.isArray(form.watch("includedFeatures")) &&
-                              form
-                                .watch("includedFeatures")
-                                ?.includes(feature.id)
-                            }
-                            onCheckedChange={(checked) => {
-                              const currentFeatures =
-                                form.watch("includedFeatures") || [];
-                              if (checked) {
-                                form.setValue("includedFeatures", [
-                                  ...currentFeatures,
-                                  feature.id,
-                                ]);
-                              } else {
-                                form.setValue(
-                                  "includedFeatures",
-                                  currentFeatures.filter(
-                                    (value) => value !== feature.id,
-                                  ),
-                                );
-                              }
-                            }}
-                          />
-                        </FormControl>
-                        <FormLabel className="font-normal cursor-pointer">
-                          {feature.label}
-                        </FormLabel>
-                      </FormItem>
-                    ))}
-                  </div>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
-
-            {/* Custom Included Features Section */}
-            <div className="mt-6 p-4 border rounded-md bg-green-50">
+            {/* Included Features Section */}
+            <div className="p-4 border rounded-md bg-green-50">
               <div className="mb-4">
-                <Label className="text-sm font-medium">Add Custom Included Features</Label>
+                <Label className="text-sm font-medium">Included Features</Label>
                 <p className="text-xs text-muted-foreground mt-1">
-                  Add specific features not listed above that are included in this package
+                  Add features that are included in this package
                 </p>
               </div>
               
-              {/* Display existing custom included features */}
+              {/* Display existing included features */}
               {customIncludedFeatures.length > 0 && (
                 <div className="mb-4 space-y-2">
                   {customIncludedFeatures.map((feature, index) => (
@@ -3891,10 +3856,10 @@ export function PackageCreatorForm({
                 </div>
               )}
 
-              {/* Input for new custom included feature */}
+              {/* Input for new included feature */}
               <div className="flex gap-2">
                 <Input
-                  placeholder="Enter custom included feature (e.g., Private chef service)"
+                  placeholder="Enter included feature (e.g., Private chef service, Airport transfers)"
                   value={newIncludedFeature}
                   onChange={(e) => setNewIncludedFeature(e.target.value)}
                   onKeyPress={(e) => {
@@ -3918,70 +3883,16 @@ export function PackageCreatorForm({
               </div>
             </div>
 
-            {/* Excluded Features */}
-            <FormField
-              control={form.control}
-              name="excludedItems"
-              render={() => (
-                <FormItem>
-                  <div className="mb-4">
-                    <FormLabel>Excluded Features</FormLabel>
-                    <FormDescription>
-                      Select the features that are NOT included in this package
-                    </FormDescription>
-                  </div>
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                    {excludedItems.map((item) => (
-                      <FormItem
-                        key={item.id}
-                        className="flex items-center space-x-3 space-y-0 rounded-md border p-4 border-red-200 bg-red-50"
-                      >
-                        <FormControl>
-                          <Checkbox
-                            checked={
-                              Array.isArray(form.watch("excludedItems")) &&
-                              form.watch("excludedItems")?.includes(item.id)
-                            }
-                            onCheckedChange={(checked) => {
-                              const currentItems =
-                                form.watch("excludedItems") || [];
-                              if (checked) {
-                                form.setValue("excludedItems", [
-                                  ...currentItems,
-                                  item.id,
-                                ]);
-                              } else {
-                                form.setValue(
-                                  "excludedItems",
-                                  currentItems.filter(
-                                    (value) => value !== item.id,
-                                  ),
-                                );
-                              }
-                            }}
-                          />
-                        </FormControl>
-                        <FormLabel className="font-normal cursor-pointer text-red-700">
-                          {item.label}
-                        </FormLabel>
-                      </FormItem>
-                    ))}
-                  </div>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
-
-            {/* Custom Excluded Features Section */}
-            <div className="mt-6 p-4 border rounded-md bg-red-50">
+            {/* Excluded Features Section */}
+            <div className="p-4 border rounded-md bg-red-50">
               <div className="mb-4">
-                <Label className="text-sm font-medium">Add Custom Excluded Features</Label>
+                <Label className="text-sm font-medium">Excluded Features</Label>
                 <p className="text-xs text-muted-foreground mt-1">
-                  Add specific features not listed above that are NOT included in this package
+                  Add features that are NOT included in this package
                 </p>
               </div>
               
-              {/* Display existing custom excluded features */}
+              {/* Display existing excluded features */}
               {customExcludedFeatures.length > 0 && (
                 <div className="mb-4 space-y-2">
                   {customExcludedFeatures.map((feature, index) => (
@@ -4001,10 +3912,10 @@ export function PackageCreatorForm({
                 </div>
               )}
 
-              {/* Input for new custom excluded feature */}
+              {/* Input for new excluded feature */}
               <div className="flex gap-2">
                 <Input
-                  placeholder="Enter custom excluded feature (e.g., International flights)"
+                  placeholder="Enter excluded feature (e.g., International flights, Visas)"
                   value={newExcludedFeature}
                   onChange={(e) => setNewExcludedFeature(e.target.value)}
                   onKeyPress={(e) => {

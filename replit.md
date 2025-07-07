@@ -106,6 +106,18 @@ The application uses a comprehensive PostgreSQL schema with the following core e
 
 ## Recent Changes
 
+- **Simplified Includes/Excludes Feature Management System Complete (July 7, 2025)**: Successfully replaced complex checkbox-based feature selection with streamlined input field + add button interface
+  - **Replaced Checkbox System**: Transformed complex 40+ predefined checkboxes for included features and 35+ excluded features into simple input fields with add buttons
+  - **Enhanced Data Structure**: Updated form to use clean string arrays stored in database `included_features` and `excluded_features` JSONB columns instead of complex selections
+  - **Improved User Experience**: Users can now type feature names and click "Add" buttons for easier feature management with individual "X" removal buttons
+  - **Form State Management**: Enhanced form handlers to properly sync with customIncludedFeatures and customExcludedFeatures state arrays
+  - **Data Loading Integration**: Updated data loading logic to populate arrays when editing existing packages with proper JSON parsing
+  - **API Integration**: Modified form submission to include simplified string array fields in package payload for database storage
+  - **Schema Compliance**: Confirmed database schema already supports required JSONB columns and insertPackageSchema includes proper validation
+  - **Validation Enhancement**: Updated validation to check for at least one included feature using customIncludedFeatures array instead of obsolete selectedIncludedFeatures
+  - **Professional Interface**: Clean design with green-themed included features section and red-themed excluded features section for visual distinction
+  - **Consistent Implementation**: Applied changes across both client and replit_agent versions maintaining codebase consistency
+
 - **City Selection Dropdown Fix in Package Edit Forms (July 7, 2025)**: Successfully identified and resolved city dropdown population issue in package edit mode
   - **Root Cause Analysis**: City filtering logic had timing issue where `selectedCountryId` state wasn't synchronized with form data during edit mode
   - **Enhanced Filtering Logic**: Updated city filter to use `form.getValues("countryId")` as primary source with `selectedCountryId` as fallback

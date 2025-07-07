@@ -216,6 +216,8 @@ export const packages = pgTable("packages", {
   childrenPolicy: text("children_policy"),
   termsAndConditions: text("terms_and_conditions"),
   excludedItems: json("excluded_items"), // Array of excluded items
+  includedFeatures: json("included_features"), // Array of included features as strings
+  excludedFeatures: json("excluded_features"), // Array of excluded features as strings
   
   // Custom display text for manual packages
   customText: text("custom_text"), // Custom editable text for package display
@@ -1273,6 +1275,8 @@ export const insertPackageSchema = createInsertSchema(packages)
     childrenPolicy: true,
     termsAndConditions: true,
     excludedItems: true,
+    includedFeatures: true,
+    excludedFeatures: true,
     markup: true,
     markupType: true,
     discountType: true,
