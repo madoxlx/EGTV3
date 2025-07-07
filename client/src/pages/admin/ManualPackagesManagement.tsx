@@ -242,6 +242,21 @@ export default function ManualPackagesManagement() {
               <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
                 {filteredPackages.map((pkg) => (
                   <Card key={pkg.id} className="group hover:shadow-md transition-shadow">
+                    {/* Package Image */}
+                    <div className="relative h-48 w-full overflow-hidden rounded-t-lg">
+                      {pkg.imageUrl ? (
+                        <img
+                          src={pkg.imageUrl}
+                          alt={pkg.title || 'Package image'}
+                          className="h-full w-full object-cover transition-transform group-hover:scale-105"
+                        />
+                      ) : (
+                        <div className="flex h-full w-full items-center justify-center bg-gray-200">
+                          <span className="text-black font-medium">No Image</span>
+                        </div>
+                      )}
+                    </div>
+
                     <CardHeader className="pb-2">
                       <div className="flex items-start justify-between">
                         <div className="flex-1">
@@ -359,6 +374,21 @@ export default function ManualPackagesManagement() {
               <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
                 {filteredPackages.filter(pkg => pkg.featured).map((pkg) => (
                   <Card key={pkg.id} className="group hover:shadow-md transition-shadow">
+                    {/* Package Image */}
+                    <div className="relative h-48 w-full overflow-hidden rounded-t-lg">
+                      {pkg.imageUrl ? (
+                        <img
+                          src={pkg.imageUrl}
+                          alt={pkg.title || 'Package image'}
+                          className="h-full w-full object-cover transition-transform group-hover:scale-105"
+                        />
+                      ) : (
+                        <div className="flex h-full w-full items-center justify-center bg-gray-200">
+                          <span className="text-black font-medium">No Image</span>
+                        </div>
+                      )}
+                    </div>
+
                     <CardHeader className="pb-2">
                       <div className="flex items-start justify-between">
                         <div className="flex-1">

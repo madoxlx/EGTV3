@@ -310,11 +310,17 @@ const PackagesPage: React.FC = () => {
             {filteredPackages.map((pkg: Package) => (
               <Card key={pkg.id} className="overflow-hidden hover:shadow-lg transition-shadow duration-300 group">
                 <div className="relative">
-                  <img
-                    src={pkg.imageUrl}
-                    alt={pkg.title}
-                    className="h-48 w-full object-cover group-hover:scale-105 transition-transform duration-300"
-                  />
+                  {pkg.imageUrl ? (
+                    <img
+                      src={pkg.imageUrl}
+                      alt={pkg.title}
+                      className="h-48 w-full object-cover group-hover:scale-105 transition-transform duration-300"
+                    />
+                  ) : (
+                    <div className="h-48 w-full bg-gray-200 flex items-center justify-center">
+                      <span className="text-black font-medium">No Image</span>
+                    </div>
+                  )}
                   
                   {/* Featured Badge */}
                   {pkg.featured && (

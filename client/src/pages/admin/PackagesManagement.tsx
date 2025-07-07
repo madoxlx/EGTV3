@@ -272,8 +272,8 @@ export default function PackagesManagement() {
                               className="h-48 w-full object-cover"
                             />
                           ) : (
-                            <div className="h-48 w-full bg-zinc-100 flex items-center justify-center">
-                              <Package className="h-16 w-16 text-zinc-300" />
+                            <div className="h-48 w-full bg-gray-200 flex items-center justify-center">
+                              <span className="text-black font-medium">No Image</span>
                             </div>
                           )}
                           
