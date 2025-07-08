@@ -1,0 +1,231 @@
+Log :: -
+ahmed@EETHost:~/eetvv1/A$ cd A
+-bash: cd: A: No such file or directory
+ahmed@EETHost:~/eetvv1/A$ git pull
+remote: Enumerating objects: 22, done.
+remote: Counting objects: 100% (22/22), done.
+remote: Compressing objects: 100% (14/14), done.
+remote: Total 20 (delta 6), reused 20 (delta 6), pack-reused 0 (from 0)
+Unpacking objects: 100% (20/20), 163.44 KiB | 7.43 MiB/s, done.
+From https://github.com/ahmedshowkytvl/A
+   0d49fd9..d288c6b  main       -> origin/main
+Updating 0d49fd9..d288c6b
+Fast-forward
+ ...-your-changes-before-starting-work-ontent-403-Forbidden-Method-doesn-t-allow-unregistered-1751957329435_1751957329437.txt | 275 ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+ attached_assets/image_1751957114822.png                                                                                      | Bin 0 -> 169947 bytes
+ package-production.json                                                                                                      | 127 ++++++++++++++++++++++++++++++
+ production-setup.md                                                                                                          |  72 +++++++++++++++++
+ restart-ubuntu.sh                                                                                                            |  14 ++++
+ start-production.bat                                                                                                         |  40 ++++++++++
+ start-ubuntu.sh                                                                                                              | 117 +++++++++++++++++++++++++++
+ stop-production.bat                                                                                                          |  12 +++
+ stop-ubuntu.sh                                                                                                               |  18 +++++
+ ubuntu-setup.md                                                                                                              | 104 ++++++++++++++++++++++++
+ 10 files changed, 779 insertions(+)
+ create mode 100644 attached_assets/Pasted--Saved-your-changes-before-starting-work-ontent-403-Forbidden-Method-doesn-t-allow-unregistered-1751957329435_1751957329437.txt
+ create mode 100644 attached_assets/image_1751957114822.png
+ create mode 100644 package-production.json
+ create mode 100644 production-setup.md
+ create mode 100755 restart-ubuntu.sh
+ create mode 100644 start-production.bat
+ create mode 100755 start-ubuntu.sh
+ create mode 100644 stop-production.bat
+ create mode 100755 stop-ubuntu.sh
+ create mode 100644 ubuntu-setup.md
+ahmed@EETHost:~/eetvv1/A$ ./start-ubuntu.sh
+🌍 Starting Sahara Journeys Travel Application on Ubuntu...
+✅ Node.js v20.19.3 detected
+📦 Installing PM2 globally...
+[sudo] password for ahmed:
+
+added 135 packages in 8s
+
+13 packages are looking for funding
+  run `npm fund` for details
+✅ PM2 installed
+⚠️  No .env file found. Creating sample .env file...
+📝 Sample .env file created. Please update DATABASE_URL and other settings as needed.
+🔍 Checking environment setup...
+🔨 Building application...
+
+> rest-express@1.0.0 build
+> vite build && esbuild server/index.ts --platform=node --packages=external --bundle --format=esm --outdir=dist
+
+vite v6.3.5 building for production...
+✓ 3444 modules transformed.
+node_modules/lottie-web/build/player/lottie.js (14422:32): Use of eval in "node_modules/lottie-web/build/player/lottie.js" is strongly discouraged as it poses security risks and may cause issues with minification.
+../dist/public/index.html                                    2.16 kB │ gzip:     0.88 kB
+../dist/public/assets/EgyptExpressTvl-logo-cDx84vYD.png     13.19 kB
+../dist/public/assets/no-pic-DVcjplxG.png                   99.62 kB
+../dist/public/assets/index-DEDUY9TN.css                   138.41 kB │ gzip:    22.93 kB
+../dist/public/assets/HotelDetailsPage-u3T41_TQ.js          18.66 kB │ gzip:     5.04 kB
+../dist/public/assets/index-BpRez0ql.js                  5,796.00 kB │ gzip: 1,421.06 kB
+
+(!) Some chunks are larger than 500 kB after minification. Consider:
+- Using dynamic import() to code-split the application
+- Use build.rollupOptions.output.manualChunks to improve chunking: https://rollupjs.org/configuration-options/#output-manualchunks
+- Adjust chunk size limit for this warning via build.chunkSizeWarningLimit.
+✓ built in 17.71s
+
+  dist/index.js  408.2kb
+
+⚡ Done in 27ms
+🗄️  Setting up database...
+
+> rest-express@1.0.0 db:push
+> drizzle-kit push
+
+No config path provided, using default 'drizzle.config.json'
+Reading config file '/home/ahmed/eetvv1/A/drizzle.config.json'
+Using 'pg' driver for database querying
+[⣷] Pulling schema from database...
+Error: SASL: SCRAM-SERVER-FIRST-MESSAGE: client password must be a string
+    at /home/ahmed/eetvv1/A/node_modules/pg-pool/index.js:45:11
+    at process.processTicksAndRejections (node:internal/process/task_queues:95:5)
+    at async Object.query (/home/ahmed/eetvv1/A/node_modules/drizzle-kit/bin.cjs:80601:26)
+    at async fromDatabase2 (/home/ahmed/eetvv1/A/node_modules/drizzle-kit/bin.cjs:19253:25)
+
+                        -------------
+
+__/\\\\\\\\\\\\\____/\\\\____________/\\\\____/\\\\\\\\\_____
+ _\/\\\/////////\\\_\/\\\\\\________/\\\\\\__/\\\///////\\\___
+  _\/\\\_______\/\\\_\/\\\//\\\____/\\\//\\\_\///______\//\\\__
+   _\/\\\\\\\\\\\\\/__\/\\\\///\\\/\\\/_\/\\\___________/\\\/___
+    _\/\\\/////////____\/\\\__\///\\\/___\/\\\________/\\\//_____
+     _\/\\\_____________\/\\\____\///_____\/\\\_____/\\\//________
+      _\/\\\_____________\/\\\_____________\/\\\___/\\\/___________
+       _\/\\\_____________\/\\\_____________\/\\\__/\\\\\\\\\\\\\\\_
+        _\///______________\///______________\///__\///////////////__
+
+
+                          Runtime Edition
+
+        PM2 is a Production Process Manager for Node.js applications
+                     with a built-in Load Balancer.
+
+                Start and Daemonize any application:
+                $ pm2 start app.js
+
+                Load Balance 4 instances of api.js:
+                $ pm2 start api.js -i 4
+
+                Monitor in production:
+                $ pm2 monitor
+
+                Make pm2 auto-boot at server restart:
+                $ pm2 startup
+
+                To go further checkout:
+                http://pm2.io/
+
+
+                        -------------
+
+[PM2] Spawning PM2 daemon with pm2_home=/home/ahmed/.pm2
+[PM2] PM2 Successfully daemonized
+🚀 Starting server with PM2...
+[PM2] Starting /home/ahmed/.nvm/versions/node/v20.19.3/bin/npm in fork_mode (1 instance)
+[PM2] Done.
+┌────┬────────────────────┬─────────────┬─────────┬─────────┬──────────┬────────┬──────┬───────────┬──────────┬──────────┬──────────┬──────────┐
+│ id │ name               │ namespace   │ version │ mode    │ pid      │ uptime │ ↺    │ status    │ cpu      │ mem      │ user     │ watching │
+├────┼────────────────────┼─────────────┼─────────┼─────────┼──────────┼────────┼──────┼───────────┼──────────┼──────────┼──────────┼──────────┤
+│ 0  │ sahara-journeys    │ default     │ 0.39.0  │ fork    │ 162861   │ 0s     │ 0    │ online    │ 0%       │ 38.6mb   │ ahmed    │ disabled │
+└────┴────────────────────┴─────────────┴─────────┴─────────┴──────────┴────────┴──────┴───────────┴──────────┴──────────┴──────────┴──────────┘
+[PM2] Saving current process list...
+[PM2] Successfully saved in /home/ahmed/.pm2/dump.pm2
+
+                        -------------
+
+__/\\\\\\\\\\\\\____/\\\\____________/\\\\____/\\\\\\\\\_____
+ _\/\\\/////////\\\_\/\\\\\\________/\\\\\\__/\\\///////\\\___
+  _\/\\\_______\/\\\_\/\\\//\\\____/\\\//\\\_\///______\//\\\__
+   _\/\\\\\\\\\\\\\/__\/\\\\///\\\/\\\/_\/\\\___________/\\\/___
+    _\/\\\/////////____\/\\\__\///\\\/___\/\\\________/\\\//_____
+     _\/\\\_____________\/\\\____\///_____\/\\\_____/\\\//________
+      _\/\\\_____________\/\\\_____________\/\\\___/\\\/___________
+       _\/\\\_____________\/\\\_____________\/\\\__/\\\\\\\\\\\\\\\_
+        _\///______________\///______________\///__\///////////////__
+
+
+                          Runtime Edition
+
+        PM2 is a Production Process Manager for Node.js applications
+                     with a built-in Load Balancer.
+
+                Start and Daemonize any application:
+                $ pm2 start app.js
+
+                Load Balance 4 instances of api.js:
+                $ pm2 start api.js -i 4
+
+                Monitor in production:
+                $ pm2 monitor
+
+                Make pm2 auto-boot at server restart:
+                $ pm2 startup
+
+                To go further checkout:
+                http://pm2.io/
+
+
+                        -------------
+
+[PM2] Init System found: systemd
+Platform systemd
+Template
+[Unit]
+Description=PM2 process manager
+Documentation=https://pm2.keymetrics.io/
+After=network.target
+
+[Service]
+Type=forking
+User=ahmed
+LimitNOFILE=infinity
+LimitNPROC=infinity
+LimitCORE=infinity
+Environment=PATH=/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin:/snap/bin:/bin:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin
+Environment=PM2_HOME=/home/ahmed/.pm2
+PIDFile=/home/ahmed/.pm2/pm2.pid
+Restart=on-failure
+
+ExecStart=/usr/lib/node_modules/pm2/bin/pm2 resurrect
+ExecReload=/usr/lib/node_modules/pm2/bin/pm2 reload all
+ExecStop=/usr/lib/node_modules/pm2/bin/pm2 kill
+
+[Install]
+WantedBy=multi-user.target
+
+Target path
+/etc/systemd/system/pm2-ahmed.service
+Command list
+[ 'systemctl enable pm2-ahmed' ]
+[PM2] Writing init configuration in /etc/systemd/system/pm2-ahmed.service
+[PM2] Making script booting at startup...
+[PM2] [-] Executing: systemctl enable pm2-ahmed...
+Created symlink /etc/systemd/system/multi-user.target.wants/pm2-ahmed.service → /etc/systemd/system/pm2-ahmed.service.
+[PM2] [v] Command successfully executed.
++---------------------------------------+
+[PM2] Freeze a process list on reboot via:
+$ pm2 save
+
+[PM2] Remove init script via:
+$ pm2 unstartup systemd
+
+====================================
+🎉 Sahara Journeys is now running!
+====================================
+
+📱 Access URLs:
+   Local: http://localhost:3000
+   Network: http://10.0.0.4:3000
+
+🔧 Management Commands:
+   View status: pm2 status
+   View logs: pm2 logs sahara-journeys
+   Restart: pm2 restart sahara-journeys
+   Stop: pm2 stop sahara-journeys
+   Monitor: pm2 monit
+
+🛑 To stop completely: pm2 stop sahara-journeys && pm2 delete sahara-journeys
+
