@@ -1,0 +1,236 @@
+
+> rest-express@1.0.0 dev
+Testing database connection...nt tsx server/index.ts
+🔑 Google AI API Key status: Found (AIzaSyBLsu...)
+🔍 Full environment check: {
+  hasGoogleAIKey: false,
+  hasOldGoogleKey: false,
+  hasGeminiKey: false,
+  nodeEnv: 'development',
+  keyLength: 39,
+  usingFallback: true
+}
+🔗 Using fallback DATABASE_URL
+⏳ Waiting for database initialization...
+Failed to connect to database: error: Your project has exceeded the data transfer quota. Upgrade your plan to increase limits.
+    at file:///home/runner/workspace/node_modules/@neondatabase/serverless/index.mjs:1345:74
+    at process.processTicksAndRejections (node:internal/process/task_queues:95:5)
+    at async initializeDatabase (/home/runner/workspace/server/db.ts:29:5)
+    at async <anonymous> (/home/runner/workspace/server/index.ts:98:24) {
+  length: 109,
+  severity: 'ERROR',
+  code: 'XX000',
+  detail: undefined,
+  hint: undefined,
+  position: undefined,
+  internalPosition: undefined,
+  internalQuery: undefined,
+  where: undefined,
+  schema: undefined,
+  table: undefined,
+  column: undefined,
+  dataType: undefined,
+  constraint: undefined,
+  file: undefined,
+  line: undefined,
+  routine: undefined
+}
+📦 Using fallback storage due to database connection issues.
+🔐 Setting up admin users...
+❌ Error setting up admin users: error: Your project has exceeded the data transfer quota. Upgrade your plan to increase limits.
+    at file:///home/runner/workspace/node_modules/@neondatabase/serverless/index.mjs:1345:74
+    at process.processTicksAndRejections (node:internal/process/task_queues:95:5)
+    at async NeonPreparedQuery.execute (/home/runner/workspace/node_modules/src/neon-serverless/session.ts:102:18)
+    at async setupAdmin (/home/runner/workspace/server/admin-setup.ts:20:27)
+    at async <anonymous> (/home/runner/workspace/server/index.ts:116:7) {
+  length: 109,
+  severity: 'ERROR',
+  code: 'XX000',
+  detail: undefined,
+  hint: undefined,
+  position: undefined,
+  internalPosition: undefined,
+  internalQuery: undefined,
+  where: undefined,
+  schema: undefined,
+  table: undefined,
+  column: undefined,
+  dataType: undefined,
+  constraint: undefined,
+  file: undefined,
+  line: undefined,
+  routine: undefined
+}
+✅ Admin setup completed
+✅ Unified auth setup completed
+✅ Hero slides routes setup completed
+🔧 Setting up upload routes...
+✅ Upload routes and static serving setup completed
+🔧 Setting up upload routes...
+✅ API routes registered successfully
+🔧 Initializing database...
+📋 Creating database schema...
+✅ Vite development setup completed
+6:56:29 AM [express] ✅ Server serving on port 8080
+🌍 Application available at http://localhost:8080
+✅ Database schema created successfully
+🔄 Checking database setup...
+❌ Error setting up database: error: Your project has exceeded the data transfer quota. Upgrade your plan to increase limits.
+    at file:///home/runner/workspace/node_modules/@neondatabase/serverless/index.mjs:1345:74
+    at process.processTicksAndRejections (node:internal/process/task_queues:95:5)
+    at async setupDatabase (/home/runner/workspace/setup-for-remix.ts:13:5)
+    at async initializeDatabase (/home/runner/workspace/server/init-database.ts:21:5)
+    at async <anonymous> (/home/runner/workspace/server/index.ts:251:9) {
+  length: 109,
+  severity: 'ERROR',
+  code: 'XX000',
+  detail: undefined,
+  hint: undefined,
+  position: undefined,
+  internalPosition: undefined,
+  internalQuery: undefined,
+  where: undefined,
+  schema: undefined,
+  table: undefined,
+  column: undefined,
+  dataType: undefined,
+  constraint: undefined,
+  file: undefined,
+  line: undefined,
+  routine: undefined
+}
+🔐 Setting up admin users...
+❌ Error setting up admin users: error: Your project has exceeded the data transfer quota. Upgrade your plan to increase limits.
+    at file:///home/runner/workspace/node_modules/@neondatabase/serverless/index.mjs:1345:74
+    at process.processTicksAndRejections (node:internal/process/task_queues:95:5)
+    at async NeonPreparedQuery.execute (/home/runner/workspace/node_modules/src/neon-serverless/session.ts:102:18)
+    at async Module.setupAdmin (/home/runner/workspace/server/admin-setup.ts:20:27)
+    at async initializeDatabase (/home/runner/workspace/server/init-database.ts:24:5)
+    at async <anonymous> (/home/runner/workspace/server/index.ts:251:9) {
+  length: 109,
+  severity: 'ERROR',
+  code: 'XX000',
+  detail: undefined,
+  hint: undefined,
+  position: undefined,
+  internalPosition: undefined,
+  internalQuery: undefined,
+  where: undefined,
+  schema: undefined,
+  table: undefined,
+  column: undefined,
+  dataType: undefined,
+  constraint: undefined,
+  file: undefined,
+  line: undefined,
+  routine: undefined
+}
+🏷️ Seeding package categories...
+🏷️ Seeding package categories...
+Error listing package categories: error: Your project has exceeded the data transfer quota. Upgrade your plan to increase limits.
+    at cn.parseErrorMessage (file:///home/runner/workspace/node_modules/@neondatabase/serverless/index.mjs:1182:6)
+    at cn.handlePacket (file:///home/runner/workspace/node_modules/@neondatabase/serverless/index.mjs:1143:13)
+    at cn.parse (file:///home/runner/workspace/node_modules/@neondatabase/serverless/index.mjs:1127:36)
+    at v.<anonymous> (file:///home/runner/workspace/node_modules/@neondatabase/serverless/index.mjs:1190:16)
+    at v.emit (file:///home/runner/workspace/node_modules/@neondatabase/serverless/index.mjs:397:12)
+    at WebSocket.<anonymous> (file:///home/runner/workspace/node_modules/@neondatabase/serverless/index.mjs:987:80)
+    at callListener (/home/runner/workspace/node_modules/ws/lib/event-target.js:290:14)
+    at WebSocket.onMessage (/home/runner/workspace/node_modules/ws/lib/event-target.js:209:9)
+    at WebSocket.emit (node:events:518:28)
+    at Receiver.receiverOnMessage (/home/runner/workspace/node_modules/ws/lib/websocket.js:1220:20)
+    at Receiver.emit (node:events:518:28)
+    at Receiver.dataMessage (/home/runner/workspace/node_modules/ws/lib/receiver.js:569:14)
+    at Receiver.getData (/home/runner/workspace/node_modules/ws/lib/receiver.js:496:10)
+    at Receiver.startLoop (/home/runner/workspace/node_modules/ws/lib/receiver.js:167:16)
+    at Receiver._write (/home/runner/workspace/node_modules/ws/lib/receiver.js:94:10)
+    at writeOrBuffer (node:internal/streams/writable:572:12)
+    at _write (node:internal/streams/writable:501:10)
+    at Writable.write (node:internal/streams/writable:510:10)
+    at TLSSocket.socketOnData (/home/runner/workspace/node_modules/ws/lib/websocket.js:1355:35)
+    at TLSSocket.emit (node:events:518:28)
+    at addChunk (node:internal/streams/readable:561:12)
+    at readableAddChunkPushByteMode (node:internal/streams/readable:512:3)
+    at Readable.push (node:internal/streams/readable:392:5)
+    at TLSWrap.onStreamRead (node:internal/stream_base_commons:191:23) {
+  length: 109,
+  severity: 'ERROR',
+  code: 'XX000',
+  detail: undefined,
+  hint: undefined,
+  position: undefined,
+  internalPosition: undefined,
+  internalQuery: undefined,
+  where: undefined,
+  schema: undefined,
+  table: undefined,
+  column: undefined,
+  dataType: undefined,
+  constraint: undefined,
+  file: undefined,
+  line: undefined,
+  routine: undefined
+}
+Error listing package categories: error: Your project has exceeded the data transfer quota. Upgrade your plan to increase limits.
+    at cn.parseErrorMessage (file:///home/runner/workspace/node_modules/@neondatabase/serverless/index.mjs:1182:6)
+    at cn.handlePacket (file:///home/runner/workspace/node_modules/@neondatabase/serverless/index.mjs:1143:13)
+    at cn.parse (file:///home/runner/workspace/node_modules/@neondatabase/serverless/index.mjs:1127:36)
+    at v.<anonymous> (file:///home/runner/workspace/node_modules/@neondatabase/serverless/index.mjs:1190:16)
+    at v.emit (file:///home/runner/workspace/node_modules/@neondatabase/serverless/index.mjs:397:12)
+    at WebSocket.<anonymous> (file:///home/runner/workspace/node_modules/@neondatabase/serverless/index.mjs:987:80)
+    at callListener (/home/runner/workspace/node_modules/ws/lib/event-target.js:290:14)
+    at WebSocket.onMessage (/home/runner/workspace/node_modules/ws/lib/event-target.js:209:9)
+    at WebSocket.emit (node:events:518:28)
+    at Receiver.receiverOnMessage (/home/runner/workspace/node_modules/ws/lib/websocket.js:1220:20)
+    at Receiver.emit (node:events:518:28)
+    at Receiver.dataMessage (/home/runner/workspace/node_modules/ws/lib/receiver.js:569:14)
+    at Receiver.getData (/home/runner/workspace/node_modules/ws/lib/receiver.js:496:10)
+    at Receiver.startLoop (/home/runner/workspace/node_modules/ws/lib/receiver.js:167:16)
+    at Receiver._write (/home/runner/workspace/node_modules/ws/lib/receiver.js:94:10)
+    at writeOrBuffer (node:internal/streams/writable:572:12)
+    at _write (node:internal/streams/writable:501:10)
+    at Writable.write (node:internal/streams/writable:510:10)
+    at TLSSocket.socketOnData (/home/runner/workspace/node_modules/ws/lib/websocket.js:1355:35)
+    at TLSSocket.emit (node:events:518:28)
+    at addChunk (node:internal/streams/readable:561:12)
+    at readableAddChunkPushByteMode (node:internal/streams/readable:512:3)
+    at Readable.push (node:internal/streams/readable:392:5)
+    at TLSWrap.onStreamRead (node:internal/stream_base_commons:191:23) {
+  length: 109,
+  severity: 'ERROR',
+  code: 'XX000',
+  detail: undefined,
+  hint: undefined,
+  position: undefined,
+  internalPosition: undefined,
+  internalQuery: undefined,
+  where: undefined,
+  schema: undefined,
+  table: undefined,
+  column: undefined,
+  dataType: undefined,
+  constraint: undefined,
+  file: undefined,
+  line: undefined,
+  routine: undefined
+}
+file:///home/runner/workspace/node_modules/@neondatabase/serverless/index.mjs:395
+0&&(o=t[0]),o instanceof Error)throw o;var u=new Error("Unhandled error."+(o?" ("+
+                               ^
+
+Error: Connection terminated unexpectedly
+    at fn.<anonymous> (file:///home/runner/workspace/node_modules/@neondatabase/serverless/index.mjs:1250:44)
+    at Object.onceWrapper (file:///home/runner/workspace/node_modules/@neondatabase/serverless/index.mjs:410:15)
+    at fn.emit (file:///home/runner/workspace/node_modules/@neondatabase/serverless/index.mjs:397:12)
+    at v.<anonymous> (file:///home/runner/workspace/node_modules/@neondatabase/serverless/index.mjs:1202:66)
+    at v.emit (file:///home/runner/workspace/node_modules/@neondatabase/serverless/index.mjs:397:12)
+    at WebSocket.<anonymous> (file:///home/runner/workspace/node_modules/@neondatabase/serverless/index.mjs:988:51)
+    at callListener (/home/runner/workspace/node_modules/ws/lib/event-target.js:290:14)
+    at WebSocket.onClose (/home/runner/workspace/node_modules/ws/lib/event-target.js:220:9)
+    at WebSocket.emit (node:events:518:28)
+    at WebSocket.emitClose (/home/runner/workspace/node_modules/ws/lib/websocket.js:272:10)
+    at TLSSocket.socketOnClose (/home/runner/workspace/node_modules/ws/lib/websocket.js:1341:15)
+    at TLSSocket.emit (node:events:530:35)
+    at node:net:343:12
+    at TCP.done (node:_tls_wrap:648:7)
+
+Node.js v20.18.1
