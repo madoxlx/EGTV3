@@ -12,12 +12,14 @@ if (!DATABASE_URL) {
   );
 }
 
-// Create connection pool with timeout settings
+// Create connection pool with timeout settings for Azure PostgreSQL
 export const pool = new Pool({ 
   connectionString: DATABASE_URL,
-  connectionTimeoutMillis: 5000,
-  idleTimeoutMillis: 10000,
-  ssl: false
+  connectionTimeoutMillis: 10000,
+  idleTimeoutMillis: 30000,
+  ssl: {
+    rejectUnauthorized: false // For Azure PostgreSQL
+  }
 });
 export const db = drizzle(pool, { schema });
 

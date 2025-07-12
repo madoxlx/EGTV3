@@ -18,7 +18,7 @@ dotenv.config();
 
 // Set DATABASE_URL if not present in environment
 if (!process.env.DATABASE_URL) {
-  process.env.DATABASE_URL = "postgresql://EgSite:MyGodBlessUs2025@74.179.85.9:5432/egsite_db";
+  process.env.DATABASE_URL = "postgresql://EgSite:MyGodBlessUs2025@74.179.85.9:5432/egsite_db?sslmode=require";
   console.log('🔗 Using fallback DATABASE_URL');
 }
 
