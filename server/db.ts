@@ -1,14 +1,10 @@
-import { Pool, neonConfig } from '@neondatabase/serverless';
-import { drizzle } from 'drizzle-orm/neon-serverless';
-import ws from "ws";
+import { Pool } from 'pg';
+import { drizzle } from 'drizzle-orm/node-postgres';
 import { sql } from "drizzle-orm";
 import * as schema from "@shared/schema";
 
-// Configure WebSocket for Neon serverless
-neonConfig.webSocketConstructor = ws;
-
 // Set fallback DATABASE_URL if not present
-const DATABASE_URL = process.env.DATABASE_URL || "postgresql://neondb_owner:npg_ZN9Ylt3AoQRJ@ep-dawn-voice-a8bd2yi7-pooler.eastus2.azure.neon.tech/neondb?sslmode=require";
+const DATABASE_URL = process.env.DATABASE_URL || "postgresql://EgSite:MyGodBlessUs2025@74.179.85.9:5432/egsite_db";
 
 if (!DATABASE_URL) {
   throw new Error(
@@ -16,9 +12,14 @@ if (!DATABASE_URL) {
   );
 }
 
-// Create connection pool
-export const pool = new Pool({ connectionString: DATABASE_URL });
-export const db = drizzle({ client: pool, schema });
+// Create connection pool with timeout settings
+export const pool = new Pool({ 
+  connectionString: DATABASE_URL,
+  connectionTimeoutMillis: 5000,
+  idleTimeoutMillis: 10000,
+  ssl: false
+});
+export const db = drizzle(pool, { schema });
 
 // Initialize database connection with proper error handling
 async function initializeDatabase() {

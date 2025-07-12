@@ -106,6 +106,15 @@ The application uses a comprehensive PostgreSQL schema with the following core e
 
 ## Recent Changes
 
+- **Database Connection Update - Neon to PostgreSQL Migration (July 12, 2025)**: Successfully migrated from Neon serverless database to standard PostgreSQL connection
+  - **Database Driver Change**: Replaced `@neondatabase/serverless` with standard `pg` (node-postgres) driver for better compatibility
+  - **Connection String Update**: Updated to use PostgreSQL connection string `postgresql://EgSite:MyGodBlessUs2025@74.179.85.9:5432/egsite_db`
+  - **Removed Neon Dependencies**: Eliminated neonConfig and WebSocket dependencies that were causing quota exceeded errors
+  - **Enhanced Error Handling**: Added connection timeouts and improved error handling for network issues
+  - **Database Configuration Files Updated**: Modified `server/db.ts` and `server/index.ts` to use standard PostgreSQL connection
+  - **Environment Variable Ready**: Configuration uses DATABASE_URL environment variable for connection string
+  - **Note**: Network connectivity may need to be verified between hosting environment and database server
+
 - **PM2 Production Process Manager Configuration Complete (July 8, 2025)**: Successfully configured PM2 to run Sahara Journeys application on port 8080
   - **PM2 Installation**: Added PM2 package for production process management with auto-restart and monitoring capabilities
   - **Port 8080 Configuration**: Configured PM2 environment to explicitly use PORT=8080 matching server's default fallback configuration
