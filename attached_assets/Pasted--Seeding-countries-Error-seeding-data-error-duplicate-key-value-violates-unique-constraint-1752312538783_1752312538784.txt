@@ -1,0 +1,132 @@
+🌍 Seeding countries...
+❌ Error seeding data: error: duplicate key value violates unique constraint "countries_code_key"
+    at /home/runner/workspace/node_modules/pg-pool/index.js:45:11
+    at process.processTicksAndRejections (node:internal/process/task_queues:95:5)
+    at async <anonymous> (/home/runner/workspace/node_modules/src/node-postgres/session.ts:104:19)
+    at async DatabaseStorage.createCountry (/home/runner/workspace/server/storage.ts:300:23)
+    at async Module.seed (/home/runner/workspace/server/seed.ts:20:19)
+    at async initializeDatabase (/home/runner/workspace/server/init-database.ts:30:5)
+    at async <anonymous> (/home/runner/workspace/server/index.ts:275:9) {
+  length: 203,
+  severity: 'ERROR',
+  code: '23505',
+  detail: 'Key (code)=(EG) already exists.',
+  hint: undefined,
+  position: undefined,
+  internalPosition: undefined,
+  internalQuery: undefined,
+  where: undefined,
+  schema: 'public',
+  table: 'countries',
+  column: undefined,
+  dataType: undefined,
+  constraint: 'countries_code_key',
+  file: 'nbtinsert.c',
+  line: '666',
+  routine: '_bt_check_unique'
+}
+✅ Database initialization complete!
+9:28:12 AM [express] GET /api/hero-slides/active 304 in 2ms :: [{"id":1,"title":"Welcome to Sahara Journeys","subtitle":"Discover the Magic of the Middle East","descrip…
+Error listing packages: error: column "discounted_price" does not exist
+    at /home/runner/workspace/node_modules/pg-pool/index.js:45:11
+    at process.processTicksAndRejections (node:internal/process/task_queues:95:5)
+    at async <anonymous> (/home/runner/workspace/node_modules/src/node-postgres/session.ts:104:19)
+    at async DatabaseStorage.listPackages (/home/runner/workspace/server/storage.ts:518:14)
+    at async <anonymous> (/home/runner/workspace/server/routes.ts:572:24) {
+  length: 186,
+  severity: 'ERROR',
+  code: '42703',
+  detail: undefined,
+  hint: 'Perhaps you meant to reference the column "packages.discount_price".',
+  position: '80',
+  internalPosition: undefined,
+  internalQuery: undefined,
+  where: undefined,
+  schema: undefined,
+  table: undefined,
+  column: undefined,
+  dataType: undefined,
+  constraint: undefined,
+  file: 'parse_relation.c',
+  line: '3723',
+  routine: 'errorMissingColumn'
+}
+9:28:12 AM [express] GET /api/packages 304 in 26ms :: []
+9:28:12 AM [express] GET /api/destinations 304 in 73ms :: []
+9:28:12 AM [express] GET /api/tour-categories 304 in 61ms :: []
+9:28:12 AM [express] GET /api/cities 200 in 66ms :: [{"id":5,"name":"Abu Dhabi","countryId":2,"description":"The capital of the UAE, known for its cultural landmarks an…
+9:28:12 AM [express] GET /api/countries 200 in 66ms :: [{"id":1,"name":"Egypt","code":"EG","description":"A country linking northeast Africa with the Middle East, dates…
+Error getting menu by location: error: column "description" does not exist
+    at /home/runner/workspace/node_modules/pg-pool/index.js:45:11
+    at process.processTicksAndRejections (node:internal/process/task_queues:95:5)
+    at async <anonymous> (/home/runner/workspace/node_modules/src/node-postgres/session.ts:104:19)
+    at async DatabaseStorage.getMenuByLocation (/home/runner/workspace/server/storage.ts:972:22)
+    at async <anonymous> (/home/runner/workspace/server/routes.ts:4486:20) {
+  length: 111,
+  severity: 'ERROR',
+  code: '42703',
+  detail: undefined,
+  hint: undefined,
+  position: '34',
+  internalPosition: undefined,
+  internalQuery: undefined,
+  where: undefined,
+  schema: undefined,
+  table: undefined,
+  column: undefined,
+  dataType: undefined,
+  constraint: undefined,
+  file: 'parse_relation.c',
+  line: '3716',
+  routine: 'errorMissingColumn'
+}
+9:28:12 AM [express] GET /api/menus/location/footer 404 in 16ms :: {"message":"Menu not found for this location"}
+Error listing translations: error: column "context" does not exist
+    at /home/runner/workspace/node_modules/pg-pool/index.js:45:11
+    at process.processTicksAndRejections (node:internal/process/task_queues:95:5)
+    at async <anonymous> (/home/runner/workspace/node_modules/src/node-postgres/session.ts:104:19)
+    at async DatabaseStorage.listTranslations (/home/runner/workspace/server/storage.ts:1121:14)
+    at async <anonymous> (/home/runner/workspace/server/index.ts:176:30) {
+  length: 211,
+  severity: 'ERROR',
+  code: '42703',
+  detail: undefined,
+  hint: 'Perhaps you meant to reference the column "translations.en_text" or the column "translations.ar_text".',
+  position: '43',
+  internalPosition: undefined,
+  internalQuery: undefined,
+  where: undefined,
+  schema: undefined,
+  table: undefined,
+  column: undefined,
+  dataType: undefined,
+  constraint: undefined,
+  file: 'parse_relation.c',
+  line: '3737',
+  routine: 'errorMissingColumn'
+}
+9:28:12 AM [express] GET /api/translations 304 in 14ms :: []
+Error getting site language settings: error: relation "site_language_settings" does not exist
+    at /home/runner/workspace/node_modules/pg/lib/client.js:545:17
+    at process.processTicksAndRejections (node:internal/process/task_queues:95:5)
+    at async DatabaseStorage.getSiteLanguageSettings (/home/runner/workspace/server/storage.ts:1186:22)
+    at async <anonymous> (/home/runner/workspace/server/index.ts:199:26) {
+  length: 121,
+  severity: 'ERROR',
+  code: '42P01',
+  detail: undefined,
+  hint: undefined,
+  position: '15',
+  internalPosition: undefined,
+  internalQuery: undefined,
+  where: undefined,
+  schema: undefined,
+  table: undefined,
+  column: undefined,
+  dataType: undefined,
+  constraint: undefined,
+  file: 'parse_relation.c',
+  line: '1449',
+  routine: 'parserOpenTable'
+}
+9:28:12 AM [express] GET /api/translations/settings 304 in 11ms :: {"defaultLanguage":"en","availableLanguages":["en","ar"],"rtlLanguages":["ar"]}
