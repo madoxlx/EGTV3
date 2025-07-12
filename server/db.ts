@@ -6,7 +6,7 @@ import * as schema from "@shared/schema";
 // Set fallback DATABASE_URL if not present
 const DATABASE_URL =
   process.env.DATABASE_URL ||
-  "postgresql://egsite:Pass2020@74.179.85.9:5432/egsite_db?sslmode=require";
+  "postgresql://egsite:Pass2020@74.179.85.9:5432/egsite_db?sslmode=disable";
 
 if (!DATABASE_URL) {
   throw new Error(
@@ -19,9 +19,7 @@ export const pool = new Pool({
   connectionString: DATABASE_URL,
   connectionTimeoutMillis: 10000,
   idleTimeoutMillis: 30000,
-  ssl: {
-    rejectUnauthorized: false, // For Azure PostgreSQL
-  },
+  ssl: false, // Disable SSL for self-signed certificate issues
 });
 export const db = drizzle(pool, { schema });
 
