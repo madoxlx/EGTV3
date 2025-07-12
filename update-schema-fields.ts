@@ -82,6 +82,8 @@ async function updateSchemaFields() {
     await sql`DO $$ BEGIN IF NOT EXISTS (SELECT 1 FROM information_schema.columns WHERE table_name = 'packages' AND column_name = 'overview') THEN ALTER TABLE packages ADD COLUMN overview TEXT; END IF; END $$;`;
     // category
     await sql`DO $$ BEGIN IF NOT EXISTS (SELECT 1 FROM information_schema.columns WHERE table_name = 'packages' AND column_name = 'category') THEN ALTER TABLE packages ADD COLUMN category TEXT; END IF; END $$;`;
+    // category_id - Package category reference
+    await sql`DO $$ BEGIN IF NOT EXISTS (SELECT 1 FROM information_schema.columns WHERE table_name = 'packages' AND column_name = 'category_id') THEN ALTER TABLE packages ADD COLUMN category_id INTEGER; END IF; END $$;`;
     // selected_tour_id
     await sql`DO $$ BEGIN IF NOT EXISTS (SELECT 1 FROM information_schema.columns WHERE table_name = 'packages' AND column_name = 'selected_tour_id') THEN ALTER TABLE packages ADD COLUMN selected_tour_id INTEGER REFERENCES tours(id); END IF; END $$;`;
     // transportation

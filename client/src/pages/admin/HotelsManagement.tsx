@@ -356,7 +356,7 @@ export default function HotelsManagement() {
                             <FormLabel>Destination*</FormLabel>
                             <Select
                               onValueChange={(value) => field.onChange(parseInt(value))}
-                              defaultValue={field.value?.toString()}
+                              defaultValue={field.value?.toString() || ""}
                             >
                               <FormControl>
                                 <SelectTrigger>
@@ -386,7 +386,7 @@ export default function HotelsManagement() {
                             <FormLabel>Category</FormLabel>
                             <Select
                               onValueChange={(value) => field.onChange(parseInt(value))}
-                              defaultValue={field.value?.toString()}
+                              defaultValue={field.value?.toString() || ""}
                             >
                               <FormControl>
                                 <SelectTrigger>

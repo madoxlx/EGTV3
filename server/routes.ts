@@ -2304,7 +2304,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
   // Create a new package (admin only)
   app.post('/api/admin/packages', isAdmin, async (req, res) => {
     try {
-      console.log('Package creation request received:', JSON.stringify(req.body));
+      console.log('Package creation request received for:', req.body.title || req.body.name || 'unnamed package');
       
       // Process JSON fields before validation
       const processedData = { ...req.body };
@@ -2378,7 +2378,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
       delete processedData.createdBy;
       delete processedData.updatedBy;
       
-      console.log('Processed package data:', JSON.stringify(processedData));
+      console.log('Processed package data ready for insertion:', processedData.title || processedData.name || 'unnamed package');
       
       // If destinationId is provided, verify it exists
       if (processedData.destinationId) {
@@ -2681,7 +2681,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
       // Remove validation-only fields that shouldn't be stored
       delete processedData.allowFormSubmission;
 
-      console.log('Processed update data (alt endpoint):', JSON.stringify(processedData));
+      console.log('Processed update data ready for database:', processedData.title || processedData.name || 'unnamed package');
       
       // If destinationId is being updated, verify the new destination exists
       if (processedData.destinationId && processedData.destinationId !== existingPackage.destinationId) {
@@ -2693,7 +2693,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
       
       // Perform the update operation with processed data
       const updatedPackage = await storage.updatePackage(id, processedData);
-      console.log('Updated package result (alt endpoint):', JSON.stringify(updatedPackage));
+      console.log('Package updated successfully:', updatedPackage.title || updatedPackage.name || 'unnamed package');
       
       res.json(updatedPackage);
     } catch (error: any) {

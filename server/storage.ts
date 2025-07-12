@@ -598,17 +598,9 @@ export class DatabaseStorage implements IStorage {
 
   async createHotel(hotel: InsertHotel): Promise<Hotel> {
     try {
-      console.log("Storage createHotel called with data:", hotel);
-      console.log("Hotel data keys:", Object.keys(hotel));
-      console.log("=== STORAGE FEATURES DEBUG ===");
-      console.log("Input hotel.features:", hotel.features);
-      console.log("Input features type:", typeof hotel.features);
-      console.log("Input features is array:", Array.isArray(hotel.features));
-      if (Array.isArray(hotel.features)) {
-        console.log("Input features length:", hotel.features.length);
-        hotel.features.forEach((feature, index) => {
-          console.log(`Input feature ${index}:`, JSON.stringify(feature));
-        });
+      console.log("Storage createHotel called with data:", hotel.name || "Unnamed Hotel");
+      if (hotel.features && Array.isArray(hotel.features) && hotel.features.length > 0) {
+        console.log("Hotel features:", hotel.features.length, "items");
       }
 
       // Ensure JSON fields are properly serialized for JSONB columns
@@ -624,16 +616,8 @@ export class DatabaseStorage implements IStorage {
         features: hotel.features || [], // Add features array for simplified storage
       };
 
-      console.log("Processed hotel data for insertion:", processedHotel);
-      console.log("=== PROCESSED FEATURES DEBUG ===");
-      console.log("Processed hotel.features:", processedHotel.features);
-      console.log("Processed features type:", typeof processedHotel.features);
-      console.log("Processed features is array:", Array.isArray(processedHotel.features));
-      if (Array.isArray(processedHotel.features)) {
-        console.log("Processed features length:", processedHotel.features.length);
-        processedHotel.features.forEach((feature, index) => {
-          console.log(`Processed feature ${index}:`, JSON.stringify(feature));
-        });
+      if (processedHotel.features && Array.isArray(processedHotel.features)) {
+        console.log("Processed features ready for insertion:", processedHotel.features.length, "items");
       }
 
       const [created] = await db

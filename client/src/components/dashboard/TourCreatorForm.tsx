@@ -612,7 +612,7 @@ export function TourCreatorForm({ tourId }: TourCreatorFormProps) {
                       <Label htmlFor="destination" className="text-sm font-medium">
                         الوجهة <span className="text-red-500">*</span>
                       </Label>
-                      <Select onValueChange={(value) => field.onChange(parseInt(value))} value={field.value?.toString()}>
+                      <Select onValueChange={(value) => field.onChange(parseInt(value))} value={field.value?.toString() || ""}>
                         <SelectTrigger className={error ? "border-red-500" : ""}>
                           <SelectValue placeholder="اختر الوجهة" />
                         </SelectTrigger>
@@ -639,7 +639,7 @@ export function TourCreatorForm({ tourId }: TourCreatorFormProps) {
                       <Label htmlFor="tripType" className="text-sm font-medium">
                         نوع الرحلة <span className="text-red-500">*</span>
                       </Label>
-                      <Select onValueChange={field.onChange} value={field.value} disabled={categoriesLoading}>
+                      <Select onValueChange={field.onChange} value={field.value || ""} disabled={categoriesLoading}>
                         <SelectTrigger className={error ? "border-red-500" : ""}>
                           <SelectValue placeholder={categoriesLoading ? "جاري التحميل..." : "اختر نوع الرحلة"} />
                         </SelectTrigger>

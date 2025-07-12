@@ -21,7 +21,17 @@ export async function apiRequest<T = any>(
     ? { ...defaultOptions, ...options } 
     : defaultOptions;
 
-  console.log(`API ${mergedOptions.method} ${url}:`, mergedOptions.body ? JSON.parse(mergedOptions.body as string) : null);
+  if (mergedOptions.body) {
+    try {
+      const bodyData = JSON.parse(mergedOptions.body as string);
+      // Only log if body has actual data
+      if (bodyData && Object.keys(bodyData).length > 0) {
+        console.log(`API ${mergedOptions.method} ${url}:`, bodyData);
+      }
+    } catch (e) {
+      console.log(`API ${mergedOptions.method} ${url}:`, mergedOptions.body);
+    }
+  }
   
   const res = await fetch(url, mergedOptions);
   
