@@ -1,0 +1,34 @@
+ahmed@EETHost:~/eetvv1/A$ ls
+ 169947                                      debug-translations-schema.ts   package.json                 sqlite.db                         test-hotel-features.ts
+ ADMIN_SESSION_PROTECTION.md                 dev-server.js                  populate-translations.ts     standalone-api-server.ts          test-login.ts
+ FORMS_ANALYSIS.md                           direct-test-auth.js            postcss.config.js            standalone-server.ts              test-minimal-api-call.ts
+ LINUX_SETUP_GUIDE.md                        dist                           production-setup.md          start-app.js                      test-package-10-db.ts
+ PLATFORM_ANALYSIS_REPORT.md                 drizzle-kit                    public                       start-auth-server.ts              test-registration.js
+'Sahara Journeys'                            drizzle.config.json            push-schema.ts               start-dev-server.js               test-registration.ts
+ TOURS_EDIT_IMPLEMENTATION.md                exports                        replit.md                    start-dev.js                      test-schema-validation.ts
+ add-active-column-to-tours.ts               fix-admin-role.ts              replit_agent                 start-fixed-server.js             test-seeding.ts
+ add-arabic-fields-to-packages.ts            fix-admin-translations.js      reset-menus.ts               start-linux.sh                    test-server-auth.ts
+ add-essential-translations.ts               fix-all-pages-styling.ts       rest-express@1.0.0           start-production.bat              test-server-env.ts
+ add-gallery-urls-column.ts                  fix-dashboard-duplicates.js    restart-ubuntu.sh            start-server.js                   test-simplified-features.ts
+ add-hotel-fields.ts                         fix-database-complete.ts       run-markup-migration.ts      start-server.sh                   test-storage-direct.ts
+ add-included-excluded-features-columns.ts   fix-footer-menu.ts             run-seed.ts                  start-simple.js                   test-tours-edit.js
+ add-markup-type-column.ts                   fix-login-summary.md           seed-comprehensive-data.ts   start-ubuntu.sh                   test-translations-complete.ts
+ add-markup-type-simple.ts                   fix-markup-type-database.ts    seed-packages.ts             stop-production.bat               test-translations-system.ts
+ add-test-restaurant-data.ts                 fix-packages-schema.ts         seed-real-data.ts            stop-ubuntu.sh                    test_cookies.txt
+ add-tour-policies-columns.ts                fix-registration.js            seed-rooms.ts                tailwind.config.ts                theme.json
+ add-tour-policies-migration.ts              fix-sidebar-duplication.js     seed-sample-data.ts          test-airport-functionality.ts     tsconfig.json
+ app.pid                                     fix-translations-schema.ts     seed-users.ts                test-api-and-check-db.ts          ubuntu-setup.md
+ attached_assets                             fix-translations-system.ts     server                       test-api-data-flow.ts             update-admin-inputs.js
+ check-features-column.ts                    fix-translations-value.ts      server-node18.ts             test-auth-complete.ts             update-menu-route.ts
+ client                                      get-hotel-amenities.js         server-only.js               test-auth-direct.js               update-schema-fields.ts
+ complete-translations-fix.ts                init-db-direct.ts              server.pid                   test-auth-session.ts              upgrade-nodejs.sh
+ cookies.txt                                 login_test.txt                 setup-database.js            test-create-hotel-api.ts          verify-package-edit-fix.ts
+ create-admin-user.ts                        migrate.ts                     setup-for-remix.ts           test-db-connection.ts             vite
+ create-tables-direct.ts                     minimal-auth-test.ts           setup-language-settings.ts   test-enhanced-error-handling.ts   vite.config.ts
+ cross-env                                   node_modules                   setup-new-db.ts              test-enhanced-features.ts         working-auth-server.js
+ data                                        package-lock.json              shared                       test-gemini-api.ts
+ database_schema_diagram.md                  package-production.json        simple-seed.ts               test-hotel-creation-features.ts
+ debug-hotel-features.ts                     package-scripts.js             simple-server.js             test-hotel-features-fix.ts
+ahmed@EETHost:~/eetvv1/A$ npm run dev
+
+> rest-express@1.0.0 dev
