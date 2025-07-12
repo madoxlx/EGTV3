@@ -1,0 +1,165 @@
+Storage createHotel called with data: asdasdasda
+Hotel features: 4 items
+Processed features ready for insertion: 4 items
+Database error in createHotel: error: column "category_id" of relation "hotels" does not exist
+    at /home/runner/workspace/node_modules/pg-pool/index.js:45:11
+    at process.processTicksAndRejections (node:internal/process/task_queues:95:5)
+    at async <anonymous> (/home/runner/workspace/node_modules/src/node-postgres/session.ts:104:19)
+    at async DatabaseStorage.createHotel (/home/runner/workspace/server/storage.ts:623:25)
+    at async <anonymous> (/home/runner/workspace/server/routes.ts:3411:24) {
+  length: 131,
+  severity: 'ERROR',
+  code: '42703',
+  detail: undefined,
+  hint: undefined,
+  position: '116',
+  internalPosition: undefined,
+  internalQuery: undefined,
+  where: undefined,
+  schema: undefined,
+  table: undefined,
+  column: undefined,
+  dataType: undefined,
+  constraint: undefined,
+  file: 'parse_target.c',
+  line: '1065',
+  routine: 'checkInsertTargets'
+}
+Hotel data that caused error: {
+  name: 'asdasdasda',
+  description: 'سشيشسيسشي',
+  shortDescription: undefined,
+  destinationId: 1,
+  countryId: 1,
+  cityId: 1,
+  categoryId: null,
+  address: 'dasdlasdka;lsa;dslf',
+  city: 'Cairo',
+  country: 'Egypt',
+  postalCode: '12121',
+  phone: '+2011521171022',
+  email: 'ahmed4@elmasrimedia.com',
+  website: 'https://replit.com/@xyz211/EgyptExpressTVL',
+  imageUrl: '/uploads/image-1752326388805-193984376.jpg',
+  galleryUrls: [
+    '/uploads/image-1752326395272-333590275.png',
+    '/uploads/image-1752326395820-346790041.png'
+  ],
+  stars: 3,
+  basePrice: null,
+  currency: 'EGP',
+  amenities: undefined,
+  checkInTime: '14:00',
+  checkOutTime: '11:00',
+  longitude: 321321321,
+  latitude: 2321321321,
+  featured: false,
+  rating: null,
+  guestRating: null,
+  status: 'active',
+  verificationStatus: 'pending',
+  parkingAvailable: true,
+  airportTransferAvailable: false,
+  carRentalAvailable: true,
+  shuttleAvailable: false,
+  wifiAvailable: true,
+  petFriendly: false,
+  accessibleFacilities: false,
+  createdBy: 1,
+  restaurants: [
+    {
+      name: 'سيسشيسشي',
+      cuisineType: 'سيسشي',
+      breakfastOptions: [Array]
+    },
+    {
+      name: 'سشيسشيسشي',
+      cuisineType: 'سشيسش',
+      breakfastOptions: [Array]
+    }
+  ],
+  landmarks: [
+    {
+      name: 'Great Pyramid of Giza',
+      description: 'Ancient Egyptian pyramid',
+      distance: '1.2 km',
+      placeId: 'ChIJN8F_47w7WBQRUJGUzM6Fsks'
+    },
+    {
+      name: 'Egyptian Museum',
+      description: 'History museum',
+      distance: '3.4 km',
+      placeId: 'ChIJ5y7_47R7WBQRuLZMSJXnDzs'
+    },
+    {
+      name: 'Khan el-Khalili',
+      description: 'Historic bazaar',
+      distance: '5.8 km',
+      placeId: 'ChIJ9dSaz6s_WBQRam44QaRRdWQ'
+    },
+    {
+      name: 'Tahrir Square',
+      description: 'Public square',
+      distance: '2.9 km',
+      placeId: 'ChIJLR2Vc8c_WBQRftgykvDG_PY'
+    }
+  ],
+  faqs: [ { question: 'ءئؤءئؤءئ؟', answer: 'سيسشيسشيش؟' } ],
+  roomTypes: [
+    {
+      name: 'سيسشيسش',
+      description: 'ءؤءئؤءئؤئء',
+      type: 'Double',
+      maxOccupancy: 10,
+      maxAdults: 8,
+      maxChildren: 1,
+      maxInfants: 0,
+      price: 232323,
+      discountedPrice: 232,
+      size: '30',
+      bedType: 'Twin Beds',
+      view: 'Mountain View',
+      amenities: [Array],
+      available: true
+    }
+  ],
+  features: [
+    { name: 'meal', icon: 'hamburger' },
+    { name: 'gym', icon: 'dumbbell' },
+    { name: 'spa', icon: 'spa' },
+    { name: 'wifi', icon: 'wifi' }
+  ]
+}
+Error creating hotel - Full error: error: column "category_id" of relation "hotels" does not exist
+    at /home/runner/workspace/node_modules/pg-pool/index.js:45:11
+    at process.processTicksAndRejections (node:internal/process/task_queues:95:5)
+    at async <anonymous> (/home/runner/workspace/node_modules/src/node-postgres/session.ts:104:19)
+    at async DatabaseStorage.createHotel (/home/runner/workspace/server/storage.ts:623:25)
+    at async <anonymous> (/home/runner/workspace/server/routes.ts:3411:24) {
+  length: 131,
+  severity: 'ERROR',
+  code: '42703',
+  detail: undefined,
+  hint: undefined,
+  position: '116',
+  internalPosition: undefined,
+  internalQuery: undefined,
+  where: undefined,
+  schema: undefined,
+  table: undefined,
+  column: undefined,
+  dataType: undefined,
+  constraint: undefined,
+  file: 'parse_target.c',
+  line: '1065',
+  routine: 'checkInsertTargets'
+}
+Error stack: error: column "category_id" of relation "hotels" does not exist
+    at /home/runner/workspace/node_modules/pg-pool/index.js:45:11
+    at process.processTicksAndRejections (node:internal/process/task_queues:95:5)
+    at async <anonymous> (/home/runner/workspace/node_modules/src/node-postgres/session.ts:104:19)
+    at async DatabaseStorage.createHotel (/home/runner/workspace/server/storage.ts:623:25)
+    at async <anonymous> (/home/runner/workspace/server/routes.ts:3411:24)
+Error type: object
+Error constructor: DatabaseError
+1:19:56 PM [express] POST /api/admin/hotels 500 in 474ms :: {"message":"Failed to create hotel","error":"column \"category_id\" of relation \"hotels\" does not exist"}
