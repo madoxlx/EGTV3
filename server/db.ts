@@ -1,10 +1,12 @@
-import { Pool } from 'pg';
-import { drizzle } from 'drizzle-orm/node-postgres';
+import { Pool } from "pg";
+import { drizzle } from "drizzle-orm/node-postgres";
 import { sql } from "drizzle-orm";
 import * as schema from "@shared/schema";
 
 // Set fallback DATABASE_URL if not present
-const DATABASE_URL = process.env.DATABASE_URL || "postgresql://EgSite:MyGodBlessUs2025@74.179.85.9:5432/egsite_db";
+const DATABASE_URL =
+  process.env.DATABASE_URL ||
+  "postgresql://egsite:Pass2020@74.179.85.9:5432/egsite_db?sslmode=require";
 
 if (!DATABASE_URL) {
   throw new Error(
@@ -13,28 +15,28 @@ if (!DATABASE_URL) {
 }
 
 // Create connection pool with timeout settings for Azure PostgreSQL
-export const pool = new Pool({ 
+export const pool = new Pool({
   connectionString: DATABASE_URL,
   connectionTimeoutMillis: 10000,
   idleTimeoutMillis: 30000,
   ssl: {
-    rejectUnauthorized: false // For Azure PostgreSQL
-  }
+    rejectUnauthorized: false, // For Azure PostgreSQL
+  },
 });
 export const db = drizzle(pool, { schema });
 
 // Initialize database connection with proper error handling
 async function initializeDatabase() {
   try {
-    console.log('Testing database connection...');
-    
+    console.log("Testing database connection...");
+
     // Test the connection with a simple query
     await db.execute(sql`SELECT 1`);
-    
-    console.log('Database connection established successfully');
+
+    console.log("Database connection established successfully");
     return true;
   } catch (error) {
-    console.error('Failed to connect to database:', error);
+    console.error("Failed to connect to database:", error);
     return false;
   }
 }
