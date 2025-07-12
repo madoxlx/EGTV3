@@ -567,31 +567,23 @@ export class DatabaseStorage implements IStorage {
 
   async listHotels(active?: boolean): Promise<Hotel[]> {
     try {
-      // First check if country_id column exists, if not, add it
-      const client = await pool.connect();
-      try {
-        await client.query(`
-          ALTER TABLE hotels 
-          ADD COLUMN IF NOT EXISTS country_id INTEGER REFERENCES countries(id)
-        `);
-      } catch (alterError) {
-        console.log(
-          "Country ID column may already exist or table structure issue:",
-          alterError.message,
-        );
-      }
-      client.release();
-
+      console.log("🏨 Listing hotels with active filter:", active);
+      
       if (active !== undefined) {
-        return await db
+        const result = await db
           .select()
           .from(hotels)
           .where(eq(hotels.status, active ? "active" : "inactive"))
-          .orderBy(desc(hotels.createdAt));
+          .orderBy(desc(hotels.id));
+        console.log("✅ Found hotels with active filter:", result.length);
+        return result;
       }
-      return await db.select().from(hotels).orderBy(desc(hotels.createdAt));
+      
+      const result = await db.select().from(hotels).orderBy(desc(hotels.id));
+      console.log("✅ Found total hotels:", result.length);
+      return result;
     } catch (error) {
-      console.error("Error listing hotels:", error);
+      console.error("❌ Error listing hotels:", error);
       return [];
     }
   }
