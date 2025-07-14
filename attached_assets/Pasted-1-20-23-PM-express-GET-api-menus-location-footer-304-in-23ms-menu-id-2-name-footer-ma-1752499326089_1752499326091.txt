@@ -1,0 +1,22 @@
+1:20:23 PM [express] GET /api/menus/location/footer 304 in 23ms :: {"menu":{"id":2,"name":"footer main menu","location":"footer","description":"tuhygfj","active":true,"…
+1:20:23 PM [express] GET /api/translations 304 in 13ms :: [{"id":1,"key":"asasa","enText":"dasdasd","arText":"asdasdasdas","context":"dasda","category":"sdsddsds","crea…
+1:20:23 PM [express] GET /api/translations/settings 304 in 13ms :: {"id":1,"default_language":"en","available_languages":["en","ar"],"rtl_languages":["ar"],"auto_transl…
+📍 API Route Hit: GET /
+⚠️ No session user found in unified-auth, providing development admin user
+1:21:13 PM [express] GET /api/user 200 in 1ms :: {"id":1,"username":"admin","role":"admin","email":"admin@example.com","fullName":"Admin User","displayName":"Admin"}
+1:21:13 PM [express] GET /api/admin/dashboard-stats 200 in 8ms
+📍 API Route Hit: GET /
+⚠️ No session user found in unified-auth, providing development admin user
+1:21:14 PM [express] GET /api/user 304 in 1ms :: {"id":1,"username":"admin","role":"admin","email":"admin@example.com","fullName":"Admin User","displayName":"Admin"}
+1:21:14 PM [express] GET /api/admin/dashboard-stats 200 in 9ms
+1:21:19 PM [express] GET /api/menus 304 in 63ms :: [{"id":1,"name":"Main Navigation","location":"header","description":"Main site navigation menu","active":true,"create…
+⚠️ No session user found in unified-auth, providing development admin user
+1:21:20 PM [express] GET /api/user 304 in 0ms :: {"id":1,"username":"admin","role":"admin","email":"admin@example.com","fullName":"Admin User","displayName":"Admin"}
+1:21:21 PM [express] GET /api/menu-items/1 200 in 14ms :: [{"id":8,"menu_id":1,"parent_id":null,"title":"Tours","url":"/Tours","icon":"","type":"link","target":"_self",…
+1:21:33 PM [express] DELETE /api/menu-items/12 204 in 26ms
+1:21:44 PM [express] DELETE /api/menu-items/8 204 in 33ms
+1:22:07 PM [express] PUT /api/menu-items/8 404 in 21ms :: {"message":"Menu item not found"}
+1:22:08 PM [express] PUT /api/menu-items/8 404 in 11ms :: {"message":"Menu item not found"}
+1:22:11 PM [express] PUT /api/menu-items/8 404 in 11ms :: {"message":"Menu item not found"}
+1:22:11 PM [express] PUT /api/menu-items/8 404 in 12ms :: {"message":"Menu item not found"}
+1:22:11 PM [express] PUT /api/menu-items/8 404 in 12ms :: {"message":"Menu item not found"}

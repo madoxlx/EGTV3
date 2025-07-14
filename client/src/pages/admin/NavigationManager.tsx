@@ -145,8 +145,17 @@ export default function NavigationManager() {
         body: JSON.stringify(data)
       }),
     onSuccess: () => {
+      // Invalidate multiple cache patterns to ensure UI updates
       queryClient.invalidateQueries({ queryKey: [`/api/menu-items/${selectedMenu?.id}`] });
+      queryClient.invalidateQueries({ queryKey: ['/api/menu-items', selectedMenu?.id] });
       queryClient.invalidateQueries({ queryKey: ['/api/menus/location/header'] });
+      queryClient.invalidateQueries({ queryKey: ['/api/menus'] });
+      
+      // Force refetch to ensure immediate UI update
+      if (selectedMenu) {
+        refetchMenuItems();
+      }
+      
       setIsItemDialogOpen(false);
       setItemForm({ title: '', url: '', icon: '', type: 'link', target: '_self', orderPosition: 1, active: true, parentId: null });
       setEditingItem(null);
@@ -172,8 +181,17 @@ export default function NavigationManager() {
         body: JSON.stringify(data)
       }),
     onSuccess: () => {
+      // Invalidate multiple cache patterns to ensure UI updates
       queryClient.invalidateQueries({ queryKey: [`/api/menu-items/${selectedMenu?.id}`] });
+      queryClient.invalidateQueries({ queryKey: ['/api/menu-items', selectedMenu?.id] });
       queryClient.invalidateQueries({ queryKey: ['/api/menus/location/header'] });
+      queryClient.invalidateQueries({ queryKey: ['/api/menus'] });
+      
+      // Force refetch to ensure immediate UI update
+      if (selectedMenu) {
+        refetchMenuItems();
+      }
+      
       setIsItemDialogOpen(false);
       setItemForm({ title: '', url: '', icon: '', type: 'link', target: '_self', orderPosition: 1, active: true, parentId: null });
       setEditingItem(null);
@@ -198,8 +216,17 @@ export default function NavigationManager() {
   const deleteItemMutation = useMutation({
     mutationFn: (id: number) => apiRequest(`/api/menu-items/${id}`, { method: 'DELETE' }),
     onSuccess: () => {
+      // Invalidate multiple cache patterns to ensure UI updates
       queryClient.invalidateQueries({ queryKey: [`/api/menu-items/${selectedMenu?.id}`] });
+      queryClient.invalidateQueries({ queryKey: ['/api/menu-items', selectedMenu?.id] });
       queryClient.invalidateQueries({ queryKey: ['/api/menus/location/header'] });
+      queryClient.invalidateQueries({ queryKey: ['/api/menus'] });
+      
+      // Force refetch to ensure immediate UI update
+      if (selectedMenu) {
+        refetchMenuItems();
+      }
+      
       toast({
         title: "Success",
         description: "Menu item deleted successfully",
@@ -467,6 +494,7 @@ export default function NavigationManager() {
                               variant="outline"
                               size="sm"
                               onClick={() => handleEditItem(item)}
+                              disabled={deleteItemMutation.isPending}
                             >
                               <Edit2 className="w-4 h-4" />
                             </Button>
@@ -480,7 +508,11 @@ export default function NavigationManager() {
                               }}
                               disabled={deleteItemMutation.isPending}
                             >
-                              <Trash2 className="w-4 h-4" />
+                              {deleteItemMutation.isPending ? (
+                                <div className="w-4 h-4 border-2 border-gray-300 border-t-gray-600 rounded-full animate-spin"></div>
+                              ) : (
+                                <Trash2 className="w-4 h-4" />
+                              )}
                             </Button>
                           </div>
                         </div>
