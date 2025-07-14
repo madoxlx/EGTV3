@@ -106,6 +106,17 @@ The application uses a comprehensive PostgreSQL schema with the following core e
 
 ## Recent Changes
 
+- **Menu Parent Relationship Bug Fix Complete (July 14, 2025)**: Successfully resolved critical bug where parent item selection in menu management dropdown wasn't being saved to database
+  - **Root Cause Analysis**: Storage layer methods `createMenuItem` and `updateMenuItem` were missing `parent_id` field handling in database operations
+  - **Database Schema Verification**: Confirmed `menu_items` table has proper `parent_id` column with foreign key constraints to support hierarchical relationships
+  - **Storage Layer Enhancement**: Updated `createMenuItem` method to include `parent_id` parameter in INSERT statement for proper parent relationship storage
+  - **Update Method Enhancement**: Enhanced `updateMenuItem` method to handle `parent_id` field updates in database UPDATE operations
+  - **API Route Validation**: Added comprehensive parent validation to public `/api/menu-items` endpoints matching admin endpoint validation logic
+  - **Parent Validation Logic**: Implemented checks for parent existence, same-menu validation, and circular reference prevention in both create and update operations
+  - **Production Testing**: Successfully verified parent-child relationships are properly stored and retrieved from database with hierarchical structure intact
+  - **Frontend Integration**: NavigationManager component dropdown selection now properly persists parent relationships when creating or updating menu items
+  - **Complete Resolution**: Menu management system now fully supports hierarchical menu structure with proper parent-child relationships saved to database
+
 - **Complete Brand Rebranding and Menu System Enhancement (July 14, 2025)**: Successfully updated brand name from "Sahara Travel" to "Egypt Express TVL" and enhanced navigation menu management with hierarchical support
   - **Brand Name Update**: Replaced all "Sahara Travel" references with "Egypt Express TVL" across contact pages, API server messages, and distribution files
   - **All Services Page Creation**: Created comprehensive `/all-services` page showcasing Egypt Express TVL's travel services with bilingual support (English/Arabic)

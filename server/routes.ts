@@ -4675,6 +4675,19 @@ export async function registerRoutes(app: Express): Promise<Server> {
         console.log('Menu not found for ID:', menuItemData.menuId);
         return res.status(404).json({ message: 'Menu not found' });
       }
+
+      // If parentId is provided, check if parent menu item exists
+      if (menuItemData.parentId) {
+        const parentItem = await storage.getMenuItem(menuItemData.parentId);
+        if (!parentItem) {
+          return res.status(404).json({ message: 'Parent menu item not found' });
+        }
+        
+        // Check that parent item belongs to the same menu
+        if (parentItem.menuId !== menuItemData.menuId) {
+          return res.status(400).json({ message: 'Parent menu item must belong to the same menu' });
+        }
+      }
       
       const menuItem = await storage.createMenuItem(menuItemData);
       console.log('Menu item created successfully:', menuItem);
@@ -4707,6 +4720,35 @@ export async function registerRoutes(app: Express): Promise<Server> {
       
       // Validate the update data
       const updateData = insertMenuItemSchema.partial().parse(req.body);
+      
+      // If menuId is changing, check if the new menu exists
+      if (updateData.menuId && updateData.menuId !== existingMenuItem.menuId) {
+        const menu = await storage.getMenu(updateData.menuId);
+        if (!menu) {
+          return res.status(404).json({ message: 'Menu not found' });
+        }
+      }
+      
+      // If parentId is changing, check if the new parent exists and belongs to the same menu
+      if (updateData.parentId !== undefined && updateData.parentId !== existingMenuItem.parentId) {
+        if (updateData.parentId !== null) {
+          // Check for circular reference
+          if (updateData.parentId === id) {
+            return res.status(400).json({ message: 'A menu item cannot be its own parent' });
+          }
+          
+          const parentItem = await storage.getMenuItem(updateData.parentId);
+          if (!parentItem) {
+            return res.status(404).json({ message: 'Parent menu item not found' });
+          }
+          
+          // Check that parent item belongs to the same menu
+          const menuId = updateData.menuId || existingMenuItem.menuId;
+          if (parentItem.menuId !== menuId) {
+            return res.status(400).json({ message: 'Parent menu item must belong to the same menu' });
+          }
+        }
+      }
       
       const updatedMenuItem = await storage.updateMenuItem(id, updateData);
       res.json(updatedMenuItem);

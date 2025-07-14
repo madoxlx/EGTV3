@@ -1171,9 +1171,10 @@ export class DatabaseStorage implements IStorage {
       console.log('Creating menu item with data:', item);
       console.log('Order value:', item.order);
       const result = await client.query(
-        'INSERT INTO menu_items (menu_id, title, url, icon, order_position, active) VALUES ($1, $2, $3, $4, $5, $6) RETURNING *',
+        'INSERT INTO menu_items (menu_id, parent_id, title, url, icon, order_position, active) VALUES ($1, $2, $3, $4, $5, $6, $7) RETURNING *',
         [
           item.menuId,
+          item.parentId || null,
           item.title,
           item.url || null,
           item.icon || null,
@@ -1221,6 +1222,10 @@ export class DatabaseStorage implements IStorage {
       if (item.icon !== undefined) {
         setClause.push(`icon = $${paramIndex++}`);
         values.push(item.icon);
+      }
+      if (item.parentId !== undefined) {
+        setClause.push(`parent_id = $${paramIndex++}`);
+        values.push(item.parentId);
       }
       if (item.orderPosition !== undefined) {
         setClause.push(`"order_position" = $${paramIndex++}`);
