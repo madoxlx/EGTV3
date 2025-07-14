@@ -1,0 +1,164 @@
+Tour creation request received: {
+  "name": "a round in maldivies",
+  "description": "A Round in Maldives ",
+  "destinationId": 3,
+  "categoryId": 3,
+  "duration": 3,
+  "durationType": "hours",
+  "price": 560000,
+  "currency": "EGP",
+  "maxCapacity": 13,
+  "maxGroupSize": 23,
+  "numPassengers": 13,
+  "itinerary": "- 00:00 – Pick-up from resort and safety briefing  \n- 00:30 – Snorkeling at vibrant coral reefs  \n- 01:30 – Visit to a local island village  \n- 02:30 – Relaxation on a secluded beach with fresh coconut drinks  \n- 03:30 – Sunset cruise back to the resort  \n- 04:00 – Drop-off at resort",
+  "included": [
+    "Sunset boat ride",
+    "Fresh coconut drink",
+    "Guided island tour",
+    "Snorkeling gear",
+    "Resort pick-up and drop-off"
+  ],
+  "excluded": [
+    "Gratuities",
+    "Travel insurance",
+    "Optional water sports",
+    "Towels or personal swimwear",
+    "Meals/snacks"
+  ],
+  "imageUrl": "/uploads/tour-1752485000431-og1nw9k8miq.jpg",
+  "galleryUrls": [
+    "blob:https://c4242404-996d-4869-8b68-beca88e908ca-00-kdnlhav5b6io.spock.replit.dev:8080/d9d77018-5eb8-4cca-811a-d877db391f4f",
+    "blob:https://c4242404-996d-4869-8b68-beca88e908ca-00-kdnlhav5b6io.spock.replit.dev:8080/baef2858-ff5f-4e3c-9a49-ee6ed6e8e729"
+  ],
+  "active": true,
+  "featured": true,
+  "tripType": "",
+  "rating": 5,
+  "reviewCount": 5,
+  "nameAr": "رحلة حول المالديف",
+  "descriptionAr": "رحلة حول المالديف بصحبة عربية",
+  "itineraryAr": "00:00 – الاستقبال من المنتجع وتعليمات السلامة\n\n00:30 – الغطس في الشعاب المرجانية الملونة\n\n01:30 – زيارة لقرية محلية في إحدى الجزر\n\n02:30 – وقت استجمام على شاطئ منعزل مع مشروب جوز الهند الطازج\n\n03:30 – جولة بحرية عند الغروب والعودة إلى المنتجع\n\n04:00 – الوصول إلى المنتجع وإنهاء الجولة\n\n",
+  "includedAr": [],
+  "excludedAr": [],
+  "hasArabicVersion": true,
+  "gallery": [
+    "/uploads/tour-1752485008370-8az0zws9g7.jpg",
+    "/uploads/tour-1752485008371-iu87lluqgz.jpg"
+  ]
+}
+Processed tour data: {
+  "name": "a round in maldivies",
+  "description": "A Round in Maldives ",
+  "destinationId": 3,
+  "categoryId": 3,
+  "duration": 3,
+  "durationType": "hours",
+  "price": 560000,
+  "currency": "EGP",
+  "maxCapacity": 13,
+  "maxGroupSize": 23,
+  "numPassengers": 13,
+  "itinerary": "- 00:00 – Pick-up from resort and safety briefing  \n- 00:30 – Snorkeling at vibrant coral reefs  \n- 01:30 – Visit to a local island village  \n- 02:30 – Relaxation on a secluded beach with fresh coconut drinks  \n- 03:30 – Sunset cruise back to the resort  \n- 04:00 – Drop-off at resort",
+  "included": [
+    "Sunset boat ride",
+    "Fresh coconut drink",
+    "Guided island tour",
+    "Snorkeling gear",
+    "Resort pick-up and drop-off"
+  ],
+  "excluded": [
+    "Gratuities",
+    "Travel insurance",
+    "Optional water sports",
+    "Towels or personal swimwear",
+    "Meals/snacks"
+  ],
+  "imageUrl": "/uploads/tour-1752485000431-og1nw9k8miq.jpg",
+  "galleryUrls": [],
+  "active": true,
+  "featured": true,
+  "tripType": "",
+  "rating": 5,
+  "reviewCount": 5,
+  "nameAr": "رحلة حول المالديف",
+  "descriptionAr": "رحلة حول المالديف بصحبة عربية",
+  "itineraryAr": "00:00 – الاستقبال من المنتجع وتعليمات السلامة\n\n00:30 – الغطس في الشعاب المرجانية الملونة\n\n01:30 – زيارة لقرية محلية في إحدى الجزر\n\n02:30 – وقت استجمام على شاطئ منعزل مع مشروب جوز الهند الطازج\n\n03:30 – جولة بحرية عند الغروب والعودة إلى المنتجع\n\n04:00 – الوصول إلى المنتجع وإنهاء الجولة\n\n",
+  "includedAr": [],
+  "excludedAr": [],
+  "hasArabicVersion": true,
+  "gallery": [
+    "/uploads/tour-1752485008370-8az0zws9g7.jpg",
+    "/uploads/tour-1752485008371-iu87lluqgz.jpg"
+  ]
+}
+Final tour data to be saved: {
+  "name": "a round in maldivies",
+  "description": "A Round in Maldives ",
+  "destinationId": 3,
+  "duration": 3,
+  "price": 560000,
+  "maxCapacity": 13,
+  "imageUrl": "/uploads/tour-1752485000431-og1nw9k8miq.jpg",
+  "active": true,
+  "featured": true,
+  "currency": "EGP",
+  "galleryUrls": [],
+  "startDate": null,
+  "endDate": null,
+  "tripType": "",
+  "numPassengers": 13,
+  "included": [
+    "Sunset boat ride",
+    "Fresh coconut drink",
+    "Guided island tour",
+    "Snorkeling gear",
+    "Resort pick-up and drop-off"
+  ],
+  "excluded": [
+    "Gratuities",
+    "Travel insurance",
+    "Optional water sports",
+    "Towels or personal swimwear",
+    "Meals/snacks"
+  ],
+  "itinerary": "- 00:00 – Pick-up from resort and safety briefing  \n- 00:30 – Snorkeling at vibrant coral reefs  \n- 01:30 – Visit to a local island village  \n- 02:30 – Relaxation on a secluded beach with fresh coconut drinks  \n- 03:30 – Sunset cruise back to the resort  \n- 04:00 – Drop-off at resort",
+  "maxGroupSize": 23,
+  "rating": 5,
+  "reviewCount": 5,
+  "nameAr": "رحلة حول المالديف",
+  "descriptionAr": "رحلة حول المالديف بصحبة عربية",
+  "itineraryAr": "00:00 – الاستقبال من المنتجع وتعليمات السلامة\n\n00:30 – الغطس في الشعاب المرجانية الملونة\n\n01:30 – زيارة لقرية محلية في إحدى الجزر\n\n02:30 – وقت استجمام على شاطئ منعزل مع مشروب جوز الهند الطازج\n\n03:30 – جولة بحرية عند الغروب والعودة إلى المنتجع\n\n04:00 – الوصول إلى المنتجع وإنهاء الجولة\n\n",
+  "includedAr": [],
+  "excludedAr": [],
+  "hasArabicVersion": true,
+  "categoryId": 3,
+  "durationType": "hours",
+  "date": null,
+  "createdBy": 1,
+  "updatedBy": 1
+}
+Error creating tour: error: invalid input syntax for type json
+    at /home/runner/workspace/node_modules/pg-pool/index.js:45:11
+    at process.processTicksAndRejections (node:internal/process/task_queues:95:5)
+    at async <anonymous> (/home/runner/workspace/node_modules/src/node-postgres/session.ts:104:19)
+    at async DatabaseStorage.createTour (/home/runner/workspace/server/storage.ts:887:23)
+    at async <anonymous> (/home/runner/workspace/server/routes.ts:2845:23) {
+  length: 185,
+  severity: 'ERROR',
+  code: '22P02',
+  detail: 'Token "-" is invalid.',
+  hint: undefined,
+  position: undefined,
+  internalPosition: undefined,
+  internalQuery: undefined,
+  where: "JSON data, line 1: -...\nunnamed portal parameter $20 = '...'",
+  schema: undefined,
+  table: undefined,
+  column: undefined,
+  dataType: undefined,
+  constraint: undefined,
+  file: 'jsonfuncs.c',
+  line: '657',
+  routine: 'json_errsave_error'
+}
+9:27:25 AM [express] POST /api/admin/tours 500 in 33ms :: {"message":"Failed to create tour"}

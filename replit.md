@@ -106,6 +106,18 @@ The application uses a comprehensive PostgreSQL schema with the following core e
 
 ## Recent Changes
 
+- **Tour Creation System Complete Fix (July 14, 2025)**: Successfully resolved critical tour creation database constraint errors that were preventing tour creation functionality
+  - **Root Cause Analysis**: Database required 'title' field but form was only sending 'name' field, causing constraint violation errors
+  - **Database Schema Update**: Added 'title' field to tours table schema in `shared/schema.ts` for proper data model alignment
+  - **Storage Layer Enhancement**: Updated `createTour` method to automatically map 'name' to 'title' field ensuring backward compatibility
+  - **Field Mapping Logic**: Added automatic field mapping for gallery images (gallery -> galleryUrls) with proper array handling
+  - **JSON Processing Enhancement**: Enhanced JSON field processing for included/excluded items with proper validation and error handling
+  - **Frontend Integration**: Updated tour creation form to explicitly send 'title' field alongside 'name' for database compatibility
+  - **Data Validation**: Added comprehensive data processing with type conversion and field validation before database insertion
+  - **Production Testing**: Successfully created multiple test tours confirming full functionality restoration
+  - **API Endpoints Verified**: Both `/api/admin/tours` (create) and `/api/tours` (list) endpoints working correctly with proper data persistence
+  - **Complete Resolution**: Tour creation system now fully operational with proper database constraints and data integrity
+
 - **Tour Category Dropdown Cache Refresh Fix Complete (July 14, 2025)**: Successfully resolved critical issue where tour category dropdown wasn't updating when new categories were added through admin interface
   - **Root Cause Identified**: CategoryManager component was using direct fetch calls instead of React Query, causing cache inconsistency between category management and tour creation forms
   - **React Query Integration**: Converted CategoryManager to use React Query with proper `useQuery` for fetching and `useMutation` for CRUD operations

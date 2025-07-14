@@ -2821,6 +2821,12 @@ export async function registerRoutes(app: Express): Promise<Server> {
         processedData.date = new Date(processedData.date);
       }
       
+      // Handle gallery field specifically
+      if (processedData.gallery && Array.isArray(processedData.gallery)) {
+        processedData.galleryUrls = processedData.gallery;
+        delete processedData.gallery;
+      }
+      
       console.log('Processed tour data:', JSON.stringify(processedData, null, 2));
       
       const tourData = insertTourSchema.parse(processedData);

@@ -192,6 +192,7 @@ export default function CreateTour() {
       // Convert form data to proper types
       const tourData = {
         ...data,
+        title: data.name, // CRITICAL FIX: Set title from name field
         destinationId: parseInt(data.destinationId),
         duration: parseInt(data.duration),
         price: Math.round(parseFloat(data.price) * 100), // Convert to cents
@@ -227,7 +228,8 @@ export default function CreateTour() {
         excluded: excludedItems,
         includedAr: includedItemsAr,
         excludedAr: excludedItemsAr,
-        galleryUrls: galleryImages,
+        gallery: galleryImages, // Send as gallery, will be processed on server
+        galleryUrls: [], // Reset galleryUrls to avoid conflicts
       };
 
       const response = await fetch("/api/admin/tours", {

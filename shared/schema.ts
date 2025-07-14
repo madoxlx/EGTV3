@@ -309,7 +309,8 @@ export const favorites = pgTable(
 // Tours table
 export const tours = pgTable("tours", {
   id: serial("id").primaryKey(),
-  name: text("name").notNull(),
+  title: text("title").notNull(), // Primary display title (required)
+  name: text("name").notNull(),    // Secondary name field (backward compatibility)
   description: text("description"),
   destinationId: integer("destination_id").references(() => destinations.id),
   duration: integer("duration").notNull(),

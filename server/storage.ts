@@ -884,8 +884,67 @@ export class DatabaseStorage implements IStorage {
   }
 
   async createTour(tour: InsertTour): Promise<Tour> {
-    const [created] = await db.insert(tours).values(tour).returning();
-    return created;
+    try {
+      console.log('Creating tour with data:', JSON.stringify(tour, null, 2));
+      
+      // Ensure JSON fields are properly formatted
+      const processedTour = { ...tour };
+      
+      // CRITICAL FIX: Ensure title field is set properly
+      if (!processedTour.title && processedTour.name) {
+        processedTour.title = processedTour.name;
+      }
+      
+      // Handle special field mappings
+      if (processedTour.gallery && Array.isArray(processedTour.gallery)) {
+        processedTour.galleryUrls = processedTour.gallery;
+        delete processedTour.gallery; // Remove gallery field to avoid conflicts
+      }
+      
+      // Handle JSON fields that might cause parsing issues
+      const jsonFields = ['included', 'excluded', 'includedAr', 'excludedAr', 'galleryUrls'];
+      for (const field of jsonFields) {
+        if (processedTour[field] !== undefined && processedTour[field] !== null) {
+          // If it's already an array, keep it as is
+          if (Array.isArray(processedTour[field])) {
+            continue;
+          }
+          // If it's a string, try to parse it
+          if (typeof processedTour[field] === 'string') {
+            try {
+              processedTour[field] = JSON.parse(processedTour[field]);
+            } catch (e) {
+              // If parsing fails, treat as single item array
+              processedTour[field] = [processedTour[field]];
+            }
+          }
+          // If it's an object (but not an array), wrap it in an array
+          if (typeof processedTour[field] === 'object' && !Array.isArray(processedTour[field])) {
+            processedTour[field] = [processedTour[field]];
+          }
+        }
+      }
+      
+      // Handle galleryUrls specifically - ensure it's an array
+      if (processedTour.galleryUrls && !Array.isArray(processedTour.galleryUrls)) {
+        processedTour.galleryUrls = [processedTour.galleryUrls];
+      }
+      
+      // Clean up empty arrays
+      jsonFields.forEach(field => {
+        if (processedTour[field] && Array.isArray(processedTour[field])) {
+          processedTour[field] = processedTour[field].filter(item => item !== null && item !== undefined && item !== '');
+        }
+      });
+      
+      console.log('Processed tour data before insert:', JSON.stringify(processedTour, null, 2));
+      
+      const [created] = await db.insert(tours).values(processedTour).returning();
+      return created;
+    } catch (error) {
+      console.error('Error in createTour:', error);
+      throw error;
+    }
   }
 
   async updateTour(
