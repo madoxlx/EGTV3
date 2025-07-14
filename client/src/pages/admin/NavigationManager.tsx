@@ -1,141 +1,79 @@
 import React, { useState } from 'react';
-import { useToast } from '@/hooks/use-toast';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
-import { apiRequest } from '@/lib/queryClient';
-import { 
-  Trash2, 
-  Edit, 
-  Plus, 
-  ChevronRight, 
-  Menu, 
-  ExternalLink,
-  Eye,
-  EyeOff
-} from 'lucide-react';
+import { Plus, Edit2, Trash2, Save, X, Navigation, Link as LinkIcon } from 'lucide-react';
 import { Button } from '@/components/ui/button';
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
-import { Textarea } from '@/components/ui/textarea';
-import { Switch } from '@/components/ui/switch';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { Link } from 'wouter';
-import { DashboardLayout } from '@/components/dashboard/DashboardLayout';
-import {
-  Dialog,
-  DialogContent,
-  DialogDescription,
-  DialogFooter,
-  DialogHeader,
-  DialogTitle,
-} from '@/components/ui/dialog';
-import {
-  Table,
-  TableBody,
-  TableCell,
-  TableHead,
-  TableHeader,
-  TableRow,
-} from '@/components/ui/table';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
+import { Switch } from '@/components/ui/switch';
 import { Badge } from '@/components/ui/badge';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import { useToast } from '@/hooks/use-toast';
+import { apiRequest } from '@/lib/queryClient';
+import type { Menu, MenuItem } from '@shared/schema';
 
-// Types for Menu and MenuItem
-interface Menu {
-  id: number;
-  name: string;
-  location: string;
-  description: string | null;
-  active: boolean;
-  createdAt: string;
-  updatedAt: string;
+interface MenuWithItems extends Menu {
+  items: MenuItem[];
 }
 
-interface MenuItem {
-  id: number;
-  title: string;
-  url?: string;
-  icon: string | null;
-  iconType?: string;
-  itemType?: string;
-  order: number;
-  menuId: number;
-  parentId: number | null;
-  target: string | null;
-  active: boolean;
-  createdAt: string;
-  updatedAt: string;
-}
-
-const NavigationManager = () => {
+export default function NavigationManager() {
   const { toast } = useToast();
   const queryClient = useQueryClient();
   const [selectedMenu, setSelectedMenu] = useState<Menu | null>(null);
-  const [selectedMenuItem, setSelectedMenuItem] = useState<MenuItem | null>(null);
-  const [showMenuDialog, setShowMenuDialog] = useState(false);
-  const [showMenuItemDialog, setShowMenuItemDialog] = useState(false);
-  const [isMenuItemCreate, setIsMenuItemCreate] = useState(true);
-  
-  // Form states
+  const [isMenuDialogOpen, setIsMenuDialogOpen] = useState(false);
+  const [isItemDialogOpen, setIsItemDialogOpen] = useState(false);
+  const [editingItem, setEditingItem] = useState<MenuItem | null>(null);
+
+  // Menu form state
   const [menuForm, setMenuForm] = useState({
     name: '',
-    location: '',
-    description: '',
-    active: true
+    location: 'header',
+    active: true,
+    description: ''
   });
-  
-  const [menuItemForm, setMenuItemForm] = useState({
+
+  // Menu item form state
+  const [itemForm, setItemForm] = useState({
     title: '',
     url: '',
     icon: '',
-    iconType: 'fas',
-    itemType: 'link',
-    order: 0,
-    menuId: 0,
-    parentId: null as number | null,
+    type: 'link',
     target: '_self',
+    orderPosition: 1,
     active: true
   });
-  
-  // Fetch all menus
+
+  // Fetch menus
   const { data: menus = [], isLoading: menusLoading } = useQuery({
     queryKey: ['/api/menus'],
-    queryFn: async () => {
-      const response = await fetch('/api/menus');
-      if (!response.ok) throw new Error('Failed to fetch menus');
-      return response.json();
-    }
+    select: (data) => data || []
   });
-  
+
   // Fetch menu items for selected menu
-  const { data: menuItems = [], isLoading: menuItemsLoading } = useQuery({
-    queryKey: ['/api/menus', selectedMenu?.id, 'items'],
-    queryFn: async () => {
-      if (!selectedMenu) return [];
-      const response = await fetch(`/api/menus/${selectedMenu.id}/items`);
-      if (!response.ok) throw new Error('Failed to fetch menu items');
-      return response.json();
-    },
-    enabled: !!selectedMenu
+  const { data: menuItems = [], isLoading: itemsLoading } = useQuery({
+    queryKey: ['/api/menu-items', selectedMenu?.id],
+    enabled: !!selectedMenu,
+    select: (data) => data || []
   });
 
   // Create menu mutation
   const createMenuMutation = useMutation({
-    mutationFn: async (data: any) => {
-      return apiRequest('/api/menus', {
-        method: 'POST',
-        body: JSON.stringify(data)
-      });
-    },
+    mutationFn: (data: typeof menuForm) => apiRequest('/api/menus', {
+      method: 'POST',
+      body: JSON.stringify(data)
+    }),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['/api/menus'] });
+      setIsMenuDialogOpen(false);
+      setMenuForm({ name: '', location: 'header', active: true, description: '' });
       toast({
         title: "Success",
         description: "Menu created successfully",
       });
-      setShowMenuDialog(false);
-      resetMenuForm();
     },
-    onError: (error: any) => {
+    onError: (error) => {
       toast({
         title: "Error",
         description: error.message || "Failed to create menu",
@@ -146,22 +84,21 @@ const NavigationManager = () => {
 
   // Update menu mutation
   const updateMenuMutation = useMutation({
-    mutationFn: async ({ id, data }: { id: number; data: any }) => {
-      return apiRequest(`/api/menus/${id}`, {
+    mutationFn: ({ id, data }: { id: number; data: typeof menuForm }) => 
+      apiRequest(`/api/menus/${id}`, {
         method: 'PUT',
         body: JSON.stringify(data)
-      });
-    },
+      }),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['/api/menus'] });
+      setIsMenuDialogOpen(false);
+      setMenuForm({ name: '', location: 'header', active: true, description: '' });
       toast({
         title: "Success",
         description: "Menu updated successfully",
       });
-      setShowMenuDialog(false);
-      resetMenuForm();
     },
-    onError: (error: any) => {
+    onError: (error) => {
       toast({
         title: "Error",
         description: error.message || "Failed to update menu",
@@ -172,20 +109,18 @@ const NavigationManager = () => {
 
   // Delete menu mutation
   const deleteMenuMutation = useMutation({
-    mutationFn: async (id: number) => {
-      return apiRequest(`/api/menus/${id}`, {
-        method: 'DELETE'
-      });
-    },
+    mutationFn: (id: number) => apiRequest(`/api/menus/${id}`, { method: 'DELETE' }),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['/api/menus'] });
+      if (selectedMenu) {
+        setSelectedMenu(null);
+      }
       toast({
         title: "Success",
         description: "Menu deleted successfully",
       });
-      setSelectedMenu(null);
     },
-    onError: (error: any) => {
+    onError: (error) => {
       toast({
         title: "Error",
         description: error.message || "Failed to delete menu",
@@ -195,23 +130,24 @@ const NavigationManager = () => {
   });
 
   // Create menu item mutation
-  const createMenuItemMutation = useMutation({
-    mutationFn: async (data: any) => {
-      return apiRequest('/api/menu-items', {
+  const createItemMutation = useMutation({
+    mutationFn: (data: typeof itemForm & { menuId: number }) => 
+      apiRequest('/api/menu-items', {
         method: 'POST',
         body: JSON.stringify(data)
-      });
-    },
+      }),
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['/api/menus', selectedMenu?.id, 'items'] });
+      queryClient.invalidateQueries({ queryKey: ['/api/menu-items', selectedMenu?.id] });
+      queryClient.invalidateQueries({ queryKey: ['/api/menus/location/header'] });
+      setIsItemDialogOpen(false);
+      setItemForm({ title: '', url: '', icon: '', type: 'link', target: '_self', orderPosition: 1, active: true });
+      setEditingItem(null);
       toast({
         title: "Success",
         description: "Menu item created successfully",
       });
-      setShowMenuItemDialog(false);
-      resetMenuItemForm();
     },
-    onError: (error: any) => {
+    onError: (error) => {
       toast({
         title: "Error",
         description: error.message || "Failed to create menu item",
@@ -221,23 +157,24 @@ const NavigationManager = () => {
   });
 
   // Update menu item mutation
-  const updateMenuItemMutation = useMutation({
-    mutationFn: async ({ id, data }: { id: number; data: any }) => {
-      return apiRequest(`/api/menu-items/${id}`, {
+  const updateItemMutation = useMutation({
+    mutationFn: ({ id, data }: { id: number; data: typeof itemForm }) => 
+      apiRequest(`/api/menu-items/${id}`, {
         method: 'PUT',
         body: JSON.stringify(data)
-      });
-    },
+      }),
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['/api/menus', selectedMenu?.id, 'items'] });
+      queryClient.invalidateQueries({ queryKey: ['/api/menu-items', selectedMenu?.id] });
+      queryClient.invalidateQueries({ queryKey: ['/api/menus/location/header'] });
+      setIsItemDialogOpen(false);
+      setItemForm({ title: '', url: '', icon: '', type: 'link', target: '_self', orderPosition: 1, active: true });
+      setEditingItem(null);
       toast({
         title: "Success",
         description: "Menu item updated successfully",
       });
-      setShowMenuItemDialog(false);
-      resetMenuItemForm();
     },
-    onError: (error: any) => {
+    onError: (error) => {
       toast({
         title: "Error",
         description: error.message || "Failed to update menu item",
@@ -247,20 +184,17 @@ const NavigationManager = () => {
   });
 
   // Delete menu item mutation
-  const deleteMenuItemMutation = useMutation({
-    mutationFn: async (id: number) => {
-      return apiRequest(`/api/menu-items/${id}`, {
-        method: 'DELETE'
-      });
-    },
+  const deleteItemMutation = useMutation({
+    mutationFn: (id: number) => apiRequest(`/api/menu-items/${id}`, { method: 'DELETE' }),
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['/api/menus', selectedMenu?.id, 'items'] });
+      queryClient.invalidateQueries({ queryKey: ['/api/menu-items', selectedMenu?.id] });
+      queryClient.invalidateQueries({ queryKey: ['/api/menus/location/header'] });
       toast({
         title: "Success",
         description: "Menu item deleted successfully",
       });
     },
-    onError: (error: any) => {
+    onError: (error) => {
       toast({
         title: "Error",
         description: error.message || "Failed to delete menu item",
@@ -269,525 +203,413 @@ const NavigationManager = () => {
     }
   });
 
-  // Helper functions
-  const resetMenuForm = () => {
-    setMenuForm({
-      name: '',
-      location: '',
-      description: '',
-      active: true
-    });
-  };
-
-  const resetMenuItemForm = () => {
-    setMenuItemForm({
-      title: '',
-      url: '',
-      icon: '',
-      iconType: 'fas',
-      itemType: 'link',
-      order: 0,
-      menuId: selectedMenu?.id || 0,
-      parentId: null,
-      target: '_self',
-      active: true
-    });
-  };
-
   const handleCreateMenu = () => {
-    resetMenuForm();
-    setShowMenuDialog(true);
+    createMenuMutation.mutate(menuForm);
+  };
+
+  const handleUpdateMenu = () => {
+    if (selectedMenu) {
+      updateMenuMutation.mutate({ id: selectedMenu.id, data: menuForm });
+    }
   };
 
   const handleEditMenu = (menu: Menu) => {
     setMenuForm({
       name: menu.name,
       location: menu.location,
-      description: menu.description || '',
-      active: menu.active
+      active: menu.active,
+      description: menu.description || ''
     });
     setSelectedMenu(menu);
-    setShowMenuDialog(true);
+    setIsMenuDialogOpen(true);
   };
 
-  const handleDeleteMenu = (menu: Menu) => {
-    if (window.confirm(`Are you sure you want to delete the menu "${menu.name}"?`)) {
-      deleteMenuMutation.mutate(menu.id);
+  const handleCreateItem = () => {
+    if (selectedMenu) {
+      createItemMutation.mutate({ ...itemForm, menuId: selectedMenu.id });
     }
   };
 
-  const handleSelectMenu = (menu: Menu) => {
-    setSelectedMenu(menu);
+  const handleUpdateItem = () => {
+    if (editingItem) {
+      updateItemMutation.mutate({ id: editingItem.id, data: itemForm });
+    }
   };
 
-  const handleCreateMenuItem = () => {
-    if (!selectedMenu) return;
-    
-    resetMenuItemForm();
-    setMenuItemForm(prev => ({
-      ...prev,
-      menuId: selectedMenu.id,
-      order: menuItems.length + 1
-    }));
-    setIsMenuItemCreate(true);
-    setShowMenuItemDialog(true);
-  };
-
-  const handleEditMenuItem = (menuItem: MenuItem) => {
-    setMenuItemForm({
-      title: menuItem.title,
-      url: menuItem.url || '',
-      icon: menuItem.icon || '',
-      iconType: menuItem.iconType || 'fas',
-      itemType: menuItem.itemType || 'link',
-      order: menuItem.order,
-      menuId: menuItem.menuId,
-      parentId: menuItem.parentId,
-      target: menuItem.target || '_self',
-      active: menuItem.active
+  const handleEditItem = (item: MenuItem) => {
+    setItemForm({
+      title: item.title,
+      url: item.url || '',
+      icon: item.icon || '',
+      type: item.type || 'link',
+      target: item.target || '_self',
+      orderPosition: item.orderPosition,
+      active: item.active
     });
-    setSelectedMenuItem(menuItem);
-    setIsMenuItemCreate(false);
-    setShowMenuItemDialog(true);
+    setEditingItem(item);
+    setIsItemDialogOpen(true);
   };
 
-  const handleDeleteMenuItem = (menuItem: MenuItem) => {
-    if (window.confirm(`Are you sure you want to delete the menu item "${menuItem.title}"?`)) {
-      deleteMenuItemMutation.mutate(menuItem.id);
-    }
+  const openCreateMenuDialog = () => {
+    setMenuForm({ name: '', location: 'header', active: true, description: '' });
+    setSelectedMenu(null);
+    setIsMenuDialogOpen(true);
   };
 
-  const handleMenuSubmit = (e: React.FormEvent) => {
-    e.preventDefault();
-    if (selectedMenu && showMenuDialog) {
-      updateMenuMutation.mutate({ id: selectedMenu.id, data: menuForm });
-    } else {
-      createMenuMutation.mutate(menuForm);
-    }
+  const openCreateItemDialog = () => {
+    setItemForm({ title: '', url: '', icon: '', type: 'link', target: '_self', orderPosition: 1, active: true });
+    setEditingItem(null);
+    setIsItemDialogOpen(true);
   };
-
-  const handleMenuItemSubmit = (e: React.FormEvent) => {
-    e.preventDefault();
-    if (isMenuItemCreate) {
-      createMenuItemMutation.mutate(menuItemForm);
-    } else if (selectedMenuItem) {
-      updateMenuItemMutation.mutate({ id: selectedMenuItem.id, data: menuItemForm });
-    }
-  };
-
-  const organizeMenuItems = (items: MenuItem[] = []): { item: MenuItem, children: MenuItem[] }[] => {
-    const topLevelItems = items.filter(item => !item.parentId);
-    
-    return topLevelItems.map(item => {
-      const children = items.filter(child => child.parentId === item.id);
-      return { item, children };
-    });
-  };
-
-  const organizedMenuItems = organizeMenuItems(menuItems);
 
   return (
-    <DashboardLayout>
-      <div className="space-y-6 p-6">
-        {/* Header */}
-        <div className="flex items-center justify-between">
-          <div>
-            <h1 className="text-3xl font-bold tracking-tight">Navigation Menu Manager</h1>
-            <p className="text-muted-foreground">
-              Manage your website's navigation menus and links
-            </p>
-          </div>
-          <div className="flex items-center space-x-2">
-            <Button onClick={handleCreateMenu} className="flex items-center gap-2">
-              <Plus className="h-4 w-4" />
-              Create Menu
-            </Button>
-          </div>
+    <div className="container mx-auto p-6 space-y-6">
+      <div className="flex justify-between items-center">
+        <div>
+          <h1 className="text-3xl font-bold flex items-center gap-2">
+            <Navigation className="w-8 h-8" />
+            Navigation Manager
+          </h1>
+          <p className="text-muted-foreground">
+            Manage website navigation menus and menu items
+          </p>
         </div>
+        <Button onClick={openCreateMenuDialog} className="flex items-center gap-2">
+          <Plus className="w-4 h-4" />
+          Create Menu
+        </Button>
+      </div>
 
-        {/* Breadcrumbs */}
-        <div className="flex items-center gap-2 text-sm text-muted-foreground">
-          <Link href="/admin" className="hover:text-primary">
-            Dashboard
-          </Link>
-          <ChevronRight className="h-4 w-4" />
-          <span>Navigation Manager</span>
-        </div>
+      <Tabs defaultValue="menus" className="w-full">
+        <TabsList className="grid w-full grid-cols-2">
+          <TabsTrigger value="menus">Menus</TabsTrigger>
+          <TabsTrigger value="items">Menu Items</TabsTrigger>
+        </TabsList>
 
-        {/* Main Content */}
-        <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-          {/* Menus List */}
+        <TabsContent value="menus">
           <Card>
             <CardHeader>
-              <CardTitle className="flex items-center gap-2">
-                <Menu className="h-5 w-5" />
-                Menus
-              </CardTitle>
+              <CardTitle>Menus</CardTitle>
               <CardDescription>
-                Select a menu to manage its navigation items
+                Manage website navigation menus
               </CardDescription>
             </CardHeader>
             <CardContent>
               {menusLoading ? (
-                <div className="text-center py-4">Loading menus...</div>
-              ) : menus.length > 0 ? (
                 <div className="space-y-2">
+                  {[...Array(3)].map((_, i) => (
+                    <div key={i} className="h-12 bg-gray-200 rounded animate-pulse" />
+                  ))}
+                </div>
+              ) : (
+                <div className="space-y-4">
                   {menus.map((menu: Menu) => (
-                    <div
-                      key={menu.id}
-                      className={`p-3 rounded-lg border cursor-pointer transition-colors ${
-                        selectedMenu?.id === menu.id
-                          ? 'bg-primary/10 border-primary'
-                          : 'hover:bg-gray-50'
-                      }`}
-                      onClick={() => handleSelectMenu(menu)}
-                    >
-                      <div className="flex items-center justify-between">
+                    <div key={menu.id} className="flex items-center justify-between p-4 border rounded-lg">
+                      <div className="flex items-center gap-3">
                         <div>
-                          <div className="font-medium">{menu.name}</div>
-                          <div className="text-sm text-muted-foreground">
-                            {menu.location}
-                          </div>
+                          <h3 className="font-semibold">{menu.name}</h3>
+                          <p className="text-sm text-muted-foreground">
+                            Location: {menu.location}
+                          </p>
+                          {menu.description && (
+                            <p className="text-sm text-muted-foreground">
+                              {menu.description}
+                            </p>
+                          )}
                         </div>
-                        <div className="flex items-center gap-2">
-                          <Badge variant={menu.active ? "default" : "secondary"}>
-                            {menu.active ? "Active" : "Inactive"}
-                          </Badge>
-                          <div className="flex items-center gap-1">
-                            <Button
-                              variant="ghost"
-                              size="sm"
-                              onClick={(e) => {
-                                e.stopPropagation();
-                                handleEditMenu(menu);
-                              }}
-                            >
-                              <Edit className="h-4 w-4" />
-                            </Button>
-                            <Button
-                              variant="ghost"
-                              size="sm"
-                              onClick={(e) => {
-                                e.stopPropagation();
-                                handleDeleteMenu(menu);
-                              }}
-                            >
-                              <Trash2 className="h-4 w-4" />
-                            </Button>
-                          </div>
-                        </div>
+                        <Badge variant={menu.active ? "default" : "secondary"}>
+                          {menu.active ? "Active" : "Inactive"}
+                        </Badge>
+                      </div>
+                      <div className="flex items-center gap-2">
+                        <Button
+                          variant="outline"
+                          size="sm"
+                          onClick={() => setSelectedMenu(menu)}
+                        >
+                          Select
+                        </Button>
+                        <Button
+                          variant="outline"
+                          size="sm"
+                          onClick={() => handleEditMenu(menu)}
+                        >
+                          <Edit2 className="w-4 h-4" />
+                        </Button>
+                        <Button
+                          variant="outline"
+                          size="sm"
+                          onClick={() => deleteMenuMutation.mutate(menu.id)}
+                          disabled={deleteMenuMutation.isPending}
+                        >
+                          <Trash2 className="w-4 h-4" />
+                        </Button>
                       </div>
                     </div>
                   ))}
                 </div>
-              ) : (
-                <div className="text-center py-8">
-                  <Menu className="h-12 w-12 text-muted-foreground mx-auto mb-4" />
-                  <p className="text-muted-foreground">No menus created yet</p>
-                  <Button onClick={handleCreateMenu} className="mt-4">
-                    Create Your First Menu
-                  </Button>
-                </div>
               )}
             </CardContent>
           </Card>
+        </TabsContent>
 
-          {/* Menu Items */}
-          <Card className="lg:col-span-2">
+        <TabsContent value="items">
+          <Card>
             <CardHeader>
-              <div className="flex items-center justify-between">
-                <div>
-                  <CardTitle>
-                    {selectedMenu ? `${selectedMenu.name} Items` : 'Menu Items'}
-                  </CardTitle>
-                  <CardDescription>
-                    {selectedMenu 
-                      ? `Manage navigation items for the ${selectedMenu.name} menu`
-                      : 'Select a menu to view and manage its items'
-                    }
-                  </CardDescription>
-                </div>
+              <CardTitle className="flex items-center justify-between">
+                <span>Menu Items</span>
                 {selectedMenu && (
-                  <Button onClick={handleCreateMenuItem} className="flex items-center gap-2">
-                    <Plus className="h-4 w-4" />
+                  <Button onClick={openCreateItemDialog} size="sm">
+                    <Plus className="w-4 h-4 mr-2" />
                     Add Item
                   </Button>
                 )}
-              </div>
+              </CardTitle>
+              <CardDescription>
+                {selectedMenu 
+                  ? `Managing items for "${selectedMenu.name}" menu`
+                  : "Select a menu to manage its items"
+                }
+              </CardDescription>
             </CardHeader>
             <CardContent>
               {!selectedMenu ? (
-                <div className="text-center py-12">
-                  <ExternalLink className="h-12 w-12 text-muted-foreground mx-auto mb-4" />
+                <div className="text-center py-8">
+                  <Navigation className="w-12 h-12 mx-auto text-gray-400 mb-4" />
                   <p className="text-muted-foreground">
-                    Select a menu from the left to view its navigation items
+                    Select a menu from the Menus tab to manage its items
                   </p>
                 </div>
-              ) : menuItemsLoading ? (
-                <div className="text-center py-8">Loading menu items...</div>
-              ) : organizedMenuItems.length > 0 ? (
-                <div className="space-y-4">
-                  {organizedMenuItems.map(({ item, children }) => (
-                    <div key={item.id} className="border rounded-lg p-4">
-                      <div className="flex items-center justify-between">
-                        <div className="flex items-center gap-3">
-                          {item.icon && (
-                            <i className={`${item.iconType} fa-${item.icon} text-lg`} />
-                          )}
-                          <div>
-                            <div className="font-medium">{item.title}</div>
-                            <div className="text-sm text-muted-foreground">
-                              {item.url || 'No URL'}
-                            </div>
-                          </div>
-                        </div>
-                        <div className="flex items-center gap-2">
-                          <Badge variant={item.active ? "default" : "secondary"}>
-                            {item.active ? (
-                              <Eye className="h-3 w-3 mr-1" />
-                            ) : (
-                              <EyeOff className="h-3 w-3 mr-1" />
-                            )}
-                            {item.active ? "Visible" : "Hidden"}
-                          </Badge>
-                          <Button
-                            variant="ghost"
-                            size="sm"
-                            onClick={() => handleEditMenuItem(item)}
-                          >
-                            <Edit className="h-4 w-4" />
-                          </Button>
-                          <Button
-                            variant="ghost"
-                            size="sm"
-                            onClick={() => handleDeleteMenuItem(item)}
-                          >
-                            <Trash2 className="h-4 w-4" />
-                          </Button>
-                        </div>
-                      </div>
-                      
-                      {children.length > 0 && (
-                        <div className="mt-4 pl-6 border-l-2 border-gray-200">
-                          <div className="space-y-2">
-                            {children.map((child) => (
-                              <div key={child.id} className="flex items-center justify-between p-2 bg-gray-50 rounded">
-                                <div className="flex items-center gap-2">
-                                  {child.icon && (
-                                    <i className={`${child.iconType} fa-${child.icon}`} />
-                                  )}
-                                  <span className="text-sm">{child.title}</span>
-                                </div>
-                                <div className="flex items-center gap-1">
-                                  <Button
-                                    variant="ghost"
-                                    size="sm"
-                                    onClick={() => handleEditMenuItem(child)}
-                                  >
-                                    <Edit className="h-3 w-3" />
-                                  </Button>
-                                  <Button
-                                    variant="ghost"
-                                    size="sm"
-                                    onClick={() => handleDeleteMenuItem(child)}
-                                  >
-                                    <Trash2 className="h-3 w-3" />
-                                  </Button>
-                                </div>
-                              </div>
-                            ))}
-                          </div>
-                        </div>
-                      )}
-                    </div>
+              ) : itemsLoading ? (
+                <div className="space-y-2">
+                  {[...Array(3)].map((_, i) => (
+                    <div key={i} className="h-12 bg-gray-200 rounded animate-pulse" />
                   ))}
                 </div>
               ) : (
-                <div className="text-center py-8">
-                  <ExternalLink className="h-12 w-12 text-muted-foreground mx-auto mb-4" />
-                  <p className="text-muted-foreground">No menu items found</p>
-                  <Button onClick={handleCreateMenuItem} className="mt-4">
-                    Add First Menu Item
-                  </Button>
+                <div className="space-y-4">
+                  {menuItems.map((item: MenuItem) => (
+                    <div key={item.id} className="flex items-center justify-between p-4 border rounded-lg">
+                      <div className="flex items-center gap-3">
+                        <LinkIcon className="w-5 h-5 text-muted-foreground" />
+                        <div>
+                          <h3 className="font-semibold">{item.title}</h3>
+                          <p className="text-sm text-muted-foreground">
+                            {item.url} • Order: {item.orderPosition}
+                          </p>
+                          {item.icon && (
+                            <p className="text-sm text-muted-foreground">
+                              Icon: {item.icon}
+                            </p>
+                          )}
+                        </div>
+                        <Badge variant={item.active ? "default" : "secondary"}>
+                          {item.active ? "Active" : "Inactive"}
+                        </Badge>
+                      </div>
+                      <div className="flex items-center gap-2">
+                        <Button
+                          variant="outline"
+                          size="sm"
+                          onClick={() => handleEditItem(item)}
+                        >
+                          <Edit2 className="w-4 h-4" />
+                        </Button>
+                        <Button
+                          variant="outline"
+                          size="sm"
+                          onClick={() => deleteItemMutation.mutate(item.id)}
+                          disabled={deleteItemMutation.isPending}
+                        >
+                          <Trash2 className="w-4 h-4" />
+                        </Button>
+                      </div>
+                    </div>
+                  ))}
+                  {menuItems.length === 0 && (
+                    <div className="text-center py-8">
+                      <LinkIcon className="w-12 h-12 mx-auto text-gray-400 mb-4" />
+                      <p className="text-muted-foreground">
+                        No menu items found. Create your first menu item!
+                      </p>
+                    </div>
+                  )}
                 </div>
               )}
             </CardContent>
           </Card>
-        </div>
+        </TabsContent>
+      </Tabs>
 
-        {/* Menu Dialog */}
-        <Dialog open={showMenuDialog} onOpenChange={setShowMenuDialog}>
-          <DialogContent className="sm:max-w-[425px]">
-            <DialogHeader>
-              <DialogTitle>
-                {selectedMenu ? 'Edit Menu' : 'Create New Menu'}
-              </DialogTitle>
-              <DialogDescription>
-                {selectedMenu 
-                  ? 'Update the menu details below'
-                  : 'Create a new navigation menu for your website'
-                }
-              </DialogDescription>
-            </DialogHeader>
-            <form onSubmit={handleMenuSubmit} className="space-y-4">
-              <div className="space-y-2">
-                <Label htmlFor="menu-name">Menu Name</Label>
-                <Input
-                  id="menu-name"
-                  placeholder="e.g., Header Menu"
-                  value={menuForm.name}
-                  onChange={(e) => setMenuForm({ ...menuForm, name: e.target.value })}
-                  required
-                />
-              </div>
-              
-              <div className="space-y-2">
-                <Label htmlFor="menu-location">Location</Label>
-                <Select 
-                  value={menuForm.location} 
-                  onValueChange={(value) => setMenuForm({ ...menuForm, location: value })}
-                >
-                  <SelectTrigger>
-                    <SelectValue placeholder="Select menu location" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="header">Header</SelectItem>
-                    <SelectItem value="footer">Footer</SelectItem>
-                    <SelectItem value="sidebar">Sidebar</SelectItem>
-                    <SelectItem value="mobile">Mobile Menu</SelectItem>
-                  </SelectContent>
-                </Select>
-              </div>
-              
-              <div className="space-y-2">
-                <Label htmlFor="menu-description">Description (Optional)</Label>
-                <Textarea
-                  id="menu-description"
-                  placeholder="Brief description of this menu"
-                  value={menuForm.description}
-                  onChange={(e) => setMenuForm({ ...menuForm, description: e.target.value })}
-                />
-              </div>
-              
-              <div className="flex items-center justify-between">
-                <Label htmlFor="menu-active">Active</Label>
-                <Switch
-                  id="menu-active"
-                  checked={menuForm.active}
-                  onCheckedChange={(checked) => setMenuForm({ ...menuForm, active: checked })}
-                />
-              </div>
-              
-              <DialogFooter>
-                <Button type="button" variant="outline" onClick={() => setShowMenuDialog(false)}>
-                  Cancel
-                </Button>
-                <Button type="submit" disabled={createMenuMutation.isPending || updateMenuMutation.isPending}>
-                  {selectedMenu ? 'Update Menu' : 'Create Menu'}
-                </Button>
-              </DialogFooter>
-            </form>
-          </DialogContent>
-        </Dialog>
+      {/* Menu Dialog */}
+      <Dialog open={isMenuDialogOpen} onOpenChange={setIsMenuDialogOpen}>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>
+              {selectedMenu ? 'Edit Menu' : 'Create Menu'}
+            </DialogTitle>
+          </DialogHeader>
+          <div className="space-y-4">
+            <div>
+              <Label htmlFor="name">Menu Name</Label>
+              <Input
+                id="name"
+                value={menuForm.name}
+                onChange={(e) => setMenuForm({ ...menuForm, name: e.target.value })}
+                placeholder="Enter menu name"
+              />
+            </div>
+            <div>
+              <Label htmlFor="location">Location</Label>
+              <Select 
+                value={menuForm.location} 
+                onValueChange={(value) => setMenuForm({ ...menuForm, location: value })}
+              >
+                <SelectTrigger>
+                  <SelectValue placeholder="Select location" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="header">Header</SelectItem>
+                  <SelectItem value="footer">Footer</SelectItem>
+                  <SelectItem value="sidebar">Sidebar</SelectItem>
+                </SelectContent>
+              </Select>
+            </div>
+            <div>
+              <Label htmlFor="description">Description</Label>
+              <Input
+                id="description"
+                value={menuForm.description}
+                onChange={(e) => setMenuForm({ ...menuForm, description: e.target.value })}
+                placeholder="Enter menu description"
+              />
+            </div>
+            <div className="flex items-center space-x-2">
+              <Switch
+                id="active"
+                checked={menuForm.active}
+                onCheckedChange={(checked) => setMenuForm({ ...menuForm, active: checked })}
+              />
+              <Label htmlFor="active">Active</Label>
+            </div>
+            <div className="flex justify-end space-x-2">
+              <Button variant="outline" onClick={() => setIsMenuDialogOpen(false)}>
+                <X className="w-4 h-4 mr-2" />
+                Cancel
+              </Button>
+              <Button 
+                onClick={selectedMenu ? handleUpdateMenu : handleCreateMenu}
+                disabled={createMenuMutation.isPending || updateMenuMutation.isPending}
+              >
+                <Save className="w-4 h-4 mr-2" />
+                {selectedMenu ? 'Update' : 'Create'}
+              </Button>
+            </div>
+          </div>
+        </DialogContent>
+      </Dialog>
 
-        {/* Menu Item Dialog */}
-        <Dialog open={showMenuItemDialog} onOpenChange={setShowMenuItemDialog}>
-          <DialogContent className="sm:max-w-[425px]">
-            <DialogHeader>
-              <DialogTitle>
-                {isMenuItemCreate ? 'Create Menu Item' : 'Edit Menu Item'}
-              </DialogTitle>
-              <DialogDescription>
-                {isMenuItemCreate 
-                  ? 'Add a new navigation link to your menu'
-                  : 'Update the menu item details below'
-                }
-              </DialogDescription>
-            </DialogHeader>
-            <form onSubmit={handleMenuItemSubmit} className="space-y-4">
-              <div className="space-y-2">
-                <Label htmlFor="item-title">Title</Label>
-                <Input
-                  id="item-title"
-                  placeholder="e.g., Home, About Us"
-                  value={menuItemForm.title}
-                  onChange={(e) => setMenuItemForm({ ...menuItemForm, title: e.target.value })}
-                  required
-                />
-              </div>
-              
-              <div className="space-y-2">
-                <Label htmlFor="item-url">URL</Label>
-                <Input
-                  id="item-url"
-                  placeholder="e.g., /, /about, https://example.com"
-                  value={menuItemForm.url}
-                  onChange={(e) => setMenuItemForm({ ...menuItemForm, url: e.target.value })}
-                />
-              </div>
-              
-              <div className="grid grid-cols-2 gap-4">
-                <div className="space-y-2">
-                  <Label htmlFor="item-icon">Icon (Optional)</Label>
-                  <Input
-                    id="item-icon"
-                    placeholder="e.g., home, user, cog"
-                    value={menuItemForm.icon}
-                    onChange={(e) => setMenuItemForm({ ...menuItemForm, icon: e.target.value })}
-                  />
-                </div>
-                
-                <div className="space-y-2">
-                  <Label htmlFor="item-order">Order</Label>
-                  <Input
-                    id="item-order"
-                    type="number"
-                    min="1"
-                    value={menuItemForm.order}
-                    onChange={(e) => setMenuItemForm({ ...menuItemForm, order: parseInt(e.target.value) || 0 })}
-                  />
-                </div>
-              </div>
-              
-              <div className="space-y-2">
-                <Label htmlFor="item-target">Link Target</Label>
-                <Select 
-                  value={menuItemForm.target} 
-                  onValueChange={(value) => setMenuItemForm({ ...menuItemForm, target: value })}
-                >
-                  <SelectTrigger>
-                    <SelectValue />
-                  </SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="_self">Same Window</SelectItem>
-                    <SelectItem value="_blank">New Window</SelectItem>
-                  </SelectContent>
-                </Select>
-              </div>
-              
-              <div className="flex items-center justify-between">
-                <Label htmlFor="item-active">Active</Label>
-                <Switch
-                  id="item-active"
-                  checked={menuItemForm.active}
-                  onCheckedChange={(checked) => setMenuItemForm({ ...menuItemForm, active: checked })}
-                />
-              </div>
-              
-              <DialogFooter>
-                <Button type="button" variant="outline" onClick={() => setShowMenuItemDialog(false)}>
-                  Cancel
-                </Button>
-                <Button type="submit" disabled={createMenuItemMutation.isPending || updateMenuItemMutation.isPending}>
-                  {isMenuItemCreate ? 'Create Item' : 'Update Item'}
-                </Button>
-              </DialogFooter>
-            </form>
-          </DialogContent>
-        </Dialog>
-      </div>
-    </DashboardLayout>
+      {/* Menu Item Dialog */}
+      <Dialog open={isItemDialogOpen} onOpenChange={setIsItemDialogOpen}>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>
+              {editingItem ? 'Edit Menu Item' : 'Create Menu Item'}
+            </DialogTitle>
+          </DialogHeader>
+          <div className="space-y-4">
+            <div>
+              <Label htmlFor="title">Title</Label>
+              <Input
+                id="title"
+                value={itemForm.title}
+                onChange={(e) => setItemForm({ ...itemForm, title: e.target.value })}
+                placeholder="Enter menu item title"
+              />
+            </div>
+            <div>
+              <Label htmlFor="url">URL</Label>
+              <Input
+                id="url"
+                value={itemForm.url}
+                onChange={(e) => setItemForm({ ...itemForm, url: e.target.value })}
+                placeholder="Enter URL (e.g., /packages)"
+              />
+            </div>
+            <div>
+              <Label htmlFor="icon">Icon</Label>
+              <Input
+                id="icon"
+                value={itemForm.icon}
+                onChange={(e) => setItemForm({ ...itemForm, icon: e.target.value })}
+                placeholder="Enter icon name (e.g., home, package, map)"
+              />
+            </div>
+            <div>
+              <Label htmlFor="type">Type</Label>
+              <Select 
+                value={itemForm.type} 
+                onValueChange={(value) => setItemForm({ ...itemForm, type: value })}
+              >
+                <SelectTrigger>
+                  <SelectValue placeholder="Select type" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="link">Link</SelectItem>
+                  <SelectItem value="button">Button</SelectItem>
+                  <SelectItem value="dropdown">Dropdown</SelectItem>
+                </SelectContent>
+              </Select>
+            </div>
+            <div>
+              <Label htmlFor="target">Target</Label>
+              <Select 
+                value={itemForm.target} 
+                onValueChange={(value) => setItemForm({ ...itemForm, target: value })}
+              >
+                <SelectTrigger>
+                  <SelectValue placeholder="Select target" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="_self">Same Window</SelectItem>
+                  <SelectItem value="_blank">New Window</SelectItem>
+                </SelectContent>
+              </Select>
+            </div>
+            <div>
+              <Label htmlFor="order">Order Position</Label>
+              <Input
+                id="order"
+                type="number"
+                value={itemForm.orderPosition}
+                onChange={(e) => setItemForm({ ...itemForm, orderPosition: parseInt(e.target.value) || 1 })}
+                placeholder="Enter order position"
+              />
+            </div>
+            <div className="flex items-center space-x-2">
+              <Switch
+                id="item-active"
+                checked={itemForm.active}
+                onCheckedChange={(checked) => setItemForm({ ...itemForm, active: checked })}
+              />
+              <Label htmlFor="item-active">Active</Label>
+            </div>
+            <div className="flex justify-end space-x-2">
+              <Button variant="outline" onClick={() => setIsItemDialogOpen(false)}>
+                <X className="w-4 h-4 mr-2" />
+                Cancel
+              </Button>
+              <Button 
+                onClick={editingItem ? handleUpdateItem : handleCreateItem}
+                disabled={createItemMutation.isPending || updateItemMutation.isPending}
+              >
+                <Save className="w-4 h-4 mr-2" />
+                {editingItem ? 'Update' : 'Create'}
+              </Button>
+            </div>
+          </div>
+        </DialogContent>
+      </Dialog>
+    </div>
   );
-};
-
-export default NavigationManager;
+}

@@ -241,6 +241,7 @@ function Router() {
           />
 
           <AdminRoute path="/admin/slider" component={SliderManagement} />
+          <AdminRoute path="/admin/navigation" component={NavigationManager} />
           <AdminRoute path="/admin" component={AdminDashboard} />
           <AdminRoute path="/admin/visas" component={VisasManagement} />
           <Route component={NotFound} />

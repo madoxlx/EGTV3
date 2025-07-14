@@ -16,6 +16,7 @@ import {
 import { useAuth } from "@/hooks/use-auth";
 import { useLanguage } from "@/hooks/use-language";
 import { useCart } from "@/hooks/useCart";
+import { useHeaderMenu } from "@/hooks/use-menu";
 import { LanguageSwitcher, LanguageToggle } from "@/components/ui/language-switcher";
 import { Badge } from "@/components/ui/badge";
 import {
@@ -58,6 +59,7 @@ const Header: React.FC = () => {
   
   const { user, logoutMutation } = authData;
   const { t, isRTL } = useLanguage();
+  const { data: menuItems, isLoading: menuLoading } = useHeaderMenu();
 
   const toggleMenu = () => {
     setIsMenuOpen(!isMenuOpen);
@@ -99,64 +101,33 @@ const Header: React.FC = () => {
         </div>
 
         <nav className="hidden md:block">
-          <ul className={`flex ${isRTL ? 'space-x-reverse' : ''} space-x-6`}>
-            <li>
-              <Link
-                href="/"
-                className={`font-medium hover:text-primary transition-colors ${location === "/" ? "text-primary" : ""}`}
-              >
-                {t('nav.home', 'Home')}
-              </Link>
-            </li>
-            <li>
-              <Link
-                href="/destinations"
-                className={`font-medium hover:text-primary transition-colors ${location === "/destinations" ? "text-primary" : ""}`}
-              >
-                {t('nav.destinations', 'Destinations')}
-              </Link>
-            </li>
-            <li>
-              <Link
-                href="/tours"
-                className={`font-medium hover:text-primary transition-colors ${location.startsWith("/tours") ? "text-primary" : ""}`}
-              >
-                {t('nav.tours', 'Tours')}
-              </Link>
-            </li>
-            <li>
-              <Link
-                href="/packages"
-                className={`font-medium hover:text-primary transition-colors ${location.startsWith("/packages") ? "text-primary" : ""}`}
-              >
-                {t('nav.packages', 'Packages')}
-              </Link>
-            </li>
-            <li>
-              <Link
-                href="/visa"
-                className={`font-medium hover:text-primary transition-colors ${location.startsWith("/visa") ? "text-primary" : ""}`}
-              >
-                {t('nav.visa', 'Visa')}
-              </Link>
-            </li>
-            <li>
-              <Link
-                href="/about"
-                className={`font-medium hover:text-primary transition-colors ${location === "/about" ? "text-primary" : ""}`}
-              >
-                {t('nav.about', 'About Us')}
-              </Link>
-            </li>
-            <li>
-              <Link
-                href="/contact"
-                className={`font-medium hover:text-primary transition-colors ${location === "/contact" ? "text-primary" : ""}`}
-              >
-                {t('nav.contact', 'Contact Us')}
-              </Link>
-            </li>
-          </ul>
+          {menuLoading ? (
+            <div className="flex space-x-6">
+              {[...Array(6)].map((_, i) => (
+                <div key={i} className="h-4 w-16 bg-gray-200 rounded animate-pulse" />
+              ))}
+            </div>
+          ) : (
+            <ul className={`flex ${isRTL ? 'space-x-reverse' : ''} space-x-6`}>
+              {menuItems?.map((item) => (
+                <li key={item.id}>
+                  <Link
+                    href={item.url || '/'}
+                    className={`font-medium hover:text-primary transition-colors ${
+                      location === item.url || 
+                      (item.url !== '/' && location.startsWith(item.url || '')) 
+                        ? "text-primary" 
+                        : ""
+                    }`}
+                    target={item.target === '_blank' ? '_blank' : undefined}
+                    rel={item.target === '_blank' ? 'noopener noreferrer' : undefined}
+                  >
+                    {isRTL && item.textAr ? item.textAr : item.text}
+                  </Link>
+                </li>
+              ))}
+            </ul>
+          )}
         </nav>
 
         <div className={`flex items-center ${isRTL ? 'space-x-reverse' : ''} space-x-4`}>

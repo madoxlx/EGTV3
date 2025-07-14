@@ -130,7 +130,7 @@ export interface IStorage {
   createPackageCategory(category: any): Promise<any>;
 
   // Menu Items
-  listMenuItems(menuId?: number): Promise<any[]>;
+  listMenuItems(menuId?: number, active?: boolean): Promise<any[]>;
   createMenuItem(item: any): Promise<any>;
 
   // Tour Categories
@@ -1004,10 +1004,12 @@ export class DatabaseStorage implements IStorage {
   // Menus
   async getMenuByLocation(location: string): Promise<Menu | undefined> {
     try {
+      console.log("DEBUG: Looking for menu with location:", location);
       const [menu] = await db
         .select()
         .from(menus)
         .where(eq(menus.location, location));
+      console.log("DEBUG: Found menu:", menu);
       return menu || undefined;
     } catch (error) {
       console.error("Error getting menu by location:", error);
@@ -1064,20 +1066,31 @@ export class DatabaseStorage implements IStorage {
   }
 
   // Menu Items
-  async listMenuItems(menuId?: number): Promise<any[]> {
+  async listMenuItems(menuId?: number, active?: boolean): Promise<any[]> {
     try {
       const client = await pool.connect();
       let result;
+      let query = 'SELECT * FROM menu_items';
+      let params: any[] = [];
+      let conditions: string[] = [];
+      
       if (menuId !== undefined) {
-        result = await client.query(
-          'SELECT * FROM menu_items WHERE menu_id = $1 ORDER BY "order"',
-          [menuId],
-        );
-      } else {
-        result = await client.query(
-          'SELECT * FROM menu_items ORDER BY "order"',
-        );
+        conditions.push('menu_id = $' + (params.length + 1));
+        params.push(menuId);
       }
+      
+      if (active !== undefined) {
+        conditions.push('active = $' + (params.length + 1));
+        params.push(active);
+      }
+      
+      if (conditions.length > 0) {
+        query += ' WHERE ' + conditions.join(' AND ');
+      }
+      
+      query += ' ORDER BY "order"';
+      
+      result = await client.query(query, params);
       client.release();
       return result.rows || [];
     } catch (error) {

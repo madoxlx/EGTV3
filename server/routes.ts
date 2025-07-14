@@ -4771,6 +4771,35 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
+  // Public Menu API Routes (for frontend components)
+  
+  // Get a menu by location
+  app.get('/api/menus/location/:location', async (req, res) => {
+    try {
+      const location = req.params.location;
+      if (!location) {
+        return res.status(400).json({ message: 'Location parameter is required' });
+      }
+      
+      const menu = await storage.getMenuByLocation(location);
+      if (!menu) {
+        return res.status(404).json({ message: 'Menu not found for this location' });
+      }
+      
+      // Get menu items for this menu
+      const menuItems = await storage.listMenuItems(menu.id, true);
+      
+      // Return menu with its items
+      res.json({
+        menu,
+        items: menuItems
+      });
+    } catch (error) {
+      console.error('Error fetching menu by location:', error);
+      res.status(500).json({ message: 'Failed to fetch menu' });
+    }
+  });
+
   // Google Maps API key endpoint
   app.get('/api/maps-key', (req, res) => {
     res.json({ key: process.env.GOOGLE_MAPS_API_KEY || '' });

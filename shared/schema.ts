@@ -476,8 +476,6 @@ export const menus = pgTable("menus", {
   active: boolean("active").default(true),
   createdAt: timestamp("created_at").notNull().defaultNow(),
   updatedAt: timestamp("updated_at").defaultNow(),
-  createdBy: integer("created_by").references(() => users.id),
-  updatedBy: integer("updated_by").references(() => users.id),
 });
 
 // Menu Items table for storing menu items
@@ -490,15 +488,12 @@ export const menuItems = pgTable("menu_items", {
   title: text("title").notNull(),
   url: text("url"), // URL is now optional
   icon: text("icon"), // FontAwesome icon name
-  iconType: text("icon_type").default("fas"), // fas, fab, far, etc.
-  itemType: text("item_type").default("link"), // "link" or "heading"
-  order: integer("order").notNull(),
+  type: text("type").default("link"), // "link" or "heading"
   target: text("target").default("_self"), // _self, _blank, etc.
+  orderPosition: integer("order_position"),
   active: boolean("active").default(true),
   createdAt: timestamp("created_at").notNull().defaultNow(),
   updatedAt: timestamp("updated_at").defaultNow(),
-  createdBy: integer("created_by").references(() => users.id),
-  updatedBy: integer("updated_by").references(() => users.id),
 });
 
 // Define relations for rooms and room combinations
