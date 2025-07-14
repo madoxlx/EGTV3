@@ -296,6 +296,11 @@ export function Sidebar({ collapsed, onToggle, location }: SidebarProps) {
       href: "/admin/translations",
     },
     {
+      icon: <Menu size={20} />,
+      label: t("admin.sidebar.navigationManager", "Navigation Manager"),
+      href: "/admin/navigation",
+    },
+    {
       icon: <FileCheck size={20} />,
       label: t("admin.sidebar.visaManagement", "Visa Management"),
       href: "/admin/visas",
