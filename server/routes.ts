@@ -4684,7 +4684,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
         }
         
         // Check that parent item belongs to the same menu
-        if (parentItem.menuId !== menuItemData.menuId) {
+        if (parentItem.menu_id !== menuItemData.menuId) {
           return res.status(400).json({ message: 'Parent menu item must belong to the same menu' });
         }
       }
@@ -4724,7 +4724,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
       const updateData = insertMenuItemSchema.partial().parse(req.body);
       
       // If menuId is changing, check if the new menu exists
-      if (updateData.menuId && updateData.menuId !== existingMenuItem.menuId) {
+      if (updateData.menuId && updateData.menuId !== existingMenuItem.menu_id) {
         const menu = await storage.getMenu(updateData.menuId);
         if (!menu) {
           return res.status(404).json({ message: 'Menu not found' });
@@ -4732,7 +4732,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
       }
       
       // If parentId is changing, check if the new parent exists and belongs to the same menu
-      if (updateData.parentId !== undefined && updateData.parentId !== existingMenuItem.parentId) {
+      if (updateData.parentId !== undefined && updateData.parentId !== existingMenuItem.parent_id) {
         if (updateData.parentId !== null) {
           // Check for circular reference
           if (updateData.parentId === id) {
@@ -4745,9 +4745,9 @@ export async function registerRoutes(app: Express): Promise<Server> {
           }
           
           // Check that parent item belongs to the same menu
-          const menuId = updateData.menuId || existingMenuItem.menuId;
-          console.log(`Parent validation: parentItem.menuId=${parentItem.menuId}, menuId=${menuId}`);
-          if (parentItem.menuId !== menuId) {
+          const menuId = updateData.menuId || existingMenuItem.menu_id;
+          console.log(`Parent validation: parentItem.menu_id=${parentItem.menu_id}, menuId=${menuId}`);
+          if (parentItem.menu_id !== menuId) {
             return res.status(400).json({ message: 'Parent menu item must belong to the same menu' });
           }
         }

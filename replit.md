@@ -119,6 +119,8 @@ The application uses a comprehensive PostgreSQL schema with the following core e
   - **CREATE/UPDATE Button Fix**: Fixed critical issue where menu item update operations were failing due to missing `menuId` field in update requests
   - **Frontend Update Fix**: Enhanced `handleUpdateItem` function to include `menuId` in update request payload for proper parent validation
   - **Backend Validation Enhancement**: Added debug logging to parent validation logic to track validation decisions
+  - **Field Name Mapping Fix**: Resolved critical validation bug where backend was checking `menuId` (camelCase) instead of `menu_id` (snake_case) from database
+  - **Database Schema Alignment**: Fixed all parent validation logic to use correct database field names (`menu_id`, `parent_id`) instead of camelCase variants
   - **Production Testing**: Successfully verified parent-child relationships are properly stored and retrieved from database with hierarchical structure intact
   - **Frontend Integration**: NavigationManager component dropdown selection now properly persists parent relationships when creating or updating menu items
   - **Complete Resolution**: Menu management system now fully supports hierarchical menu structure with proper parent-child relationships saved to database and reliable deletion functionality
