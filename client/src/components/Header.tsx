@@ -111,7 +111,7 @@ const Header: React.FC = () => {
                       // Parent item with children - show dropdown on hover
                       <>
                         <NavigationMenuTrigger 
-                          className={`font-medium hover:text-primary transition-colors bg-transparent ${
+                          className={`font-medium hover:text-primary transition-colors bg-transparent relative group ${
                             location === item.url || 
                             (item.url !== '/' && location.startsWith(item.url || '')) ||
                             item.children?.some(child => location === child.url || 
@@ -120,6 +120,7 @@ const Header: React.FC = () => {
                               : ""
                           }`}
                         >
+                          <span className="absolute bottom-0 left-0 h-0.5 w-0 bg-red-500 transition-all duration-300 ease-out group-hover:w-full"></span>
                           {item.title}
                         </NavigationMenuTrigger>
                         <NavigationMenuContent>
@@ -169,7 +170,7 @@ const Header: React.FC = () => {
                       <NavigationMenuLink asChild>
                         <Link
                           href={item.url || '/'}
-                          className={`font-medium hover:text-primary transition-colors px-3 py-2 rounded-md ${
+                          className={`font-medium hover:text-primary transition-colors px-3 py-2 rounded-md relative group ${
                             location === item.url || 
                             (item.url !== '/' && location.startsWith(item.url || '')) 
                               ? "text-primary" 
@@ -178,6 +179,7 @@ const Header: React.FC = () => {
                           target={item.target === '_blank' ? '_blank' : undefined}
                           rel={item.target === '_blank' ? 'noopener noreferrer' : undefined}
                         >
+                          <span className="absolute bottom-0 left-0 h-0.5 w-0 bg-red-500 transition-all duration-300 ease-out group-hover:w-full"></span>
                           {item.title}
                         </Link>
                       </NavigationMenuLink>
