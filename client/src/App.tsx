@@ -102,6 +102,7 @@ import AdvancedDashboard from "@/pages/admin/AdvancedDashboard";
 import AdvancedBookingsManagement from "@/pages/admin/AdvancedBookingsManagement";
 import AdvancedUserManagement from "@/pages/admin/AdvancedUserManagement";
 import AdvancedSystemSettings from "@/pages/admin/AdvancedSystemSettings";
+import HomepageSectionsManagement from "@/pages/admin/HomepageSectionsManagement";
 
 function Router() {
   const [location] = useLocation();
@@ -243,6 +244,7 @@ function Router() {
 
           <AdminRoute path="/admin/slider" component={SliderManagement} />
           <AdminRoute path="/admin/navigation" component={NavigationManager} />
+          <AdminRoute path="/admin/homepage-sections" component={HomepageSectionsManagement} />
           <AdminRoute path="/admin" component={AdminDashboard} />
           <AdminRoute path="/admin/visas" component={VisasManagement} />
           <Route component={NotFound} />

@@ -27,6 +27,7 @@ import {
   insertCartItemSchema,
   insertOrderSchema,
   insertOrderItemSchema,
+  insertHomepageSectionSchema,
   translations,
   cartItems,
   orders,
@@ -6265,6 +6266,111 @@ export async function registerRoutes(app: Express): Promise<Server> {
     } catch (error) {
       console.error('Error fetching package categories:', error);
       res.status(500).json({ message: 'Failed to fetch package categories' });
+    }
+  });
+
+  // =================== Homepage Sections API Routes ===================
+  
+  // Get all homepage sections
+  app.get('/api/homepage-sections', async (req, res) => {
+    try {
+      const active = req.query.active === 'true' ? true : undefined;
+      const sections = await storage.listHomepageSections(active);
+      res.json(sections);
+    } catch (error) {
+      console.error('Error fetching homepage sections:', error);
+      res.status(500).json({ message: 'Failed to fetch homepage sections' });
+    }
+  });
+
+  // Get homepage section by ID
+  app.get('/api/homepage-sections/:id', async (req, res) => {
+    try {
+      const id = parseInt(req.params.id);
+      if (isNaN(id)) {
+        return res.status(400).json({ message: 'Invalid homepage section ID' });
+      }
+
+      const section = await storage.getHomepageSection(id);
+      if (!section) {
+        return res.status(404).json({ message: 'Homepage section not found' });
+      }
+
+      res.json(section);
+    } catch (error) {
+      console.error('Error fetching homepage section:', error);
+      res.status(500).json({ message: 'Failed to fetch homepage section' });
+    }
+  });
+
+  // Create new homepage section (admin only)
+  app.post('/api/admin/homepage-sections', isAdmin, async (req, res) => {
+    try {
+      const sectionData = insertHomepageSectionSchema.parse(req.body);
+      const newSection = await storage.createHomepageSection(sectionData);
+      res.status(201).json(newSection);
+    } catch (error) {
+      if (error instanceof z.ZodError) {
+        return res.status(400).json({ message: 'Invalid homepage section data', errors: error.errors });
+      }
+      console.error('Error creating homepage section:', error);
+      res.status(500).json({ message: 'Failed to create homepage section' });
+    }
+  });
+
+  // Update homepage section (admin only)
+  app.put('/api/admin/homepage-sections/:id', isAdmin, async (req, res) => {
+    try {
+      const id = parseInt(req.params.id);
+      if (isNaN(id)) {
+        return res.status(400).json({ message: 'Invalid homepage section ID' });
+      }
+
+      // Verify section exists
+      const existingSection = await storage.getHomepageSection(id);
+      if (!existingSection) {
+        return res.status(404).json({ message: 'Homepage section not found' });
+      }
+
+      const sectionData = insertHomepageSectionSchema.partial().parse(req.body);
+      const updatedSection = await storage.updateHomepageSection(id, sectionData);
+      if (!updatedSection) {
+        return res.status(500).json({ message: 'Failed to update homepage section' });
+      }
+
+      res.json(updatedSection);
+    } catch (error) {
+      if (error instanceof z.ZodError) {
+        return res.status(400).json({ message: 'Invalid homepage section data', errors: error.errors });
+      }
+      console.error('Error updating homepage section:', error);
+      res.status(500).json({ message: 'Failed to update homepage section' });
+    }
+  });
+
+  // Delete homepage section (admin only)
+  app.delete('/api/admin/homepage-sections/:id', isAdmin, async (req, res) => {
+    try {
+      const id = parseInt(req.params.id);
+      if (isNaN(id)) {
+        return res.status(400).json({ message: 'Invalid homepage section ID' });
+      }
+
+      // Verify section exists
+      const existingSection = await storage.getHomepageSection(id);
+      if (!existingSection) {
+        return res.status(404).json({ message: 'Homepage section not found' });
+      }
+
+      const success = await storage.deleteHomepageSection(id);
+      if (success) {
+        res.status(204).end();
+      } else {
+        res.status(500).json({ message: 'Failed to delete homepage section' });
+      }
+    } catch (error) {
+      console.error('Error deleting homepage section:', error);
+      res.status(500).json({ message: 'Failed to delete homepage section' });
     }
   });
 

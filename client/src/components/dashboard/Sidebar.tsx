@@ -27,6 +27,7 @@ import {
   Database,
   FileCheck,
   ImageIcon,
+  Layout,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
@@ -299,6 +300,11 @@ export function Sidebar({ collapsed, onToggle, location }: SidebarProps) {
       icon: <Menu size={20} />,
       label: t("admin.sidebar.navigationManager", "Navigation Manager"),
       href: "/admin/navigation",
+    },
+    {
+      icon: <Layout size={20} />,
+      label: t("admin.sidebar.homepageSections", "Homepage Sections"),
+      href: "/admin/homepage-sections",
     },
     {
       icon: <FileCheck size={20} />,

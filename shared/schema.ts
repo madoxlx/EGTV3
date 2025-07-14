@@ -135,6 +135,58 @@ export const heroSlides = pgTable("hero_slides", {
   updatedBy: integer("updated_by").references(() => users.id),
 });
 
+// Dynamic homepage sections table
+export const homepageSections = pgTable("homepage_sections", {
+  id: serial("id").primaryKey(),
+  title: text("title").notNull(),
+  subtitle: text("subtitle"),
+  description: text("description"),
+  imageUrl: text("image_url").notNull(),
+  buttonText: text("button_text"),
+  buttonLink: text("button_link"),
+  
+  // Statistics/metrics shown in the section
+  touristsCount: text("tourists_count").default("5000+"),
+  destinationsCount: text("destinations_count").default("300+"),
+  hotelsCount: text("hotels_count").default("150+"),
+  
+  // Feature highlights
+  feature1Title: text("feature1_title").default("Flexible Booking"),
+  feature1Description: text("feature1_description").default("Free cancellation options available"),
+  feature1Icon: text("feature1_icon").default("calendar"),
+  
+  feature2Title: text("feature2_title").default("Expert Guides"),
+  feature2Description: text("feature2_description").default("Local, knowledgeable tour guides"),
+  feature2Icon: text("feature2_icon").default("user-check"),
+  
+  // Arabic translations
+  titleAr: text("title_ar"),
+  subtitleAr: text("subtitle_ar"),
+  descriptionAr: text("description_ar"),
+  buttonTextAr: text("button_text_ar"),
+  feature1TitleAr: text("feature1_title_ar"),
+  feature1DescriptionAr: text("feature1_description_ar"),
+  feature2TitleAr: text("feature2_title_ar"),
+  feature2DescriptionAr: text("feature2_description_ar"),
+  
+  // Display settings
+  order: integer("order").default(0),
+  active: boolean("active").default(true),
+  showStatistics: boolean("show_statistics").default(true),
+  showFeatures: boolean("show_features").default(true),
+  
+  // Layout settings
+  imagePosition: text("image_position").default("left"), // "left" or "right"
+  backgroundColor: text("background_color").default("white"),
+  textColor: text("text_color").default("black"),
+  
+  // Audit fields
+  createdAt: timestamp("created_at").notNull().defaultNow(),
+  updatedAt: timestamp("updated_at").defaultNow(),
+  createdBy: integer("created_by").references(() => users.id),
+  updatedBy: integer("updated_by").references(() => users.id),
+});
+
 export const destinations = pgTable("destinations", {
   id: serial("id").primaryKey(),
   name: text("name").notNull(),
@@ -1909,3 +1961,15 @@ export type RoomCategory = typeof roomCategories.$inferSelect;
 
 export type InsertPackageCategory = z.infer<typeof insertPackageCategorySchema>;
 export type PackageCategory = typeof packageCategories.$inferSelect;
+
+// Homepage sections insert schema
+export const insertHomepageSectionSchema = createInsertSchema(homepageSections).omit({
+  id: true,
+  createdAt: true,
+  updatedAt: true,
+  createdBy: true,
+  updatedBy: true,
+});
+
+export type InsertHomepageSection = z.infer<typeof insertHomepageSectionSchema>;
+export type HomepageSection = typeof homepageSections.$inferSelect;

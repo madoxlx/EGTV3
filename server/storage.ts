@@ -29,6 +29,9 @@ import {
   heroSlides,
   HeroSlide,
   InsertHeroSlide,
+  homepageSections,
+  HomepageSection,
+  InsertHomepageSection,
   menus,
   Menu,
   InsertMenu,
@@ -119,6 +122,13 @@ export interface IStorage {
   // Hero Slides
   getActiveHeroSlides(): Promise<HeroSlide[]>;
   createHeroSlide(slide: InsertHeroSlide): Promise<HeroSlide>;
+
+  // Homepage Sections
+  getHomepageSection(id: number): Promise<any | undefined>;
+  listHomepageSections(active?: boolean): Promise<any[]>;
+  createHomepageSection(section: any): Promise<any>;
+  updateHomepageSection(id: number, section: any): Promise<any | undefined>;
+  deleteHomepageSection(id: number): Promise<boolean>;
 
   // Menus
   getMenu(id: number): Promise<Menu | undefined>;
@@ -1006,6 +1016,72 @@ export class DatabaseStorage implements IStorage {
   async createHeroSlide(slide: InsertHeroSlide): Promise<HeroSlide> {
     const [created] = await db.insert(heroSlides).values(slide).returning();
     return created;
+  }
+
+  // Homepage Sections
+  async getHomepageSection(id: number): Promise<HomepageSection | undefined> {
+    try {
+      const [section] = await db
+        .select()
+        .from(homepageSections)
+        .where(eq(homepageSections.id, id));
+      return section || undefined;
+    } catch (error) {
+      console.error("Error getting homepage section:", error);
+      return undefined;
+    }
+  }
+
+  async listHomepageSections(active?: boolean): Promise<HomepageSection[]> {
+    try {
+      let query = db.select().from(homepageSections);
+      
+      if (active !== undefined) {
+        query = query.where(eq(homepageSections.active, active));
+      }
+      
+      return await query.orderBy(asc(homepageSections.order));
+    } catch (error) {
+      console.error("Error listing homepage sections:", error);
+      return [];
+    }
+  }
+
+  async createHomepageSection(section: InsertHomepageSection): Promise<HomepageSection> {
+    try {
+      const [created] = await db.insert(homepageSections).values(section).returning();
+      return created;
+    } catch (error) {
+      console.error("Error creating homepage section:", error);
+      throw error;
+    }
+  }
+
+  async updateHomepageSection(id: number, section: Partial<InsertHomepageSection>): Promise<HomepageSection | undefined> {
+    try {
+      const [updated] = await db
+        .update(homepageSections)
+        .set({
+          ...section,
+          updatedAt: new Date(),
+        })
+        .where(eq(homepageSections.id, id))
+        .returning();
+      return updated || undefined;
+    } catch (error) {
+      console.error("Error updating homepage section:", error);
+      return undefined;
+    }
+  }
+
+  async deleteHomepageSection(id: number): Promise<boolean> {
+    try {
+      await db.delete(homepageSections).where(eq(homepageSections.id, id));
+      return true;
+    } catch (error) {
+      console.error("Error deleting homepage section:", error);
+      return false;
+    }
   }
 
   // Menus

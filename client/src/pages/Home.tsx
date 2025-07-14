@@ -1,4 +1,5 @@
 import React from "react";
+import { useQuery } from "@tanstack/react-query";
 import { HeroSlider } from "@/components/HeroSlider";
 import BookingTabs from "@/components/BookingTabs";
 import FeaturedOffers from "@/components/FeaturedOffers";
@@ -6,10 +7,21 @@ import ExploreSection from "@/components/ExploreSection";
 import RecommendedDestinations from "@/components/RecommendedDestinations";
 import PopularPackages from "@/components/PopularPackages";
 import SocialMediaBox from "@/components/SocialMediaBox";
+import DynamicHomepageSection from "@/components/homepage/DynamicHomepageSection";
 import { useLanguage } from "@/hooks/use-language";
 
 const Home: React.FC = () => {
   const { t, isRTL } = useLanguage();
+  
+  // Fetch active homepage sections
+  const { data: homepageSections = [], isLoading: sectionsLoading } = useQuery({
+    queryKey: ['/api/homepage-sections'],
+    queryFn: async () => {
+      const response = await fetch('/api/homepage-sections?active=true');
+      if (!response.ok) throw new Error('Failed to fetch homepage sections');
+      return response.json();
+    },
+  });
   
   return (
     <div className={isRTL ? 'font-arabic' : ''} dir={isRTL ? 'rtl' : 'ltr'}>
@@ -19,6 +31,16 @@ const Home: React.FC = () => {
       <ExploreSection />
       <RecommendedDestinations />
       <PopularPackages />
+      
+      {/* Dynamic Homepage Sections */}
+      {!sectionsLoading && homepageSections.length > 0 && (
+        <div className="dynamic-homepage-sections">
+          {homepageSections.map((section: any) => (
+            <DynamicHomepageSection key={section.id} section={section} />
+          ))}
+        </div>
+      )}
+      
       <div className="container mx-auto px-4">
         <div className="my-12">
           <h2 className="text-2xl font-bold text-center mb-10">
