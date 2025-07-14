@@ -6,7 +6,7 @@ import {
   Map, 
   Camera,
   Car,
-  Passport,
+  BookOpen,
   Shield,
   Users,
   Clock,
@@ -139,7 +139,7 @@ const AllServices: React.FC = () => {
       titleAr: 'خدمات التأشيرة',
       description: 'Comprehensive visa assistance and documentation services',
       descriptionAr: 'مساعدة شاملة في التأشيرة وخدمات التوثيق',
-      icon: Passport,
+      icon: BookOpen,
       color: 'bg-teal-500',
       features: [
         'Visa Applications',

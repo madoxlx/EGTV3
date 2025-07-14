@@ -13,7 +13,7 @@ const iconCategories = {
     "Ship", "Sailboat", "Anchor", "Bike", "Motorcycle", "Scooter", "Walk", "Footprints", "MapPin",
     "Map", "Navigation", "Navigation2", "Route", "Signpost", "Milestone", "Compass", "Globe",
     "Globe2", "Earth", "Mountain", "MountainSnow", "TreePine", "Trees", "Waves", "Palmtree",
-    "Tent", "Backpack", "Luggage", "Briefcase", "Suitcase", "Passport", "Ticket", "BoardingPass"
+    "Tent", "Backpack", "Luggage", "Briefcase", "Suitcase", "BookOpen", "Ticket", "CreditCard"
   ],
   accommodation: [
     "Hotel", "Home", "Building", "Building2", "Castle", "Warehouse", "Store", "Bed", "BedDouble",
