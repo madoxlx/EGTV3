@@ -42,7 +42,7 @@ const Header: React.FC = () => {
   const [expandedMobileMenus, setExpandedMobileMenus] = React.useState<Record<number, boolean>>({});
   const [location] = useLocation();
   const { cartItems } = useCart();
-  
+
   // Add safety check for auth context
   let authData;
   try {
@@ -51,7 +51,7 @@ const Header: React.FC = () => {
     // If auth context is not available, render header without user functionality
     authData = { user: null, logoutMutation: { mutate: () => {} } };
   }
-  
+
   const { user, logoutMutation } = authData;
   const { t, isRTL } = useLanguage();
   const { data: menuItems, isLoading: menuLoading } = useHeaderMenu();
@@ -111,7 +111,7 @@ const Header: React.FC = () => {
                       // Parent item with children - show dropdown on hover
                       <>
                         <NavigationMenuTrigger 
-                          className={`font-medium hover:text-primary transition-colors bg-transparent relative group ${
+                          className={`font-medium hover:text-primary transition-colors bg-transparent relative group/trigger ${
                             location === item.url || 
                             (item.url !== '/' && location.startsWith(item.url || '')) ||
                             item.children?.some(child => location === child.url || 
@@ -120,7 +120,7 @@ const Header: React.FC = () => {
                               : ""
                           }`}
                         >
-                          <span className="absolute bottom-0 left-0 h-0.5 w-0 bg-red-500 transition-all duration-300 ease-out group-hover:w-full"></span>
+                          <span className="absolute bottom-0 left-0 h-0.5 w-0 bg-red-500 transition-all duration-300 ease-out group-hover/trigger:w-full"></span>
                           {item.title}
                         </NavigationMenuTrigger>
                         <NavigationMenuContent>
@@ -170,7 +170,7 @@ const Header: React.FC = () => {
                       <NavigationMenuLink asChild>
                         <Link
                           href={item.url || '/'}
-                          className={`font-medium hover:text-primary transition-colors px-3 py-2 rounded-md relative group ${
+                          className={`font-medium hover:text-primary transition-colors px-3 py-2 rounded-md relative group/link ${
                             location === item.url || 
                             (item.url !== '/' && location.startsWith(item.url || '')) 
                               ? "text-primary" 
@@ -179,7 +179,7 @@ const Header: React.FC = () => {
                           target={item.target === '_blank' ? '_blank' : undefined}
                           rel={item.target === '_blank' ? 'noopener noreferrer' : undefined}
                         >
-                          <span className="absolute bottom-0 left-0 h-0.5 w-0 bg-red-500 transition-all duration-300 ease-out group-hover:w-full"></span>
+                          <span className="absolute bottom-0 left-0 h-0.5 w-0 bg-red-500 transition-all duration-300 ease-out group-hover/link:w-full"></span>
                           {item.title}
                         </Link>
                       </NavigationMenuLink>
@@ -193,7 +193,7 @@ const Header: React.FC = () => {
 
         <div className={`flex items-center ${isRTL ? 'space-x-reverse' : ''} space-x-4`}>
           <LanguageSwitcher />
-          
+
           {user ? (
             <>
               <DropdownMenu>
@@ -371,8 +371,8 @@ const Header: React.FC = () => {
                         : ""
                     }`}
                     onClick={() => setIsMenuOpen(false)}
-                    target={item.target === '_blank' ? '_blank' : undefined}
-                    rel={item.target === '_blank' ? 'noopener noreferrer' : undefined}
+                    target={child.target === '_blank' ? '_blank' : undefined}
+                    rel={child.target === '_blank' ? 'noopener noreferrer' : undefined}
                   >
                     {item.title}
                   </Link>
@@ -408,7 +408,10 @@ const Header: React.FC = () => {
                     className="block font-medium hover:text-primary transition-colors"
                     onClick={() => setIsMenuOpen(false)}
                   >
-                    <Heart className={`inline ${isRTL ? 'ml-1' : 'mr-1'} h-4 w-4`} />
+                    <Heart className={`inline ${isRTL ? 'ml-1'Line-by-line analysis: The changes involve modifying the NavigationMenuTrigger and Link components to scope the hover effect of the underline to the specific parent element being hovered. This is achieved by adding `group/trigger` and `group-hover/trigger:w-full` classes to the NavigationMenuTrigger and `group/link` and `group-hover/link:w-full` classes to the Link.
+
+```typescript
+ : 'mr-1'} h-4 w-4`} />
                     {t('nav.favorites', 'Favorites')}
                   </Link>
                 </li>
