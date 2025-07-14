@@ -122,7 +122,7 @@ const Header: React.FC = () => {
                     target={item.target === '_blank' ? '_blank' : undefined}
                     rel={item.target === '_blank' ? 'noopener noreferrer' : undefined}
                   >
-                    {isRTL && item.textAr ? item.textAr : item.text}
+                    {item.title}
                   </Link>
                 </li>
               ))}
