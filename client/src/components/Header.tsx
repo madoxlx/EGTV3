@@ -111,7 +111,7 @@ const Header: React.FC = () => {
                       // Parent item with children - show dropdown on hover
                       <>
                         <NavigationMenuTrigger 
-                          className={`font-medium bg-transparent relative group/trigger ${
+                          className={`font-medium bg-transparent relative group/trigger hover:bg-transparent hover:text-inherit focus:bg-transparent focus:text-inherit data-[state=open]:bg-transparent data-[state=open]:text-inherit ${
                             location === item.url || 
                             (item.url !== '/' && location.startsWith(item.url || '')) ||
                             item.children?.some(child => location === child.url || 
