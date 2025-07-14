@@ -42,7 +42,8 @@ export default function NavigationManager() {
     type: 'link',
     target: '_self',
     orderPosition: 1,
-    active: true
+    active: true,
+    parentId: null as number | null
   });
 
   // Fetch menus
@@ -147,7 +148,7 @@ export default function NavigationManager() {
       queryClient.invalidateQueries({ queryKey: [`/api/menu-items/${selectedMenu?.id}`] });
       queryClient.invalidateQueries({ queryKey: ['/api/menus/location/header'] });
       setIsItemDialogOpen(false);
-      setItemForm({ title: '', url: '', icon: '', type: 'link', target: '_self', orderPosition: 1, active: true });
+      setItemForm({ title: '', url: '', icon: '', type: 'link', target: '_self', orderPosition: 1, active: true, parentId: null });
       setEditingItem(null);
       toast({
         title: "Success",
@@ -174,7 +175,7 @@ export default function NavigationManager() {
       queryClient.invalidateQueries({ queryKey: [`/api/menu-items/${selectedMenu?.id}`] });
       queryClient.invalidateQueries({ queryKey: ['/api/menus/location/header'] });
       setIsItemDialogOpen(false);
-      setItemForm({ title: '', url: '', icon: '', type: 'link', target: '_self', orderPosition: 1, active: true });
+      setItemForm({ title: '', url: '', icon: '', type: 'link', target: '_self', orderPosition: 1, active: true, parentId: null });
       setEditingItem(null);
       toast({
         title: "Success",
@@ -263,7 +264,8 @@ export default function NavigationManager() {
       type: item.type || 'link',
       target: item.target || '_self',
       orderPosition: item.orderPosition || 1,
-      active: item.active !== undefined ? item.active : true
+      active: item.active !== undefined ? item.active : true,
+      parentId: item.parentId || null
     });
     setEditingItem(item);
     setIsItemDialogOpen(true);
@@ -276,7 +278,7 @@ export default function NavigationManager() {
   };
 
   const openCreateItemDialog = () => {
-    setItemForm({ title: '', url: '', icon: '', type: 'link', target: '_self', orderPosition: 1, active: true });
+    setItemForm({ title: '', url: '', icon: '', type: 'link', target: '_self', orderPosition: 1, active: true, parentId: null });
     setEditingItem(null);
     setIsItemDialogOpen(true);
   };
@@ -418,48 +420,72 @@ export default function NavigationManager() {
                 </div>
               ) : (
                 <div className="space-y-4">
-                  {menuItems.map((item: MenuItem) => (
-                    <div key={item.id} className="flex items-center justify-between p-4 border rounded-lg">
-                      <div className="flex items-center gap-3">
-                        <LinkIcon className="w-5 h-5 text-muted-foreground" />
-                        <div>
-                          <h3 className="font-semibold">{item.title}</h3>
-                          <p className="text-sm text-muted-foreground">
-                            {item.url} • Order: {item.orderPosition}
-                          </p>
-                          {item.icon && (
-                            <p className="text-sm text-muted-foreground">
-                              Icon: {item.icon}
-                            </p>
-                          )}
+                  {menuItems
+                    .sort((a, b) => (a.orderPosition || 0) - (b.orderPosition || 0))
+                    .map((item: MenuItem) => {
+                      const isChild = item.parentId !== null;
+                      const hasChildren = menuItems.some(child => child.parentId === item.id);
+                      
+                      return (
+                        <div 
+                          key={item.id} 
+                          className={`flex items-center justify-between p-4 border rounded-lg ${
+                            isChild ? 'ml-8 border-l-4 border-l-blue-500 bg-blue-50' : ''
+                          }`}
+                        >
+                          <div className="flex items-center gap-3">
+                            <LinkIcon className={`w-5 h-5 text-muted-foreground ${
+                              hasChildren ? 'text-blue-600' : ''
+                            }`} />
+                            <div>
+                              <h3 className="font-semibold flex items-center gap-2">
+                                {isChild && <span className="text-blue-600">↳</span>}
+                                {item.title}
+                                {hasChildren && <Badge variant="outline" className="text-xs">Parent</Badge>}
+                              </h3>
+                              <p className="text-sm text-muted-foreground">
+                                {item.url} • Order: {item.orderPosition}
+                                {item.parentId && (
+                                  <span className="text-blue-600">
+                                    {' • Child of: '}
+                                    {menuItems.find(parent => parent.id === item.parentId)?.title}
+                                  </span>
+                                )}
+                              </p>
+                              {item.icon && (
+                                <p className="text-sm text-muted-foreground">
+                                  Icon: {item.icon}
+                                </p>
+                              )}
+                            </div>
+                            <Badge variant={item.active ? "default" : "secondary"}>
+                              {item.active ? "Active" : "Inactive"}
+                            </Badge>
+                          </div>
+                          <div className="flex items-center gap-2">
+                            <Button
+                              variant="outline"
+                              size="sm"
+                              onClick={() => handleEditItem(item)}
+                            >
+                              <Edit2 className="w-4 h-4" />
+                            </Button>
+                            <Button
+                              variant="outline"
+                              size="sm"
+                              onClick={() => {
+                                if (window.confirm('Are you sure you want to delete this menu item?')) {
+                                  deleteItemMutation.mutate(item.id);
+                                }
+                              }}
+                              disabled={deleteItemMutation.isPending}
+                            >
+                              <Trash2 className="w-4 h-4" />
+                            </Button>
+                          </div>
                         </div>
-                        <Badge variant={item.active ? "default" : "secondary"}>
-                          {item.active ? "Active" : "Inactive"}
-                        </Badge>
-                      </div>
-                      <div className="flex items-center gap-2">
-                        <Button
-                          variant="outline"
-                          size="sm"
-                          onClick={() => handleEditItem(item)}
-                        >
-                          <Edit2 className="w-4 h-4" />
-                        </Button>
-                        <Button
-                          variant="outline"
-                          size="sm"
-                          onClick={() => {
-                            if (window.confirm('Are you sure you want to delete this menu item?')) {
-                              deleteItemMutation.mutate(item.id);
-                            }
-                          }}
-                          disabled={deleteItemMutation.isPending}
-                        >
-                          <Trash2 className="w-4 h-4" />
-                        </Button>
-                      </div>
-                    </div>
-                  ))}
+                      );
+                    })}
                   {menuItems.length === 0 && (
                     <div className="text-center py-8">
                       <LinkIcon className="w-12 h-12 mx-auto text-gray-400 mb-4" />
@@ -607,6 +633,27 @@ export default function NavigationManager() {
                 <SelectContent>
                   <SelectItem value="_self">Same Window</SelectItem>
                   <SelectItem value="_blank">New Window</SelectItem>
+                </SelectContent>
+              </Select>
+            </div>
+            <div>
+              <Label htmlFor="parent">Parent Item</Label>
+              <Select 
+                value={itemForm.parentId?.toString() || ''} 
+                onValueChange={(value) => setItemForm({ ...itemForm, parentId: value ? parseInt(value) : null })}
+              >
+                <SelectTrigger>
+                  <SelectValue placeholder="Select parent item (optional)" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="">None (Top Level)</SelectItem>
+                  {menuItems
+                    .filter(item => !editingItem || item.id !== editingItem.id) // Don't show self as parent
+                    .map(item => (
+                      <SelectItem key={item.id} value={item.id.toString()}>
+                        {item.title}
+                      </SelectItem>
+                    ))}
                 </SelectContent>
               </Select>
             </div>

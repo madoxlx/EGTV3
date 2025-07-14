@@ -5259,7 +5259,7 @@ var requireAdmin = (req, res, next) => {
       id: 1,
       username: "admin",
       role: "admin",
-      email: "admin@saharajourneys.com"
+      email: "admin@egyptexpresstvl.com"
     };
   }
   if (!["admin", "manager"].includes(req.user.role)) {

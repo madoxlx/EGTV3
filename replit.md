@@ -106,6 +106,18 @@ The application uses a comprehensive PostgreSQL schema with the following core e
 
 ## Recent Changes
 
+- **Complete Brand Rebranding and Menu System Enhancement (July 14, 2025)**: Successfully updated brand name from "Sahara Travel" to "Egypt Express TVL" and enhanced navigation menu management with hierarchical support
+  - **Brand Name Update**: Replaced all "Sahara Travel" references with "Egypt Express TVL" across contact pages, API server messages, and distribution files
+  - **All Services Page Creation**: Created comprehensive `/all-services` page showcasing Egypt Express TVL's travel services with bilingual support (English/Arabic)
+  - **Service Categories**: Added detailed service sections for flights, hotels, tours, packages, transportation, and visa services with feature lists and links
+  - **Menu System Enhancement**: Enhanced NavigationManager component to support parent-child relationships using existing `parent_id` field
+  - **Hierarchical UI**: Added parent item selector dropdown in menu item form with visual indentation for child items
+  - **Visual Organization**: Child items display with left border, blue accent, and parent indicators for clear hierarchy
+  - **Parent-Child Display**: Menu items show parent relationships with "Child of:" labels and parent badges
+  - **Route Integration**: Added `/all-services` route to App.tsx with proper import and navigation structure
+  - **Complete Form State**: Updated all form reset functions to include parentId field for proper parent-child relationship management
+  - **Production Ready**: Full menu management system with hierarchical support and brand consistency throughout platform
+
 - **Dynamic Header Navigation Integration Complete (July 14, 2025)**: Successfully connected admin-created navigation menus to frontend header display
   - **Header Component Fix**: Updated Header.tsx to use correct 'title' field from menu items instead of 'text' field
   - **API Integration**: Confirmed /api/menus/location/header endpoint returns proper data structure with menu and items

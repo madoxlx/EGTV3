@@ -25,6 +25,7 @@ import TourDetail from "@/pages/TourDetail";
 import PackagesPage from "@/pages/packages";
 import AboutPage from "@/pages/about-page";
 import ContactPage from "@/pages/contact-page";
+import AllServices from "@/pages/all-services";
 import ProfilePage from "@/pages/profile-page";
 import SocialMediaBoxDemo from "@/pages/SocialMediaBoxDemo";
 import SailingCruise from "@/pages/sailing-cruise";
@@ -260,6 +261,7 @@ function Router() {
         <Route path="/packages" component={PackagesPage} />
         <Route path="/about" component={AboutPage} />
         <Route path="/contact" component={ContactPage} />
+        <Route path="/all-services" component={AllServices} />
         <Route path="/social-demo" component={SocialMediaBoxDemo} />
         <Route path="/sailing-cruise" component={SailingCruise} />
         <Route path="/zigzag-demo" component={ZigzagDemo} />

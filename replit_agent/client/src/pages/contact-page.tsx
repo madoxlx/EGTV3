@@ -239,7 +239,7 @@ export default function ContactPage() {
             </div>
             
             <div className="border-t border-dashed border-muted p-4 bg-muted/10 text-center text-sm text-muted-foreground italic">
-              Greetings from Sahara Travel - Your Gateway to Middle Eastern Adventures!
+              Greetings from Egypt Express TVL - Your Gateway to Middle Eastern Adventures!
             </div>
           </div>
         </div>

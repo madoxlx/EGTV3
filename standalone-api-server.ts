@@ -61,7 +61,7 @@ app.use(express.static(path.join(__dirname, 'public')));
 // Basic test routes
 app.get('/api/test', (req, res) => {
   res.json({ 
-    message: 'Sahara Journeys API Server is running!', 
+    message: 'Egypt Express TVL API Server is running!', 
     timestamp: new Date().toISOString(),
     environment: process.env.NODE_ENV,
     nodeVersion: process.version
