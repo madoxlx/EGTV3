@@ -80,6 +80,7 @@ import DestinationsManagement from "@/pages/admin/DestinationsManagement";
 import SettingsPage from "@/pages/admin/SettingsPage";
 import SliderManagement from "@/pages/admin/SliderManagement";
 import TranslationManagement from "@/pages/admin/TranslationManagement";
+import NavigationManager from "@/pages/admin/NavigationManager";
 import Dashboard from "@/pages/admin/Dashboard";
 import Layout from "@/components/Layout";
 import { DashboardLayout } from "@/components/dashboard/DashboardLayout";
@@ -207,6 +208,10 @@ function Router() {
           <AdminRoute
             path="/admin/translations"
             component={TranslationManagement}
+          />
+          <AdminRoute
+            path="/admin/navigation"
+            component={NavigationManager}
           />
           <AdminRoute
             path="/admin/data-export-import"
