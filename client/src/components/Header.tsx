@@ -131,12 +131,13 @@ const Header: React.FC = () => {
                                 <NavigationMenuLink asChild>
                                   <Link
                                     href={item.url}
-                                    className={`block px-3 py-2 text-sm font-medium rounded-md hover:bg-accent hover:text-accent-foreground transition-colors ${
+                                    className={`block px-3 py-2 text-sm font-medium rounded-md hover:bg-accent hover:text-accent-foreground transition-colors relative group/dropdown ${
                                       location === item.url ? "text-primary bg-accent" : ""
                                     }`}
                                     target={item.target === '_blank' ? '_blank' : undefined}
                                     rel={item.target === '_blank' ? 'noopener noreferrer' : undefined}
                                   >
+                                    <span className="absolute bottom-0 left-0 h-0.5 w-0 bg-red-500 transition-all duration-300 ease-out group-hover/dropdown:w-full"></span>
                                     {item.title}
                                   </Link>
                                 </NavigationMenuLink>
@@ -148,7 +149,7 @@ const Header: React.FC = () => {
                                 <NavigationMenuLink key={child.id} asChild>
                                   <Link
                                     href={child.url || '/'}
-                                    className={`block px-3 py-2 text-sm rounded-md hover:bg-accent hover:text-accent-foreground transition-colors ${
+                                    className={`block px-3 py-2 text-sm rounded-md hover:bg-accent hover:text-accent-foreground transition-colors relative group/child ${
                                       location === child.url || 
                                       (child.url !== '/' && location.startsWith(child.url || ''))
                                         ? "text-primary bg-accent" 
@@ -157,6 +158,7 @@ const Header: React.FC = () => {
                                     target={child.target === '_blank' ? '_blank' : undefined}
                                     rel={child.target === '_blank' ? 'noopener noreferrer' : undefined}
                                   >
+                                    <span className="absolute bottom-0 left-0 h-0.5 w-0 bg-red-500 transition-all duration-300 ease-out group-hover/child:w-full"></span>
                                     {child.title}
                                   </Link>
                                 </NavigationMenuLink>
