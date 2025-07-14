@@ -2,7 +2,7 @@ import React from 'react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
-import { useLanguage } from '@/contexts/LanguageContext';
+import { useLanguage } from '@/hooks/use-language';
 import { Calendar, UserCheck, ChevronRight } from 'lucide-react';
 
 interface HomepageSection {
@@ -50,7 +50,7 @@ const iconMap: { [key: string]: React.ComponentType<any> } = {
 };
 
 const DynamicHomepageSection: React.FC<DynamicHomepageSectionProps> = ({ section }) => {
-  const { t, language, isRTL } = useLanguage();
+  const { t, currentLanguage, isRTL } = useLanguage();
   
   const getIcon = (iconName: string) => {
     const IconComponent = iconMap[iconName] || Calendar;
@@ -58,7 +58,7 @@ const DynamicHomepageSection: React.FC<DynamicHomepageSectionProps> = ({ section
   };
 
   const getLocalizedText = (enText: string, arText?: string) => {
-    return language === 'ar' && arText ? arText : enText;
+    return currentLanguage === 'ar' && arText ? arText : enText;
   };
 
   const isImageLeft = section.imagePosition === 'left';
