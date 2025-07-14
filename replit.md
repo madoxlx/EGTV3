@@ -124,6 +124,8 @@ The application uses a comprehensive PostgreSQL schema with the following core e
   - **Production Testing**: Successfully verified parent-child relationships are properly stored and retrieved from database with hierarchical structure intact
   - **Frontend Integration**: NavigationManager component dropdown selection now properly persists parent relationships when creating or updating menu items
   - **Complete Resolution**: Menu management system now fully supports hierarchical menu structure with proper parent-child relationships saved to database and reliable deletion functionality
+  - **Final Validation Fix**: Resolved "Parent menu item must belong to the same menu" error by fixing field name consistency in backend validation and removing redundant menuId from frontend update requests
+  - **API Testing Confirmed**: Successfully tested menu item updates with parent relationships - item titles can be updated while maintaining proper parent-child hierarchy in database
 
 - **Complete Brand Rebranding and Menu System Enhancement (July 14, 2025)**: Successfully updated brand name from "Sahara Travel" to "Egypt Express TVL" and enhanced navigation menu management with hierarchical support
   - **Brand Name Update**: Replaced all "Sahara Travel" references with "Egypt Express TVL" across contact pages, API server messages, and distribution files

@@ -281,7 +281,8 @@ export default function NavigationManager() {
     if (editingItem && selectedMenu) {
       const itemData = {
         ...itemForm,
-        menuId: selectedMenu.id,
+        // Don't send menuId on update - menu items cannot change their parent menu
+        // menuId: selectedMenu.id,
         // Ensure orderPosition is properly set
         orderPosition: itemForm.orderPosition || 1
       };

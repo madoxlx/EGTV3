@@ -4745,9 +4745,12 @@ export async function registerRoutes(app: Express): Promise<Server> {
           }
           
           // Check that parent item belongs to the same menu
-          const menuId = updateData.menuId || existingMenuItem.menu_id;
-          console.log(`Parent validation: parentItem.menu_id=${parentItem.menu_id}, menuId=${menuId}`);
-          if (parentItem.menu_id !== menuId) {
+          // Use the new menuId if provided, otherwise use existing menuId from database
+          const targetMenuId = updateData.menuId || existingMenuItem.menu_id;
+          console.log(`Parent validation: parentItem.menu_id=${parentItem.menu_id}, targetMenuId=${targetMenuId}`);
+          
+          // Both parentItem and targetMenuId should be the same for validation to pass
+          if (parentItem.menu_id !== targetMenuId) {
             return res.status(400).json({ message: 'Parent menu item must belong to the same menu' });
           }
         }
