@@ -85,7 +85,7 @@ const DynamicHomepageSection: React.FC<DynamicHomepageSectionProps> = ({ section
               {/* Statistics Badges */}
               {section.showStatistics && (
                 <>
-                  <div className="absolute top-4 left-4 bg-white/90 backdrop-blur-sm rounded-xl p-3 shadow-lg">
+                  <div className="absolute top-4 left-4 bg-white/90 backdrop-blur-sm rounded-xl p-3 shadow-lg ml-[-71px] mr-[-71px] pl-[22px] pr-[22px]">
                     <div className="flex items-center gap-2">
                       <div className="w-3 h-3 bg-blue-600 rounded-full"></div>
                       <div>
