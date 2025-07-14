@@ -4507,6 +4507,219 @@ export async function registerRoutes(app: Express): Promise<Server> {
       res.status(500).json({ message: 'Failed to fetch menu by location' });
     }
   });
+
+  // Get all menus (public endpoint for navigation manager)
+  app.get('/api/menus', async (req, res) => {
+    try {
+      const active = req.query.active === 'true' ? true : 
+                    req.query.active === 'false' ? false : undefined;
+      const menus = await storage.listMenus(active);
+      res.json(menus);
+    } catch (error) {
+      console.error('Error fetching menus:', error);
+      res.status(500).json({ message: 'Failed to fetch menus' });
+    }
+  });
+
+  // Create a new menu (public endpoint for navigation manager)
+  app.post('/api/menus', async (req, res) => {
+    try {
+      console.log('Creating menu with data:', req.body);
+      
+      // Validate the menu data
+      const menuData = insertMenuSchema.parse(req.body);
+      
+      // Check if menu with this name already exists
+      const existingMenu = await storage.getMenuByName(menuData.name);
+      if (existingMenu) {
+        return res.status(400).json({ message: 'Menu with this name already exists' });
+      }
+      
+      // Check if menu with this location already exists
+      const existingLocation = await storage.getMenuByLocation(menuData.location);
+      if (existingLocation) {
+        return res.status(400).json({ message: 'Menu with this location already exists' });
+      }
+      
+      const menu = await storage.createMenu(menuData);
+      console.log('Menu created successfully:', menu);
+      res.status(201).json(menu);
+    } catch (error) {
+      if (error instanceof z.ZodError) {
+        console.error('Validation error:', error.errors);
+        return res.status(400).json({ message: 'Invalid menu data', errors: error.errors });
+      }
+      console.error('Error creating menu:', error);
+      res.status(500).json({ message: 'Failed to create menu' });
+    }
+  });
+
+  // Update a menu (public endpoint for navigation manager)
+  app.put('/api/menus/:id', async (req, res) => {
+    try {
+      const id = parseInt(req.params.id);
+      if (isNaN(id)) {
+        return res.status(400).json({ message: 'Invalid menu ID' });
+      }
+      
+      // Verify menu exists
+      const existingMenu = await storage.getMenu(id);
+      if (!existingMenu) {
+        return res.status(404).json({ message: 'Menu not found' });
+      }
+      
+      // Validate the update data
+      const updateData = insertMenuSchema.partial().parse(req.body);
+      
+      // If name is being updated, check for duplicates
+      if (updateData.name && updateData.name !== existingMenu.name) {
+        const menuWithName = await storage.getMenuByName(updateData.name);
+        if (menuWithName && menuWithName.id !== id) {
+          return res.status(400).json({ message: 'Menu with this name already exists' });
+        }
+      }
+      
+      // If location is being updated, check for duplicates
+      if (updateData.location && updateData.location !== existingMenu.location) {
+        const menuWithLocation = await storage.getMenuByLocation(updateData.location);
+        if (menuWithLocation && menuWithLocation.id !== id) {
+          return res.status(400).json({ message: 'Menu with this location already exists' });
+        }
+      }
+      
+      const updatedMenu = await storage.updateMenu(id, updateData);
+      res.json(updatedMenu);
+    } catch (error) {
+      if (error instanceof z.ZodError) {
+        return res.status(400).json({ message: 'Invalid menu data', errors: error.errors });
+      }
+      console.error('Error updating menu:', error);
+      res.status(500).json({ message: 'Failed to update menu' });
+    }
+  });
+
+  // Delete a menu (public endpoint for navigation manager)
+  app.delete('/api/menus/:id', async (req, res) => {
+    try {
+      const id = parseInt(req.params.id);
+      if (isNaN(id)) {
+        return res.status(400).json({ message: 'Invalid menu ID' });
+      }
+      
+      // Verify menu exists
+      const existingMenu = await storage.getMenu(id);
+      if (!existingMenu) {
+        return res.status(404).json({ message: 'Menu not found' });
+      }
+      
+      const success = await storage.deleteMenu(id);
+      if (success) {
+        res.status(204).end();
+      } else {
+        res.status(500).json({ message: 'Failed to delete menu' });
+      }
+    } catch (error) {
+      console.error('Error deleting menu:', error);
+      res.status(500).json({ message: 'Failed to delete menu' });
+    }
+  });
+
+  // Get menu items for a specific menu (public endpoint for navigation manager)
+  app.get('/api/menu-items/:menuId', async (req, res) => {
+    try {
+      const menuId = parseInt(req.params.menuId);
+      if (isNaN(menuId)) {
+        return res.status(400).json({ message: 'Invalid menu ID' });
+      }
+      
+      const menuItems = await storage.listMenuItems(menuId, true);
+      res.json(menuItems);
+    } catch (error) {
+      console.error('Error fetching menu items:', error);
+      res.status(500).json({ message: 'Failed to fetch menu items' });
+    }
+  });
+
+  // Create a new menu item (public endpoint for navigation manager)
+  app.post('/api/menu-items', async (req, res) => {
+    try {
+      console.log('Creating menu item with data:', req.body);
+      
+      // Validate the menu item data
+      const menuItemData = insertMenuItemSchema.parse(req.body);
+      
+      // Verify the menu exists
+      const menu = await storage.getMenu(menuItemData.menuId);
+      if (!menu) {
+        return res.status(404).json({ message: 'Menu not found' });
+      }
+      
+      const menuItem = await storage.createMenuItem(menuItemData);
+      console.log('Menu item created successfully:', menuItem);
+      res.status(201).json(menuItem);
+    } catch (error) {
+      if (error instanceof z.ZodError) {
+        console.error('Validation error:', error.errors);
+        return res.status(400).json({ message: 'Invalid menu item data', errors: error.errors });
+      }
+      console.error('Error creating menu item:', error);
+      res.status(500).json({ message: 'Failed to create menu item' });
+    }
+  });
+
+  // Update a menu item (public endpoint for navigation manager)
+  app.put('/api/menu-items/:id', async (req, res) => {
+    try {
+      const id = parseInt(req.params.id);
+      if (isNaN(id)) {
+        return res.status(400).json({ message: 'Invalid menu item ID' });
+      }
+      
+      // Verify menu item exists
+      const existingMenuItem = await storage.getMenuItem(id);
+      if (!existingMenuItem) {
+        return res.status(404).json({ message: 'Menu item not found' });
+      }
+      
+      // Validate the update data
+      const updateData = insertMenuItemSchema.partial().parse(req.body);
+      
+      const updatedMenuItem = await storage.updateMenuItem(id, updateData);
+      res.json(updatedMenuItem);
+    } catch (error) {
+      if (error instanceof z.ZodError) {
+        return res.status(400).json({ message: 'Invalid menu item data', errors: error.errors });
+      }
+      console.error('Error updating menu item:', error);
+      res.status(500).json({ message: 'Failed to update menu item' });
+    }
+  });
+
+  // Delete a menu item (public endpoint for navigation manager)
+  app.delete('/api/menu-items/:id', async (req, res) => {
+    try {
+      const id = parseInt(req.params.id);
+      if (isNaN(id)) {
+        return res.status(400).json({ message: 'Invalid menu item ID' });
+      }
+      
+      // Verify menu item exists
+      const existingMenuItem = await storage.getMenuItem(id);
+      if (!existingMenuItem) {
+        return res.status(404).json({ message: 'Menu item not found' });
+      }
+      
+      const success = await storage.deleteMenuItem(id);
+      if (success) {
+        res.status(204).end();
+      } else {
+        res.status(500).json({ message: 'Failed to delete menu item' });
+      }
+    } catch (error) {
+      console.error('Error deleting menu item:', error);
+      res.status(500).json({ message: 'Failed to delete menu item' });
+    }
+  });
   
   // Create a new menu (admin only)
   app.post('/api/admin/menus', isAdmin, async (req, res) => {
