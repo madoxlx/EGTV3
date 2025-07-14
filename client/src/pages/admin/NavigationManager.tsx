@@ -1,6 +1,6 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
-import { Plus, Edit2, Trash2, Save, X, Navigation, Link as LinkIcon } from 'lucide-react';
+import { Plus, Edit2, Trash2, Save, X, Navigation, Link as LinkIcon, RefreshCw } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
@@ -52,11 +52,18 @@ export default function NavigationManager() {
   });
 
   // Fetch menu items for selected menu
-  const { data: menuItems = [], isLoading: itemsLoading } = useQuery({
-    queryKey: ['/api/menu-items', selectedMenu?.id],
+  const { data: menuItems = [], isLoading: itemsLoading, refetch: refetchMenuItems } = useQuery({
+    queryKey: [`/api/menu-items/${selectedMenu?.id}`],
     enabled: !!selectedMenu,
     select: (data) => data || []
   });
+
+  // Automatically refresh menu items when selected menu changes
+  useEffect(() => {
+    if (selectedMenu) {
+      refetchMenuItems();
+    }
+  }, [selectedMenu, refetchMenuItems]);
 
   // Create menu mutation
   const createMenuMutation = useMutation({
@@ -137,7 +144,7 @@ export default function NavigationManager() {
         body: JSON.stringify(data)
       }),
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['/api/menu-items', selectedMenu?.id] });
+      queryClient.invalidateQueries({ queryKey: [`/api/menu-items/${selectedMenu?.id}`] });
       queryClient.invalidateQueries({ queryKey: ['/api/menus/location/header'] });
       setIsItemDialogOpen(false);
       setItemForm({ title: '', url: '', icon: '', type: 'link', target: '_self', orderPosition: 1, active: true });
@@ -164,7 +171,7 @@ export default function NavigationManager() {
         body: JSON.stringify(data)
       }),
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['/api/menu-items', selectedMenu?.id] });
+      queryClient.invalidateQueries({ queryKey: [`/api/menu-items/${selectedMenu?.id}`] });
       queryClient.invalidateQueries({ queryKey: ['/api/menus/location/header'] });
       setIsItemDialogOpen(false);
       setItemForm({ title: '', url: '', icon: '', type: 'link', target: '_self', orderPosition: 1, active: true });
@@ -187,7 +194,7 @@ export default function NavigationManager() {
   const deleteItemMutation = useMutation({
     mutationFn: (id: number) => apiRequest(`/api/menu-items/${id}`, { method: 'DELETE' }),
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['/api/menu-items', selectedMenu?.id] });
+      queryClient.invalidateQueries({ queryKey: [`/api/menu-items/${selectedMenu?.id}`] });
       queryClient.invalidateQueries({ queryKey: ['/api/menus/location/header'] });
       toast({
         title: "Success",
@@ -359,10 +366,21 @@ export default function NavigationManager() {
               <CardTitle className="flex items-center justify-between">
                 <span>Menu Items</span>
                 {selectedMenu && (
-                  <Button onClick={openCreateItemDialog} size="sm">
-                    <Plus className="w-4 h-4 mr-2" />
-                    Add Item
-                  </Button>
+                  <div className="flex items-center gap-2">
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      onClick={() => refetchMenuItems()}
+                      disabled={itemsLoading}
+                    >
+                      <RefreshCw className="w-4 h-4 mr-2" />
+                      Refresh
+                    </Button>
+                    <Button onClick={openCreateItemDialog} size="sm">
+                      <Plus className="w-4 h-4 mr-2" />
+                      Add Item
+                    </Button>
+                  </div>
                 )}
               </CardTitle>
               <CardDescription>
