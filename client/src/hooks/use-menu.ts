@@ -28,10 +28,14 @@ export function useMenu(location: string) {
   });
 }
 
+export interface MenuItemWithChildren extends MenuItem {
+  children?: MenuItemWithChildren[];
+}
+
 export function useHeaderMenu() {
   return useQuery({
     queryKey: ['/api/menus', 'header'],
-    queryFn: async (): Promise<MenuItem[]> => {
+    queryFn: async (): Promise<MenuItemWithChildren[]> => {
       const response = await fetch('/api/menus/location/header');
       if (!response.ok) {
         if (response.status === 404) {
@@ -40,8 +44,41 @@ export function useHeaderMenu() {
         throw new Error('Failed to fetch header menu');
       }
       const data = await response.json();
-      // Return just the items array for the header
-      return data.items || [];
+      const items = data.items || [];
+      
+      // Organize items into parent-child hierarchy
+      const itemMap = new Map<number, MenuItemWithChildren>();
+      const parentItems: MenuItemWithChildren[] = [];
+      
+      // First pass: create all items and map them
+      items.forEach((item: MenuItem) => {
+        itemMap.set(item.id, { ...item, children: [] });
+      });
+      
+      // Second pass: organize hierarchy
+      items.forEach((item: MenuItem) => {
+        const menuItem = itemMap.get(item.id)!;
+        if (item.parent_id) {
+          // This is a child item
+          const parent = itemMap.get(item.parent_id);
+          if (parent) {
+            parent.children!.push(menuItem);
+          }
+        } else {
+          // This is a parent item
+          parentItems.push(menuItem);
+        }
+      });
+      
+      // Sort by order_position
+      parentItems.sort((a, b) => a.order_position - b.order_position);
+      parentItems.forEach(item => {
+        if (item.children) {
+          item.children.sort((a, b) => a.order_position - b.order_position);
+        }
+      });
+      
+      return parentItems;
     },
     staleTime: 5 * 60 * 1000, // 5 minutes
     cacheTime: 10 * 60 * 1000, // 10 minutes

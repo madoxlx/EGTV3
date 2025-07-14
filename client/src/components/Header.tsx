@@ -16,7 +16,7 @@ import {
 import { useAuth } from "@/hooks/use-auth";
 import { useLanguage } from "@/hooks/use-language";
 import { useCart } from "@/hooks/useCart";
-import { useHeaderMenu } from "@/hooks/use-menu";
+import { useHeaderMenu, type MenuItemWithChildren } from "@/hooks/use-menu";
 import { LanguageSwitcher, LanguageToggle } from "@/components/ui/language-switcher";
 import { Badge } from "@/components/ui/badge";
 import {
@@ -39,12 +39,7 @@ import { cn } from "@/lib/utils";
 
 const Header: React.FC = () => {
   const [isMenuOpen, setIsMenuOpen] = React.useState(false);
-  const [expandedMobileMenus, setExpandedMobileMenus] = React.useState<Record<string, boolean>>({
-    tours: false,
-    packages: false,
-    hotels: false,
-    rooms: false
-  });
+  const [expandedMobileMenus, setExpandedMobileMenus] = React.useState<Record<number, boolean>>({});
   const [location] = useLocation();
   const { cartItems } = useCart();
   
@@ -65,10 +60,10 @@ const Header: React.FC = () => {
     setIsMenuOpen(!isMenuOpen);
   };
 
-  const toggleMobileSubmenu = (menuName: string) => {
+  const toggleMobileSubmenu = (menuId: number) => {
     setExpandedMobileMenus(prev => ({
       ...prev,
-      [menuName]: !prev[menuName]
+      [menuId]: !prev[menuId]
     }));
   };
 
@@ -108,25 +103,89 @@ const Header: React.FC = () => {
               ))}
             </div>
           ) : (
-            <ul className={`flex ${isRTL ? 'space-x-reverse' : ''} space-x-6`}>
-              {menuItems?.map((item) => (
-                <li key={item.id}>
-                  <Link
-                    href={item.url || '/'}
-                    className={`font-medium hover:text-primary transition-colors ${
-                      location === item.url || 
-                      (item.url !== '/' && location.startsWith(item.url || '')) 
-                        ? "text-primary" 
-                        : ""
-                    }`}
-                    target={item.target === '_blank' ? '_blank' : undefined}
-                    rel={item.target === '_blank' ? 'noopener noreferrer' : undefined}
-                  >
-                    {item.title}
-                  </Link>
-                </li>
-              ))}
-            </ul>
+            <NavigationMenu>
+              <NavigationMenuList className={`flex ${isRTL ? 'space-x-reverse' : ''} space-x-2`}>
+                {menuItems?.map((item) => (
+                  <NavigationMenuItem key={item.id}>
+                    {item.children && item.children.length > 0 ? (
+                      // Parent item with children - show dropdown on hover
+                      <>
+                        <NavigationMenuTrigger 
+                          className={`font-medium hover:text-primary transition-colors bg-transparent ${
+                            location === item.url || 
+                            (item.url !== '/' && location.startsWith(item.url || '')) ||
+                            item.children?.some(child => location === child.url || 
+                              (child.url !== '/' && location.startsWith(child.url || '')))
+                              ? "text-primary" 
+                              : ""
+                          }`}
+                        >
+                          {item.title}
+                        </NavigationMenuTrigger>
+                        <NavigationMenuContent>
+                          <div className="w-[200px] p-2">
+                            <div className="grid gap-1">
+                              {/* Parent item as clickable link */}
+                              {item.url && (
+                                <NavigationMenuLink asChild>
+                                  <Link
+                                    href={item.url}
+                                    className={`block px-3 py-2 text-sm font-medium rounded-md hover:bg-accent hover:text-accent-foreground transition-colors ${
+                                      location === item.url ? "text-primary bg-accent" : ""
+                                    }`}
+                                    target={item.target === '_blank' ? '_blank' : undefined}
+                                    rel={item.target === '_blank' ? 'noopener noreferrer' : undefined}
+                                  >
+                                    {item.title}
+                                  </Link>
+                                </NavigationMenuLink>
+                              )}
+                              {/* Separator if parent has URL */}
+                              {item.url && <div className="h-px bg-border my-1" />}
+                              {/* Child items */}
+                              {item.children.map((child) => (
+                                <NavigationMenuLink key={child.id} asChild>
+                                  <Link
+                                    href={child.url || '/'}
+                                    className={`block px-3 py-2 text-sm rounded-md hover:bg-accent hover:text-accent-foreground transition-colors ${
+                                      location === child.url || 
+                                      (child.url !== '/' && location.startsWith(child.url || ''))
+                                        ? "text-primary bg-accent" 
+                                        : ""
+                                    }`}
+                                    target={child.target === '_blank' ? '_blank' : undefined}
+                                    rel={child.target === '_blank' ? 'noopener noreferrer' : undefined}
+                                  >
+                                    {child.title}
+                                  </Link>
+                                </NavigationMenuLink>
+                              ))}
+                            </div>
+                          </div>
+                        </NavigationMenuContent>
+                      </>
+                    ) : (
+                      // Regular item without children - direct link
+                      <NavigationMenuLink asChild>
+                        <Link
+                          href={item.url || '/'}
+                          className={`font-medium hover:text-primary transition-colors px-3 py-2 rounded-md ${
+                            location === item.url || 
+                            (item.url !== '/' && location.startsWith(item.url || '')) 
+                              ? "text-primary" 
+                              : ""
+                          }`}
+                          target={item.target === '_blank' ? '_blank' : undefined}
+                          rel={item.target === '_blank' ? 'noopener noreferrer' : undefined}
+                        >
+                          {item.title}
+                        </Link>
+                      </NavigationMenuLink>
+                    )}
+                  </NavigationMenuItem>
+                ))}
+              </NavigationMenuList>
+            </NavigationMenu>
           )}
         </nav>
 
@@ -242,75 +301,82 @@ const Header: React.FC = () => {
       {isMenuOpen && (
         <div className="md:hidden px-4 py-3 bg-white border-t">
           <ul className="space-y-3">
-            <li>
-              <Link
-                href="/"
-                className={`block font-medium hover:text-primary transition-colors ${location === "/" ? "text-primary" : ""}`}
-                onClick={() => setIsMenuOpen(false)}
-              >
-                {t('nav.home', 'Home')}
-              </Link>
-            </li>
-            
-            <li>
-              <Link
-                href="/destinations"
-                className={`block font-medium hover:text-primary transition-colors ${location === "/destinations" ? "text-primary" : ""}`}
-                onClick={() => setIsMenuOpen(false)}
-              >
-                {t('nav.destinations', 'Destinations')}
-              </Link>
-            </li>
-            
-            <li>
-              <Link
-                href="/tours"
-                className={`block font-medium hover:text-primary transition-colors ${location.startsWith("/tours") ? "text-primary" : ""}`}
-                onClick={() => setIsMenuOpen(false)}
-              >
-                {t('nav.tours', 'Tours')}
-              </Link>
-            </li>
-            
-            <li>
-              <Link
-                href="/packages"
-                className={`block font-medium hover:text-primary transition-colors ${location.startsWith("/packages") ? "text-primary" : ""}`}
-                onClick={() => setIsMenuOpen(false)}
-              >
-                {t('nav.packages', 'Packages')}
-              </Link>
-            </li>
-            
-            <li>
-              <Link
-                href="/visa"
-                className={`block font-medium hover:text-primary transition-colors ${location.startsWith("/visa") ? "text-primary" : ""}`}
-                onClick={() => setIsMenuOpen(false)}
-              >
-                {t('nav.visa', 'Visa')}
-              </Link>
-            </li>
-            
-            <li>
-              <Link
-                href="/about"
-                className={`block font-medium hover:text-primary transition-colors ${location === "/about" ? "text-primary" : ""}`}
-                onClick={() => setIsMenuOpen(false)}
-              >
-                {t('nav.about', 'About Us')}
-              </Link>
-            </li>
-            
-            <li>
-              <Link
-                href="/contact"
-                className={`block font-medium hover:text-primary transition-colors ${location === "/contact" ? "text-primary" : ""}`}
-                onClick={() => setIsMenuOpen(false)}
-              >
-                {t('nav.contact', 'Contact Us')}
-              </Link>
-            </li>
+            {/* Dynamic navigation menu items */}
+            {menuItems?.map((item) => (
+              <li key={item.id}>
+                {item.children && item.children.length > 0 ? (
+                  // Parent item with children - show expand/collapse
+                  <div>
+                    <div className="flex items-center justify-between">
+                      {item.url ? (
+                        <Link
+                          href={item.url}
+                          className={`block font-medium hover:text-primary transition-colors ${
+                            location === item.url || 
+                            (item.url !== '/' && location.startsWith(item.url || ''))
+                              ? "text-primary" 
+                              : ""
+                          }`}
+                          onClick={() => setIsMenuOpen(false)}
+                        >
+                          {item.title}
+                        </Link>
+                      ) : (
+                        <span className="font-medium text-gray-700">{item.title}</span>
+                      )}
+                      <button
+                        onClick={() => toggleMobileSubmenu(item.id)}
+                        className="p-1 hover:bg-gray-100 rounded"
+                      >
+                        <ChevronDown 
+                          className={`h-4 w-4 transition-transform ${
+                            expandedMobileMenus[item.id] ? 'rotate-180' : ''
+                          }`} 
+                        />
+                      </button>
+                    </div>
+                    {expandedMobileMenus[item.id] && (
+                      <ul className="ml-4 mt-2 space-y-2 border-l-2 border-gray-200 pl-3">
+                        {item.children.map((child) => (
+                          <li key={child.id}>
+                            <Link
+                              href={child.url || '/'}
+                              className={`block text-sm font-medium hover:text-primary transition-colors ${
+                                location === child.url || 
+                                (child.url !== '/' && location.startsWith(child.url || ''))
+                                  ? "text-primary" 
+                                  : ""
+                              }`}
+                              onClick={() => setIsMenuOpen(false)}
+                              target={child.target === '_blank' ? '_blank' : undefined}
+                              rel={child.target === '_blank' ? 'noopener noreferrer' : undefined}
+                            >
+                              {child.title}
+                            </Link>
+                          </li>
+                        ))}
+                      </ul>
+                    )}
+                  </div>
+                ) : (
+                  // Regular item without children - direct link
+                  <Link
+                    href={item.url || '/'}
+                    className={`block font-medium hover:text-primary transition-colors ${
+                      location === item.url || 
+                      (item.url !== '/' && location.startsWith(item.url || ''))
+                        ? "text-primary" 
+                        : ""
+                    }`}
+                    onClick={() => setIsMenuOpen(false)}
+                    target={item.target === '_blank' ? '_blank' : undefined}
+                    rel={item.target === '_blank' ? 'noopener noreferrer' : undefined}
+                  >
+                    {item.title}
+                  </Link>
+                )}
+              </li>
+            ))}
 
             {/* Language Toggle for Mobile */}
             <li className="border-t pt-3">
