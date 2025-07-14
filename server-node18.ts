@@ -16,7 +16,7 @@ dotenv.config();
 
 // Set DATABASE_URL if not present in environment
 if (!process.env.DATABASE_URL) {
-  process.env.DATABASE_URL = "postgresql://neondb_owner:npg_ZN9Ylt3AoQRJ@ep-dawn-voice-a8bd2yi7-pooler.eastus2.azure.neon.tech/neondb?sslmode=require";
+  process.env.DATABASE_URL = "postgresql://egsite:Pass2020@74.179.85.9:5432/egsite_db?sslmode=disable";
   console.log('🔗 Using fallback DATABASE_URL');
 }
 
