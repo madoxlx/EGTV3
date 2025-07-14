@@ -172,6 +172,8 @@ export default function CreateTour() {
       console.log("Tour categories fetched:", data);
       return data;
     },
+    staleTime: 0, // Always fetch fresh data
+    cacheTime: 0, // Don't cache the data
   });
 
   // Add debugging for tour categories
@@ -635,7 +637,19 @@ export default function CreateTour() {
                         name="categoryId"
                         render={({ field }) => (
                           <FormItem>
-                            <FormLabel>Category</FormLabel>
+                            <FormLabel className="flex items-center gap-2">
+                              Category
+                              <button
+                                type="button"
+                                onClick={() => {
+                                  console.log("Refreshing categories...");
+                                  tourCategoriesQuery.refetch();
+                                }}
+                                className="text-xs text-blue-600 hover:text-blue-800 underline"
+                              >
+                                Refresh
+                              </button>
+                            </FormLabel>
                             <Select
                               onValueChange={(value) => {
                                 console.log("Category selected:", value);

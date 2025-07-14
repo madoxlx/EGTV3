@@ -106,6 +106,17 @@ The application uses a comprehensive PostgreSQL schema with the following core e
 
 ## Recent Changes
 
+- **Tour Category Dropdown Cache Refresh Fix Complete (July 14, 2025)**: Successfully resolved critical issue where tour category dropdown wasn't updating when new categories were added through admin interface
+  - **Root Cause Identified**: CategoryManager component was using direct fetch calls instead of React Query, causing cache inconsistency between category management and tour creation forms
+  - **React Query Integration**: Converted CategoryManager to use React Query with proper `useQuery` for fetching and `useMutation` for CRUD operations
+  - **Cache Invalidation**: Added proper cache invalidation for both specific endpoint and `/api/tour-categories` ensuring dropdown updates immediately when categories are added, updated, or deleted
+  - **Manual Refresh Button**: Added "Refresh" button next to category label in tour creation form for immediate manual updates
+  - **Loading States**: Updated all UI components to use React Query mutation loading states (`isPending`) instead of local state variables
+  - **Controlled Component Fix**: Resolved controlled/uncontrolled Select component warnings by ensuring proper value handling
+  - **Real-time Updates**: Tour category dropdown now displays newly added categories immediately without requiring page refresh
+  - **Database Verified**: API endpoint confirmed working with 3 active categories: "Advanture", "Couple", and "honeymoon"
+  - **Production Ready**: Tour management system now provides seamless category management with proper cache synchronization
+
 - **Complete Hotels Database Schema Resolution (July 12, 2025)**: Successfully resolved critical hotels table schema issues preventing hotel creation functionality
   - **Column Identification**: Identified multiple missing columns in hotels table causing database insertion errors
   - **Schema Migration**: Added 71 complete columns to hotels table including category_id, city, country, postal_code, longitude, latitude, and all required JSONB fields

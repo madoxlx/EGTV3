@@ -73,6 +73,7 @@ import {
   SheetTrigger,
 } from "@/components/ui/sheet";
 import { format } from "date-fns";
+import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 
 // Base form schema for categories
 const baseCategorySchema = z.object({
@@ -125,16 +126,10 @@ interface Category {
 }
 
 export function CategoryManager({ title, description, categoryType, apiEndpoint }: CategoryManagerProps) {
-  // State for managing categories and UI
-  const [categories, setCategories] = useState<Category[]>([]);
-  const [isLoading, setIsLoading] = useState(true);
-  const [error, setError] = useState<string | null>(null);
+  // State for managing UI
   const [editingCategory, setEditingCategory] = useState<Category | null>(null);
   const [isAddDialogOpen, setIsAddDialogOpen] = useState(false);
   const [isEditDialogOpen, setIsEditDialogOpen] = useState(false);
-  const [isCreating, setIsCreating] = useState(false);
-  const [isUpdating, setIsUpdating] = useState(false);
-  const [isDeleting, setIsDeleting] = useState(false);
   const [deletingIds, setDeletingIds] = useState<number[]>([]);
   const [viewMode, setViewMode] = useState<"grid" | "list">("list");
   const [searchQuery, setSearchQuery] = useState("");
@@ -153,6 +148,32 @@ export function CategoryManager({ title, description, categoryType, apiEndpoint 
   const itemsPerPage = 5;
   
   const { toast } = useToast();
+  const queryClient = useQueryClient();
+  
+  // React Query for fetching categories
+  const {
+    data: categories = [],
+    isLoading,
+    error,
+    refetch: refetchCategories,
+  } = useQuery<Category[]>({
+    queryKey: [apiEndpoint],
+    queryFn: async () => {
+      const response = await fetch(apiEndpoint, {
+        credentials: "include",
+      });
+      
+      if (!response.ok) {
+        throw new Error(`Error fetching categories: ${response.statusText}`);
+      }
+      
+      const data = await response.json();
+      console.log('Fetched categories:', data);
+      return Array.isArray(data) ? data : [];
+    },
+    staleTime: 0, // Always fetch fresh data
+    cacheTime: 0, // Don't cache the data
+  });
   
   // Form for adding new category
   const form = useForm<z.infer<typeof baseCategorySchema>>({
@@ -174,49 +195,14 @@ export function CategoryManager({ title, description, categoryType, apiEndpoint 
     },
   });
 
-  // Fetch categories function
-  const fetchCategories = async () => {
-    try {
-      setIsLoading(true);
-      setError(null);
-      const response = await fetch(apiEndpoint, {
-        credentials: "include",
-      });
-      
-      if (!response.ok) {
-        throw new Error(`Error fetching categories: ${response.statusText}`);
-      }
-      
-      const data = await response.json();
-      console.log('Fetched categories:', data);
-      setCategories(Array.isArray(data) ? data : []);
-    } catch (err: any) {
-      setError(err.message || 'Error fetching categories');
-      console.error('Error fetching categories:', err);
-      toast({
-        title: "Error",
-        description: err.message || 'Error fetching categories',
-        variant: "destructive",
-      });
-    } finally {
-      setIsLoading(false);
-    }
-  };
-
-  // Fetch categories on component mount
-  useEffect(() => {
-    fetchCategories();
-  }, [apiEndpoint]);
-
   // Reset current page when filters change
   useEffect(() => {
     setCurrentPage(1);
   }, [searchQuery, statusFilter, sortField, sortDirection]);
 
-  // Create a new category
-  const createCategory = async (values: z.infer<typeof baseCategorySchema>) => {
-    try {
-      setIsCreating(true);
+  // Create category mutation
+  const createCategoryMutation = useMutation({
+    mutationFn: async (values: z.infer<typeof baseCategorySchema>) => {
       const response = await fetch(apiEndpoint, {
         method: 'POST',
         headers: {
@@ -230,29 +216,37 @@ export function CategoryManager({ title, description, categoryType, apiEndpoint 
         throw new Error(`Error creating category: ${response.statusText}`);
       }
       
-      await fetchCategories();
+      return response.json();
+    },
+    onSuccess: () => {
       toast({
         title: "Success",
         description: "Category has been created successfully",
       });
       form.reset();
       setIsAddDialogOpen(false);
-    } catch (err: any) {
-      console.error('Error creating category:', err);
+      // Invalidate all related cache keys
+      queryClient.invalidateQueries({ queryKey: [apiEndpoint] });
+      queryClient.invalidateQueries({ queryKey: ["/api/tour-categories"] });
+    },
+    onError: (error: any) => {
+      console.error('Error creating category:', error);
       toast({
         title: "Error",
-        description: err.message || 'Error creating category',
+        description: error.message || 'Error creating category',
         variant: "destructive",
       });
-    } finally {
-      setIsCreating(false);
-    }
+    },
+  });
+
+  // Create a new category
+  const createCategory = async (values: z.infer<typeof baseCategorySchema>) => {
+    createCategoryMutation.mutate(values);
   };
 
-  // Update an existing category
-  const updateCategory = async (id: number, values: z.infer<typeof baseCategorySchema>) => {
-    try {
-      setIsUpdating(true);
+  // Update category mutation
+  const updateCategoryMutation = useMutation({
+    mutationFn: async ({ id, values }: { id: number; values: z.infer<typeof baseCategorySchema> }) => {
       const response = await fetch(`${apiEndpoint}/${id}`, {
         method: 'PATCH',
         headers: {
@@ -266,29 +260,37 @@ export function CategoryManager({ title, description, categoryType, apiEndpoint 
         throw new Error(`Error updating category: ${response.statusText}`);
       }
       
-      await fetchCategories();
+      return response.json();
+    },
+    onSuccess: () => {
       toast({
         title: "Success",
         description: "Category has been updated successfully",
       });
       setEditingCategory(null);
       setIsEditDialogOpen(false);
-    } catch (err: any) {
-      console.error('Error updating category:', err);
+      // Invalidate all related cache keys
+      queryClient.invalidateQueries({ queryKey: [apiEndpoint] });
+      queryClient.invalidateQueries({ queryKey: ["/api/tour-categories"] });
+    },
+    onError: (error: any) => {
+      console.error('Error updating category:', error);
       toast({
         title: "Error",
-        description: err.message || 'Error updating category',
+        description: error.message || 'Error updating category',
         variant: "destructive",
       });
-    } finally {
-      setIsUpdating(false);
-    }
+    },
+  });
+
+  // Update an existing category
+  const updateCategory = async (id: number, values: z.infer<typeof baseCategorySchema>) => {
+    updateCategoryMutation.mutate({ id, values });
   };
 
-  // Delete a category
-  const deleteCategory = async (id: number) => {
-    try {
-      setDeletingIds((prev) => [...prev, id]);
+  // Delete category mutation
+  const deleteCategoryMutation = useMutation({
+    mutationFn: async (id: number) => {
       const response = await fetch(`${apiEndpoint}/${id}`, {
         method: 'DELETE',
         credentials: "include",
@@ -298,23 +300,35 @@ export function CategoryManager({ title, description, categoryType, apiEndpoint 
         throw new Error(`Error deleting category: ${response.statusText}`);
       }
       
-      await fetchCategories();
+      return response.json();
+    },
+    onSuccess: (_, id) => {
       toast({
         title: "Success",
         description: "Category has been deleted successfully",
       });
       // Remove from selected categories if it was selected
       setSelectedCategories((prev) => prev.filter((selectedId) => selectedId !== id));
-    } catch (err: any) {
-      console.error('Error deleting category:', err);
+      setDeletingIds((prev) => prev.filter((deletingId) => deletingId !== id));
+      // Invalidate all related cache keys
+      queryClient.invalidateQueries({ queryKey: [apiEndpoint] });
+      queryClient.invalidateQueries({ queryKey: ["/api/tour-categories"] });
+    },
+    onError: (error: any, id) => {
+      console.error('Error deleting category:', error);
       toast({
         title: "Error",
-        description: err.message || 'Error deleting category',
+        description: error.message || 'Error deleting category',
         variant: "destructive",
       });
-    } finally {
       setDeletingIds((prev) => prev.filter((deletingId) => deletingId !== id));
-    }
+    },
+  });
+
+  // Delete a category
+  const deleteCategory = async (id: number) => {
+    setDeletingIds((prev) => [...prev, id]);
+    deleteCategoryMutation.mutate(id);
   };
 
   // Bulk delete categories
@@ -695,8 +709,8 @@ export function CategoryManager({ title, description, categoryType, apiEndpoint 
                     )}
                   />
                   <DialogFooter>
-                    <Button type="submit" disabled={isCreating}>
-                      {isCreating ? (
+                    <Button type="submit" disabled={createCategoryMutation.isPending}>
+                      {createCategoryMutation.isPending ? (
                         <>
                           <Loader2 className="mr-2 h-4 w-4 animate-spin" />
                           Saving...
@@ -1189,8 +1203,8 @@ export function CategoryManager({ title, description, categoryType, apiEndpoint 
                   )}
                 />
                 <DialogFooter>
-                  <Button type="submit" disabled={isUpdating}>
-                    {isUpdating ? (
+                  <Button type="submit" disabled={updateCategoryMutation.isPending}>
+                    {updateCategoryMutation.isPending ? (
                       <>
                         <Loader2 className="mr-2 h-4 w-4 animate-spin" />
                         Saving...
@@ -1219,26 +1233,26 @@ export function CategoryManager({ title, description, categoryType, apiEndpoint 
             <Button 
               variant="outline" 
               onClick={() => bulkUpdateStatus(true)}
-              disabled={isUpdating}
+              disabled={updateCategoryMutation.isPending}
             >
-              {isUpdating ? <Loader2 className="h-4 w-4 animate-spin mr-2" /> : <Check className="h-4 w-4 mr-2" />}
+              {updateCategoryMutation.isPending ? <Loader2 className="h-4 w-4 animate-spin mr-2" /> : <Check className="h-4 w-4 mr-2" />}
               Set Active
             </Button>
             <Button 
               variant="outline"
               onClick={() => bulkUpdateStatus(false)}
-              disabled={isUpdating}
+              disabled={updateCategoryMutation.isPending}
             >
-              {isUpdating ? <Loader2 className="h-4 w-4 animate-spin mr-2" /> : <X className="h-4 w-4 mr-2" />}
+              {updateCategoryMutation.isPending ? <Loader2 className="h-4 w-4 animate-spin mr-2" /> : <X className="h-4 w-4 mr-2" />}
               Set Inactive
             </Button>
             <Button 
               variant="destructive"
               onClick={bulkDeleteCategories}
-              disabled={isDeleting}
+              disabled={deleteCategoryMutation.isPending}
               className="md:col-span-2"
             >
-              {isDeleting ? <Loader2 className="h-4 w-4 animate-spin mr-2" /> : <Trash2 className="h-4 w-4 mr-2" />}
+              {deleteCategoryMutation.isPending ? <Loader2 className="h-4 w-4 animate-spin mr-2" /> : <Trash2 className="h-4 w-4 mr-2" />}
               Delete Selected
             </Button>
           </div>
