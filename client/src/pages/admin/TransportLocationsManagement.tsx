@@ -8,13 +8,31 @@ import { DataModal } from "@/components/dashboard/DataModal";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
-import { FormField, FormItem, FormLabel, FormControl, FormMessage } from "@/components/ui/form";
+import {
+  FormField,
+  FormItem,
+  FormLabel,
+  FormControl,
+  FormMessage,
+} from "@/components/ui/form";
 import { Plus, Loader2 } from "lucide-react";
 import { apiRequest } from "@/lib/queryClient";
 import { toast } from "@/hooks/use-toast";
 import { Badge } from "@/components/ui/badge";
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 
 type TransportLocation = {
   id: number;
@@ -63,11 +81,11 @@ const transportLocationSchema = z.object({
   popular: z.boolean().default(false),
   latitude: z.preprocess(
     (val) => parseFloat(String(val)),
-    z.number().optional()
+    z.number().optional(),
   ),
   longitude: z.preprocess(
     (val) => parseFloat(String(val)),
-    z.number().optional()
+    z.number().optional(),
   ),
   status: z.string().optional(),
 });
@@ -77,8 +95,9 @@ export default function TransportLocationsManagement() {
   const queryClient = useQueryClient();
   const [isCreateModalOpen, setIsCreateModalOpen] = useState(false);
   const [isEditModalOpen, setIsEditModalOpen] = useState(false);
-  const [selectedLocation, setSelectedLocation] = useState<TransportLocation | null>(null);
-  
+  const [selectedLocation, setSelectedLocation] =
+    useState<TransportLocation | null>(null);
+
   const form = useForm<TransportLocationFormValues>({
     resolver: zodResolver(transportLocationSchema),
     defaultValues: {
@@ -94,7 +113,7 @@ export default function TransportLocationsManagement() {
       status: "active",
     },
   });
-  
+
   const editForm = useForm<TransportLocationFormValues>({
     resolver: zodResolver(transportLocationSchema),
     defaultValues: {
@@ -110,23 +129,29 @@ export default function TransportLocationsManagement() {
       status: "active",
     },
   });
-  
+
   const { data: transportLocations, isLoading } = useQuery({
     queryKey: ["/api/transport-locations"],
     queryFn: async () => {
-      const response = await apiRequest<TransportLocation[]>("/api/transport-locations", {
-        method: "GET",
-      });
+      const response = await apiRequest<TransportLocation[]>(
+        "/api/transport-locations",
+        {
+          method: "GET",
+        },
+      );
       return response;
     },
   });
-  
+
   const createMutation = useMutation({
     mutationFn: async (data: TransportLocationFormValues) => {
-      const response = await apiRequest<TransportLocation>("/api/transport-locations", {
-        method: "POST",
-        body: JSON.stringify(data),
-      });
+      const response = await apiRequest<TransportLocation>(
+        "/api/transport-locations",
+        {
+          method: "POST",
+          body: JSON.stringify(data),
+        },
+      );
       return response;
     },
     onSuccess: () => {
@@ -146,15 +171,18 @@ export default function TransportLocationsManagement() {
       });
     },
   });
-  
+
   const updateMutation = useMutation({
     mutationFn: async (data: TransportLocationFormValues) => {
       if (!selectedLocation) return null;
-      
-      const response = await apiRequest<TransportLocation>(`/api/transport-locations/${selectedLocation.id}`, {
-        method: "PATCH",
-        body: JSON.stringify(data),
-      });
+
+      const response = await apiRequest<TransportLocation>(
+        `/api/transport-locations/${selectedLocation.id}`,
+        {
+          method: "PATCH",
+          body: JSON.stringify(data),
+        },
+      );
       return response;
     },
     onSuccess: () => {
@@ -175,12 +203,15 @@ export default function TransportLocationsManagement() {
       });
     },
   });
-  
+
   const deleteMutation = useMutation({
     mutationFn: async (id: number) => {
-      const response = await apiRequest<{ success: boolean }>(`/api/transport-locations/${id}`, {
-        method: "DELETE",
-      });
+      const response = await apiRequest<{ success: boolean }>(
+        `/api/transport-locations/${id}`,
+        {
+          method: "DELETE",
+        },
+      );
       return response;
     },
     onSuccess: () => {
@@ -198,15 +229,15 @@ export default function TransportLocationsManagement() {
       });
     },
   });
-  
+
   const handleCreateSubmit = (values: TransportLocationFormValues) => {
     createMutation.mutate(values);
   };
-  
+
   const handleEditSubmit = (values: TransportLocationFormValues) => {
     updateMutation.mutate(values);
   };
-  
+
   const handleEditClick = (item: TransportLocation) => {
     setSelectedLocation(item);
     editForm.reset({
@@ -223,13 +254,13 @@ export default function TransportLocationsManagement() {
     });
     setIsEditModalOpen(true);
   };
-  
+
   const handleDeleteClick = (item: TransportLocation) => {
     if (window.confirm(`Are you sure you want to delete ${item.name}?`)) {
       deleteMutation.mutate(item.id);
     }
   };
-  
+
   const columns: Column<TransportLocation>[] = [
     {
       header: "ID",
@@ -273,20 +304,22 @@ export default function TransportLocationsManagement() {
       className: "w-[100px]",
     },
   ];
-  
+
   return (
     <div>
       <div className="mb-8 flex items-center justify-between">
         <div>
           <h1 className="text-2xl font-bold mb-1">Transport Locations</h1>
-          <p className="text-zinc-500">Manage pickup and dropoff locations for transportation services.</p>
+          <p className="text-zinc-500">
+            Manage pickup and dropoff locations for transportation services.
+          </p>
         </div>
         <Button onClick={() => setIsCreateModalOpen(true)}>
           <Plus className="mr-2 h-4 w-4" />
           Add Location
         </Button>
       </div>
-      
+
       <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
         <Card>
           <CardHeader className="pb-2">
@@ -303,7 +336,7 @@ export default function TransportLocationsManagement() {
             </div>
           </CardContent>
         </Card>
-        
+
         <Card>
           <CardHeader className="pb-2">
             <CardTitle className="text-lg">Active Locations</CardTitle>
@@ -314,12 +347,13 @@ export default function TransportLocationsManagement() {
               {isLoading ? (
                 <Loader2 className="h-6 w-6 animate-spin text-muted-foreground" />
               ) : (
-                transportLocations?.filter(t => t.status === "active").length || 0
+                transportLocations?.filter((t) => t.status === "active")
+                  .length || 0
               )}
             </div>
           </CardContent>
         </Card>
-        
+
         <Card>
           <CardHeader className="pb-2">
             <CardTitle className="text-lg">Popular Locations</CardTitle>
@@ -330,13 +364,13 @@ export default function TransportLocationsManagement() {
               {isLoading ? (
                 <Loader2 className="h-6 w-6 animate-spin text-muted-foreground" />
               ) : (
-                transportLocations?.filter(t => t.popular).length || 0
+                transportLocations?.filter((t) => t.popular).length || 0
               )}
             </div>
           </CardContent>
         </Card>
       </div>
-      
+
       <DataTable
         data={transportLocations || []}
         columns={columns}
@@ -344,7 +378,7 @@ export default function TransportLocationsManagement() {
         onEdit={handleEditClick}
         onDelete={handleDeleteClick}
       />
-      
+
       {/* Create Modal */}
       <DataModal
         isOpen={isCreateModalOpen}
@@ -361,13 +395,16 @@ export default function TransportLocationsManagement() {
             <FormItem>
               <FormLabel>Name</FormLabel>
               <FormControl>
-                <Input placeholder="Cairo International Airport, Giza Pyramids, etc." {...field} />
+                <Input
+                  placeholder="Cairo International Airport, Giza Pyramids, etc."
+                  {...field}
+                />
               </FormControl>
               <FormMessage />
             </FormItem>
           )}
         />
-        
+
         <div className="grid grid-cols-2 gap-4">
           <FormField
             control={form.control}
@@ -382,7 +419,7 @@ export default function TransportLocationsManagement() {
               </FormItem>
             )}
           />
-          
+
           <FormField
             control={form.control}
             name="country"
@@ -397,17 +434,14 @@ export default function TransportLocationsManagement() {
             )}
           />
         </div>
-        
+
         <FormField
           control={form.control}
           name="locationType"
           render={({ field }) => (
             <FormItem>
               <FormLabel>Location Type</FormLabel>
-              <Select 
-                onValueChange={field.onChange}
-                defaultValue={field.value}
-              >
+              <Select onValueChange={field.onChange} defaultValue={field.value}>
                 <FormControl>
                   <SelectTrigger>
                     <SelectValue placeholder="Select location type" />
@@ -427,7 +461,7 @@ export default function TransportLocationsManagement() {
             </FormItem>
           )}
         />
-        
+
         <FormField
           control={form.control}
           name="description"
@@ -435,13 +469,16 @@ export default function TransportLocationsManagement() {
             <FormItem>
               <FormLabel>Description</FormLabel>
               <FormControl>
-                <Textarea placeholder="Brief description of this location" {...field} />
+                <Textarea
+                  placeholder="Brief description of this location"
+                  {...field}
+                />
               </FormControl>
               <FormMessage />
             </FormItem>
           )}
         />
-        
+
         <FormField
           control={form.control}
           name="imageUrl"
@@ -455,7 +492,7 @@ export default function TransportLocationsManagement() {
             </FormItem>
           )}
         />
-        
+
         <div className="grid grid-cols-2 gap-4">
           <FormField
             control={form.control}
@@ -470,7 +507,7 @@ export default function TransportLocationsManagement() {
               </FormItem>
             )}
           />
-          
+
           <FormField
             control={form.control}
             name="longitude"
@@ -485,7 +522,7 @@ export default function TransportLocationsManagement() {
             )}
           />
         </div>
-        
+
         <div className="grid grid-cols-2 gap-4">
           <FormField
             control={form.control}
@@ -493,7 +530,7 @@ export default function TransportLocationsManagement() {
             render={({ field }) => (
               <FormItem>
                 <FormLabel>Popular Location</FormLabel>
-                <Select 
+                <Select
                   onValueChange={(value) => field.onChange(value === "true")}
                   defaultValue={field.value ? "true" : "false"}
                 >
@@ -511,14 +548,14 @@ export default function TransportLocationsManagement() {
               </FormItem>
             )}
           />
-          
+
           <FormField
             control={form.control}
             name="status"
             render={({ field }) => (
               <FormItem>
                 <FormLabel>Status</FormLabel>
-                <Select 
+                <Select
                   onValueChange={field.onChange}
                   defaultValue={field.value}
                 >
@@ -538,7 +575,7 @@ export default function TransportLocationsManagement() {
           />
         </div>
       </DataModal>
-      
+
       {/* Edit Modal */}
       <DataModal
         isOpen={isEditModalOpen}
@@ -555,13 +592,16 @@ export default function TransportLocationsManagement() {
             <FormItem>
               <FormLabel>Name</FormLabel>
               <FormControl>
-                <Input placeholder="Cairo International Airport, Giza Pyramids, etc." {...field} />
+                <Input
+                  placeholder="Cairo International Airport, Giza Pyramids, etc."
+                  {...field}
+                />
               </FormControl>
               <FormMessage />
             </FormItem>
           )}
         />
-        
+
         <div className="grid grid-cols-2 gap-4">
           <FormField
             control={editForm.control}
@@ -576,7 +616,7 @@ export default function TransportLocationsManagement() {
               </FormItem>
             )}
           />
-          
+
           <FormField
             control={editForm.control}
             name="country"
@@ -591,17 +631,14 @@ export default function TransportLocationsManagement() {
             )}
           />
         </div>
-        
+
         <FormField
           control={editForm.control}
           name="locationType"
           render={({ field }) => (
             <FormItem>
               <FormLabel>Location Type</FormLabel>
-              <Select 
-                onValueChange={field.onChange}
-                defaultValue={field.value}
-              >
+              <Select onValueChange={field.onChange} defaultValue={field.value}>
                 <FormControl>
                   <SelectTrigger>
                     <SelectValue placeholder="Select location type" />
@@ -621,7 +658,7 @@ export default function TransportLocationsManagement() {
             </FormItem>
           )}
         />
-        
+
         <FormField
           control={editForm.control}
           name="description"
@@ -629,13 +666,16 @@ export default function TransportLocationsManagement() {
             <FormItem>
               <FormLabel>Description</FormLabel>
               <FormControl>
-                <Textarea placeholder="Brief description of this location" {...field} />
+                <Textarea
+                  placeholder="Brief description of this location"
+                  {...field}
+                />
               </FormControl>
               <FormMessage />
             </FormItem>
           )}
         />
-        
+
         <FormField
           control={editForm.control}
           name="imageUrl"
@@ -649,7 +689,7 @@ export default function TransportLocationsManagement() {
             </FormItem>
           )}
         />
-        
+
         <div className="grid grid-cols-2 gap-4">
           <FormField
             control={editForm.control}
@@ -664,7 +704,7 @@ export default function TransportLocationsManagement() {
               </FormItem>
             )}
           />
-          
+
           <FormField
             control={editForm.control}
             name="longitude"
@@ -679,7 +719,7 @@ export default function TransportLocationsManagement() {
             )}
           />
         </div>
-        
+
         <div className="grid grid-cols-2 gap-4">
           <FormField
             control={editForm.control}
@@ -687,7 +727,7 @@ export default function TransportLocationsManagement() {
             render={({ field }) => (
               <FormItem>
                 <FormLabel>Popular Location</FormLabel>
-                <Select 
+                <Select
                   onValueChange={(value) => field.onChange(value === "true")}
                   defaultValue={field.value ? "true" : "false"}
                 >
@@ -705,14 +745,14 @@ export default function TransportLocationsManagement() {
               </FormItem>
             )}
           />
-          
+
           <FormField
             control={editForm.control}
             name="status"
             render={({ field }) => (
               <FormItem>
                 <FormLabel>Status</FormLabel>
-                <Select 
+                <Select
                   onValueChange={field.onChange}
                   defaultValue={field.value}
                 >
