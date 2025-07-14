@@ -111,7 +111,7 @@ const Header: React.FC = () => {
                       // Parent item with children - show dropdown on hover
                       <>
                         <NavigationMenuTrigger 
-                          className={`font-medium hover:text-primary transition-colors bg-transparent relative group ${
+                          className={`font-medium hover:text-primary transition-colors bg-transparent ${
                             location === item.url || 
                             (item.url !== '/' && location.startsWith(item.url || '')) ||
                             item.children?.some(child => location === child.url || 
@@ -121,8 +121,6 @@ const Header: React.FC = () => {
                           }`}
                         >
                           {item.title}
-                          {/* Animated red progress line */}
-                          <span className="absolute bottom-0 left-0 h-0.5 w-0 bg-red-500 transition-all duration-300 ease-out group-hover:w-full"></span>
                         </NavigationMenuTrigger>
                         <NavigationMenuContent>
                           <div className="w-[200px] p-2">
@@ -171,7 +169,7 @@ const Header: React.FC = () => {
                       <NavigationMenuLink asChild>
                         <Link
                           href={item.url || '/'}
-                          className={`font-medium hover:text-primary transition-colors px-3 py-2 rounded-md relative group ${
+                          className={`font-medium hover:text-primary transition-colors px-3 py-2 rounded-md ${
                             location === item.url || 
                             (item.url !== '/' && location.startsWith(item.url || '')) 
                               ? "text-primary" 
@@ -181,8 +179,6 @@ const Header: React.FC = () => {
                           rel={item.target === '_blank' ? 'noopener noreferrer' : undefined}
                         >
                           {item.title}
-                          {/* Animated red progress line */}
-                          <span className="absolute bottom-0 left-0 h-0.5 w-0 bg-red-500 transition-all duration-300 ease-out group-hover:w-full"></span>
                         </Link>
                       </NavigationMenuLink>
                     )}
@@ -265,12 +261,10 @@ const Header: React.FC = () => {
           ) : (
             <Link
               href="/auth"
-              className="hidden md:inline-flex items-center font-medium hover:text-primary transition-colors relative group"
+              className="hidden md:inline-flex items-center font-medium hover:text-primary transition-colors"
             >
               <UserCircleIcon className={`${isRTL ? 'ml-1' : 'mr-1'}`} size={18} />
               {t('nav.signin', 'Sign In')}
-              {/* Animated red progress line */}
-              <span className="absolute bottom-0 left-0 h-0.5 w-0 bg-red-500 transition-all duration-300 ease-out group-hover:w-full"></span>
             </Link>
           )}
 
@@ -317,7 +311,7 @@ const Header: React.FC = () => {
                       {item.url ? (
                         <Link
                           href={item.url}
-                          className={`block font-medium hover:text-primary transition-colors relative group ${
+                          className={`block font-medium hover:text-primary transition-colors ${
                             location === item.url || 
                             (item.url !== '/' && location.startsWith(item.url || ''))
                               ? "text-primary" 
@@ -326,8 +320,6 @@ const Header: React.FC = () => {
                           onClick={() => setIsMenuOpen(false)}
                         >
                           {item.title}
-                          {/* Animated red progress line */}
-                          <span className="absolute bottom-0 left-0 h-0.5 w-0 bg-red-500 transition-all duration-300 ease-out group-hover:w-full"></span>
                         </Link>
                       ) : (
                         <span className="font-medium text-gray-700">{item.title}</span>
@@ -349,7 +341,7 @@ const Header: React.FC = () => {
                           <li key={child.id}>
                             <Link
                               href={child.url || '/'}
-                              className={`block text-sm font-medium hover:text-primary transition-colors relative group ${
+                              className={`block text-sm font-medium hover:text-primary transition-colors ${
                                 location === child.url || 
                                 (child.url !== '/' && location.startsWith(child.url || ''))
                                   ? "text-primary" 
@@ -360,8 +352,6 @@ const Header: React.FC = () => {
                               rel={child.target === '_blank' ? 'noopener noreferrer' : undefined}
                             >
                               {child.title}
-                              {/* Animated red progress line */}
-                              <span className="absolute bottom-0 left-0 h-0.5 w-0 bg-red-500 transition-all duration-300 ease-out group-hover:w-full"></span>
                             </Link>
                           </li>
                         ))}
@@ -372,7 +362,7 @@ const Header: React.FC = () => {
                   // Regular item without children - direct link
                   <Link
                     href={item.url || '/'}
-                    className={`block font-medium hover:text-primary transition-colors relative group ${
+                    className={`block font-medium hover:text-primary transition-colors ${
                       location === item.url || 
                       (item.url !== '/' && location.startsWith(item.url || ''))
                         ? "text-primary" 
@@ -383,8 +373,6 @@ const Header: React.FC = () => {
                     rel={item.target === '_blank' ? 'noopener noreferrer' : undefined}
                   >
                     {item.title}
-                    {/* Animated red progress line */}
-                    <span className="absolute bottom-0 left-0 h-0.5 w-0 bg-red-500 transition-all duration-300 ease-out group-hover:w-full"></span>
                   </Link>
                 )}
               </li>
@@ -405,38 +393,32 @@ const Header: React.FC = () => {
                 <li>
                   <Link
                     href="/profile"
-                    className="block font-medium hover:text-primary transition-colors relative group"
+                    className="block font-medium hover:text-primary transition-colors"
                     onClick={() => setIsMenuOpen(false)}
                   >
                     <User className={`inline ${isRTL ? 'ml-1' : 'mr-1'} h-4 w-4`} />
                     {t('nav.profile', 'Profile')}
-                    {/* Animated red progress line */}
-                    <span className="absolute bottom-0 left-0 h-0.5 w-0 bg-red-500 transition-all duration-300 ease-out group-hover:w-full"></span>
                   </Link>
                 </li>
                 <li>
                   <Link
                     href="/destinations?filter=favorites"
-                    className="block font-medium hover:text-primary transition-colors relative group"
+                    className="block font-medium hover:text-primary transition-colors"
                     onClick={() => setIsMenuOpen(false)}
                   >
                     <Heart className={`inline ${isRTL ? 'ml-1' : 'mr-1'} h-4 w-4`} />
                     {t('nav.favorites', 'Favorites')}
-                    {/* Animated red progress line */}
-                    <span className="absolute bottom-0 left-0 h-0.5 w-0 bg-red-500 transition-all duration-300 ease-out group-hover:w-full"></span>
                   </Link>
                 </li>
                 {user.role === 'admin' && (
                   <li>
                     <Link
                       href="/admin"
-                      className="block font-medium hover:text-primary transition-colors relative group"
+                      className="block font-medium hover:text-primary transition-colors"
                       onClick={() => setIsMenuOpen(false)}
                     >
                       <UmbrellaIcon className={`inline ${isRTL ? 'ml-1' : 'mr-1'} h-4 w-4`} />
                       {t('nav.admin', 'Admin Dashboard')}
-                      {/* Animated red progress line */}
-                      <span className="absolute bottom-0 left-0 h-0.5 w-0 bg-red-500 transition-all duration-300 ease-out group-hover:w-full"></span>
                     </Link>
                   </li>
                 )}
@@ -457,13 +439,11 @@ const Header: React.FC = () => {
               <li>
                 <Link
                   href="/auth"
-                  className="block font-medium hover:text-primary transition-colors relative group"
+                  className="block font-medium hover:text-primary transition-colors"
                   onClick={() => setIsMenuOpen(false)}
                 >
                   <UserCircleIcon className={`inline ${isRTL ? 'ml-1' : 'mr-1'}`} size={18} />
                   {t('nav.signin', 'Sign In')}
-                  {/* Animated red progress line */}
-                  <span className="absolute bottom-0 left-0 h-0.5 w-0 bg-red-500 transition-all duration-300 ease-out group-hover:w-full"></span>
                 </Link>
               </li>
             )}
