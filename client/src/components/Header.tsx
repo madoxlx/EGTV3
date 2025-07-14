@@ -408,10 +408,7 @@ const Header: React.FC = () => {
                     className="block font-medium hover:text-primary transition-colors"
                     onClick={() => setIsMenuOpen(false)}
                   >
-                    <Heart className={`inline ${isRTL ? 'ml-1'Line-by-line analysis: The changes involve modifying the NavigationMenuTrigger and Link components to scope the hover effect of the underline to the specific parent element being hovered. This is achieved by adding `group/trigger` and `group-hover/trigger:w-full` classes to the NavigationMenuTrigger and `group/link` and `group-hover/link:w-full` classes to the Link.
-
-```typescript
- : 'mr-1'} h-4 w-4`} />
+                    <Heart className={`inline ${isRTL ? 'ml-1' : 'mr-1'} h-4 w-4`} />
                     {t('nav.favorites', 'Favorites')}
                   </Link>
                 </li>
