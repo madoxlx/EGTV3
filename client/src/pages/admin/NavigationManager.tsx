@@ -278,8 +278,14 @@ export default function NavigationManager() {
   };
 
   const handleUpdateItem = () => {
-    if (editingItem) {
-      updateItemMutation.mutate({ id: editingItem.id, data: itemForm });
+    if (editingItem && selectedMenu) {
+      const itemData = {
+        ...itemForm,
+        menuId: selectedMenu.id,
+        // Ensure orderPosition is properly set
+        orderPosition: itemForm.orderPosition || 1
+      };
+      updateItemMutation.mutate({ id: editingItem.id, data: itemData });
     }
   };
 

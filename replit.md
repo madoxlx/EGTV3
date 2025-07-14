@@ -116,6 +116,9 @@ The application uses a comprehensive PostgreSQL schema with the following core e
   - **Menu Deletion Cache Fix**: Resolved issue where frontend cache wasn't properly invalidating after menu item deletion, causing stale UI state
   - **Enhanced Cache Invalidation**: Updated all menu item mutations (create, update, delete) to invalidate multiple cache patterns and force refetch for immediate UI updates
   - **Improved Error Handling**: Added better loading states and disabled buttons during deletion operations to prevent race conditions
+  - **CREATE/UPDATE Button Fix**: Fixed critical issue where menu item update operations were failing due to missing `menuId` field in update requests
+  - **Frontend Update Fix**: Enhanced `handleUpdateItem` function to include `menuId` in update request payload for proper parent validation
+  - **Backend Validation Enhancement**: Added debug logging to parent validation logic to track validation decisions
   - **Production Testing**: Successfully verified parent-child relationships are properly stored and retrieved from database with hierarchical structure intact
   - **Frontend Integration**: NavigationManager component dropdown selection now properly persists parent relationships when creating or updating menu items
   - **Complete Resolution**: Menu management system now fully supports hierarchical menu structure with proper parent-child relationships saved to database and reliable deletion functionality

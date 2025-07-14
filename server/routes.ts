@@ -4712,6 +4712,8 @@ export async function registerRoutes(app: Express): Promise<Server> {
         return res.status(400).json({ message: 'Invalid menu item ID' });
       }
       
+      console.log(`API PUT /api/menu-items/${id}:`, req.body);
+      
       // Verify menu item exists
       const existingMenuItem = await storage.getMenuItem(id);
       if (!existingMenuItem) {
@@ -4744,6 +4746,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
           
           // Check that parent item belongs to the same menu
           const menuId = updateData.menuId || existingMenuItem.menuId;
+          console.log(`Parent validation: parentItem.menuId=${parentItem.menuId}, menuId=${menuId}`);
           if (parentItem.menuId !== menuId) {
             return res.status(400).json({ message: 'Parent menu item must belong to the same menu' });
           }
@@ -4751,6 +4754,8 @@ export async function registerRoutes(app: Express): Promise<Server> {
       }
       
       const updatedMenuItem = await storage.updateMenuItem(id, updateData);
+      console.log('Response status: 200');
+      console.log('API Response:', updatedMenuItem);
       res.json(updatedMenuItem);
     } catch (error) {
       if (error instanceof z.ZodError) {
