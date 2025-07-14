@@ -4554,6 +4554,26 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
+  // Get a specific menu by ID (public endpoint for navigation manager)
+  app.get('/api/menus/:id', async (req, res) => {
+    try {
+      const id = parseInt(req.params.id);
+      if (isNaN(id)) {
+        return res.status(400).json({ message: 'Invalid menu ID' });
+      }
+      
+      const menu = await storage.getMenu(id);
+      if (!menu) {
+        return res.status(404).json({ message: 'Menu not found' });
+      }
+      
+      res.json(menu);
+    } catch (error) {
+      console.error('Error fetching menu:', error);
+      res.status(500).json({ message: 'Failed to fetch menu' });
+    }
+  });
+
   // Update a menu (public endpoint for navigation manager)
   app.put('/api/menus/:id', async (req, res) => {
     try {
@@ -4647,10 +4667,12 @@ export async function registerRoutes(app: Express): Promise<Server> {
       
       // Validate the menu item data
       const menuItemData = insertMenuItemSchema.parse(req.body);
+      console.log('Validated menu item data:', menuItemData);
       
       // Verify the menu exists
       const menu = await storage.getMenu(menuItemData.menuId);
       if (!menu) {
+        console.log('Menu not found for ID:', menuItemData.menuId);
         return res.status(404).json({ message: 'Menu not found' });
       }
       
@@ -4663,7 +4685,9 @@ export async function registerRoutes(app: Express): Promise<Server> {
         return res.status(400).json({ message: 'Invalid menu item data', errors: error.errors });
       }
       console.error('Error creating menu item:', error);
-      res.status(500).json({ message: 'Failed to create menu item' });
+      console.error('Error message:', error.message);
+      console.error('Stack trace:', error.stack);
+      res.status(500).json({ message: 'Failed to create menu item', error: error.message });
     }
   });
 

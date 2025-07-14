@@ -1623,7 +1623,7 @@ export const insertMenuItemSchema = createInsertSchema(menuItems).pick({
   title: true,
   url: true,
   icon: true,
-  order: true,
+  orderPosition: true,
   target: true,
   active: true,
 });

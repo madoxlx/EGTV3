@@ -121,17 +121,24 @@ export interface IStorage {
   createHeroSlide(slide: InsertHeroSlide): Promise<HeroSlide>;
 
   // Menus
+  getMenu(id: number): Promise<Menu | undefined>;
   getMenuByLocation(location: string): Promise<Menu | undefined>;
-  listMenus(): Promise<Menu[]>;
+  getMenuByName(name: string): Promise<Menu | undefined>;
+  listMenus(active?: boolean): Promise<Menu[]>;
   createMenu(menu: InsertMenu): Promise<Menu>;
+  updateMenu(id: number, menu: Partial<InsertMenu>): Promise<Menu | undefined>;
+  deleteMenu(id: number): Promise<boolean>;
 
   // Package Categories
   listPackageCategories(active?: boolean): Promise<any[]>;
   createPackageCategory(category: any): Promise<any>;
 
   // Menu Items
+  getMenuItem(id: number): Promise<any | undefined>;
   listMenuItems(menuId?: number, active?: boolean): Promise<any[]>;
   createMenuItem(item: any): Promise<any>;
+  updateMenuItem(id: number, item: any): Promise<any | undefined>;
+  deleteMenuItem(id: number): Promise<boolean>;
 
   // Tour Categories
   listTourCategories(active?: boolean): Promise<any[]>;
@@ -1002,6 +1009,19 @@ export class DatabaseStorage implements IStorage {
   }
 
   // Menus
+  async getMenu(id: number): Promise<Menu | undefined> {
+    try {
+      const [menu] = await db
+        .select()
+        .from(menus)
+        .where(eq(menus.id, id));
+      return menu || undefined;
+    } catch (error) {
+      console.error("Error getting menu by id:", error);
+      return undefined;
+    }
+  }
+
   async getMenuByLocation(location: string): Promise<Menu | undefined> {
     try {
       console.log("DEBUG: Looking for menu with location:", location);
@@ -1017,9 +1037,28 @@ export class DatabaseStorage implements IStorage {
     }
   }
 
-  async listMenus(): Promise<Menu[]> {
+  async getMenuByName(name: string): Promise<Menu | undefined> {
     try {
-      return await db.select().from(menus).orderBy(asc(menus.name));
+      const [menu] = await db
+        .select()
+        .from(menus)
+        .where(eq(menus.name, name));
+      return menu || undefined;
+    } catch (error) {
+      console.error("Error getting menu by name:", error);
+      return undefined;
+    }
+  }
+
+  async listMenus(active?: boolean): Promise<Menu[]> {
+    try {
+      let query = db.select().from(menus);
+      
+      if (active !== undefined) {
+        query = query.where(eq(menus.active, active));
+      }
+      
+      return await query.orderBy(asc(menus.name));
     } catch (error) {
       console.error("Error listing menus:", error);
       return [];
@@ -1029,6 +1068,33 @@ export class DatabaseStorage implements IStorage {
   async createMenu(menu: InsertMenu): Promise<Menu> {
     const [created] = await db.insert(menus).values(menu).returning();
     return created;
+  }
+
+  async updateMenu(id: number, menu: Partial<InsertMenu>): Promise<Menu | undefined> {
+    try {
+      const [updated] = await db
+        .update(menus)
+        .set(menu)
+        .where(eq(menus.id, id))
+        .returning();
+      return updated || undefined;
+    } catch (error) {
+      console.error("Error updating menu:", error);
+      return undefined;
+    }
+  }
+
+  async deleteMenu(id: number): Promise<boolean> {
+    try {
+      const result = await db
+        .delete(menus)
+        .where(eq(menus.id, id))
+        .returning();
+      return result.length > 0;
+    } catch (error) {
+      console.error("Error deleting menu:", error);
+      return false;
+    }
   }
 
   // Package Categories
@@ -1088,7 +1154,7 @@ export class DatabaseStorage implements IStorage {
         query += ' WHERE ' + conditions.join(' AND ');
       }
       
-      query += ' ORDER BY "order"';
+      query += ' ORDER BY "order_position"';
       
       result = await client.query(query, params);
       client.release();
@@ -1102,22 +1168,94 @@ export class DatabaseStorage implements IStorage {
   async createMenuItem(item: any): Promise<any> {
     try {
       const client = await pool.connect();
+      console.log('Creating menu item with data:', item);
+      console.log('Order value:', item.order);
       const result = await client.query(
-        'INSERT INTO menu_items (menu_id, title, url, icon, "order", active) VALUES ($1, $2, $3, $4, $5, $6) RETURNING *',
+        'INSERT INTO menu_items (menu_id, title, url, icon, order_position, active) VALUES ($1, $2, $3, $4, $5, $6) RETURNING *',
         [
           item.menuId,
           item.title,
           item.url || null,
           item.icon || null,
-          item.order || 0,
+          item.orderPosition || 0,
           item.active !== false,
         ],
       );
       client.release();
+      console.log('Menu item created successfully:', result.rows[0]);
       return result.rows[0] || null;
     } catch (error) {
       console.error("Error creating menu item:", error);
+      console.error("Error details:", error.message);
       throw error;
+    }
+  }
+
+  async getMenuItem(id: number): Promise<any | undefined> {
+    try {
+      const client = await pool.connect();
+      const result = await client.query('SELECT * FROM menu_items WHERE id = $1', [id]);
+      client.release();
+      return result.rows[0] || undefined;
+    } catch (error) {
+      console.error("Error getting menu item:", error);
+      return undefined;
+    }
+  }
+
+  async updateMenuItem(id: number, item: any): Promise<any | undefined> {
+    try {
+      const client = await pool.connect();
+      const setClause = [];
+      const values = [];
+      let paramIndex = 1;
+
+      if (item.title !== undefined) {
+        setClause.push(`title = $${paramIndex++}`);
+        values.push(item.title);
+      }
+      if (item.url !== undefined) {
+        setClause.push(`url = $${paramIndex++}`);
+        values.push(item.url);
+      }
+      if (item.icon !== undefined) {
+        setClause.push(`icon = $${paramIndex++}`);
+        values.push(item.icon);
+      }
+      if (item.orderPosition !== undefined) {
+        setClause.push(`"order_position" = $${paramIndex++}`);
+        values.push(item.orderPosition);
+      }
+      if (item.active !== undefined) {
+        setClause.push(`active = $${paramIndex++}`);
+        values.push(item.active);
+      }
+
+      if (setClause.length === 0) {
+        return undefined;
+      }
+
+      values.push(id);
+      const query = `UPDATE menu_items SET ${setClause.join(', ')} WHERE id = $${paramIndex} RETURNING *`;
+      
+      const result = await client.query(query, values);
+      client.release();
+      return result.rows[0] || undefined;
+    } catch (error) {
+      console.error("Error updating menu item:", error);
+      return undefined;
+    }
+  }
+
+  async deleteMenuItem(id: number): Promise<boolean> {
+    try {
+      const client = await pool.connect();
+      const result = await client.query('DELETE FROM menu_items WHERE id = $1 RETURNING *', [id]);
+      client.release();
+      return result.rows.length > 0;
+    } catch (error) {
+      console.error("Error deleting menu item:", error);
+      return false;
     }
   }
 

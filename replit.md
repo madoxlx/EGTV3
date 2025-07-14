@@ -106,6 +106,17 @@ The application uses a comprehensive PostgreSQL schema with the following core e
 
 ## Recent Changes
 
+- **Complete Menu Management System Resolution (July 14, 2025)**: Successfully resolved critical menu item creation database error and restored full menu management functionality
+  - **Root Cause Analysis**: Missing `menu_items` table in Azure PostgreSQL database was causing "relation does not exist" errors
+  - **Database Schema Creation**: Created complete menu_items table with proper structure (id, menu_id, parent_id, title, url, icon, type, target, order_position, active, created_at, updated_at)
+  - **Field Mapping Fix**: Corrected field mapping inconsistency between schema definition (`orderPosition`) and insert validation (`order`) by updating insertMenuItemSchema to use `orderPosition`
+  - **Storage Layer Update**: Updated createMenuItem and updateMenuItem functions to use correct database column names (order_position instead of order)
+  - **API Endpoint Enhancement**: Added individual menu GET endpoint (`/api/menus/:id`) for complete menu management functionality
+  - **Complete CRUD Operations**: Verified all menu item operations working correctly - create, read, update, and delete
+  - **Error Handling**: Enhanced error logging and validation for better debugging and user feedback
+  - **Production Testing**: Successfully created, updated, and deleted menu items confirming full system functionality
+  - **Storage Interface**: All menu management storage methods (getMenuByName, getMenu, updateMenu, deleteMenu, getMenuItem, updateMenuItem, deleteMenuItem) fully implemented and operational
+
 - **Azure PostgreSQL Database Configuration Update (July 14, 2025)**: Successfully updated all database connection configurations to use consistent Azure PostgreSQL database
   - **Database URL Standardization**: Updated all server files to use `postgresql://egsite:Pass2020@74.179.85.9:5432/egsite_db?sslmode=disable`
   - **Configuration Files Updated**: Modified `server/index.ts`, `server/db.ts`, `server-node18.ts`, and `standalone-api-server.ts` for consistent database connection
