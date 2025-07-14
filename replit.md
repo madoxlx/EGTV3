@@ -106,6 +106,17 @@ The application uses a comprehensive PostgreSQL schema with the following core e
 
 ## Recent Changes
 
+- **Menu Items Reload Issue Resolution Complete (July 14, 2025)**: Successfully resolved menu items not reloading properly in NavigationManager component
+  - **Query Key Structure Fix**: Updated React Query cache keys from `['/api/menu-items', selectedMenu?.id]` to `['/api/menu-items/${selectedMenu?.id}']` to match API endpoint structure
+  - **Cache Invalidation Enhancement**: Fixed all mutation success handlers (create, update, delete) to use correct query key format for proper cache invalidation
+  - **Manual Refresh Button**: Added "Refresh" button next to "Add Item" button in Menu Items tab for manual data reload when needed
+  - **Automatic Refresh**: Implemented useEffect hook to automatically refresh menu items when different menu is selected
+  - **Error Handling Improvement**: Enhanced error handling to suppress 404 errors for already deleted menu items, preventing confusing error messages
+  - **Controlled Input Fix**: Added proper null checking in form state management to prevent controlled/uncontrolled input warnings
+  - **Delete Confirmation**: Added confirmation dialog for menu item deletion to prevent accidental deletions
+  - **Order Position Handling**: Improved orderPosition field handling to ensure proper default values during item creation
+  - **Production Ready**: Menu items now properly reload when switching menus, creating/updating/deleting items, and using manual refresh functionality
+
 - **Complete Menu Management System Resolution (July 14, 2025)**: Successfully resolved critical menu item creation database error and restored full menu management functionality
   - **Root Cause Analysis**: Missing `menu_items` table in Azure PostgreSQL database was causing "relation does not exist" errors
   - **Database Schema Creation**: Created complete menu_items table with proper structure (id, menu_id, parent_id, title, url, icon, type, target, order_position, active, created_at, updated_at)

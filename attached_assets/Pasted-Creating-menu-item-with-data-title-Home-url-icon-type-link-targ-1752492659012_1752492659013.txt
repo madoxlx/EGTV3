@@ -1,0 +1,96 @@
+Creating menu item with data: {
+  title: 'Home',
+  url: '/',
+  icon: '',
+  type: 'link',
+  target: '_self',
+  orderPosition: 1,
+  active: true,
+  menuId: 1
+}
+Validated menu item data: {
+  menuId: 1,
+  title: 'Home',
+  url: '/',
+  icon: '',
+  orderPosition: 1,
+  target: '_self',
+  active: true
+}
+Creating menu item with data: {
+  menuId: 1,
+  title: 'Home',
+  url: '/',
+  icon: '',
+  orderPosition: 1,
+  target: '_self',
+  active: true
+}
+Order value: undefined
+Menu item created successfully: {
+  id: 3,
+  menu_id: 1,
+  parent_id: null,
+  title: 'Home',
+  url: '/',
+  icon: null,
+  type: 'link',
+  target: '_self',
+  order_position: 1,
+  active: true,
+  created_at: 2025-07-14T11:26:23.929Z,
+  updated_at: 2025-07-14T11:26:23.929Z
+}
+Menu item created successfully: {
+  id: 3,
+  menu_id: 1,
+  parent_id: null,
+  title: 'Home',
+  url: '/',
+  icon: null,
+  type: 'link',
+  target: '_self',
+  order_position: 1,
+  active: true,
+  created_at: 2025-07-14T11:26:23.929Z,
+  updated_at: 2025-07-14T11:26:23.929Z
+}
+11:26:23 AM [express] POST /api/menu-items 201 in 32ms :: {"id":3,"menu_id":1,"parent_id":null,"title":"Home","url":"/","icon":null,"type":"link","target":"_self","order…
+📍 API Route Hit: GET /
+11:26:24 AM [express] GET /api/menu-items 200 in 4ms
+11:28:12 AM [vite] hmr update /src/pages/admin/NavigationManager.tsx, /src/index.css?v=tIjLgyz3Dir3hl84SgAXP
+11:28:21 AM [vite] hmr update /src/pages/admin/NavigationManager.tsx, /src/index.css?v=tIjLgyz3Dir3hl84SgAXP (x2)
+11:28:25 AM [express] GET /api/menu-items/1 200 in 14ms :: [{"id":1,"menu_id":1,"parent_id":null,"title":"Home Page","url":"/home","icon":null,"type":"link","target":"_s…
+11:28:29 AM [vite] hmr update /src/pages/admin/NavigationManager.tsx, /src/index.css?v=tIjLgyz3Dir3hl84SgAXP (x3)
+11:28:35 AM [vite] hmr update /src/pages/admin/NavigationManager.tsx, /src/index.css?v=tIjLgyz3Dir3hl84SgAXP (x4)
+11:28:42 AM [vite] hmr update /src/pages/admin/NavigationManager.tsx, /src/index.css?v=tIjLgyz3Dir3hl84SgAXP (x5)
+11:28:56 AM [vite] hmr update /src/pages/admin/NavigationManager.tsx, /src/index.css?v=tIjLgyz3Dir3hl84SgAXP (x6)
+11:29:01 AM [vite] hmr update /src/pages/admin/NavigationManager.tsx, /src/index.css?v=tIjLgyz3Dir3hl84SgAXP (x7)
+DEBUG: Looking for menu with location: header
+11:29:06 AM [express] GET /api/hero-slides/active 200 in 1ms :: [{"id":1,"title":"Welcome to Sahara Journeys","subtitle":"Discover the Magic of the Middle East","descrip…
+DEBUG: Found menu: {
+  id: 1,
+  name: 'Main Navigation',
+  location: 'header',
+  description: 'Main site navigation menu',
+  active: true,
+  createdAt: 2025-07-14T11:09:20.154Z,
+  updatedAt: 2025-07-14T11:09:20.154Z
+}
+11:29:06 AM [express] GET /api/countries 200 in 13ms :: [{"id":1,"name":"Egypt","code":"EG","description":"A country linking northeast Africa with the Middle East, dates…
+11:29:06 AM [express] GET /api/tour-categories 200 in 13ms :: [{"id":1,"name":"Advanture","description":"Advanture","created_at":"2025-07-14T08:47:40.519Z","active":true…
+11:29:06 AM [express] GET /api/menus/location/header 200 in 25ms :: {"menu":{"id":1,"name":"Main Navigation","location":"header","description":"Main site navigation menu…
+11:29:06 AM [express] GET /api/destinations 200 in 12ms :: [{"id":3,"name":"Baa Atoll","country":"","countryId":23,"cityId":19,"description":"Situated on the west of the…
+11:29:06 AM [express] GET /api/cities 200 in 13ms :: [{"id":5,"name":"Abu Dhabi","countryId":2,"description":"The capital of the UAE, known for its cultural landmarks an…
+DEBUG: Looking for menu with location: footer
+11:29:07 AM [express] GET /api/packages 200 in 13ms :: []
+DEBUG: Found menu: undefined
+11:29:07 AM [express] GET /api/menus/location/footer 404 in 12ms :: {"message":"Menu not found for this location"}
+11:29:07 AM [express] GET /api/translations 200 in 12ms :: [{"id":1,"key":"asasa","enText":"dasdasd","arText":"asdasdasdas","context":"dasda","category":"sdsddsds","crea…
+11:29:07 AM [express] GET /api/translations/settings 200 in 16ms :: {"id":1,"default_language":"en","available_languages":["en","ar"],"rtl_languages":["ar"],"auto_transl…
+11:29:08 AM [vite] hmr update /src/pages/admin/NavigationManager.tsx, /src/index.css?v=tIjLgyz3Dir3hl84SgAXP (x8)
+11:30:19 AM [express] GET /api/menu-items/1 304 in 11ms :: [{"id":1,"menu_id":1,"parent_id":null,"title":"Home Page","url":"/home","icon":null,"type":"link","target":"_s…
+11:30:28 AM [express] DELETE /api/menu-items/1 204 in 26ms
+11:30:30 AM [express] DELETE /api/menu-items/3 204 in 30ms
+11:30:37 AM [express] DELETE /api/menu-items/1 404 in 12ms :: {"message":"Menu item not found"}
+11:30:54 AM [express] PUT /api/menu-items/3 404 in 12ms :: {"message":"Menu item not found"}

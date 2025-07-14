@@ -182,11 +182,14 @@ export default function NavigationManager() {
       });
     },
     onError: (error) => {
-      toast({
-        title: "Error",
-        description: error.message || "Failed to update menu item",
-        variant: "destructive",
-      });
+      // Only show error if it's not a 404 (item already deleted)
+      if (!error.message?.includes('Menu item not found')) {
+        toast({
+          title: "Error",
+          description: error.message || "Failed to update menu item",
+          variant: "destructive",
+        });
+      }
     }
   });
 
@@ -202,11 +205,14 @@ export default function NavigationManager() {
       });
     },
     onError: (error) => {
-      toast({
-        title: "Error",
-        description: error.message || "Failed to delete menu item",
-        variant: "destructive",
-      });
+      // Only show error if it's not a 404 (item already deleted)
+      if (!error.message?.includes('Menu item not found')) {
+        toast({
+          title: "Error",
+          description: error.message || "Failed to delete menu item",
+          variant: "destructive",
+        });
+      }
     }
   });
 
@@ -233,7 +239,13 @@ export default function NavigationManager() {
 
   const handleCreateItem = () => {
     if (selectedMenu) {
-      createItemMutation.mutate({ ...itemForm, menuId: selectedMenu.id });
+      const itemData = {
+        ...itemForm,
+        menuId: selectedMenu.id,
+        // Ensure orderPosition is properly set
+        orderPosition: itemForm.orderPosition || 1
+      };
+      createItemMutation.mutate(itemData);
     }
   };
 
@@ -245,13 +257,13 @@ export default function NavigationManager() {
 
   const handleEditItem = (item: MenuItem) => {
     setItemForm({
-      title: item.title,
+      title: item.title || '',
       url: item.url || '',
       icon: item.icon || '',
       type: item.type || 'link',
       target: item.target || '_self',
-      orderPosition: item.orderPosition,
-      active: item.active
+      orderPosition: item.orderPosition || 1,
+      active: item.active !== undefined ? item.active : true
     });
     setEditingItem(item);
     setIsItemDialogOpen(true);
@@ -436,7 +448,11 @@ export default function NavigationManager() {
                         <Button
                           variant="outline"
                           size="sm"
-                          onClick={() => deleteItemMutation.mutate(item.id)}
+                          onClick={() => {
+                            if (window.confirm('Are you sure you want to delete this menu item?')) {
+                              deleteItemMutation.mutate(item.id);
+                            }
+                          }}
                           disabled={deleteItemMutation.isPending}
                         >
                           <Trash2 className="w-4 h-4" />
