@@ -639,14 +639,14 @@ export default function NavigationManager() {
             <div>
               <Label htmlFor="parent">Parent Item</Label>
               <Select 
-                value={itemForm.parentId?.toString() || ''} 
-                onValueChange={(value) => setItemForm({ ...itemForm, parentId: value ? parseInt(value) : null })}
+                value={itemForm.parentId?.toString() || 'none'} 
+                onValueChange={(value) => setItemForm({ ...itemForm, parentId: value === 'none' ? null : parseInt(value) })}
               >
                 <SelectTrigger>
                   <SelectValue placeholder="Select parent item (optional)" />
                 </SelectTrigger>
                 <SelectContent>
-                  <SelectItem value="">None (Top Level)</SelectItem>
+                  <SelectItem value="none">None (Top Level)</SelectItem>
                   {menuItems
                     .filter(item => !editingItem || item.id !== editingItem.id) // Don't show self as parent
                     .map(item => (
