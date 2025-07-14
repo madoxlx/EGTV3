@@ -174,6 +174,16 @@ export default function CreateTour() {
     },
   });
 
+  // Add debugging for tour categories
+  React.useEffect(() => {
+    console.log("Tour categories query state:", {
+      isLoading: tourCategoriesQuery.isLoading,
+      error: tourCategoriesQuery.error,
+      data: tourCategoriesQuery.data,
+      isSuccess: tourCategoriesQuery.isSuccess,
+    });
+  }, [tourCategoriesQuery.isLoading, tourCategoriesQuery.error, tourCategoriesQuery.data]);
+
   // Create tour mutation
   const createTourMutation = useMutation({
     mutationFn: async (data: TourFormValues) => {
@@ -627,8 +637,11 @@ export default function CreateTour() {
                           <FormItem>
                             <FormLabel>Category</FormLabel>
                             <Select
-                              onValueChange={field.onChange}
-                              value={field.value}
+                              onValueChange={(value) => {
+                                console.log("Category selected:", value);
+                                field.onChange(value);
+                              }}
+                              value={field.value || ""}
                             >
                               <FormControl>
                                 <SelectTrigger>
@@ -636,14 +649,31 @@ export default function CreateTour() {
                                 </SelectTrigger>
                               </FormControl>
                               <SelectContent>
-                                {tourCategoriesQuery.data?.map((category) => (
-                                  <SelectItem
-                                    key={category.id}
-                                    value={category.id.toString()}
-                                  >
-                                    {category.name}
+                                {tourCategoriesQuery.isLoading ? (
+                                  <SelectItem value="loading" disabled>
+                                    Loading categories...
                                   </SelectItem>
-                                ))}
+                                ) : tourCategoriesQuery.error ? (
+                                  <SelectItem value="error" disabled>
+                                    Error loading categories: {tourCategoriesQuery.error.message}
+                                  </SelectItem>
+                                ) : tourCategoriesQuery.data && tourCategoriesQuery.data.length > 0 ? (
+                                  tourCategoriesQuery.data.map((category) => {
+                                    console.log("Rendering category:", category);
+                                    return (
+                                      <SelectItem
+                                        key={`category-${category.id}`}
+                                        value={category.id.toString()}
+                                      >
+                                        {category.name}
+                                      </SelectItem>
+                                    );
+                                  })
+                                ) : (
+                                  <SelectItem value="no-data" disabled>
+                                    No categories available (Data: {JSON.stringify(tourCategoriesQuery.data)})
+                                  </SelectItem>
+                                )}
                               </SelectContent>
                             </Select>
                             <FormMessage />
