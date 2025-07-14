@@ -14,7 +14,25 @@ async function createTables() {
       ssl: DATABASE_URL.includes("localhost") ? false : "require",
     });
 
-    // Create tables using raw SQL
+    // Create users table first (required for authentication)
+    await client`
+      CREATE TABLE IF NOT EXISTS users (
+        id SERIAL PRIMARY KEY,
+        username VARCHAR(255) NOT NULL UNIQUE,
+        password VARCHAR(255) NOT NULL,
+        email VARCHAR(255) UNIQUE,
+        role VARCHAR(50) DEFAULT 'user',
+        display_name VARCHAR(255),
+        first_name VARCHAR(255),
+        last_name VARCHAR(255),
+        profile_image VARCHAR(255),
+        active BOOLEAN DEFAULT true,
+        created_at TIMESTAMP DEFAULT NOW(),
+        updated_at TIMESTAMP DEFAULT NOW()
+      );
+    `;
+
+    // Create menus table
     await client`
       CREATE TABLE IF NOT EXISTS menus (
         id SERIAL PRIMARY KEY,
@@ -27,6 +45,7 @@ async function createTables() {
       );
     `;
 
+    // Create menu_items table
     await client`
       CREATE TABLE IF NOT EXISTS menu_items (
         id SERIAL PRIMARY KEY,
@@ -83,8 +102,22 @@ async function createTables() {
       }
     }
 
+    // Create admin user if not exists
+    const existingAdmin = await client`
+      SELECT id FROM users WHERE username = 'admin' LIMIT 1;
+    `;
+
+    if (existingAdmin.length === 0) {
+      console.log("Creating admin user...");
+      await client`
+        INSERT INTO users (username, password, email, role, display_name) VALUES
+        ('admin', '$scrypt$N=32768,r=8,p=1$lQOdhSfdNNxKfpNUbKCzVA$aEpGOvs3hXSBtEGlrFKzQKIrqBRmJhAqwuXTBBt8hGg', 'admin@saharajourneys.com', 'admin', 'Administrator');
+      `;
+      console.log("Admin user created successfully!");
+    }
+
     await client.end();
-    console.log("Footer menu setup complete");
+    console.log("Database setup complete");
   } catch (error) {
     console.error("Error creating tables:", error);
   }
