@@ -38,7 +38,11 @@ import {
   Layout,
   Globe,
   Languages,
-  Settings
+  Settings,
+  Award,
+  Image,
+  Users,
+  Target
 } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import { DashboardLayout } from '@/components/dashboard/DashboardLayout';
@@ -92,6 +96,48 @@ const iconOptions = [
   { value: 'layout', label: 'Layout', icon: Layout },
 ];
 
+// Section type templates
+const sectionTypeTemplates = {
+  'why-choose-us': {
+    title: 'Why Choose Egypt Express TVL',
+    subtitle: 'Your Trusted Travel Partner',
+    description: 'Experience the best of Egypt with our expert guides and premium services. We offer unmatched value and unforgettable memories.',
+    imageUrl: 'https://images.unsplash.com/photo-1544551763-46a013bb70d5?w=600&h=400&fit=crop',
+    buttonText: 'Discover More',
+    buttonLink: '/about',
+    showStatistics: true,
+    showFeatures: true,
+    feature1Title: 'Expert Local Guides',
+    feature1Description: 'Professional guides with deep local knowledge',
+    feature1Icon: 'user-check',
+    feature2Title: 'Premium Service',
+    feature2Description: '24/7 customer support and quality assurance',
+    feature2Icon: 'star',
+    imagePosition: 'left' as const,
+    backgroundColor: 'white',
+    textColor: 'black',
+  },
+  'image-captions': {
+    title: 'Discover Egypt\'s Wonders',
+    subtitle: 'Ancient History Meets Modern Luxury',
+    description: 'Explore magnificent temples, sail the legendary Nile River, and experience the vibrant culture of Egypt with our carefully curated travel experiences.',
+    imageUrl: 'https://images.unsplash.com/photo-1544551763-46a013bb70d5?w=600&h=400&fit=crop',
+    buttonText: 'View Gallery',
+    buttonLink: '/gallery',
+    showStatistics: false,
+    showFeatures: false,
+    feature1Title: '',
+    feature1Description: '',
+    feature1Icon: 'image',
+    feature2Title: '',
+    feature2Description: '',
+    feature2Icon: 'eye',
+    imagePosition: 'right' as const,
+    backgroundColor: 'gray-50',
+    textColor: 'black',
+  }
+};
+
 const HomepageSectionsManagement: React.FC = () => {
   const { t, language, isRTL } = useLanguage();
   const { toast } = useToast();
@@ -100,6 +146,8 @@ const HomepageSectionsManagement: React.FC = () => {
   const [selectedSection, setSelectedSection] = useState<HomepageSection | null>(null);
   const [isDialogOpen, setIsDialogOpen] = useState(false);
   const [isEditing, setIsEditing] = useState(false);
+  const [isSectionTypeDialogOpen, setIsSectionTypeDialogOpen] = useState(false);
+  const [selectedSectionType, setSelectedSectionType] = useState<'why-choose-us' | 'image-captions' | null>(null);
   const [formData, setFormData] = useState<Partial<HomepageSection>>({
     title: '',
     subtitle: '',
@@ -202,14 +250,8 @@ const HomepageSectionsManagement: React.FC = () => {
     },
   });
 
-  const resetForm = () => {
-    setFormData({
-      title: '',
-      subtitle: '',
-      description: '',
-      imageUrl: '',
-      buttonText: '',
-      buttonLink: '',
+  const resetForm = (sectionType?: 'why-choose-us' | 'image-captions') => {
+    const baseData = {
       touristsCount: '5000+',
       destinationsCount: '300+',
       hotelsCount: '150+',
@@ -219,22 +261,49 @@ const HomepageSectionsManagement: React.FC = () => {
       touristsLabelAr: 'السياح',
       destinationsLabelAr: 'الوجهات',
       hotelsLabelAr: 'الفنادق',
-      feature1Title: 'Flexible Booking',
-      feature1Description: 'Free cancellation options available',
-      feature1Icon: 'calendar',
-      feature2Title: 'Expert Guides',
-      feature2Description: 'Local, knowledgeable tour guides',
-      feature2Icon: 'user-check',
       order: 0,
       active: true,
-      showStatistics: true,
-      showFeatures: true,
-      imagePosition: 'left',
-      backgroundColor: 'white',
-      textColor: 'black',
-    });
+      titleAr: '',
+      subtitleAr: '',
+      descriptionAr: '',
+      buttonTextAr: '',
+      feature1TitleAr: '',
+      feature1DescriptionAr: '',
+      feature2TitleAr: '',
+      feature2DescriptionAr: '',
+    };
+
+    if (sectionType && sectionTypeTemplates[sectionType]) {
+      setFormData({
+        ...baseData,
+        ...sectionTypeTemplates[sectionType],
+      });
+    } else {
+      setFormData({
+        ...baseData,
+        title: '',
+        subtitle: '',
+        description: '',
+        imageUrl: '',
+        buttonText: '',
+        buttonLink: '',
+        feature1Title: 'Flexible Booking',
+        feature1Description: 'Free cancellation options available',
+        feature1Icon: 'calendar',
+        feature2Title: 'Expert Guides',
+        feature2Description: 'Local, knowledgeable tour guides',
+        feature2Icon: 'user-check',
+        showStatistics: true,
+        showFeatures: true,
+        imagePosition: 'left',
+        backgroundColor: 'white',
+        textColor: 'black',
+      });
+    }
+    
     setIsEditing(false);
     setSelectedSection(null);
+    setSelectedSectionType(null);
   };
 
   const handleSubmit = () => {
@@ -262,7 +331,13 @@ const HomepageSectionsManagement: React.FC = () => {
   };
 
   const handleCreate = () => {
-    resetForm();
+    setIsSectionTypeDialogOpen(true);
+  };
+
+  const handleSectionTypeSelect = (sectionType: 'why-choose-us' | 'image-captions') => {
+    setSelectedSectionType(sectionType);
+    resetForm(sectionType);
+    setIsSectionTypeDialogOpen(false);
     setIsDialogOpen(true);
   };
 
@@ -846,6 +921,87 @@ const HomepageSectionsManagement: React.FC = () => {
                 disabled={createMutation.isPending || updateMutation.isPending}
               >
                 {createMutation.isPending || updateMutation.isPending ? 'Saving...' : 'Save'}
+              </Button>
+            </div>
+          </DialogContent>
+        </Dialog>
+
+        {/* Section Type Selection Dialog */}
+        <Dialog open={isSectionTypeDialogOpen} onOpenChange={setIsSectionTypeDialogOpen}>
+          <DialogContent className="max-w-2xl">
+            <DialogHeader>
+              <DialogTitle>Choose Section Type</DialogTitle>
+            </DialogHeader>
+            
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-6 py-6">
+              {/* Why Choose Us Section */}
+              <Card 
+                className="cursor-pointer hover:shadow-lg transition-all duration-200 border-2 hover:border-blue-500"
+                onClick={() => handleSectionTypeSelect('why-choose-us')}
+              >
+                <CardHeader className="text-center">
+                  <div className="mx-auto w-16 h-16 bg-blue-100 rounded-full flex items-center justify-center mb-4">
+                    <Award className="w-8 h-8 text-blue-600" />
+                  </div>
+                  <CardTitle className="text-xl">Why Choose Us</CardTitle>
+                </CardHeader>
+                <CardContent className="text-center">
+                  <p className="text-gray-600 mb-4">
+                    Perfect for highlighting your company's unique value propositions and competitive advantages.
+                  </p>
+                  <div className="space-y-2 text-sm text-left">
+                    <div className="flex items-center gap-2">
+                      <Users className="w-4 h-4 text-green-500" />
+                      <span>Statistics display (tourists, destinations, hotels)</span>
+                    </div>
+                    <div className="flex items-center gap-2">
+                      <Star className="w-4 h-4 text-green-500" />
+                      <span>Feature highlights with icons</span>
+                    </div>
+                    <div className="flex items-center gap-2">
+                      <Target className="w-4 h-4 text-green-500" />
+                      <span>Trust-building content</span>
+                    </div>
+                  </div>
+                </CardContent>
+              </Card>
+
+              {/* Image and Captions Section */}
+              <Card 
+                className="cursor-pointer hover:shadow-lg transition-all duration-200 border-2 hover:border-green-500"
+                onClick={() => handleSectionTypeSelect('image-captions')}
+              >
+                <CardHeader className="text-center">
+                  <div className="mx-auto w-16 h-16 bg-green-100 rounded-full flex items-center justify-center mb-4">
+                    <Image className="w-8 h-8 text-green-600" />
+                  </div>
+                  <CardTitle className="text-xl">Image & Captions</CardTitle>
+                </CardHeader>
+                <CardContent className="text-center">
+                  <p className="text-gray-600 mb-4">
+                    Ideal for showcasing destinations, experiences, or visual storytelling with compelling imagery.
+                  </p>
+                  <div className="space-y-2 text-sm text-left">
+                    <div className="flex items-center gap-2">
+                      <Image className="w-4 h-4 text-green-500" />
+                      <span>Visual-focused layout</span>
+                    </div>
+                    <div className="flex items-center gap-2">
+                      <Eye className="w-4 h-4 text-green-500" />
+                      <span>Clean, caption-style presentation</span>
+                    </div>
+                    <div className="flex items-center gap-2">
+                      <Layout className="w-4 h-4 text-green-500" />
+                      <span>Gallery or showcase oriented</span>
+                    </div>
+                  </div>
+                </CardContent>
+              </Card>
+            </div>
+
+            <div className="flex justify-center pt-4">
+              <Button variant="outline" onClick={() => setIsSectionTypeDialogOpen(false)}>
+                Cancel
               </Button>
             </div>
           </DialogContent>
