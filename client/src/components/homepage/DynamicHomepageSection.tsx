@@ -89,7 +89,7 @@ const DynamicHomepageSection: React.FC<DynamicHomepageSectionProps> = ({ section
                     <div className="flex items-center gap-2">
                       <div className="w-3 h-3 bg-blue-600 rounded-full"></div>
                       <div>
-                        <p className="text-sm font-medium text-gray-900">{t('homepage.tourists', 'Tourists')}</p>
+                        <p className="text-sm font-medium text-gray-900">{getLocalizedText(section.touristsLabel || 'Tourists', section.touristsLabelAr || 'السياح')}</p>
                         <p className="text-lg font-bold text-gray-900">{section.touristsCount}</p>
                       </div>
                     </div>
@@ -99,7 +99,7 @@ const DynamicHomepageSection: React.FC<DynamicHomepageSectionProps> = ({ section
                     <div className="flex items-center gap-2">
                       <div className="w-3 h-3 bg-green-600 rounded-full"></div>
                       <div>
-                        <p className="text-sm font-medium text-gray-900">{t('homepage.destinations', 'Destinations')}</p>
+                        <p className="text-sm font-medium text-gray-900">{getLocalizedText(section.destinationsLabel || 'Destinations', section.destinationsLabelAr || 'الوجهات')}</p>
                         <p className="text-lg font-bold text-gray-900">{section.destinationsCount}</p>
                       </div>
                     </div>
@@ -109,7 +109,7 @@ const DynamicHomepageSection: React.FC<DynamicHomepageSectionProps> = ({ section
                     <div className="flex items-center gap-2">
                       <div className="w-3 h-3 bg-orange-600 rounded-full"></div>
                       <div>
-                        <p className="text-sm font-medium text-gray-900">{t('homepage.hotels', 'Hotels')}</p>
+                        <p className="text-sm font-medium text-gray-900">{getLocalizedText(section.hotelsLabel || 'Hotels', section.hotelsLabelAr || 'الفنادق')}</p>
                         <p className="text-lg font-bold text-gray-900">{section.hotelsCount}</p>
                       </div>
                     </div>

@@ -55,6 +55,12 @@ interface HomepageSection {
   touristsCount?: string;
   destinationsCount?: string;
   hotelsCount?: string;
+  touristsLabel?: string;
+  destinationsLabel?: string;
+  hotelsLabel?: string;
+  touristsLabelAr?: string;
+  destinationsLabelAr?: string;
+  hotelsLabelAr?: string;
   feature1Title?: string;
   feature1Description?: string;
   feature1Icon?: string;
@@ -104,6 +110,12 @@ const HomepageSectionsManagement: React.FC = () => {
     touristsCount: '5000+',
     destinationsCount: '300+',
     hotelsCount: '150+',
+    touristsLabel: 'Tourists',
+    destinationsLabel: 'Destinations',
+    hotelsLabel: 'Hotels',
+    touristsLabelAr: 'السياح',
+    destinationsLabelAr: 'الوجهات',
+    hotelsLabelAr: 'الفنادق',
     feature1Title: 'Flexible Booking',
     feature1Description: 'Free cancellation options available',
     feature1Icon: 'calendar',
@@ -201,6 +213,12 @@ const HomepageSectionsManagement: React.FC = () => {
       touristsCount: '5000+',
       destinationsCount: '300+',
       hotelsCount: '150+',
+      touristsLabel: 'Tourists',
+      destinationsLabel: 'Destinations',
+      hotelsLabel: 'Hotels',
+      touristsLabelAr: 'السياح',
+      destinationsLabelAr: 'الوجهات',
+      hotelsLabelAr: 'الفنادق',
       feature1Title: 'Flexible Booking',
       feature1Description: 'Free cancellation options available',
       feature1Icon: 'calendar',
@@ -469,6 +487,75 @@ const HomepageSectionsManagement: React.FC = () => {
                       onChange={(e) => setFormData({ ...formData, hotelsCount: e.target.value })}
                       placeholder="e.g., 150+"
                     />
+                  </div>
+                </div>
+
+                <div className="space-y-4">
+                  <h3 className="text-lg font-semibold">Statistics Labels (English)</h3>
+                  <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                    <div>
+                      <Label htmlFor="touristsLabel" className="text-[#000000] hover:text-[#000000]">Tourists Label</Label>
+                      <Input
+                        id="touristsLabel"
+                        value={formData.touristsLabel}
+                        onChange={(e) => setFormData({ ...formData, touristsLabel: e.target.value })}
+                        placeholder="e.g., Tourists"
+                      />
+                    </div>
+                    <div>
+                      <Label htmlFor="destinationsLabel" className="text-[#000000] hover:text-[#000000]">Destinations Label</Label>
+                      <Input
+                        id="destinationsLabel"
+                        value={formData.destinationsLabel}
+                        onChange={(e) => setFormData({ ...formData, destinationsLabel: e.target.value })}
+                        placeholder="e.g., Destinations"
+                      />
+                    </div>
+                    <div>
+                      <Label htmlFor="hotelsLabel" className="text-[#000000] hover:text-[#000000]">Hotels Label</Label>
+                      <Input
+                        id="hotelsLabel"
+                        value={formData.hotelsLabel}
+                        onChange={(e) => setFormData({ ...formData, hotelsLabel: e.target.value })}
+                        placeholder="e.g., Hotels"
+                      />
+                    </div>
+                  </div>
+                </div>
+
+                <div className="space-y-4">
+                  <h3 className="text-lg font-semibold">Statistics Labels (Arabic)</h3>
+                  <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                    <div>
+                      <Label htmlFor="touristsLabelAr" className="text-[#000000] hover:text-[#000000]">Tourists Label (Arabic)</Label>
+                      <Input
+                        id="touristsLabelAr"
+                        value={formData.touristsLabelAr}
+                        onChange={(e) => setFormData({ ...formData, touristsLabelAr: e.target.value })}
+                        placeholder="مثال: السياح"
+                        dir="rtl"
+                      />
+                    </div>
+                    <div>
+                      <Label htmlFor="destinationsLabelAr" className="text-[#000000] hover:text-[#000000]">Destinations Label (Arabic)</Label>
+                      <Input
+                        id="destinationsLabelAr"
+                        value={formData.destinationsLabelAr}
+                        onChange={(e) => setFormData({ ...formData, destinationsLabelAr: e.target.value })}
+                        placeholder="مثال: الوجهات"
+                        dir="rtl"
+                      />
+                    </div>
+                    <div>
+                      <Label htmlFor="hotelsLabelAr" className="text-[#000000] hover:text-[#000000]">Hotels Label (Arabic)</Label>
+                      <Input
+                        id="hotelsLabelAr"
+                        value={formData.hotelsLabelAr}
+                        onChange={(e) => setFormData({ ...formData, hotelsLabelAr: e.target.value })}
+                        placeholder="مثال: الفنادق"
+                        dir="rtl"
+                      />
+                    </div>
                   </div>
                 </div>
 

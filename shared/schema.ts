@@ -150,6 +150,14 @@ export const homepageSections = pgTable("homepage_sections", {
   destinationsCount: text("destinations_count").default("300+"),
   hotelsCount: text("hotels_count").default("150+"),
   
+  // Statistics labels for translation
+  touristsLabel: text("tourists_label").default("Tourists"),
+  destinationsLabel: text("destinations_label").default("Destinations"),
+  hotelsLabel: text("hotels_label").default("Hotels"),
+  touristsLabelAr: text("tourists_label_ar").default("السياح"),
+  destinationsLabelAr: text("destinations_label_ar").default("الوجهات"),
+  hotelsLabelAr: text("hotels_label_ar").default("الفنادق"),
+  
   // Feature highlights
   feature1Title: text("feature1_title").default("Flexible Booking"),
   feature1Description: text("feature1_description").default("Free cancellation options available"),

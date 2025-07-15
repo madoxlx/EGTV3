@@ -106,6 +106,16 @@ The application uses a comprehensive PostgreSQL schema with the following core e
 
 ## Recent Changes
 
+- **Statistics Labels Translation Implementation Complete (July 15, 2025)**: Successfully added editable translation fields for floating statistics elements (Hotels, Destinations, Tourists) in homepage sections management
+  - **Database Schema Enhancement**: Added 6 new fields to homepage_sections table: tourists_label, destinations_label, hotels_label, tourists_label_ar, destinations_label_ar, hotels_label_ar
+  - **Admin Form Enhancement**: Updated HomepageSectionsManagement.tsx with dedicated sections for English and Arabic statistics labels with proper RTL support
+  - **Frontend Integration**: Modified DynamicHomepageSection.tsx to use dynamic labels from database instead of hardcoded text
+  - **Migration Script**: Created add-statistics-labels-translations.ts to safely add new database columns with default values
+  - **Label Customization**: Administrators can now customize statistics labels in both English and Arabic languages from the admin interface
+  - **Consistent UI**: Added black text color (#000000) with hover persistence for all new form labels
+  - **Default Values**: Pre-populated with appropriate defaults (Tourists/السياح, Destinations/الوجهات, Hotels/الفنادق)
+  - **Data Integrity**: Existing homepage sections automatically updated with default label values
+
 - **Dynamic Homepage Sections System Implementation Complete (July 14, 2025)**: Successfully created comprehensive dynamic homepage component system allowing unlimited customizable content sections with full administrative management capabilities
   - **Complete Database Schema**: Created homepage_sections table with 28 fields supporting multilingual content, statistics, features, and advanced display settings
   - **Full CRUD Operations**: Implemented complete create, read, update, delete functionality through storage interface and API endpoints
