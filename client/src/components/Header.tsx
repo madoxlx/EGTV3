@@ -40,6 +40,7 @@ import { cn } from "@/lib/utils";
 const Header: React.FC = () => {
   const [isMenuOpen, setIsMenuOpen] = React.useState(false);
   const [expandedMobileMenus, setExpandedMobileMenus] = React.useState<Record<number, boolean>>({});
+  const [openDropdowns, setOpenDropdowns] = React.useState<Record<number, boolean>>({});
   const [location] = useLocation();
   const { cartItems } = useCart();
 
@@ -103,7 +104,12 @@ const Header: React.FC = () => {
               ))}
             </div>
           ) : (
-            <NavigationMenu>
+            <NavigationMenu 
+              onValueChange={(value) => {
+                // Track which dropdown is open
+                console.log('Navigation state changed:', value);
+              }}
+            >
               <NavigationMenuList className={`flex ${isRTL ? 'space-x-reverse' : ''} space-x-2`}>
                 {menuItems?.map((item) => (
                   <NavigationMenuItem key={item.id}>
