@@ -67,7 +67,7 @@ const DynamicHomepageSection: React.FC<DynamicHomepageSectionProps> = ({ section
 
   return (
     <section 
-      className={`py-16 ${backgroundColor === 'white' ? 'bg-white' : backgroundColor === 'gray' ? 'bg-gray-50' : 'bg-blue-50'}`}
+      className={`py-16 ${backgroundColor === 'white' ? 'bg-white' : backgroundColor === 'gray' ? 'bg-gray-50' : 'bg-[#ededed]'}`}
       style={{ color: textColor }}
     >
       <div className="container mx-auto px-4">
