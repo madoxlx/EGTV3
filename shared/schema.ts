@@ -8,6 +8,7 @@ import {
   boolean,
   timestamp,
   json,
+  jsonb,
 } from "drizzle-orm/pg-core";
 import { relations } from "drizzle-orm";
 import { createInsertSchema } from "drizzle-zod";
@@ -158,7 +159,7 @@ export const homepageSections = pgTable("homepage_sections", {
   destinationsLabelAr: text("destinations_label_ar").default("الوجهات"),
   hotelsLabelAr: text("hotels_label_ar").default("الفنادق"),
   
-  // Feature highlights
+  // Feature highlights (legacy - keeping for backward compatibility)
   feature1Title: text("feature1_title").default("Flexible Booking"),
   feature1Description: text("feature1_description").default("Free cancellation options available"),
   feature1Icon: text("feature1_icon").default("calendar"),
@@ -166,6 +167,15 @@ export const homepageSections = pgTable("homepage_sections", {
   feature2Title: text("feature2_title").default("Expert Guides"),
   feature2Description: text("feature2_description").default("Local, knowledgeable tour guides"),
   feature2Icon: text("feature2_icon").default("user-check"),
+  
+  // Dynamic features array (supports unlimited features)
+  features: jsonb("features").default([]).$type<Array<{
+    title: string;
+    description: string;
+    icon: string;
+    titleAr?: string;
+    descriptionAr?: string;
+  }>>(),
   
   // Arabic translations
   titleAr: text("title_ar"),
