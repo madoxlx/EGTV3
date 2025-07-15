@@ -331,8 +331,8 @@
     --secondary-foreground: 222.2 47.4% 11.2%;
     --muted: 210 40% 96.1%;
     --muted-foreground: 215.4 16.3% 46.9%;
-    --accent: 47 96 136; /* Custom blue accent for open states */
-    --accent-foreground: 255 255 255; /* White text on accent */
+    --accent: 207 60% 37%;
+    --accent-foreground: 210 40% 98%;
     --destructive: 0 84.2% 60.2%;
     --destructive-foreground: 210 40% 98%;
     --border: 214.3 31.8% 91.4%;
@@ -392,26 +392,6 @@
 
 [data-state="inactive"] {
   animation: fadeOut 0.3s ease-in-out;
-}
-
-/* Custom navigation dropdown styles */
-[data-state="open"]:hover {
-  background-color: hsl(var(--accent)) !important;
-  color: hsl(var(--accent-foreground)) !important;
-  transition: all 0.2s ease-in-out;
-}
-
-/* Alternative styling for open navigation items */
-[data-radix-navigation-menu-trigger][data-state="open"]:hover {
-  background-color: hsl(var(--primary)) !important;
-  color: hsl(var(--primary-foreground)) !important;
-}
-
-/* Custom background for open dropdown content */
-[data-radix-navigation-menu-content][data-state="open"] {
-  background-color: hsl(var(--card));
-  border: 1px solid hsl(var(--border));
-  box-shadow: 0 4px 6px -1px rgb(0 0 0 / 0.1);
 }
 
 /* Make sure content is visible during animation for smooth tab transitions */

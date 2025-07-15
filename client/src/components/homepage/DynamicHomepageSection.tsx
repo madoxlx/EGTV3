@@ -67,7 +67,7 @@ const DynamicHomepageSection: React.FC<DynamicHomepageSectionProps> = ({ section
 
   return (
     <section 
-      className={`py-16 ${backgroundColor === 'white' ? 'bg-white' : backgroundColor === 'gray' ? 'bg-gray-50' : 'bg-[#ededed]'}`}
+      className={`py-16 ${backgroundColor === 'white' ? 'bg-white' : backgroundColor === 'gray' ? 'bg-gray-50' : 'bg-blue-50'}`}
       style={{ color: textColor }}
     >
       <div className="container mx-auto px-4">
@@ -123,7 +123,7 @@ const DynamicHomepageSection: React.FC<DynamicHomepageSectionProps> = ({ section
           <div className={`${isImageLeft ? 'lg:order-2' : 'lg:order-1'}`}>
             <div className="space-y-6">
               <div>
-                <h2 className="text-4xl font-bold leading-tight mb-4 text-[#000000]">
+                <h2 className="text-4xl font-bold leading-tight mb-4">
                   {getLocalizedText(section.title, section.titleAr)}
                 </h2>
                 
