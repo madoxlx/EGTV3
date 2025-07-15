@@ -391,6 +391,30 @@ const HomepageSectionsManagement: React.FC = () => {
     setIsSectionTypeDialogOpen(false);
     
     if (sectionType === 'why-choose-us') {
+      // Reset to the default 3 features when opening the form
+      setDynamicFeatures([
+        {
+          title: 'Tailored and Reliable Service',
+          description: 'We provide customized travel, timely transfers, and seamless plans.',
+          icon: 'shield-check',
+          titleAr: 'خدمة مخصصة وموثوقة',
+          descriptionAr: 'نقدم سفر مخصص ونقل في الوقت المناسب وخطط سلسة.'
+        },
+        {
+          title: 'Exceptional Expertise and Comfort',
+          description: 'Experience seamless travel with expert guides, skilled drivers, and reliable vehicles.',
+          icon: 'users',
+          titleAr: 'خبرة استثنائية وراحة',
+          descriptionAr: 'استمتع بسفر سلس مع مرشدين خبراء وسائقين ماهرين ومركبات موثوقة.'
+        },
+        {
+          title: 'Transparent and Competitive Pricing',
+          description: 'Enjoy premium services at transparent, fair rates for a stress-free journey.',
+          icon: 'dollar-sign',
+          titleAr: 'أسعار شفافة وتنافسية',
+          descriptionAr: 'استمتع بخدمات مميزة بأسعار شفافة وعادلة لرحلة خالية من التوتر.'
+        }
+      ]);
       // Open the special Why Choose Us form
       setIsWhyChooseUsFormOpen(true);
     } else {
@@ -575,6 +599,9 @@ const HomepageSectionsManagement: React.FC = () => {
               <DialogTitle>
                 {isEditing ? 'Edit Homepage Section' : 'Create Homepage Section'}
               </DialogTitle>
+              <DialogDescription>
+                Configure the content and settings for your homepage section. Fill in the required fields and customize the appearance.
+              </DialogDescription>
             </DialogHeader>
 
             <Tabs defaultValue="basic" className="w-full">
