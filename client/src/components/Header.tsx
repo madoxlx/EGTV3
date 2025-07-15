@@ -117,7 +117,7 @@ const Header: React.FC = () => {
                       // Parent item with children - show dropdown on hover
                       <>
                         <NavigationMenuTrigger 
-                          className={`font-medium bg-transparent relative group/trigger hover:bg-transparent hover:text-[#000000] focus:bg-transparent focus:text-[#000000] data-[state=open]:bg-transparent data-[state=open]:text-[#000000] ${
+                          className={`font-medium bg-transparent relative group/trigger hover:bg-transparent hover:text-[#000000] focus:bg-transparent focus:text-[#000000] data-[state=open]:bg-transparent data-[state=open]:text-[#000000] text-[#000000] ${
                             location === item.url || 
                             (item.url !== '/' && location.startsWith(item.url || '')) ||
                             item.children?.some(child => location === child.url || 
@@ -137,7 +137,7 @@ const Header: React.FC = () => {
                                 <NavigationMenuLink asChild>
                                   <Link
                                     href={item.url}
-                                    className={`block px-3 py-2 text-sm font-medium rounded-md hover:bg-accent hover:text-accent-foreground transition-colors relative group/dropdown ${
+                                    className={`block px-3 py-2 text-sm font-medium rounded-md hover:bg-accent hover:text-[#000000] transition-colors relative group/dropdown text-[#000000] ${
                                       location === item.url ? "text-primary bg-accent" : ""
                                     }`}
                                     target={item.target === '_blank' ? '_blank' : undefined}
@@ -155,7 +155,7 @@ const Header: React.FC = () => {
                                 <NavigationMenuLink key={child.id} asChild>
                                   <Link
                                     href={child.url || '/'}
-                                    className={`block px-3 py-2 text-sm rounded-md hover:bg-accent hover:text-accent-foreground transition-colors relative group/child ${
+                                    className={`block px-3 py-2 text-sm rounded-md hover:bg-accent hover:text-[#000000] transition-colors relative group/child text-[#000000] ${
                                       location === child.url || 
                                       (child.url !== '/' && location.startsWith(child.url || ''))
                                         ? "text-primary bg-accent" 
@@ -178,7 +178,7 @@ const Header: React.FC = () => {
                       <NavigationMenuLink asChild>
                         <Link
                           href={item.url || '/'}
-                          className={`font-medium hover:text-primary transition-colors px-3 py-2 rounded-md relative group/link ${
+                          className={`font-medium hover:text-[#000000] transition-colors px-3 py-2 rounded-md relative group/link text-[#000000] ${
                             location === item.url || 
                             (item.url !== '/' && location.startsWith(item.url || '')) 
                               ? "text-primary" 
