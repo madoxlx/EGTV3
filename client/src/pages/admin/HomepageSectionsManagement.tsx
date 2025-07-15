@@ -445,7 +445,7 @@ const HomepageSectionsManagement: React.FC = () => {
   };
 
   const handleSubmitWhyChooseUs = () => {
-    // Create a section with dynamic features
+    // Create a section with dynamic features stored in the features JSONB column
     const whyChooseUsData = {
       title: 'Why Choose Egypt Express TVL',
       subtitle: 'Your Trusted Travel Partner',
@@ -473,8 +473,8 @@ const HomepageSectionsManagement: React.FC = () => {
       subtitleAr: 'شريكك الموثوق في السفر',
       descriptionAr: 'استمتع بأفضل ما في مصر مع مرشدينا الخبراء وخدماتنا المميزة. نقدم قيمة لا مثيل لها وذكريات لا تُنسى.',
       buttonTextAr: 'اكتشف المزيد',
-      // Store the dynamic features in a custom field for now
-      customFeatures: JSON.stringify(dynamicFeatures)
+      // Store the dynamic features in the features JSONB column
+      features: dynamicFeatures
     };
 
     createMutation.mutate(whyChooseUsData);

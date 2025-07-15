@@ -142,38 +142,62 @@ const DynamicHomepageSection: React.FC<DynamicHomepageSectionProps> = ({ section
 
               {/* Features Section */}
               {section.showFeatures && (
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                  <Card className="border-0 shadow-sm">
-                    <CardContent className="p-6">
-                      <div className="flex items-start gap-4">
-                        {getIcon(section.feature1Icon || 'calendar')}
-                        <div>
-                          <h3 className="font-semibold text-lg mb-2">
-                            {getLocalizedText(section.feature1Title || 'Flexible Booking', section.feature1TitleAr)}
-                          </h3>
-                          <p className="text-gray-600">
-                            {getLocalizedText(section.feature1Description || 'Free cancellation options available', section.feature1DescriptionAr)}
-                          </p>
-                        </div>
-                      </div>
-                    </CardContent>
-                  </Card>
-                  
-                  <Card className="border-0 shadow-sm">
-                    <CardContent className="p-6">
-                      <div className="flex items-start gap-4">
-                        {getIcon(section.feature2Icon || 'user-check')}
-                        <div>
-                          <h3 className="font-semibold text-lg mb-2">
-                            {getLocalizedText(section.feature2Title || 'Expert Guides', section.feature2TitleAr)}
-                          </h3>
-                          <p className="text-gray-600">
-                            {getLocalizedText(section.feature2Description || 'Local, knowledgeable tour guides', section.feature2DescriptionAr)}
-                          </p>
-                        </div>
-                      </div>
-                    </CardContent>
-                  </Card>
+                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                  {/* Display dynamic features from the features JSONB column */}
+                  {section.features && section.features.length > 0 ? (
+                    section.features.map((feature, index) => (
+                      <Card key={index} className="border-0 shadow-sm">
+                        <CardContent className="p-6">
+                          <div className="flex items-start gap-4">
+                            {getIcon(feature.icon)}
+                            <div>
+                              <h3 className="font-semibold text-lg mb-2">
+                                {getLocalizedText(feature.title, feature.titleAr)}
+                              </h3>
+                              <p className="text-gray-600">
+                                {getLocalizedText(feature.description, feature.descriptionAr)}
+                              </p>
+                            </div>
+                          </div>
+                        </CardContent>
+                      </Card>
+                    ))
+                  ) : (
+                    /* Fallback to legacy features if no dynamic features exist */
+                    <>
+                      <Card className="border-0 shadow-sm">
+                        <CardContent className="p-6">
+                          <div className="flex items-start gap-4">
+                            {getIcon(section.feature1Icon || 'calendar')}
+                            <div>
+                              <h3 className="font-semibold text-lg mb-2">
+                                {getLocalizedText(section.feature1Title || 'Flexible Booking', section.feature1TitleAr)}
+                              </h3>
+                              <p className="text-gray-600">
+                                {getLocalizedText(section.feature1Description || 'Free cancellation options available', section.feature1DescriptionAr)}
+                              </p>
+                            </div>
+                          </div>
+                        </CardContent>
+                      </Card>
+                      
+                      <Card className="border-0 shadow-sm">
+                        <CardContent className="p-6">
+                          <div className="flex items-start gap-4">
+                            {getIcon(section.feature2Icon || 'user-check')}
+                            <div>
+                              <h3 className="font-semibold text-lg mb-2">
+                                {getLocalizedText(section.feature2Title || 'Expert Guides', section.feature2TitleAr)}
+                              </h3>
+                              <p className="text-gray-600">
+                                {getLocalizedText(section.feature2Description || 'Local, knowledgeable tour guides', section.feature2DescriptionAr)}
+                              </p>
+                            </div>
+                          </div>
+                        </CardContent>
+                      </Card>
+                    </>
+                  )}
                 </div>
               )}
 
