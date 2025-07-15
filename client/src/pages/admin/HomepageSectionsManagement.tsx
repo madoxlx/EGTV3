@@ -171,33 +171,50 @@ const HomepageSectionsManagement: React.FC = () => {
   const [isSectionTypeDialogOpen, setIsSectionTypeDialogOpen] = useState(false);
   const [selectedSectionType, setSelectedSectionType] = useState<'why-choose-us' | 'image-captions' | null>(null);
   const [isWhyChooseUsFormOpen, setIsWhyChooseUsFormOpen] = useState(false);
-  const [dynamicFeatures, setDynamicFeatures] = useState<Array<{
+  const [sectionHeading, setSectionHeading] = useState({
+    title: 'Why Choose Egypt Express TVL',
+    titleAr: 'لماذا تختار إيجيبت إكسبريس تي في إل'
+  });
+
+  const [mainFeatures, setMainFeatures] = useState<Array<{
     title: string;
-    description: string;
-    icon: string;
     titleAr?: string;
-    descriptionAr?: string;
+    icon: string;
+    subFeatures: Array<{
+      title: string;
+      titleAr?: string;
+      icon: string;
+    }>;
   }>>([
     {
-      title: 'Tailored and Reliable Service',
-      description: 'We provide customized travel, timely transfers, and seamless plans.',
-      icon: 'shield-check',
-      titleAr: 'خدمة مخصصة وموثوقة',
-      descriptionAr: 'نقدم سفر مخصص ونقل في الوقت المناسب وخطط سلسة.'
+      title: 'Premium Services',
+      titleAr: 'خدمات مميزة',
+      icon: 'star',
+      subFeatures: [
+        { title: 'Luxury Accommodation', titleAr: 'إقامة فاخرة', icon: 'heart' },
+        { title: 'Private Transportation', titleAr: 'نقل خاص', icon: 'zap' },
+        { title: 'Expert Guides', titleAr: 'مرشدين خبراء', icon: 'user-check' }
+      ]
     },
     {
-      title: 'Exceptional Expertise and Comfort',
-      description: 'Experience seamless travel with expert guides, skilled drivers, and reliable vehicles.',
-      icon: 'users',
-      titleAr: 'خبرة استثنائية وراحة',
-      descriptionAr: 'استمتع بسفر سلس مع مرشدين خبراء وسائقين ماهرين ومركبات موثوقة.'
-    },
-    {
-      title: 'Transparent and Competitive Pricing',
-      description: 'Enjoy premium services at transparent, fair rates for a stress-free journey.',
+      title: 'Best Value',
+      titleAr: 'أفضل قيمة',
       icon: 'dollar-sign',
-      titleAr: 'أسعار شفافة وتنافسية',
-      descriptionAr: 'استمتع بخدمات مميزة بأسعار شفافة وعادلة لرحلة خالية من التوتر.'
+      subFeatures: [
+        { title: 'Competitive Pricing', titleAr: 'أسعار تنافسية', icon: 'check-circle' },
+        { title: 'No Hidden Fees', titleAr: 'لا رسوم مخفية', icon: 'shield-check' },
+        { title: 'Best Deals', titleAr: 'أفضل الصفقات', icon: 'gift' }
+      ]
+    },
+    {
+      title: '24/7 Support',
+      titleAr: 'دعم على مدار الساعة',
+      icon: 'headphones',
+      subFeatures: [
+        { title: 'Customer Service', titleAr: 'خدمة العملاء', icon: 'users' },
+        { title: 'Emergency Support', titleAr: 'دعم الطوارئ', icon: 'clock' },
+        { title: 'Travel Assistance', titleAr: 'مساعدة السفر', icon: 'map-pin' }
+      ]
     }
   ]);
   const [formData, setFormData] = useState<Partial<HomepageSection>>({
@@ -391,28 +408,37 @@ const HomepageSectionsManagement: React.FC = () => {
     setIsSectionTypeDialogOpen(false);
     
     if (sectionType === 'why-choose-us') {
-      // Reset to the default 3 features when opening the form
-      setDynamicFeatures([
+      // Reset to the default structure when opening the form
+      setMainFeatures([
         {
-          title: 'Tailored and Reliable Service',
-          description: 'We provide customized travel, timely transfers, and seamless plans.',
-          icon: 'shield-check',
-          titleAr: 'خدمة مخصصة وموثوقة',
-          descriptionAr: 'نقدم سفر مخصص ونقل في الوقت المناسب وخطط سلسة.'
+          title: 'Premium Services',
+          titleAr: 'خدمات مميزة',
+          icon: 'star',
+          subFeatures: [
+            { title: 'Luxury Accommodation', titleAr: 'إقامة فاخرة', icon: 'heart' },
+            { title: 'Private Transportation', titleAr: 'نقل خاص', icon: 'zap' },
+            { title: 'Expert Guides', titleAr: 'مرشدين خبراء', icon: 'user-check' }
+          ]
         },
         {
-          title: 'Exceptional Expertise and Comfort',
-          description: 'Experience seamless travel with expert guides, skilled drivers, and reliable vehicles.',
-          icon: 'users',
-          titleAr: 'خبرة استثنائية وراحة',
-          descriptionAr: 'استمتع بسفر سلس مع مرشدين خبراء وسائقين ماهرين ومركبات موثوقة.'
-        },
-        {
-          title: 'Transparent and Competitive Pricing',
-          description: 'Enjoy premium services at transparent, fair rates for a stress-free journey.',
+          title: 'Best Value',
+          titleAr: 'أفضل قيمة',
           icon: 'dollar-sign',
-          titleAr: 'أسعار شفافة وتنافسية',
-          descriptionAr: 'استمتع بخدمات مميزة بأسعار شفافة وعادلة لرحلة خالية من التوتر.'
+          subFeatures: [
+            { title: 'Competitive Pricing', titleAr: 'أسعار تنافسية', icon: 'check-circle' },
+            { title: 'No Hidden Fees', titleAr: 'لا رسوم مخفية', icon: 'shield-check' },
+            { title: 'Best Deals', titleAr: 'أفضل الصفقات', icon: 'gift' }
+          ]
+        },
+        {
+          title: '24/7 Support',
+          titleAr: 'دعم على مدار الساعة',
+          icon: 'headphones',
+          subFeatures: [
+            { title: 'Customer Service', titleAr: 'خدمة العملاء', icon: 'users' },
+            { title: 'Emergency Support', titleAr: 'دعم الطوارئ', icon: 'clock' },
+            { title: 'Travel Assistance', titleAr: 'مساعدة السفر', icon: 'map-pin' }
+          ]
         }
       ]);
       // Open the special Why Choose Us form
@@ -424,30 +450,29 @@ const HomepageSectionsManagement: React.FC = () => {
     }
   };
 
-  const handleAddFeature = () => {
-    setDynamicFeatures([...dynamicFeatures, {
-      title: '',
-      description: '',
-      icon: 'star',
-      titleAr: '',
-      descriptionAr: ''
-    }]);
-  };
-
-  const handleRemoveFeature = (index: number) => {
-    setDynamicFeatures(dynamicFeatures.filter((_, i) => i !== index));
-  };
-
-  const handleFeatureChange = (index: number, field: string, value: string) => {
-    const updatedFeatures = [...dynamicFeatures];
+  const handleMainFeatureChange = (index: number, field: string, value: string) => {
+    const updatedFeatures = [...mainFeatures];
     updatedFeatures[index] = { ...updatedFeatures[index], [field]: value };
-    setDynamicFeatures(updatedFeatures);
+    setMainFeatures(updatedFeatures);
+  };
+
+  const handleSubFeatureChange = (mainIndex: number, subIndex: number, field: string, value: string) => {
+    const updatedFeatures = [...mainFeatures];
+    updatedFeatures[mainIndex].subFeatures[subIndex] = { 
+      ...updatedFeatures[mainIndex].subFeatures[subIndex], 
+      [field]: value 
+    };
+    setMainFeatures(updatedFeatures);
+  };
+
+  const handleHeadingChange = (field: string, value: string) => {
+    setSectionHeading({ ...sectionHeading, [field]: value });
   };
 
   const handleSubmitWhyChooseUs = () => {
-    // Create a section with dynamic features stored in the features JSONB column
+    // Create a section with hierarchical features stored in the features JSONB column
     const whyChooseUsData = {
-      title: 'Why Choose Egypt Express TVL',
+      title: sectionHeading.title,
       subtitle: 'Your Trusted Travel Partner',
       description: 'Experience the best of Egypt with our expert guides and premium services. We offer unmatched value and unforgettable memories.',
       imageUrl: 'https://images.unsplash.com/photo-1544551763-46a013bb70d5?w=600&h=400&fit=crop',
@@ -469,12 +494,12 @@ const HomepageSectionsManagement: React.FC = () => {
       textColor: 'black',
       order: 0,
       active: true,
-      titleAr: 'لماذا تختار مصر إكسبريس للسفر',
+      titleAr: sectionHeading.titleAr,
       subtitleAr: 'شريكك الموثوق في السفر',
       descriptionAr: 'استمتع بأفضل ما في مصر مع مرشدينا الخبراء وخدماتنا المميزة. نقدم قيمة لا مثيل لها وذكريات لا تُنسى.',
       buttonTextAr: 'اكتشف المزيد',
-      // Store the dynamic features in the features JSONB column
-      features: dynamicFeatures
+      // Store the hierarchical features in the features JSONB column
+      features: mainFeatures
     };
 
     createMutation.mutate(whyChooseUsData);
@@ -1159,135 +1184,143 @@ const HomepageSectionsManagement: React.FC = () => {
             <DialogHeader>
               <DialogTitle>Create Why Choose Us Section</DialogTitle>
               <DialogDescription>
-                Create a dynamic "Why Choose Us" section with unlimited feature groups. Each feature will display with an icon and description on your homepage.
+                Create a section with a heading and 3 main features, each having 3 sub-features underneath.
               </DialogDescription>
             </DialogHeader>
             
             <div className="space-y-6">
-              {/* Preview of what it will look like */}
-              <div className="bg-blue-50 p-4 rounded-lg border">
-                <h3 className="font-semibold text-blue-900 mb-2">Preview: Features will appear on homepage like this</h3>
-                <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-                  {dynamicFeatures.map((feature, index) => (
-                    <div key={index} className="text-center">
-                      <div className="w-16 h-16 bg-blue-100 rounded-full flex items-center justify-center mx-auto mb-2">
-                        {iconOptions.find(icon => icon.value === feature.icon)?.icon && 
-                          React.createElement(iconOptions.find(icon => icon.value === feature.icon)!.icon, {
-                            className: "w-8 h-8 text-blue-600"
-                          })
-                        }
-                      </div>
-                      <h4 className="font-semibold text-sm mb-1">{feature.title || 'Feature Title'}</h4>
-                      <p className="text-xs text-gray-600">{feature.description || 'Feature description...'}</p>
-                    </div>
-                  ))}
+              {/* Section Heading */}
+              <Card className="p-4">
+                <h3 className="text-lg font-semibold mb-4">Section Heading</h3>
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  <div>
+                    <Label>English Title *</Label>
+                    <Input
+                      value={sectionHeading.title}
+                      onChange={(e) => handleHeadingChange('title', e.target.value)}
+                      placeholder="Section heading in English"
+                    />
+                  </div>
+                  <div>
+                    <Label>Arabic Title</Label>
+                    <Input
+                      value={sectionHeading.titleAr || ''}
+                      onChange={(e) => handleHeadingChange('titleAr', e.target.value)}
+                      placeholder="عنوان القسم بالعربية"
+                      dir="rtl"
+                    />
+                  </div>
                 </div>
-              </div>
+              </Card>
 
-              {/* Features Management */}
+              {/* Main Features (3 features, each with 3 sub-features) */}
               <div className="space-y-4">
-                <div className="flex items-center justify-between">
-                  <h3 className="text-lg font-semibold">Feature Groups</h3>
-                  <Button onClick={handleAddFeature} className="flex items-center gap-2">
-                    <Plus className="w-4 h-4" />
-                    Add Feature
-                  </Button>
-                </div>
-
-                <div className="space-y-4">
-                  {dynamicFeatures.map((feature, index) => (
-                    <Card key={index} className="p-4 relative">
-                      <div className="absolute top-2 right-2">
-                        <Button
-                          variant="ghost"
-                          size="sm"
-                          onClick={() => handleRemoveFeature(index)}
-                          className="text-red-500 hover:text-red-700"
-                        >
-                          <Trash2 className="w-4 h-4" />
-                        </Button>
-                      </div>
-
-                      <div className="grid grid-cols-1 md:grid-cols-2 gap-4 pr-12">
-                        {/* English Fields */}
-                        <div className="space-y-3">
-                          <h4 className="font-medium text-black">English Content</h4>
-                          <div>
-                            <Label>Title *</Label>
-                            <Input
-                              value={feature.title}
-                              onChange={(e) => handleFeatureChange(index, 'title', e.target.value)}
-                              placeholder="Feature title"
-                            />
-                          </div>
-                          <div>
-                            <Label>Description *</Label>
-                            <Textarea
-                              value={feature.description}
-                              onChange={(e) => handleFeatureChange(index, 'description', e.target.value)}
-                              placeholder="Feature description"
-                              rows={3}
-                            />
-                          </div>
-                        </div>
-
-                        {/* Arabic Fields */}
-                        <div className="space-y-3">
-                          <h4 className="font-medium text-black">Arabic Content</h4>
-                          <div>
-                            <Label>العنوان</Label>
-                            <Input
-                              value={feature.titleAr || ''}
-                              onChange={(e) => handleFeatureChange(index, 'titleAr', e.target.value)}
-                              placeholder="عنوان الميزة"
-                              dir="rtl"
-                            />
-                          </div>
-                          <div>
-                            <Label>الوصف</Label>
-                            <Textarea
-                              value={feature.descriptionAr || ''}
-                              onChange={(e) => handleFeatureChange(index, 'descriptionAr', e.target.value)}
-                              placeholder="وصف الميزة"
-                              dir="rtl"
-                              rows={3}
-                            />
+                <h3 className="text-lg font-semibold">Main Features</h3>
+                
+                <div className="space-y-6">
+                  {mainFeatures.map((feature, mainIndex) => (
+                    <Card key={mainIndex} className="p-4">
+                      <div className="space-y-4">
+                        {/* Main Feature Header */}
+                        <div className="border-b pb-3">
+                          <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                            <div>
+                              <Label>English Title *</Label>
+                              <Input
+                                value={feature.title}
+                                onChange={(e) => handleMainFeatureChange(mainIndex, 'title', e.target.value)}
+                                placeholder="Main feature title"
+                              />
+                            </div>
+                            <div>
+                              <Label>Arabic Title</Label>
+                              <Input
+                                value={feature.titleAr || ''}
+                                onChange={(e) => handleMainFeatureChange(mainIndex, 'titleAr', e.target.value)}
+                                placeholder="عنوان الميزة الرئيسية"
+                                dir="rtl"
+                              />
+                            </div>
+                            <div>
+                              <Label>Icon</Label>
+                              <Select
+                                value={feature.icon}
+                                onValueChange={(value) => handleMainFeatureChange(mainIndex, 'icon', value)}
+                              >
+                                <SelectTrigger>
+                                  <SelectValue placeholder="Select icon" />
+                                </SelectTrigger>
+                                <SelectContent className="max-h-60">
+                                  {iconOptions.map((icon) => (
+                                    <SelectItem key={icon.value} value={icon.value}>
+                                      <div className="flex items-center gap-2">
+                                        <icon.icon className="w-4 h-4" />
+                                        {icon.label}
+                                      </div>
+                                    </SelectItem>
+                                  ))}
+                                </SelectContent>
+                              </Select>
+                            </div>
                           </div>
                         </div>
 
-                        {/* Icon Selection */}
-                        <div className="md:col-span-2">
-                          <Label>Icon</Label>
-                          <Select
-                            value={feature.icon}
-                            onValueChange={(value) => handleFeatureChange(index, 'icon', value)}
-                          >
-                            <SelectTrigger>
-                              <SelectValue placeholder="Select icon" />
-                            </SelectTrigger>
-                            <SelectContent className="max-h-60">
-                              {iconOptions.map((icon) => (
-                                <SelectItem key={icon.value} value={icon.value}>
-                                  <div className="flex items-center gap-2">
-                                    <icon.icon className="w-4 h-4" />
-                                    {icon.label}
+                        {/* Sub-features */}
+                        <div className="pl-4">
+                          <Label className="text-sm font-medium text-gray-700 mb-2 block">Sub-features</Label>
+                          <div className="space-y-3">
+                            {feature.subFeatures.map((subFeature, subIndex) => (
+                              <div key={subIndex} className="bg-gray-50 p-3 rounded-lg">
+                                <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
+                                  <div>
+                                    <Label className="text-xs">English Title *</Label>
+                                    <Input
+                                      value={subFeature.title}
+                                      onChange={(e) => handleSubFeatureChange(mainIndex, subIndex, 'title', e.target.value)}
+                                      placeholder="Sub-feature title"
+                                      className="text-sm"
+                                    />
                                   </div>
-                                </SelectItem>
-                              ))}
-                            </SelectContent>
-                          </Select>
+                                  <div>
+                                    <Label className="text-xs">Arabic Title</Label>
+                                    <Input
+                                      value={subFeature.titleAr || ''}
+                                      onChange={(e) => handleSubFeatureChange(mainIndex, subIndex, 'titleAr', e.target.value)}
+                                      placeholder="عنوان الميزة الفرعية"
+                                      dir="rtl"
+                                      className="text-sm"
+                                    />
+                                  </div>
+                                  <div>
+                                    <Label className="text-xs">Icon</Label>
+                                    <Select
+                                      value={subFeature.icon}
+                                      onValueChange={(value) => handleSubFeatureChange(mainIndex, subIndex, 'icon', value)}
+                                    >
+                                      <SelectTrigger className="text-sm">
+                                        <SelectValue placeholder="Select icon" />
+                                      </SelectTrigger>
+                                      <SelectContent className="max-h-60">
+                                        {iconOptions.map((icon) => (
+                                          <SelectItem key={icon.value} value={icon.value}>
+                                            <div className="flex items-center gap-2">
+                                              <icon.icon className="w-3 h-3" />
+                                              {icon.label}
+                                            </div>
+                                          </SelectItem>
+                                        ))}
+                                      </SelectContent>
+                                    </Select>
+                                  </div>
+                                </div>
+                              </div>
+                            ))}
+                          </div>
                         </div>
                       </div>
                     </Card>
                   ))}
                 </div>
-
-                {dynamicFeatures.length === 0 && (
-                  <div className="text-center py-8 text-gray-500">
-                    <Award className="w-12 h-12 mx-auto mb-2 text-gray-300" />
-                    <p>No features added yet. Click "Add Feature" to start.</p>
-                  </div>
-                )}
               </div>
             </div>
 
@@ -1297,7 +1330,7 @@ const HomepageSectionsManagement: React.FC = () => {
               </Button>
               <Button 
                 onClick={handleSubmitWhyChooseUs}
-                disabled={createMutation.isPending || dynamicFeatures.length === 0}
+                disabled={createMutation.isPending || mainFeatures.length === 0}
               >
                 {createMutation.isPending ? 'Creating...' : 'Create Section'}
               </Button>
