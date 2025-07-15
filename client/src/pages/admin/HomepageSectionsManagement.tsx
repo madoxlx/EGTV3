@@ -728,7 +728,7 @@ const HomepageSectionsManagement: React.FC = () => {
                       checked={formData.active}
                       onCheckedChange={(checked) => setFormData({ ...formData, active: checked })}
                     />
-                    <Label htmlFor="active">Active</Label>
+                    <Label htmlFor="active" className="text-[#000000] hover:text-[#000000]">Active</Label>
                   </div>
                   <div className="flex items-center space-x-2">
                     <Switch
@@ -736,7 +736,7 @@ const HomepageSectionsManagement: React.FC = () => {
                       checked={formData.showStatistics}
                       onCheckedChange={(checked) => setFormData({ ...formData, showStatistics: checked })}
                     />
-                    <Label htmlFor="showStatistics">Show Statistics</Label>
+                    <Label htmlFor="showStatistics" className="text-[#000000] hover:text-[#000000]">Show Statistics</Label>
                   </div>
                   <div className="flex items-center space-x-2">
                     <Switch
@@ -744,7 +744,7 @@ const HomepageSectionsManagement: React.FC = () => {
                       checked={formData.showFeatures}
                       onCheckedChange={(checked) => setFormData({ ...formData, showFeatures: checked })}
                     />
-                    <Label htmlFor="showFeatures" className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70 text-[#000000]">Show Features</Label>
+                    <Label htmlFor="showFeatures" className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70 text-[#000000] hover:text-[#000000]">Show Features</Label>
                   </div>
                 </div>
               </TabsContent>
