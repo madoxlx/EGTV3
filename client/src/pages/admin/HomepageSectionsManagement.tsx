@@ -744,7 +744,7 @@ const HomepageSectionsManagement: React.FC = () => {
                       checked={formData.showFeatures}
                       onCheckedChange={(checked) => setFormData({ ...formData, showFeatures: checked })}
                     />
-                    <Label htmlFor="showFeatures">Show Features</Label>
+                    <Label htmlFor="showFeatures" className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70 text-[#000000]">Show Features</Label>
                   </div>
                 </div>
               </TabsContent>
