@@ -28,6 +28,7 @@ import {
   insertOrderSchema,
   insertOrderItemSchema,
   insertHomepageSectionSchema,
+  insertWhyChooseUsSectionSchema,
   translations,
   cartItems,
   orders,
@@ -2176,6 +2177,87 @@ export async function registerRoutes(app: Express): Promise<Server> {
     } catch (error) {
       console.error('[BYPASS DELETE] Error deleting destination:', error);
       res.status(500).json({ message: 'Failed to delete destination' });
+    }
+  });
+
+  // Bypass routes for Why Choose Us sections (to avoid Vite middleware interception)
+  app.get('/admin-api/why-choose-us-sections', async (req, res) => {
+    try {
+      const sections = await storage.listWhyChooseUsSections();
+      res.json(sections);
+    } catch (error) {
+      console.error('Error fetching why choose us sections:', error);
+      res.status(500).json({ message: 'Failed to fetch why choose us sections' });
+    }
+  });
+
+  app.get('/admin-api/why-choose-us-sections/:id', async (req, res) => {
+    try {
+      const id = parseInt(req.params.id);
+      if (isNaN(id)) {
+        return res.status(400).json({ message: 'Invalid section ID' });
+      }
+      
+      const section = await storage.getWhyChooseUsSection(id);
+      if (!section) {
+        return res.status(404).json({ message: 'Section not found' });
+      }
+      
+      res.json(section);
+    } catch (error) {
+      console.error('Error fetching why choose us section:', error);
+      res.status(500).json({ message: 'Failed to fetch why choose us section' });
+    }
+  });
+
+  app.post('/admin-api/why-choose-us-sections', isAdmin, async (req, res) => {
+    try {
+      const validatedData = insertWhyChooseUsSectionSchema.parse(req.body);
+      const newSection = await storage.createWhyChooseUsSection(validatedData);
+      res.status(201).json(newSection);
+    } catch (error) {
+      console.error('Error creating why choose us section:', error);
+      res.status(500).json({ message: 'Failed to create why choose us section' });
+    }
+  });
+
+  app.put('/admin-api/why-choose-us-sections/:id', isAdmin, async (req, res) => {
+    try {
+      const id = parseInt(req.params.id);
+      if (isNaN(id)) {
+        return res.status(400).json({ message: 'Invalid section ID' });
+      }
+      
+      const validatedData = insertWhyChooseUsSectionSchema.partial().parse(req.body);
+      const updatedSection = await storage.updateWhyChooseUsSection(id, validatedData);
+      
+      if (!updatedSection) {
+        return res.status(404).json({ message: 'Section not found' });
+      }
+      
+      res.json(updatedSection);
+    } catch (error) {
+      console.error('Error updating why choose us section:', error);
+      res.status(500).json({ message: 'Failed to update why choose us section' });
+    }
+  });
+
+  app.delete('/admin-api/why-choose-us-sections/:id', isAdmin, async (req, res) => {
+    try {
+      const id = parseInt(req.params.id);
+      if (isNaN(id)) {
+        return res.status(400).json({ message: 'Invalid section ID' });
+      }
+      
+      const deleted = await storage.deleteWhyChooseUsSection(id);
+      if (!deleted) {
+        return res.status(404).json({ message: 'Section not found or could not be deleted' });
+      }
+      
+      res.status(200).json({ message: 'Section deleted successfully' });
+    } catch (error) {
+      console.error('Error deleting why choose us section:', error);
+      res.status(500).json({ message: 'Failed to delete why choose us section' });
     }
   });
 
@@ -6266,6 +6348,111 @@ export async function registerRoutes(app: Express): Promise<Server> {
     } catch (error) {
       console.error('Error fetching package categories:', error);
       res.status(500).json({ message: 'Failed to fetch package categories' });
+    }
+  });
+
+  // =================== Why Choose Us Sections API Routes ===================
+  
+  // Get all why choose us sections
+  app.get('/api/why-choose-us-sections', async (req, res) => {
+    try {
+      const active = req.query.active === 'true' ? true : undefined;
+      const sections = await storage.listWhyChooseUsSections(active);
+      res.json(sections);
+    } catch (error) {
+      console.error('Error fetching why choose us sections:', error);
+      res.status(500).json({ message: 'Failed to fetch why choose us sections' });
+    }
+  });
+
+  // Get why choose us section by ID
+  app.get('/api/why-choose-us-sections/:id', async (req, res) => {
+    try {
+      const id = parseInt(req.params.id);
+      if (isNaN(id)) {
+        return res.status(400).json({ message: 'Invalid section ID' });
+      }
+
+      const section = await storage.getWhyChooseUsSection(id);
+      if (!section) {
+        return res.status(404).json({ message: 'Section not found' });
+      }
+
+      res.json(section);
+    } catch (error) {
+      console.error('Error fetching why choose us section:', error);
+      res.status(500).json({ message: 'Failed to fetch why choose us section' });
+    }
+  });
+
+  // Create new why choose us section (admin only)
+  app.post('/api/admin/why-choose-us-sections', isAdmin, async (req, res) => {
+    try {
+      const sectionData = insertWhyChooseUsSectionSchema.parse(req.body);
+      const newSection = await storage.createWhyChooseUsSection(sectionData);
+      res.status(201).json(newSection);
+    } catch (error) {
+      if (error instanceof z.ZodError) {
+        return res.status(400).json({ message: 'Invalid section data', errors: error.errors });
+      }
+      console.error('Error creating why choose us section:', error);
+      res.status(500).json({ message: 'Failed to create why choose us section' });
+    }
+  });
+
+  // Update why choose us section (admin only)
+  app.put('/api/admin/why-choose-us-sections/:id', isAdmin, async (req, res) => {
+    try {
+      const id = parseInt(req.params.id);
+      if (isNaN(id)) {
+        return res.status(400).json({ message: 'Invalid section ID' });
+      }
+
+      // Verify section exists
+      const existingSection = await storage.getWhyChooseUsSection(id);
+      if (!existingSection) {
+        return res.status(404).json({ message: 'Section not found' });
+      }
+
+      const sectionData = insertWhyChooseUsSectionSchema.partial().parse(req.body);
+      const updatedSection = await storage.updateWhyChooseUsSection(id, sectionData);
+      if (!updatedSection) {
+        return res.status(500).json({ message: 'Failed to update section' });
+      }
+
+      res.json(updatedSection);
+    } catch (error) {
+      if (error instanceof z.ZodError) {
+        return res.status(400).json({ message: 'Invalid section data', errors: error.errors });
+      }
+      console.error('Error updating why choose us section:', error);
+      res.status(500).json({ message: 'Failed to update section' });
+    }
+  });
+
+  // Delete why choose us section (admin only)
+  app.delete('/api/admin/why-choose-us-sections/:id', isAdmin, async (req, res) => {
+    try {
+      const id = parseInt(req.params.id);
+      if (isNaN(id)) {
+        return res.status(400).json({ message: 'Invalid section ID' });
+      }
+
+      // Verify section exists
+      const existingSection = await storage.getWhyChooseUsSection(id);
+      if (!existingSection) {
+        return res.status(404).json({ message: 'Section not found' });
+      }
+
+      const success = await storage.deleteWhyChooseUsSection(id);
+      if (success) {
+        res.status(204).end();
+      } else {
+        res.status(500).json({ message: 'Failed to delete section' });
+      }
+    } catch (error) {
+      console.error('Error deleting why choose us section:', error);
+      res.status(500).json({ message: 'Failed to delete section' });
     }
   });
 

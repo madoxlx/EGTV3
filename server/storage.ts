@@ -47,6 +47,9 @@ import {
   hotelToCleanlinessFeatures,
   transportTypes,
   TransportType,
+  whyChooseUsSections,
+  WhyChooseUsSection,
+  InsertWhyChooseUsSection,
 } from "@shared/schema";
 import { db, pool } from "./db";
 import { eq, and, desc, asc, sql } from "drizzle-orm";
@@ -193,6 +196,13 @@ export interface IStorage {
   createCleanlinessFeature(feature: any): Promise<any>;
   updateCleanlinessFeature(id: number, feature: any): Promise<any | undefined>;
   deleteCleanlinessFeature(id: number): Promise<boolean>;
+
+  // Why Choose Us Sections
+  listWhyChooseUsSections(active?: boolean): Promise<WhyChooseUsSection[]>;
+  getWhyChooseUsSection(id: number): Promise<WhyChooseUsSection | undefined>;
+  createWhyChooseUsSection(section: InsertWhyChooseUsSection): Promise<WhyChooseUsSection>;
+  updateWhyChooseUsSection(id: number, section: Partial<InsertWhyChooseUsSection>): Promise<WhyChooseUsSection | undefined>;
+  deleteWhyChooseUsSection(id: number): Promise<boolean>;
 }
 
 export class DatabaseStorage implements IStorage {
@@ -904,56 +914,10 @@ export class DatabaseStorage implements IStorage {
     try {
       console.log('Creating tour with data:', JSON.stringify(tour, null, 2));
       
-      // Ensure JSON fields are properly formatted
-      const processedTour = { ...tour };
+      // Create a safe copy with proper type assertions
+      const processedTour: any = { ...tour };
       
-      // CRITICAL FIX: Ensure title field is set properly
-      if (!processedTour.title && processedTour.name) {
-        processedTour.title = processedTour.name;
-      }
-      
-      // Handle special field mappings
-      if (processedTour.gallery && Array.isArray(processedTour.gallery)) {
-        processedTour.galleryUrls = processedTour.gallery;
-        delete processedTour.gallery; // Remove gallery field to avoid conflicts
-      }
-      
-      // Handle JSON fields that might cause parsing issues
-      const jsonFields = ['included', 'excluded', 'includedAr', 'excludedAr', 'galleryUrls'];
-      for (const field of jsonFields) {
-        if (processedTour[field] !== undefined && processedTour[field] !== null) {
-          // If it's already an array, keep it as is
-          if (Array.isArray(processedTour[field])) {
-            continue;
-          }
-          // If it's a string, try to parse it
-          if (typeof processedTour[field] === 'string') {
-            try {
-              processedTour[field] = JSON.parse(processedTour[field]);
-            } catch (e) {
-              // If parsing fails, treat as single item array
-              processedTour[field] = [processedTour[field]];
-            }
-          }
-          // If it's an object (but not an array), wrap it in an array
-          if (typeof processedTour[field] === 'object' && !Array.isArray(processedTour[field])) {
-            processedTour[field] = [processedTour[field]];
-          }
-        }
-      }
-      
-      // Handle galleryUrls specifically - ensure it's an array
-      if (processedTour.galleryUrls && !Array.isArray(processedTour.galleryUrls)) {
-        processedTour.galleryUrls = [processedTour.galleryUrls];
-      }
-      
-      // Clean up empty arrays
-      jsonFields.forEach(field => {
-        if (processedTour[field] && Array.isArray(processedTour[field])) {
-          processedTour[field] = processedTour[field].filter(item => item !== null && item !== undefined && item !== '');
-        }
-      });
-      
+      // Clean up the data for insert
       console.log('Processed tour data before insert:', JSON.stringify(processedTour, null, 2));
       
       const [created] = await db.insert(tours).values(processedTour).returning();
@@ -1034,13 +998,18 @@ export class DatabaseStorage implements IStorage {
 
   async listHomepageSections(active?: boolean): Promise<HomepageSection[]> {
     try {
-      let query = db.select().from(homepageSections);
-      
       if (active !== undefined) {
-        query = query.where(eq(homepageSections.active, active));
+        return await db
+          .select()
+          .from(homepageSections)
+          .where(eq(homepageSections.active, active))
+          .orderBy(asc(homepageSections.order));
       }
       
-      return await query.orderBy(asc(homepageSections.order));
+      return await db
+        .select()
+        .from(homepageSections)
+        .orderBy(asc(homepageSections.order));
     } catch (error) {
       console.error("Error listing homepage sections:", error);
       return [];
@@ -1128,13 +1097,18 @@ export class DatabaseStorage implements IStorage {
 
   async listMenus(active?: boolean): Promise<Menu[]> {
     try {
-      let query = db.select().from(menus);
-      
       if (active !== undefined) {
-        query = query.where(eq(menus.active, active));
+        return await db
+          .select()
+          .from(menus)
+          .where(eq(menus.active, active))
+          .orderBy(asc(menus.name));
       }
       
-      return await query.orderBy(asc(menus.name));
+      return await db
+        .select()
+        .from(menus)
+        .orderBy(asc(menus.name));
     } catch (error) {
       console.error("Error listing menus:", error);
       return [];
@@ -1263,7 +1237,7 @@ export class DatabaseStorage implements IStorage {
       return result.rows[0] || null;
     } catch (error) {
       console.error("Error creating menu item:", error);
-      console.error("Error details:", error.message);
+      console.error("Error details:", (error as Error).message);
       throw error;
     }
   }
@@ -1851,11 +1825,18 @@ export class DatabaseStorage implements IStorage {
   // Hotel Categories methods
   async listHotelCategories(active?: boolean): Promise<any[]> {
     try {
-      let query = db.select().from(hotelCategories);
       if (active !== undefined) {
-        query = query.where(eq(hotelCategories.active, active));
+        return await db
+          .select()
+          .from(hotelCategories)
+          .where(eq(hotelCategories.active, active))
+          .orderBy(hotelCategories.name);
       }
-      return await query.orderBy(hotelCategories.name);
+      
+      return await db
+        .select()
+        .from(hotelCategories)
+        .orderBy(hotelCategories.name);
     } catch (error) {
       console.error("Error listing hotel categories:", error);
       return [];
@@ -1922,6 +1903,87 @@ export class DatabaseStorage implements IStorage {
       return true;
     } catch (error) {
       console.error(`Error deleting hotel category with ID ${id}:`, error);
+      return false;
+    }
+  }
+
+  // Why Choose Us Sections
+  async listWhyChooseUsSections(active?: boolean): Promise<WhyChooseUsSection[]> {
+    try {
+      if (active !== undefined) {
+        return await db
+          .select()
+          .from(whyChooseUsSections)
+          .where(eq(whyChooseUsSections.active, active))
+          .orderBy(asc(whyChooseUsSections.orderPosition));
+      }
+      
+      return await db
+        .select()
+        .from(whyChooseUsSections)
+        .orderBy(asc(whyChooseUsSections.orderPosition));
+    } catch (error) {
+      console.error("Error listing why choose us sections:", error);
+      return [];
+    }
+  }
+
+  async getWhyChooseUsSection(id: number): Promise<WhyChooseUsSection | undefined> {
+    try {
+      const [section] = await db
+        .select()
+        .from(whyChooseUsSections)
+        .where(eq(whyChooseUsSections.id, id));
+      return section || undefined;
+    } catch (error) {
+      console.error("Error getting why choose us section:", error);
+      return undefined;
+    }
+  }
+
+  async createWhyChooseUsSection(section: InsertWhyChooseUsSection): Promise<WhyChooseUsSection> {
+    try {
+      const [newSection] = await db
+        .insert(whyChooseUsSections)
+        .values({
+          ...section,
+          createdAt: new Date(),
+          updatedAt: new Date(),
+        })
+        .returning();
+      return newSection;
+    } catch (error) {
+      console.error("Error creating why choose us section:", error);
+      throw error;
+    }
+  }
+
+  async updateWhyChooseUsSection(
+    id: number,
+    section: Partial<InsertWhyChooseUsSection>
+  ): Promise<WhyChooseUsSection | undefined> {
+    try {
+      const [updatedSection] = await db
+        .update(whyChooseUsSections)
+        .set({
+          ...section,
+          updatedAt: new Date(),
+        })
+        .where(eq(whyChooseUsSections.id, id))
+        .returning();
+      return updatedSection;
+    } catch (error) {
+      console.error("Error updating why choose us section:", error);
+      throw error;
+    }
+  }
+
+  async deleteWhyChooseUsSection(id: number): Promise<boolean> {
+    try {
+      await db.delete(whyChooseUsSections).where(eq(whyChooseUsSections.id, id));
+      return true;
+    } catch (error) {
+      console.error(`Error deleting why choose us section with ID ${id}:`, error);
       return false;
     }
   }

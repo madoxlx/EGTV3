@@ -918,6 +918,24 @@ export const dictionaryEntries = pgTable("dictionary_entries", {
   updatedBy: integer("updated_by").references(() => users.id),
 });
 
+// Why Choose Us sections
+export const whyChooseUsSections = pgTable("why_choose_us_sections", {
+  id: serial("id").primaryKey(),
+  title: text("title").notNull(),
+  titleAr: text("title_ar"),
+  description: text("description").notNull(),
+  descriptionAr: text("description_ar"),
+  icon: text("icon"), // Lucide icon name
+  iconColor: text("icon_color").default("#3b82f6"), // Default blue color
+  backgroundColor: text("background_color").default("#ffffff"), // Default white background
+  orderPosition: integer("order_position").default(1),
+  active: boolean("active").default(true),
+  createdAt: timestamp("created_at").notNull().defaultNow(),
+  updatedAt: timestamp("updated_at").defaultNow(),
+  createdBy: integer("created_by").references(() => users.id),
+  updatedBy: integer("updated_by").references(() => users.id),
+});
+
 // Transportation Locations
 export const transportLocations = pgTable("transport_locations", {
   id: serial("id").primaryKey(),
@@ -1653,6 +1671,25 @@ export type InsertSiteLanguageSetting = z.infer<
 // Define dictionary entry types
 export type DictionaryEntry = typeof dictionaryEntries.$inferSelect;
 export type InsertDictionaryEntry = z.infer<typeof insertDictionaryEntrySchema>;
+
+// Define why choose us sections insert schema
+export const insertWhyChooseUsSectionSchema = createInsertSchema(
+  whyChooseUsSections,
+).pick({
+  title: true,
+  titleAr: true,
+  description: true,
+  descriptionAr: true,
+  icon: true,
+  iconColor: true,
+  backgroundColor: true,
+  orderPosition: true,
+  active: true,
+});
+
+// Define why choose us sections types
+export type WhyChooseUsSection = typeof whyChooseUsSections.$inferSelect;
+export type InsertWhyChooseUsSection = z.infer<typeof insertWhyChooseUsSectionSchema>;
 
 export const insertTransportTypeSchema = createInsertSchema(
   transportTypes,

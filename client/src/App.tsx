@@ -82,6 +82,7 @@ import SettingsPage from "@/pages/admin/SettingsPage";
 import SliderManagement from "@/pages/admin/SliderManagement";
 import TranslationManagement from "@/pages/admin/TranslationManagement";
 import NavigationManager from "@/pages/admin/NavigationManager";
+import WhyChooseUsManager from "@/pages/admin/WhyChooseUsManager";
 import Dashboard from "@/pages/admin/Dashboard";
 import Layout from "@/components/Layout";
 import { DashboardLayout } from "@/components/dashboard/DashboardLayout";
@@ -214,6 +215,10 @@ function Router() {
           <AdminRoute
             path="/admin/navigation"
             component={NavigationManager}
+          />
+          <AdminRoute
+            path="/admin/why-choose-us"
+            component={WhyChooseUsManager}
           />
           <AdminRoute
             path="/admin/data-export-import"
