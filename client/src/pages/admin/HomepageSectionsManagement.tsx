@@ -38,17 +38,7 @@ import {
   Layout,
   Globe,
   Languages,
-  Settings,
-  Shield,
-  Award,
-  Clock,
-  DollarSign,
-  Users,
-  MapPin,
-  Headphones,
-  CheckCircle,
-  Heart,
-  Zap
+  Settings
 } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import { DashboardLayout } from '@/components/dashboard/DashboardLayout';
@@ -77,9 +67,6 @@ interface HomepageSection {
   feature2Title?: string;
   feature2Description?: string;
   feature2Icon?: string;
-  feature3Title?: string;
-  feature3Description?: string;
-  feature3Icon?: string;
   titleAr?: string;
   subtitleAr?: string;
   descriptionAr?: string;
@@ -88,8 +75,6 @@ interface HomepageSection {
   feature1DescriptionAr?: string;
   feature2TitleAr?: string;
   feature2DescriptionAr?: string;
-  feature3TitleAr?: string;
-  feature3DescriptionAr?: string;
   order?: number;
   active?: boolean;
   showStatistics?: boolean;
@@ -105,16 +90,6 @@ const iconOptions = [
   { value: 'star', label: 'Star', icon: Star },
   { value: 'globe', label: 'Globe', icon: Globe },
   { value: 'layout', label: 'Layout', icon: Layout },
-  { value: 'shield', label: 'Shield (Reliable)', icon: Shield },
-  { value: 'award', label: 'Award (Expertise)', icon: Award },
-  { value: 'clock', label: 'Clock (Timely)', icon: Clock },
-  { value: 'dollar-sign', label: 'Dollar (Pricing)', icon: DollarSign },
-  { value: 'users', label: 'Users (Service)', icon: Users },
-  { value: 'map-pin', label: 'Map Pin (Location)', icon: MapPin },
-  { value: 'headphones', label: 'Headphones (Support)', icon: Headphones },
-  { value: 'check-circle', label: 'Check Circle (Quality)', icon: CheckCircle },
-  { value: 'heart', label: 'Heart (Care)', icon: Heart },
-  { value: 'zap', label: 'Zap (Fast)', icon: Zap },
 ];
 
 const HomepageSectionsManagement: React.FC = () => {
@@ -147,9 +122,6 @@ const HomepageSectionsManagement: React.FC = () => {
     feature2Title: 'Expert Guides',
     feature2Description: 'Local, knowledgeable tour guides',
     feature2Icon: 'user-check',
-    feature3Title: 'Transparent Pricing',
-    feature3Description: 'Competitive prices with no hidden fees',
-    feature3Icon: 'star',
     order: 0,
     active: true,
     showStatistics: true,
@@ -676,51 +648,6 @@ const HomepageSectionsManagement: React.FC = () => {
                     </div>
                   </div>
                 </div>
-
-                <div className="space-y-4">
-                  <h3 className="font-semibold">Feature 3</h3>
-                  <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-                    <div>
-                      <Label htmlFor="feature3Title">Feature 3 Title</Label>
-                      <Input
-                        id="feature3Title"
-                        value={formData.feature3Title}
-                        onChange={(e) => setFormData({ ...formData, feature3Title: e.target.value })}
-                        placeholder="Feature title"
-                      />
-                    </div>
-                    <div>
-                      <Label htmlFor="feature3Description">Feature 3 Description</Label>
-                      <Input
-                        id="feature3Description"
-                        value={formData.feature3Description}
-                        onChange={(e) => setFormData({ ...formData, feature3Description: e.target.value })}
-                        placeholder="Feature description"
-                      />
-                    </div>
-                    <div>
-                      <Label htmlFor="feature3Icon">Feature 3 Icon</Label>
-                      <Select
-                        value={formData.feature3Icon}
-                        onValueChange={(value) => setFormData({ ...formData, feature3Icon: value })}
-                      >
-                        <SelectTrigger>
-                          <SelectValue placeholder="Select icon" />
-                        </SelectTrigger>
-                        <SelectContent>
-                          {iconOptions.map((icon) => (
-                            <SelectItem key={icon.value} value={icon.value}>
-                              <div className="flex items-center gap-2">
-                                <icon.icon className="w-4 h-4" />
-                                {icon.label}
-                              </div>
-                            </SelectItem>
-                          ))}
-                        </SelectContent>
-                      </Select>
-                    </div>
-                  </div>
-                </div>
               </TabsContent>
 
               <TabsContent value="arabic" className="space-y-4">
@@ -811,29 +738,6 @@ const HomepageSectionsManagement: React.FC = () => {
                       value={formData.feature2DescriptionAr}
                       onChange={(e) => setFormData({ ...formData, feature2DescriptionAr: e.target.value })}
                       placeholder="وصف الميزة الثانية"
-                      dir="rtl"
-                    />
-                  </div>
-                </div>
-
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                  <div>
-                    <Label htmlFor="feature3TitleAr">Feature 3 Title (Arabic)</Label>
-                    <Input
-                      id="feature3TitleAr"
-                      value={formData.feature3TitleAr}
-                      onChange={(e) => setFormData({ ...formData, feature3TitleAr: e.target.value })}
-                      placeholder="عنوان الميزة الثالثة"
-                      dir="rtl"
-                    />
-                  </div>
-                  <div>
-                    <Label htmlFor="feature3DescriptionAr">Feature 3 Description (Arabic)</Label>
-                    <Input
-                      id="feature3DescriptionAr"
-                      value={formData.feature3DescriptionAr}
-                      onChange={(e) => setFormData({ ...formData, feature3DescriptionAr: e.target.value })}
-                      placeholder="وصف الميزة الثالثة"
                       dir="rtl"
                     />
                   </div>

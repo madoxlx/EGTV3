@@ -167,10 +167,6 @@ export const homepageSections = pgTable("homepage_sections", {
   feature2Description: text("feature2_description").default("Local, knowledgeable tour guides"),
   feature2Icon: text("feature2_icon").default("user-check"),
   
-  feature3Title: text("feature3_title").default("Transparent Pricing"),
-  feature3Description: text("feature3_description").default("Competitive prices with no hidden fees"),
-  feature3Icon: text("feature3_icon").default("star"),
-  
   // Arabic translations
   titleAr: text("title_ar"),
   subtitleAr: text("subtitle_ar"),
@@ -180,8 +176,6 @@ export const homepageSections = pgTable("homepage_sections", {
   feature1DescriptionAr: text("feature1_description_ar"),
   feature2TitleAr: text("feature2_title_ar"),
   feature2DescriptionAr: text("feature2_description_ar"),
-  feature3TitleAr: text("feature3_title_ar"),
-  feature3DescriptionAr: text("feature3_description_ar"),
   
   // Display settings
   order: integer("order").default(0),

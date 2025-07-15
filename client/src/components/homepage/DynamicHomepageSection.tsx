@@ -3,24 +3,7 @@ import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { useLanguage } from '@/hooks/use-language';
-import { 
-  Calendar, 
-  UserCheck, 
-  ChevronRight, 
-  Star, 
-  Globe, 
-  Layout, 
-  Shield, 
-  Award, 
-  Clock, 
-  DollarSign, 
-  Users, 
-  MapPin, 
-  Headphones, 
-  CheckCircle, 
-  Heart, 
-  Zap 
-} from 'lucide-react';
+import { Calendar, UserCheck, ChevronRight } from 'lucide-react';
 
 interface HomepageSection {
   id: number;
@@ -39,9 +22,6 @@ interface HomepageSection {
   feature2Title?: string;
   feature2Description?: string;
   feature2Icon?: string;
-  feature3Title?: string;
-  feature3Description?: string;
-  feature3Icon?: string;
   titleAr?: string;
   subtitleAr?: string;
   descriptionAr?: string;
@@ -50,8 +30,6 @@ interface HomepageSection {
   feature1DescriptionAr?: string;
   feature2TitleAr?: string;
   feature2DescriptionAr?: string;
-  feature3TitleAr?: string;
-  feature3DescriptionAr?: string;
   order?: number;
   active?: boolean;
   showStatistics?: boolean;
@@ -69,19 +47,6 @@ const iconMap: { [key: string]: React.ComponentType<any> } = {
   calendar: Calendar,
   'user-check': UserCheck,
   'chevron-right': ChevronRight,
-  star: Star,
-  globe: Globe,
-  layout: Layout,
-  shield: Shield,
-  award: Award,
-  clock: Clock,
-  'dollar-sign': DollarSign,
-  users: Users,
-  'map-pin': MapPin,
-  headphones: Headphones,
-  'check-circle': CheckCircle,
-  heart: Heart,
-  zap: Zap,
 };
 
 const DynamicHomepageSection: React.FC<DynamicHomepageSectionProps> = ({ section }) => {
@@ -177,18 +142,16 @@ const DynamicHomepageSection: React.FC<DynamicHomepageSectionProps> = ({ section
 
               {/* Features Section */}
               {section.showFeatures && (
-                <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-                  <Card className="border-0 shadow-sm hover:shadow-md transition-shadow">
-                    <CardContent className="p-6 text-center">
-                      <div className="flex flex-col items-center gap-4">
-                        <div className="w-16 h-16 bg-blue-100 rounded-full flex items-center justify-center">
-                          {getIcon(section.feature1Icon || 'calendar')}
-                        </div>
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                  <Card className="border-0 shadow-sm">
+                    <CardContent className="p-6">
+                      <div className="flex items-start gap-4">
+                        {getIcon(section.feature1Icon || 'calendar')}
                         <div>
-                          <h3 className="font-semibold text-lg mb-2 text-gray-900">
+                          <h3 className="font-semibold text-lg mb-2">
                             {getLocalizedText(section.feature1Title || 'Flexible Booking', section.feature1TitleAr)}
                           </h3>
-                          <p className="text-gray-600 text-sm leading-relaxed">
+                          <p className="text-gray-600">
                             {getLocalizedText(section.feature1Description || 'Free cancellation options available', section.feature1DescriptionAr)}
                           </p>
                         </div>
@@ -196,36 +159,16 @@ const DynamicHomepageSection: React.FC<DynamicHomepageSectionProps> = ({ section
                     </CardContent>
                   </Card>
                   
-                  <Card className="border-0 shadow-sm hover:shadow-md transition-shadow">
-                    <CardContent className="p-6 text-center">
-                      <div className="flex flex-col items-center gap-4">
-                        <div className="w-16 h-16 bg-green-100 rounded-full flex items-center justify-center">
-                          {getIcon(section.feature2Icon || 'user-check')}
-                        </div>
+                  <Card className="border-0 shadow-sm">
+                    <CardContent className="p-6">
+                      <div className="flex items-start gap-4">
+                        {getIcon(section.feature2Icon || 'user-check')}
                         <div>
-                          <h3 className="font-semibold text-lg mb-2 text-gray-900">
+                          <h3 className="font-semibold text-lg mb-2">
                             {getLocalizedText(section.feature2Title || 'Expert Guides', section.feature2TitleAr)}
                           </h3>
-                          <p className="text-gray-600 text-sm leading-relaxed">
+                          <p className="text-gray-600">
                             {getLocalizedText(section.feature2Description || 'Local, knowledgeable tour guides', section.feature2DescriptionAr)}
-                          </p>
-                        </div>
-                      </div>
-                    </CardContent>
-                  </Card>
-
-                  <Card className="border-0 shadow-sm hover:shadow-md transition-shadow">
-                    <CardContent className="p-6 text-center">
-                      <div className="flex flex-col items-center gap-4">
-                        <div className="w-16 h-16 bg-orange-100 rounded-full flex items-center justify-center">
-                          {getIcon(section.feature3Icon || 'star')}
-                        </div>
-                        <div>
-                          <h3 className="font-semibold text-lg mb-2 text-gray-900">
-                            {getLocalizedText(section.feature3Title || 'Transparent Pricing', section.feature3TitleAr)}
-                          </h3>
-                          <p className="text-gray-600 text-sm leading-relaxed">
-                            {getLocalizedText(section.feature3Description || 'Competitive prices with no hidden fees', section.feature3DescriptionAr)}
                           </p>
                         </div>
                       </div>
