@@ -123,7 +123,7 @@ const DynamicHomepageSection: React.FC<DynamicHomepageSectionProps> = ({ section
           <div className={`${isImageLeft ? 'lg:order-2' : 'lg:order-1'}`}>
             <div className="space-y-6">
               <div>
-                <h2 className="text-4xl font-bold leading-tight mb-4">
+                <h2 className="text-4xl font-bold leading-tight mb-4 text-[#000000]">
                   {getLocalizedText(section.title, section.titleAr)}
                 </h2>
                 
