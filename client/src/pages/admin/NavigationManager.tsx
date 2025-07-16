@@ -13,9 +13,129 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { useToast } from '@/hooks/use-toast';
 import { apiRequest } from '@/lib/queryClient';
 import type { Menu, MenuItem } from '@shared/schema';
+import {
+  DndContext,
+  closestCenter,
+  KeyboardSensor,
+  PointerSensor,
+  useSensor,
+  useSensors,
+  DragEndEvent,
+} from '@dnd-kit/core';
+import {
+  arrayMove,
+  SortableContext,
+  sortableKeyboardCoordinates,
+  verticalListSortingStrategy,
+} from '@dnd-kit/sortable';
+import {
+  useSortable,
+} from '@dnd-kit/sortable';
+import { CSS } from '@dnd-kit/utilities';
 
 interface MenuWithItems extends Menu {
   items: MenuItem[];
+}
+
+// Sortable Menu Item Component
+function SortableMenuItem({ item, menuItems, onEdit, onDelete, deleteItemMutation }: {
+  item: MenuItem;
+  menuItems: MenuItem[];
+  onEdit: (item: MenuItem) => void;
+  onDelete: (id: number) => void;
+  deleteItemMutation: any;
+}) {
+  const {
+    attributes,
+    listeners,
+    setNodeRef,
+    transform,
+    transition,
+    isDragging,
+  } = useSortable({ id: item.id });
+
+  const style = {
+    transform: CSS.Transform.toString(transform),
+    transition,
+    opacity: isDragging ? 0.5 : 1,
+  };
+
+  const isChild = item.parentId !== null;
+  const hasChildren = menuItems.some(menuItem => menuItem.parentId === item.id);
+
+  return (
+    <div
+      ref={setNodeRef}
+      style={style}
+      {...attributes}
+      {...listeners}
+      className={`p-4 bg-white border rounded-lg shadow-sm cursor-move hover:shadow-md transition-all ${
+        isChild ? 'ml-8 border-l-4 border-l-blue-500 bg-blue-50' : ''
+      } ${isDragging ? 'shadow-lg' : ''}`}
+    >
+      <div className="flex items-center justify-between">
+        <div className="flex items-center gap-3">
+          <LinkIcon className={`w-5 h-5 text-muted-foreground ${
+            hasChildren ? 'text-blue-600' : ''
+          }`} />
+          <div>
+            <h3 className="font-semibold flex items-center gap-2">
+              {isChild && <span className="text-blue-600">↳</span>}
+              {item.title}
+              {hasChildren && <Badge variant="outline" className="text-xs">Parent</Badge>}
+            </h3>
+            <p className="text-sm text-muted-foreground">
+              {item.url} • Order: {item.orderPosition}
+              {item.parentId && (
+                <span className="text-blue-600">
+                  {' • Child of: '}
+                  {menuItems.find(parent => parent.id === item.parentId)?.title}
+                </span>
+              )}
+            </p>
+            {item.icon && (
+              <p className="text-sm text-muted-foreground">
+                Icon: {item.icon}
+              </p>
+            )}
+          </div>
+          <Badge variant={item.active ? "default" : "secondary"}>
+            {item.active ? "Active" : "Inactive"}
+          </Badge>
+        </div>
+        <div className="flex items-center gap-2">
+          <Button
+            variant="outline"
+            size="sm"
+            onClick={(e) => {
+              e.stopPropagation();
+              onEdit(item);
+            }}
+            disabled={deleteItemMutation.isPending}
+          >
+            <Edit2 className="w-4 h-4" />
+          </Button>
+          <Button
+            variant="outline"
+            size="sm"
+            onClick={(e) => {
+              e.stopPropagation();
+              if (window.confirm('Are you sure you want to delete this menu item?')) {
+                onDelete(item.id);
+              }
+            }}
+            disabled={deleteItemMutation.isPending}
+          >
+            {deleteItemMutation.isPending ? (
+              <div className="w-4 h-4 border-2 border-gray-300 border-t-gray-600 rounded-full animate-spin"></div>
+            ) : (
+              <Trash2 className="w-4 h-4" />
+            )}
+          </Button>
+        </div>
+      </div>
+    </div>
+  );
 }
 
 export default function NavigationManager() {
@@ -244,6 +364,67 @@ export default function NavigationManager() {
     }
   });
 
+  // Drag and drop sensors
+  const sensors = useSensors(
+    useSensor(PointerSensor),
+    useSensor(KeyboardSensor, {
+      coordinateGetter: sortableKeyboardCoordinates,
+    })
+  );
+
+  // Reorder menu items mutation
+  const reorderItemsMutation = useMutation({
+    mutationFn: async (updates: { id: number; orderPosition: number }[]) => {
+      // Update multiple menu items with new order positions
+      const promises = updates.map(update => 
+        apiRequest(`/api/menu-items/${update.id}`, {
+          method: 'PUT',
+          body: JSON.stringify({ orderPosition: update.orderPosition })
+        })
+      );
+      return Promise.all(promises);
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: [`/api/menu-items/${selectedMenu?.id}`] });
+      queryClient.invalidateQueries({ queryKey: ['/api/menu-items', selectedMenu?.id] });
+      queryClient.invalidateQueries({ queryKey: ['/api/menus/location/header'] });
+      if (selectedMenu) {
+        refetchMenuItems();
+      }
+      toast({
+        title: "Success",
+        description: "Menu items reordered successfully",
+      });
+    },
+    onError: (error) => {
+      toast({
+        title: "Error",
+        description: error.message || "Failed to reorder menu items",
+        variant: "destructive",
+      });
+    }
+  });
+
+  // Handle drag end
+  const handleDragEnd = (event: DragEndEvent) => {
+    const { active, over } = event;
+
+    if (active.id !== over?.id) {
+      const oldIndex = menuItems.findIndex(item => item.id === active.id);
+      const newIndex = menuItems.findIndex(item => item.id === over?.id);
+      
+      const reorderedItems = arrayMove(menuItems, oldIndex, newIndex);
+      
+      // Update order positions based on new array positions
+      const updates = reorderedItems.map((item, index) => ({
+        id: item.id,
+        orderPosition: index + 1
+      }));
+      
+      reorderItemsMutation.mutate(updates);
+    }
+  };
+
   const handleCreateMenu = () => {
     createMenuMutation.mutate(menuForm);
   };
@@ -453,87 +634,39 @@ export default function NavigationManager() {
                   ))}
                 </div>
               ) : (
-                <div className="space-y-4">
-                  {menuItems
-                    .sort((a, b) => (a.orderPosition || 0) - (b.orderPosition || 0))
-                    .map((item: MenuItem) => {
-                      const isChild = item.parentId !== null;
-                      const hasChildren = menuItems.some(child => child.parentId === item.id);
-                      
-                      return (
-                        <div 
-                          key={item.id} 
-                          className={`flex items-center justify-between p-4 border rounded-lg ${
-                            isChild ? 'ml-8 border-l-4 border-l-blue-500 bg-blue-50' : ''
-                          }`}
-                        >
-                          <div className="flex items-center gap-3">
-                            <LinkIcon className={`w-5 h-5 text-muted-foreground ${
-                              hasChildren ? 'text-blue-600' : ''
-                            }`} />
-                            <div>
-                              <h3 className="font-semibold flex items-center gap-2">
-                                {isChild && <span className="text-blue-600">↳</span>}
-                                {item.title}
-                                {hasChildren && <Badge variant="outline" className="text-xs">Parent</Badge>}
-                              </h3>
-                              <p className="text-sm text-muted-foreground">
-                                {item.url} • Order: {item.orderPosition}
-                                {item.parentId && (
-                                  <span className="text-blue-600">
-                                    {' • Child of: '}
-                                    {menuItems.find(parent => parent.id === item.parentId)?.title}
-                                  </span>
-                                )}
-                              </p>
-                              {item.icon && (
-                                <p className="text-sm text-muted-foreground">
-                                  Icon: {item.icon}
-                                </p>
-                              )}
-                            </div>
-                            <Badge variant={item.active ? "default" : "secondary"}>
-                              {item.active ? "Active" : "Inactive"}
-                            </Badge>
-                          </div>
-                          <div className="flex items-center gap-2">
-                            <Button
-                              variant="outline"
-                              size="sm"
-                              onClick={() => handleEditItem(item)}
-                              disabled={deleteItemMutation.isPending}
-                            >
-                              <Edit2 className="w-4 h-4" />
-                            </Button>
-                            <Button
-                              variant="outline"
-                              size="sm"
-                              onClick={() => {
-                                if (window.confirm('Are you sure you want to delete this menu item?')) {
-                                  deleteItemMutation.mutate(item.id);
-                                }
-                              }}
-                              disabled={deleteItemMutation.isPending}
-                            >
-                              {deleteItemMutation.isPending ? (
-                                <div className="w-4 h-4 border-2 border-gray-300 border-t-gray-600 rounded-full animate-spin"></div>
-                              ) : (
-                                <Trash2 className="w-4 h-4" />
-                              )}
-                            </Button>
-                          </div>
+                <DndContext
+                  sensors={sensors}
+                  collisionDetection={closestCenter}
+                  onDragEnd={handleDragEnd}
+                >
+                  <SortableContext
+                    items={menuItems.map(item => item.id)}
+                    strategy={verticalListSortingStrategy}
+                  >
+                    <div className="space-y-4">
+                      {menuItems
+                        .sort((a, b) => (a.orderPosition || 0) - (b.orderPosition || 0))
+                        .map((item: MenuItem) => (
+                          <SortableMenuItem
+                            key={item.id}
+                            item={item}
+                            menuItems={menuItems}
+                            onEdit={handleEditItem}
+                            onDelete={(id) => deleteItemMutation.mutate(id)}
+                            deleteItemMutation={deleteItemMutation}
+                          />
+                        ))}
+                      {menuItems.length === 0 && (
+                        <div className="text-center py-8">
+                          <LinkIcon className="w-12 h-12 mx-auto text-gray-400 mb-4" />
+                          <p className="text-muted-foreground">
+                            No menu items found. Create your first menu item!
+                          </p>
                         </div>
-                      );
-                    })}
-                  {menuItems.length === 0 && (
-                    <div className="text-center py-8">
-                      <LinkIcon className="w-12 h-12 mx-auto text-gray-400 mb-4" />
-                      <p className="text-muted-foreground">
-                        No menu items found. Create your first menu item!
-                      </p>
+                      )}
                     </div>
-                  )}
-                </div>
+                  </SortableContext>
+                </DndContext>
               )}
             </CardContent>
           </Card>

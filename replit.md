@@ -106,6 +106,23 @@ The application uses a comprehensive PostgreSQL schema with the following core e
 
 ## Recent Changes
 
+- **Navigation Manager Drag-and-Drop Implementation Complete (July 16, 2025)**: Successfully implemented comprehensive drag-and-drop reordering functionality and visual hierarchy for navigation menu management
+  - **Drag-and-Drop Reordering**: Added @dnd-kit library integration with sortable menu item cards that can be dragged to reorder
+  - **Visual Hierarchy for Nested Items**: Child menu items now display with left margins (ml-8), blue left border, blue background tint, and arrow indicator (↳)
+  - **SortableMenuItem Component**: Created dedicated sortable component with proper drag states, opacity transitions, and cursor styling
+  - **Automatic Order Updates**: Drag operations automatically update orderPosition values in database through batch API calls
+  - **Enhanced User Experience**: Visual feedback during dragging with shadow effects, disabled state handling, and smooth transitions
+  - **Parent-Child Relationships**: Clear visual distinction between parent and child menu items with blue accents and relationship indicators
+  - **Touch and Keyboard Support**: Full accessibility with pointer, touch, and keyboard navigation support for drag operations
+  - **Real-time Updates**: Immediate UI updates with proper cache invalidation and query refetching after reordering
+  - **Production Ready**: Complete drag-and-drop navigation management system integrated with existing admin panel functionality
+
+- **Navigation Deletion API Fix Complete (July 16, 2025)**: Successfully resolved critical navigation deletion errors by updating apiRequest function to handle 204 status codes properly
+  - **204 Status Handling**: Added proper handling for DELETE operations that return 204 No Content responses
+  - **Error Resolution**: Fixed "Expected JSON response but received unknown content-type" errors in navigation management
+  - **Improved User Experience**: Menu and menu item deletion now works seamlessly without error messages
+  - **Clean API Integration**: Proper status code handling maintains compatibility with backend DELETE endpoints
+
 - **YouTube Channel Video Promo Section Implementation Complete (July 16, 2025)**: Successfully added a comprehensive video promotion section positioned under the "Why Choose Us" section on the homepage
   - **Section Design**: Created VideoPromoSection.tsx component with professional dark blue gradient background matching the reference image provided
   - **Layout Structure**: Implemented two-column layout with video preview on left and statistics grid on right, responsive for all screen sizes
