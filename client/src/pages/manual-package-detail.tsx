@@ -453,6 +453,39 @@ export default function ManualPackageDetail() {
               </Card>
             )}
 
+            {/* Package Information */}
+            <Card>
+              <CardHeader>
+                <CardTitle>Package Information</CardTitle>
+              </CardHeader>
+              <CardContent className="space-y-4">
+                <div className="flex items-center justify-between">
+                  <span className="text-sm text-gray-600">Duration</span>
+                  <span className="font-medium">{packageData.duration} days</span>
+                </div>
+                <div className="flex items-center justify-between">
+                  <span className="text-sm text-gray-600">Price</span>
+                  <span className="font-medium text-green-600">{packageData.discountedPrice || packageData.price} LE</span>
+                </div>
+                {packageData.discountedPrice && (
+                  <div className="flex items-center justify-between">
+                    <span className="text-sm text-gray-600">Original Price</span>
+                    <span className="font-medium text-gray-500 line-through">{packageData.price} LE</span>
+                  </div>
+                )}
+                <div className="flex items-center justify-between">
+                  <span className="text-sm text-gray-600">Category</span>
+                  <Badge variant="outline">Manual Package</Badge>
+                </div>
+                {destination && (
+                  <div className="flex items-center justify-between">
+                    <span className="text-sm text-gray-600">Destination</span>
+                    <span className="font-medium">{destination.name}</span>
+                  </div>
+                )}
+              </CardContent>
+            </Card>
+
             {/* Package Itinerary */}
             {packageData.itinerary && packageData.itinerary.length > 0 && (
               <Card>
@@ -574,39 +607,6 @@ export default function ManualPackageDetail() {
 
           {/* Sidebar Content */}
           <div className="lg:col-span-1 space-y-6">
-            {/* Quick Package Info */}
-            <Card>
-              <CardHeader>
-                <CardTitle>Package Information</CardTitle>
-              </CardHeader>
-              <CardContent className="space-y-4">
-                <div className="flex items-center justify-between">
-                  <span className="text-sm text-gray-600">Duration</span>
-                  <span className="font-medium">{packageData.duration} days</span>
-                </div>
-                <div className="flex items-center justify-between">
-                  <span className="text-sm text-gray-600">Price</span>
-                  <span className="font-medium text-green-600">{packageData.discountedPrice || packageData.price} LE</span>
-                </div>
-                {packageData.discountedPrice && (
-                  <div className="flex items-center justify-between">
-                    <span className="text-sm text-gray-600">Original Price</span>
-                    <span className="font-medium text-gray-500 line-through">{packageData.price} LE</span>
-                  </div>
-                )}
-                <div className="flex items-center justify-between">
-                  <span className="text-sm text-gray-600">Category</span>
-                  <Badge variant="outline">Manual Package</Badge>
-                </div>
-                {destination && (
-                  <div className="flex items-center justify-between">
-                    <span className="text-sm text-gray-600">Destination</span>
-                    <span className="font-medium">{destination.name}</span>
-                  </div>
-                )}
-              </CardContent>
-            </Card>
-
             {/* Contact Information */}
             <Card>
               <CardHeader>
