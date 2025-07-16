@@ -3,6 +3,7 @@ import { useQuery } from "@tanstack/react-query";
 import { HeroSlider } from "@/components/HeroSlider";
 import BookingTabs from "@/components/BookingTabs";
 import FeaturedOffers from "@/components/FeaturedOffers";
+import WhyChooseUs from "@/components/WhyChooseUs";
 import ExploreSection from "@/components/ExploreSection";
 import RecommendedDestinations from "@/components/RecommendedDestinations";
 import PopularPackages from "@/components/PopularPackages";
@@ -28,6 +29,7 @@ const Home: React.FC = () => {
       <HeroSlider />
       <BookingTabs />
       <FeaturedOffers />
+      <WhyChooseUs />
       <ExploreSection />
       <RecommendedDestinations />
       <PopularPackages />

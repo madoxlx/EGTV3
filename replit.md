@@ -106,6 +106,16 @@ The application uses a comprehensive PostgreSQL schema with the following core e
 
 ## Recent Changes
 
+- **Why Choose Us Section Added to Homepage (July 16, 2025)**: Successfully added a new "Why Choose Us" section to the homepage positioned right after the "Special Upcoming Offers" section
+  - **Component Creation**: Created new WhyChooseUs.tsx component with three feature highlights: "Tailored and Reliable Service", "Exceptional Expertise and Comfort", and "Transparent and Competitive Pricing"
+  - **Professional Design**: Implemented clean layout with circular icon containers, shadow effects, and hover animations
+  - **Bilingual Support**: Full English/Arabic translation support with RTL text direction handling
+  - **Responsive Grid**: Three-column layout that adapts to mobile, tablet, and desktop screens
+  - **Icon Integration**: Used Lucide React icons (Shield, Users, DollarSign) for visual appeal
+  - **Homepage Integration**: Added component to Home.tsx structure between FeaturedOffers and ExploreSection
+  - **Brand Consistency**: Light gray background and professional styling that matches existing design system
+  - **Translation Ready**: Integrated with existing translation system with proper fallback text
+
 - **Statistics Labels Translation Implementation Complete (July 15, 2025)**: Successfully added editable translation fields for floating statistics elements (Hotels, Destinations, Tourists) in homepage sections management
   - **Database Schema Enhancement**: Added 6 new fields to homepage_sections table: tourists_label, destinations_label, hotels_label, tourists_label_ar, destinations_label_ar, hotels_label_ar
   - **Admin Form Enhancement**: Updated HomepageSectionsManagement.tsx with dedicated sections for English and Arabic statistics labels with proper RTL support
