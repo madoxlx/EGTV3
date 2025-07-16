@@ -3,7 +3,7 @@ import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { useLanguage } from '@/hooks/use-language';
-import { Calendar, UserCheck, ChevronRight } from 'lucide-react';
+import { Calendar, UserCheck, ChevronRight, Shield, Users, DollarSign, Star, Heart, Zap, CheckCircle, ShieldCheck, Gift, Headphones, Clock, MapPin } from 'lucide-react';
 
 interface HomepageSection {
   id: number;
@@ -37,6 +37,16 @@ interface HomepageSection {
   imagePosition?: 'left' | 'right';
   backgroundColor?: string;
   textColor?: string;
+  features?: Array<{
+    title: string;
+    titleAr?: string;
+    icon: string;
+    subFeatures?: Array<{
+      title: string;
+      titleAr?: string;
+      icon: string;
+    }>;
+  }>;
 }
 
 interface DynamicHomepageSectionProps {
@@ -47,14 +57,26 @@ const iconMap: { [key: string]: React.ComponentType<any> } = {
   calendar: Calendar,
   'user-check': UserCheck,
   'chevron-right': ChevronRight,
+  shield: Shield,
+  'shield-check': ShieldCheck,
+  users: Users,
+  'dollar-sign': DollarSign,
+  star: Star,
+  heart: Heart,
+  zap: Zap,
+  'check-circle': CheckCircle,
+  gift: Gift,
+  headphones: Headphones,
+  clock: Clock,
+  'map-pin': MapPin,
 };
 
 const DynamicHomepageSection: React.FC<DynamicHomepageSectionProps> = ({ section }) => {
   const { t, currentLanguage, isRTL } = useLanguage();
   
-  const getIcon = (iconName: string) => {
+  const getIcon = (iconName: string, size: string = "w-5 h-5", color: string = "text-blue-600") => {
     const IconComponent = iconMap[iconName] || Calendar;
-    return <IconComponent className="w-5 h-5 text-blue-600" />;
+    return <IconComponent className={`${size} ${color}`} />;
   };
 
   const getLocalizedText = (enText: string, arText?: string) => {
@@ -64,6 +86,61 @@ const DynamicHomepageSection: React.FC<DynamicHomepageSectionProps> = ({ section
   const isImageLeft = section.imagePosition === 'left';
   const backgroundColor = section.backgroundColor || 'white';
   const textColor = section.textColor || 'black';
+
+  // Check if this is a "Why Choose Us" section with hierarchical features
+  const isWhyChooseUsSection = section.features && section.features.length > 0 && section.features.some(f => f.subFeatures);
+
+  // If this is a "Why Choose Us" section, render it differently
+  if (isWhyChooseUsSection) {
+    return (
+      <section className="py-16 bg-gray-50">
+        <div className="container mx-auto px-4">
+          {/* Section Header */}
+          <div className="text-center mb-12">
+            <h2 className="text-3xl font-bold text-gray-900 mb-4 border-b-2 border-gray-900 inline-block pb-2">
+              {getLocalizedText(section.title, section.titleAr)}
+            </h2>
+          </div>
+
+          {/* Features Grid */}
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
+            {section.features?.map((feature, index) => (
+              <div key={index} className="group">
+                {/* Icon and Title Row */}
+                <div className="flex items-center gap-4 mb-4">
+                  {/* Icon Circle */}
+                  <div className="w-16 h-16 bg-white rounded-full flex items-center justify-center shadow-lg group-hover:shadow-xl transition-shadow duration-300 flex-shrink-0">
+                    {getIcon(feature.icon, "w-8 h-8", "text-blue-600")}
+                  </div>
+                  
+                  {/* Title */}
+                  <h3 className="text-xl font-semibold text-gray-900">
+                    {getLocalizedText(feature.title, feature.titleAr)}
+                  </h3>
+                </div>
+                
+                {/* Sub-features */}
+                {feature.subFeatures && feature.subFeatures.length > 0 && (
+                  <div className="space-y-2 ml-4">
+                    {feature.subFeatures.map((subFeature, subIndex) => (
+                      <div key={subIndex} className="flex items-center gap-2">
+                        <div className="w-4 h-4 bg-blue-100 rounded-full flex items-center justify-center">
+                          {getIcon(subFeature.icon, "w-3 h-3", "text-blue-600")}
+                        </div>
+                        <span className="text-gray-600 text-sm">
+                          {getLocalizedText(subFeature.title, subFeature.titleAr)}
+                        </span>
+                      </div>
+                    ))}
+                  </div>
+                )}
+              </div>
+            ))}
+          </div>
+        </div>
+      </section>
+    );
+  }
 
   return (
     <section 

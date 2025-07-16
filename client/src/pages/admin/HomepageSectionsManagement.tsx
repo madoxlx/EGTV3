@@ -411,33 +411,33 @@ const HomepageSectionsManagement: React.FC = () => {
       // Reset to the default structure when opening the form
       setMainFeatures([
         {
-          title: 'Premium Services',
-          titleAr: 'خدمات مميزة',
-          icon: 'star',
+          title: 'Tailored and Reliable Service',
+          titleAr: 'خدمة مخصصة وموثوقة',
+          icon: 'shield',
           subFeatures: [
-            { title: 'Luxury Accommodation', titleAr: 'إقامة فاخرة', icon: 'heart' },
-            { title: 'Private Transportation', titleAr: 'نقل خاص', icon: 'zap' },
-            { title: 'Expert Guides', titleAr: 'مرشدين خبراء', icon: 'user-check' }
+            { title: 'Customized Travel', titleAr: 'سفر مخصص', icon: 'heart' },
+            { title: 'Timely Transfers', titleAr: 'نقل في الوقت المناسب', icon: 'zap' },
+            { title: 'Seamless Plans', titleAr: 'خطط سلسة', icon: 'check-circle' }
           ]
         },
         {
-          title: 'Best Value',
-          titleAr: 'أفضل قيمة',
+          title: 'Exceptional Expertise and Comfort',
+          titleAr: 'خبرة استثنائية وراحة',
+          icon: 'users',
+          subFeatures: [
+            { title: 'Expert Guides', titleAr: 'مرشدين خبراء', icon: 'user-check' },
+            { title: 'Skilled Drivers', titleAr: 'سائقين ماهرين', icon: 'zap' },
+            { title: 'Reliable Vehicles', titleAr: 'مركبات موثوقة', icon: 'shield-check' }
+          ]
+        },
+        {
+          title: 'Transparent and Competitive Pricing',
+          titleAr: 'أسعار شفافة وتنافسية',
           icon: 'dollar-sign',
           subFeatures: [
-            { title: 'Competitive Pricing', titleAr: 'أسعار تنافسية', icon: 'check-circle' },
-            { title: 'No Hidden Fees', titleAr: 'لا رسوم مخفية', icon: 'shield-check' },
-            { title: 'Best Deals', titleAr: 'أفضل الصفقات', icon: 'gift' }
-          ]
-        },
-        {
-          title: '24/7 Support',
-          titleAr: 'دعم على مدار الساعة',
-          icon: 'headphones',
-          subFeatures: [
-            { title: 'Customer Service', titleAr: 'خدمة العملاء', icon: 'users' },
-            { title: 'Emergency Support', titleAr: 'دعم الطوارئ', icon: 'clock' },
-            { title: 'Travel Assistance', titleAr: 'مساعدة السفر', icon: 'map-pin' }
+            { title: 'Premium Services', titleAr: 'خدمات مميزة', icon: 'star' },
+            { title: 'Fair Rates', titleAr: 'أسعار عادلة', icon: 'check-circle' },
+            { title: 'Stress-free Journey', titleAr: 'رحلة خالية من التوتر', icon: 'heart' }
           ]
         }
       ]);
