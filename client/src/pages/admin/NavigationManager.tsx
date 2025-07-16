@@ -21,6 +21,10 @@ import {
   useSensor,
   useSensors,
   DragEndEvent,
+  DragOverEvent,
+  DragOverlay,
+  DragStartEvent,
+  useDndMonitor,
 } from '@dnd-kit/core';
 import {
   arrayMove,
@@ -38,12 +42,14 @@ interface MenuWithItems extends Menu {
 }
 
 // Sortable Menu Item Component
-function SortableMenuItem({ item, menuItems, onEdit, onDelete, deleteItemMutation }: {
+function SortableMenuItem({ item, menuItems, onEdit, onDelete, deleteItemMutation, isOverlay = false, isDragOver = false }: {
   item: MenuItem;
   menuItems: MenuItem[];
   onEdit: (item: MenuItem) => void;
   onDelete: (id: number) => void;
   deleteItemMutation: any;
+  isOverlay?: boolean;
+  isDragOver?: boolean;
 }) {
   const {
     attributes,
@@ -69,7 +75,9 @@ function SortableMenuItem({ item, menuItems, onEdit, onDelete, deleteItemMutatio
       style={style}
       className={`p-4 bg-white border rounded-lg shadow-sm hover:shadow-md transition-all ${
         isChild ? 'ml-8 border-l-4 border-l-blue-500 bg-blue-50' : ''
-      } ${isDragging ? 'shadow-lg' : ''}`}
+      } ${isDragging ? 'shadow-lg' : ''} ${
+        isDragOver ? 'border-2 border-dashed border-green-500 bg-green-50' : ''
+      } ${isOverlay ? 'shadow-xl bg-white' : ''}`}
     >
       <div className="flex items-center justify-between">
         {/* Drag handle area - only this part is draggable */}
@@ -96,6 +104,12 @@ function SortableMenuItem({ item, menuItems, onEdit, onDelete, deleteItemMutatio
                 </span>
               )}
             </p>
+            {/* Drop zone indicator */}
+            {isDragOver && !isChild && (
+              <div className="flex items-center text-xs text-green-600 bg-green-100 px-2 py-1 rounded mt-1">
+                <span>Drop here to make child item</span>
+              </div>
+            )}
             {item.icon && (
               <p className="text-sm text-muted-foreground">
                 Icon: {item.icon}
@@ -154,6 +168,8 @@ export default function NavigationManager() {
   const [isMenuDialogOpen, setIsMenuDialogOpen] = useState(false);
   const [isItemDialogOpen, setIsItemDialogOpen] = useState(false);
   const [editingItem, setEditingItem] = useState<MenuItem | null>(null);
+  const [draggedItem, setDraggedItem] = useState<MenuItem | null>(null);
+  const [overId, setOverId] = useState<number | null>(null);
 
   // Menu form state
   const [menuForm, setMenuForm] = useState({
@@ -414,13 +430,49 @@ export default function NavigationManager() {
     }
   });
 
-  // Handle drag end
+  // Handle drag start
+  const handleDragStart = (event: DragStartEvent) => {
+    const { active } = event;
+    const item = menuItems.find(item => item.id === active.id);
+    setDraggedItem(item || null);
+  };
+
+  // Handle drag over
+  const handleDragOver = (event: DragOverEvent) => {
+    const { over } = event;
+    setOverId(over?.id as number || null);
+  };
+
+  // Handle drag end with support for parent-child relationships
   const handleDragEnd = (event: DragEndEvent) => {
     const { active, over } = event;
+    
+    setDraggedItem(null);
+    setOverId(null);
 
-    if (active.id !== over?.id) {
+    if (!over || active.id === over.id) return;
+
+    const draggedItem = menuItems.find(item => item.id === active.id);
+    const targetItem = menuItems.find(item => item.id === over.id);
+
+    if (!draggedItem || !targetItem) return;
+
+    // Check if we're dropping onto a potential parent item
+    const isDropOnParent = targetItem.parentId === null && draggedItem.id !== targetItem.id;
+    
+    if (isDropOnParent && draggedItem.parentId !== targetItem.id) {
+      // Make the dragged item a child of the target item
+      const updateData = {
+        ...draggedItem,
+        parentId: targetItem.id,
+        orderPosition: 1 // Set as first child
+      };
+      
+      updateItemMutation.mutate({ id: draggedItem.id, data: updateData });
+    } else {
+      // Normal reordering behavior
       const oldIndex = menuItems.findIndex(item => item.id === active.id);
-      const newIndex = menuItems.findIndex(item => item.id === over?.id);
+      const newIndex = menuItems.findIndex(item => item.id === over.id);
       
       const reorderedItems = arrayMove(menuItems, oldIndex, newIndex);
       
@@ -646,6 +698,8 @@ export default function NavigationManager() {
                 <DndContext
                   sensors={sensors}
                   collisionDetection={closestCenter}
+                  onDragStart={handleDragStart}
+                  onDragOver={handleDragOver}
                   onDragEnd={handleDragEnd}
                 >
                   <SortableContext
@@ -663,6 +717,7 @@ export default function NavigationManager() {
                             onEdit={handleEditItem}
                             onDelete={(id) => deleteItemMutation.mutate(id)}
                             deleteItemMutation={deleteItemMutation}
+                            isDragOver={overId === item.id && draggedItem?.id !== item.id}
                           />
                         ))}
                       {menuItems.length === 0 && (
@@ -675,6 +730,18 @@ export default function NavigationManager() {
                       )}
                     </div>
                   </SortableContext>
+                  <DragOverlay>
+                    {draggedItem && (
+                      <SortableMenuItem
+                        item={draggedItem}
+                        menuItems={menuItems}
+                        onEdit={() => {}}
+                        onDelete={() => {}}
+                        deleteItemMutation={deleteItemMutation}
+                        isOverlay={true}
+                      />
+                    )}
+                  </DragOverlay>
                 </DndContext>
               )}
             </CardContent>
