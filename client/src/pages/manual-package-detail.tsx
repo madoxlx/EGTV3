@@ -486,6 +486,8 @@ export default function ManualPackageDetail() {
               </CardContent>
             </Card>
 
+
+
             {/* Package Itinerary */}
             {packageData.itinerary && packageData.itinerary.length > 0 && (
               <Card>
