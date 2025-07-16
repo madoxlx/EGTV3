@@ -148,13 +148,13 @@ export function IconSelector({ value, onChange, placeholder = "Select an icon", 
   };
 
   const renderIcon = (iconName: string) => {
-    const IconComponent = (LucideIcons as any)[iconName];
-    
-    if (!IconComponent) {
-      return <div className="w-5 h-5 bg-gray-300 rounded" />;
-    }
-    
     try {
+      const IconComponent = (LucideIcons as any)[iconName];
+      
+      if (!IconComponent) {
+        return <div className="w-5 h-5 bg-gray-300 rounded" />;
+      }
+      
       // Handle both function and object type React components
       if (typeof IconComponent === 'function') {
         return <IconComponent size={20} />;

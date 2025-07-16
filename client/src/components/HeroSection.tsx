@@ -12,10 +12,24 @@ const HeroSection: React.FC = () => {
     // Test if image can be loaded correctly
     const img = new Image();
     img.onerror = () => {
-      // If it fails, use fallback image
-      setBackgroundImage(fallbackImageUrl);
+      try {
+        // If it fails, use fallback image
+        setBackgroundImage(fallbackImageUrl);
+      } catch (error) {
+        console.error('Error setting fallback image:', error);
+      }
     };
-    img.src = backgroundImage;
+    img.onload = () => {
+      // Image loaded successfully
+      console.log('Hero image loaded successfully');
+    };
+    
+    try {
+      img.src = backgroundImage;
+    } catch (error) {
+      console.error('Error setting image source:', error);
+      setBackgroundImage(fallbackImageUrl);
+    }
   }, []);
 
   const { t } = useLanguage();

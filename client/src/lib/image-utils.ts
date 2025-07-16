@@ -9,7 +9,13 @@ import noImagePlaceholder from "../assets/no-pic.png";
  * Sets a default placeholder image when an image fails to load
  */
 export const handleImageError = (e: React.SyntheticEvent<HTMLImageElement, Event>) => {
-  e.currentTarget.src = noImagePlaceholder;
+  try {
+    if (e.currentTarget) {
+      e.currentTarget.src = noImagePlaceholder;
+    }
+  } catch (error) {
+    console.error('Error handling image error:', error);
+  }
 };
 
 /**
