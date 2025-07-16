@@ -43,6 +43,12 @@ export async function apiRequest<T = any>(
     throw new Error(`${res.status}: ${text}`);
   }
   
+  // Handle 204 No Content responses (for DELETE operations)
+  if (res.status === 204) {
+    console.log('API Response: 204 No Content');
+    return null as T;
+  }
+  
   // Check if response is JSON before parsing
   const contentType = res.headers.get('content-type');
   if (contentType && contentType.includes('application/json')) {
