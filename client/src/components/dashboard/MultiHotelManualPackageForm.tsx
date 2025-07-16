@@ -1050,29 +1050,39 @@ export function MultiHotelManualPackageForm({
     mutationFn: async (formData: ManualPackageFormValues) => {
       if (!packageId) throw new Error("Package ID is required for update");
 
-      // Get the main image URL (or keep existing if none is set)
+      // Get the main image URL - replace with new image if provided, otherwise keep existing
       const mainImage = images.find((img) => img.isMain);
-      let mainImageUrl = mainImage
-        ? mainImage.preview
-        : packageData?.imageUrl || "";
-
-      // If the main image is a blob URL, keep the existing image URL or use placeholder
-      if (mainImageUrl && mainImageUrl.startsWith('blob:')) {
+      let mainImageUrl;
+      
+      if (mainImage && !mainImage.preview.startsWith('blob:')) {
+        // Use new valid main image
+        mainImageUrl = mainImage.preview;
+      } else if (mainImage && mainImage.preview.startsWith('blob:')) {
+        // If user uploaded new image but it's blob, use placeholder (this shouldn't happen with our fixes)
+        mainImageUrl = "https://images.unsplash.com/photo-1540541338287-41700207dee6?q=80&w=800";
+      } else {
+        // No new main image selected, keep existing one
         mainImageUrl = packageData?.imageUrl || "https://images.unsplash.com/photo-1540541338287-41700207dee6?q=80&w=800";
       }
 
-      // Get all gallery image URLs, filtering out blob URLs and keeping existing valid ones
+      // Get all gallery image URLs - use new images if provided, otherwise keep existing ones
       const validNewImages = images
         .map((img) => img.preview)
         .filter((url) => !url.startsWith('blob:'));
       
-      // Combine with existing gallery URLs if they exist and are valid
-      const existingGalleryUrls = packageData?.galleryUrls ? 
-        (Array.isArray(packageData.galleryUrls) ? packageData.galleryUrls : 
-         JSON.parse(packageData.galleryUrls as string || '[]'))
-        .filter((url: string) => !url.startsWith('blob:')) : [];
+      let galleryUrls;
       
-      const galleryUrls = [...existingGalleryUrls, ...validNewImages];
+      // If user has added new images, use only the new ones (replacing old ones)
+      if (validNewImages.length > 0) {
+        galleryUrls = validNewImages;
+      } else {
+        // If no new images, keep existing gallery URLs if they exist and are valid
+        const existingGalleryUrls = packageData?.galleryUrls ? 
+          (Array.isArray(packageData.galleryUrls) ? packageData.galleryUrls : 
+           JSON.parse(packageData.galleryUrls as string || '[]'))
+          .filter((url: string) => !url.startsWith('blob:')) : [];
+        galleryUrls = existingGalleryUrls;
+      }
 
       // Prepare tour data with custom prices for storage
       const tourPriceData = selectedToursWithPrices.map((tour) => ({
@@ -1125,19 +1135,24 @@ export function MultiHotelManualPackageForm({
       return response;
     },
     onSuccess: () => {
+      // Clear all package-related cache to ensure fresh data
       queryClient.invalidateQueries({ queryKey: ["/api/admin/packages"] });
       queryClient.invalidateQueries({ queryKey: ["/api/packages"] });
       queryClient.invalidateQueries({
         queryKey: ["/api/admin/packages", packageId],
       });
+      
+      // Force refresh of the specific package cache
+      queryClient.removeQueries({ queryKey: ["/api/packages"] });
+      queryClient.refetchQueries({ queryKey: ["/api/packages"] });
 
       toast({
-        title: "Manual Package Updated",
-        description: "The manual package was updated successfully",
+        title: "تم تحديث الحزمة بنجاح",
+        description: "تم حفظ الصور الجديدة وتحديث جميع البيانات",
         variant: "default",
       });
 
-      // Navigate back to package detail or packages list
+      // Navigate back to package detail page to show updated images
       navigate(`/packages/manual/${packageId}`);
     },
     onError: (error: Error) => {
