@@ -67,14 +67,17 @@ function SortableMenuItem({ item, menuItems, onEdit, onDelete, deleteItemMutatio
     <div
       ref={setNodeRef}
       style={style}
-      {...attributes}
-      {...listeners}
-      className={`p-4 bg-white border rounded-lg shadow-sm cursor-move hover:shadow-md transition-all ${
+      className={`p-4 bg-white border rounded-lg shadow-sm hover:shadow-md transition-all ${
         isChild ? 'ml-8 border-l-4 border-l-blue-500 bg-blue-50' : ''
       } ${isDragging ? 'shadow-lg' : ''}`}
     >
       <div className="flex items-center justify-between">
-        <div className="flex items-center gap-3">
+        {/* Drag handle area - only this part is draggable */}
+        <div 
+          {...attributes}
+          {...listeners}
+          className="flex items-center gap-3 flex-1 cursor-move pr-4"
+        >
           <LinkIcon className={`w-5 h-5 text-muted-foreground ${
             hasChildren ? 'text-blue-600' : ''
           }`} />
@@ -103,15 +106,19 @@ function SortableMenuItem({ item, menuItems, onEdit, onDelete, deleteItemMutatio
             {item.active ? "Active" : "Inactive"}
           </Badge>
         </div>
-        <div className="flex items-center gap-2">
+        
+        {/* Action buttons - separate from drag area */}
+        <div className="flex items-center gap-2 cursor-default">
           <Button
             variant="outline"
             size="sm"
             onClick={(e) => {
               e.stopPropagation();
+              e.preventDefault();
               onEdit(item);
             }}
             disabled={deleteItemMutation.isPending}
+            className="cursor-pointer"
           >
             <Edit2 className="w-4 h-4" />
           </Button>
@@ -120,11 +127,13 @@ function SortableMenuItem({ item, menuItems, onEdit, onDelete, deleteItemMutatio
             size="sm"
             onClick={(e) => {
               e.stopPropagation();
+              e.preventDefault();
               if (window.confirm('Are you sure you want to delete this menu item?')) {
                 onDelete(item.id);
               }
             }}
             disabled={deleteItemMutation.isPending}
+            className="cursor-pointer"
           >
             {deleteItemMutation.isPending ? (
               <div className="w-4 h-4 border-2 border-gray-300 border-t-gray-600 rounded-full animate-spin"></div>
