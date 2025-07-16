@@ -70,6 +70,11 @@ export default function ManualPackageDetail() {
   });
 
   const packageData = allPackages.find((pkg: ManualPackage) => pkg.id.toString() === packageId);
+  
+  // Debug package data to understand gallery structure
+  console.log("Package data galleryUrls:", packageData?.galleryUrls);
+  console.log("Type of galleryUrls:", typeof packageData?.galleryUrls);
+  console.log("Is array?", Array.isArray(packageData?.galleryUrls));
 
   const { data: destinations = [] } = useQuery<Destination[]>({
     queryKey: ["/api/destinations"],
