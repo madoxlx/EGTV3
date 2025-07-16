@@ -65,9 +65,7 @@ const VideoPromoSection: React.FC = () => {
                     {isRTL ? 'استطلاع الآراء من متوسطة في' : 'Tourism Survey Results'}
                   </span>
                 </div>
-                <h2 className="text-3xl lg:text-4xl font-bold text-white mb-4">
-                  {isRTL ? 'قناة ممفيس للسياحة على اليوتيوب' : 'Memphis Tours YouTube Channel'}
-                </h2>
+                
                 <p className="text-blue-100 text-lg leading-relaxed">
                   {isRTL 
                     ? 'انضم إلى قناتنا على اليوتيوب واستمتع بمحتوى سياحي مميز يضم جولات افتراضية وأماكن تاريخية مدهشة وتجارب سفر لا تُنسى من مختلف أنحاء العالم.'
