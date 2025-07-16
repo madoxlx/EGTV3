@@ -106,6 +106,15 @@ The application uses a comprehensive PostgreSQL schema with the following core e
 
 ## Recent Changes
 
+- **Manual Package Detail Page Enhancement Complete (July 16, 2025)**: Successfully fixed manual package detail page display issues and added comprehensive policy sections
+  - **Currency Display Fix**: Changed all price displays from USD ($) to Egyptian Pounds (LE) for accurate local pricing
+  - **Transportation Details Section**: Added dedicated section to display transportation details with car icon
+  - **Policy Sections Added**: Added four new policy sections - Cancellation Policy, Children Policy, Terms and Conditions with appropriate icons
+  - **Sidebar Enhancement**: Added informative sidebar with quick package info, pricing summary, and contact information
+  - **Visual Improvements**: Enhanced UI with proper icons, better spacing, and professional card layouts
+  - **Data Type Extensions**: Extended ManualPackage type to include transportationDetails, cancellationPolicy, childrenPolicy, and termsAndConditions fields
+  - **Complete Information Display**: Manual package pages now show comprehensive details including policies, transportation, and all relevant information
+
 - **Manual Package Creation Tour Details Field Made Optional (July 16, 2025)**: Successfully updated all manual package creation forms to make tour details field optional instead of required
   - **Schema Updates**: Modified manualPackageFormSchema in all package creation components to make tourDetails field optional using z.string().optional()
   - **Validation Updates**: Removed "tourDetails" from required fields validation in onSubmit functions across all manual package creation forms

@@ -5,7 +5,7 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Separator } from "@/components/ui/separator";
-import { MapPin, Calendar, Users, Star, Phone, Mail, Clock, Edit, Share, Building } from "lucide-react";
+import { MapPin, Calendar, Users, Star, Phone, Mail, Clock, Edit, Share, Building, Car, FileText } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 
 // Simplified Package type for manual packages
@@ -30,6 +30,10 @@ type ManualPackage = {
   selectedTourId?: number | null;
   tourSelection?: string | null;
   customText?: string | null;
+  transportationDetails?: string | null;
+  cancellationPolicy?: string | null;
+  childrenPolicy?: string | null;
+  termsAndConditions?: string | null;
 };
 
 type Destination = {
@@ -187,10 +191,10 @@ export default function ManualPackageDetail() {
 
           <div className="flex items-center gap-4 mb-6">
             <div className="text-2xl font-bold text-green-600">
-              ${packageData.discountedPrice || packageData.price}
+              {packageData.discountedPrice || packageData.price} LE
               {packageData.discountedPrice && (
                 <span className="text-lg text-gray-500 line-through ml-2">
-                  ${packageData.price}
+                  {packageData.price} LE
                 </span>
               )}
             </div>
@@ -288,7 +292,7 @@ export default function ManualPackageDetail() {
                                     <div className="flex items-center justify-between mb-2">
                                       <h5 className="font-semibold text-gray-900">{room.type}</h5>
                                       <Badge variant="outline" className="text-green-700 border-green-300">
-                                        ${Math.round(room.customPrice || room.originalPrice || room.pricePerNight || 0)}/night
+                                        {Math.round(room.customPrice || room.originalPrice || room.pricePerNight || 0)} LE/night
                                       </Badge>
                                     </div>
                                     <div className="flex items-center gap-4 text-sm text-gray-600">
@@ -424,6 +428,122 @@ export default function ManualPackageDetail() {
                 </CardContent>
               </Card>
             )}
+
+            {/* Transportation Details */}
+            {packageData.transportationDetails && (
+              <Card>
+                <CardHeader>
+                  <CardTitle className="flex items-center gap-2">
+                    <Car className="h-5 w-5" />
+                    Transportation Details
+                  </CardTitle>
+                </CardHeader>
+                <CardContent>
+                  <p className="text-gray-700 whitespace-pre-wrap">{packageData.transportationDetails}</p>
+                </CardContent>
+              </Card>
+            )}
+
+            {/* Cancellation Policy */}
+            {packageData.cancellationPolicy && (
+              <Card>
+                <CardHeader>
+                  <CardTitle className="flex items-center gap-2">
+                    <FileText className="h-5 w-5" />
+                    Cancellation Policy
+                  </CardTitle>
+                </CardHeader>
+                <CardContent>
+                  <p className="text-gray-700 whitespace-pre-wrap">{packageData.cancellationPolicy}</p>
+                </CardContent>
+              </Card>
+            )}
+
+            {/* Children Policy */}
+            {packageData.childrenPolicy && (
+              <Card>
+                <CardHeader>
+                  <CardTitle className="flex items-center gap-2">
+                    <Users className="h-5 w-5" />
+                    Children Policy
+                  </CardTitle>
+                </CardHeader>
+                <CardContent>
+                  <p className="text-gray-700 whitespace-pre-wrap">{packageData.childrenPolicy}</p>
+                </CardContent>
+              </Card>
+            )}
+
+            {/* Terms and Conditions */}
+            {packageData.termsAndConditions && (
+              <Card>
+                <CardHeader>
+                  <CardTitle className="flex items-center gap-2">
+                    <FileText className="h-5 w-5" />
+                    Terms and Conditions
+                  </CardTitle>
+                </CardHeader>
+                <CardContent>
+                  <p className="text-gray-700 whitespace-pre-wrap">{packageData.termsAndConditions}</p>
+                </CardContent>
+              </Card>
+            )}
+          </div>
+
+          {/* Sidebar Content */}
+          <div className="lg:col-span-1 space-y-6">
+            {/* Quick Package Info */}
+            <Card>
+              <CardHeader>
+                <CardTitle>Package Information</CardTitle>
+              </CardHeader>
+              <CardContent className="space-y-4">
+                <div className="flex items-center justify-between">
+                  <span className="text-sm text-gray-600">Duration</span>
+                  <span className="font-medium">{packageData.duration} days</span>
+                </div>
+                <div className="flex items-center justify-between">
+                  <span className="text-sm text-gray-600">Price</span>
+                  <span className="font-medium text-green-600">{packageData.discountedPrice || packageData.price} LE</span>
+                </div>
+                {packageData.discountedPrice && (
+                  <div className="flex items-center justify-between">
+                    <span className="text-sm text-gray-600">Original Price</span>
+                    <span className="font-medium text-gray-500 line-through">{packageData.price} LE</span>
+                  </div>
+                )}
+                <div className="flex items-center justify-between">
+                  <span className="text-sm text-gray-600">Category</span>
+                  <Badge variant="outline">Manual Package</Badge>
+                </div>
+                {destination && (
+                  <div className="flex items-center justify-between">
+                    <span className="text-sm text-gray-600">Destination</span>
+                    <span className="font-medium">{destination.name}</span>
+                  </div>
+                )}
+              </CardContent>
+            </Card>
+
+            {/* Contact Information */}
+            <Card>
+              <CardHeader>
+                <CardTitle>Need Help?</CardTitle>
+              </CardHeader>
+              <CardContent className="space-y-3">
+                <div className="flex items-center gap-3">
+                  <Phone className="h-4 w-4 text-blue-600" />
+                  <span className="text-sm">+201152117102</span>
+                </div>
+                <div className="flex items-center gap-3">
+                  <Mail className="h-4 w-4 text-blue-600" />
+                  <span className="text-sm">info@egyptexpress.com</span>
+                </div>
+                <Button className="w-full mt-4">
+                  Book This Package
+                </Button>
+              </CardContent>
+            </Card>
           </div>
         </div>
       </div>
