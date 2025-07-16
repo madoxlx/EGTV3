@@ -51,6 +51,7 @@ import {
   Hotel,
   Building,
   Save,
+  Calendar,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { useToast } from "@/hooks/use-toast";
@@ -129,6 +130,14 @@ const manualPackageFormSchema = z.object({
   childrenPolicy: z.string().optional(),
   termsAndConditions: z.string().optional(),
   customText: z.string().optional(),
+  itinerary: z.array(z.object({
+    day: z.number(),
+    title: z.string().min(1, { message: "Day title is required" }),
+    description: z.string().min(1, { message: "Day description is required" }),
+    activities: z.array(z.string()).optional(),
+    meals: z.array(z.string()).optional(),
+    accommodation: z.string().optional(),
+  })).optional(),
 });
 
 type ManualPackageFormValues = z.infer<typeof manualPackageFormSchema>;
@@ -230,6 +239,83 @@ export function MultiHotelManualPackageForm({
     maxOccupancy: 2,
     amenities: [] as string[],
   });
+
+  // Itinerary state
+  const [itinerary, setItinerary] = useState<Array<{
+    day: number;
+    title: string;
+    description: string;
+    activities: string[];
+    meals: string[];
+    accommodation: string;
+  }>>([]);
+  const [newActivity, setNewActivity] = useState("");
+  const [newMeal, setNewMeal] = useState("");
+
+  // Itinerary helper functions
+  const addItineraryDay = () => {
+    const newDay = {
+      day: itinerary.length + 1,
+      title: `Day ${itinerary.length + 1}`,
+      description: "",
+      activities: [],
+      meals: [],
+      accommodation: "",
+    };
+    setItinerary([...itinerary, newDay]);
+    form.setValue("itinerary", [...itinerary, newDay]);
+  };
+
+  const updateItineraryDay = (index: number, field: string, value: any) => {
+    const updatedItinerary = [...itinerary];
+    updatedItinerary[index] = { ...updatedItinerary[index], [field]: value };
+    setItinerary(updatedItinerary);
+    form.setValue("itinerary", updatedItinerary);
+  };
+
+  const removeItineraryDay = (index: number) => {
+    const updatedItinerary = itinerary.filter((_, i) => i !== index);
+    // Re-number the days
+    const renumberedItinerary = updatedItinerary.map((day, i) => ({
+      ...day,
+      day: i + 1,
+      title: day.title.replace(/Day \d+/, `Day ${i + 1}`)
+    }));
+    setItinerary(renumberedItinerary);
+    form.setValue("itinerary", renumberedItinerary);
+  };
+
+  const addActivityToDay = (dayIndex: number, activity: string) => {
+    if (activity.trim()) {
+      const updatedItinerary = [...itinerary];
+      updatedItinerary[dayIndex].activities.push(activity.trim());
+      setItinerary(updatedItinerary);
+      form.setValue("itinerary", updatedItinerary);
+    }
+  };
+
+  const removeActivityFromDay = (dayIndex: number, activityIndex: number) => {
+    const updatedItinerary = [...itinerary];
+    updatedItinerary[dayIndex].activities.splice(activityIndex, 1);
+    setItinerary(updatedItinerary);
+    form.setValue("itinerary", updatedItinerary);
+  };
+
+  const addMealToDay = (dayIndex: number, meal: string) => {
+    if (meal.trim()) {
+      const updatedItinerary = [...itinerary];
+      updatedItinerary[dayIndex].meals.push(meal.trim());
+      setItinerary(updatedItinerary);
+      form.setValue("itinerary", updatedItinerary);
+    }
+  };
+
+  const removeMealFromDay = (dayIndex: number, mealIndex: number) => {
+    const updatedItinerary = [...itinerary];
+    updatedItinerary[dayIndex].meals.splice(mealIndex, 1);
+    setItinerary(updatedItinerary);
+    form.setValue("itinerary", updatedItinerary);
+  };
 
   // Fetch destinations for the dropdown
   const { data: destinations = [] } = useQuery<any[]>({
@@ -389,6 +475,7 @@ export function MultiHotelManualPackageForm({
       termsAndConditions:
         "Subject to availability. Prices per person based on double occupancy. Egypt Travel Express reserves right to alter itineraries.", // Inferred example
       customText: "Book this package for an unforgettable Egyptian adventure!", // Default custom text
+      itinerary: [], // Initialize empty, to be populated via itinerary builder
     },
   });
 
@@ -734,6 +821,13 @@ export function MultiHotelManualPackageForm({
         setSelectedToursWithPrices(selectedToursData);
       }
 
+      // Set itinerary data if available
+      const itineraryData = parseJSONField(packageData?.itinerary, []);
+      if (itineraryData.length > 0) {
+        console.log("Setting itinerary data:", itineraryData);
+        setItinerary(itineraryData);
+      }
+
       console.log("Form populated with package data");
     }
   }, [isEditMode, packageData, isLoadingPackage, form, tours]);
@@ -904,6 +998,7 @@ export function MultiHotelManualPackageForm({
         tourPriceData: tourPriceData, // Custom tour prices
         type: formData.type,
         customText: formData.customText,
+        itinerary: itinerary, // Include itinerary data
       };
 
       const response = await fetch("/api/admin/packages", {
@@ -995,6 +1090,7 @@ export function MultiHotelManualPackageForm({
         tourPriceData: tourPriceData, // Custom tour prices
         type: "manual",
         customText: formData.customText,
+        itinerary: itinerary, // Include itinerary data
       };
 
       console.log("Updating package with payload:", payload);
@@ -2555,6 +2651,193 @@ export function MultiHotelManualPackageForm({
                   />
                 </div>
               </div>
+            </div>
+
+            {/* Itinerary Section */}
+            <div className="space-y-6">
+              <div className="flex items-center justify-between">
+                <h3 className="text-lg font-semibold border-b pb-2">
+                  Package Itinerary
+                </h3>
+                <Button
+                  type="button"
+                  onClick={addItineraryDay}
+                  variant="outline"
+                  size="sm"
+                  className="flex items-center gap-2"
+                >
+                  <Plus className="h-4 w-4" />
+                  Add Day
+                </Button>
+              </div>
+
+              {itinerary.length === 0 ? (
+                <div className="text-center p-8 border border-dashed rounded-lg">
+                  <Calendar className="h-12 w-12 mx-auto text-gray-400 mb-4" />
+                  <p className="text-gray-500 mb-4">No itinerary days added yet</p>
+                  <Button
+                    type="button"
+                    onClick={addItineraryDay}
+                    variant="outline"
+                  >
+                    <Plus className="h-4 w-4 mr-2" />
+                    Add First Day
+                  </Button>
+                </div>
+              ) : (
+                <div className="space-y-6">
+                  {itinerary.map((day, index) => (
+                    <div key={index} className="border rounded-lg p-4 space-y-4">
+                      <div className="flex items-center justify-between">
+                        <h4 className="text-lg font-semibold text-blue-700">
+                          Day {day.day}
+                        </h4>
+                        <Button
+                          type="button"
+                          onClick={() => removeItineraryDay(index)}
+                          variant="ghost"
+                          size="sm"
+                          className="text-red-500 hover:text-red-700"
+                        >
+                          <Trash className="h-4 w-4" />
+                        </Button>
+                      </div>
+
+                      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                        <div className="space-y-2">
+                          <label className="text-sm font-medium">
+                            Day Title <span className="text-red-500">*</span>
+                          </label>
+                          <Input
+                            value={day.title}
+                            onChange={(e) => updateItineraryDay(index, 'title', e.target.value)}
+                            placeholder="e.g., Arrival in Cairo"
+                          />
+                        </div>
+
+                        <div className="space-y-2">
+                          <label className="text-sm font-medium">
+                            Accommodation
+                          </label>
+                          <Input
+                            value={day.accommodation}
+                            onChange={(e) => updateItineraryDay(index, 'accommodation', e.target.value)}
+                            placeholder="e.g., Cairo Marriott Hotel"
+                          />
+                        </div>
+                      </div>
+
+                      <div className="space-y-2">
+                        <label className="text-sm font-medium">
+                          Day Description <span className="text-red-500">*</span>
+                        </label>
+                        <Textarea
+                          value={day.description}
+                          onChange={(e) => updateItineraryDay(index, 'description', e.target.value)}
+                          placeholder="Describe the day's activities..."
+                          rows={3}
+                        />
+                      </div>
+
+                      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                        {/* Activities */}
+                        <div className="space-y-2">
+                          <label className="text-sm font-medium">Activities</label>
+                          <div className="flex gap-2">
+                            <Input
+                              value={newActivity}
+                              onChange={(e) => setNewActivity(e.target.value)}
+                              placeholder="Add activity..."
+                              onKeyDown={(e) => {
+                                if (e.key === "Enter") {
+                                  e.preventDefault();
+                                  addActivityToDay(index, newActivity);
+                                  setNewActivity("");
+                                }
+                              }}
+                            />
+                            <Button
+                              type="button"
+                              onClick={() => {
+                                addActivityToDay(index, newActivity);
+                                setNewActivity("");
+                              }}
+                              disabled={!newActivity.trim()}
+                              size="sm"
+                            >
+                              <Plus className="h-4 w-4" />
+                            </Button>
+                          </div>
+                          {day.activities.length > 0 && (
+                            <div className="flex flex-wrap gap-1 mt-2">
+                              {day.activities.map((activity, actIndex) => (
+                                <Badge
+                                  key={actIndex}
+                                  variant="secondary"
+                                  className="flex items-center gap-1"
+                                >
+                                  {activity}
+                                  <X
+                                    className="h-3 w-3 cursor-pointer"
+                                    onClick={() => removeActivityFromDay(index, actIndex)}
+                                  />
+                                </Badge>
+                              ))}
+                            </div>
+                          )}
+                        </div>
+
+                        {/* Meals */}
+                        <div className="space-y-2">
+                          <label className="text-sm font-medium">Meals</label>
+                          <div className="flex gap-2">
+                            <Input
+                              value={newMeal}
+                              onChange={(e) => setNewMeal(e.target.value)}
+                              placeholder="Add meal..."
+                              onKeyDown={(e) => {
+                                if (e.key === "Enter") {
+                                  e.preventDefault();
+                                  addMealToDay(index, newMeal);
+                                  setNewMeal("");
+                                }
+                              }}
+                            />
+                            <Button
+                              type="button"
+                              onClick={() => {
+                                addMealToDay(index, newMeal);
+                                setNewMeal("");
+                              }}
+                              disabled={!newMeal.trim()}
+                              size="sm"
+                            >
+                              <Plus className="h-4 w-4" />
+                            </Button>
+                          </div>
+                          {day.meals.length > 0 && (
+                            <div className="flex flex-wrap gap-1 mt-2">
+                              {day.meals.map((meal, mealIndex) => (
+                                <Badge
+                                  key={mealIndex}
+                                  variant="outline"
+                                  className="flex items-center gap-1"
+                                >
+                                  {meal}
+                                  <X
+                                    className="h-3 w-3 cursor-pointer"
+                                    onClick={() => removeMealFromDay(index, mealIndex)}
+                                  />
+                                </Badge>
+                              ))}
+                            </div>
+                          )}
+                        </div>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              )}
             </div>
 
             <FormRequiredFieldsNote />

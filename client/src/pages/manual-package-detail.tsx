@@ -5,6 +5,7 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Separator } from "@/components/ui/separator";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { MapPin, Calendar, Users, Star, Phone, Mail, Clock, Edit, Share, Building, Car, FileText } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 
@@ -34,6 +35,14 @@ type ManualPackage = {
   cancellationPolicy?: string | null;
   childrenPolicy?: string | null;
   termsAndConditions?: string | null;
+  itinerary?: {
+    day: number;
+    title: string;
+    description: string;
+    accommodation: string;
+    activities: string[];
+    meals: string[];
+  }[];
 };
 
 type Destination = {
@@ -440,6 +449,79 @@ export default function ManualPackageDetail() {
                 </CardHeader>
                 <CardContent>
                   <p className="text-gray-700 whitespace-pre-wrap">{packageData.transportationDetails}</p>
+                </CardContent>
+              </Card>
+            )}
+
+            {/* Package Itinerary */}
+            {packageData.itinerary && packageData.itinerary.length > 0 && (
+              <Card>
+                <CardHeader>
+                  <CardTitle className="flex items-center gap-2">
+                    <Calendar className="h-5 w-5" />
+                    Package Itinerary
+                  </CardTitle>
+                </CardHeader>
+                <CardContent>
+                  <Tabs defaultValue={`day${packageData.itinerary[0]?.day || 1}`}>
+                    <TabsList className={`grid w-full text-xs sm:text-sm`} style={{gridTemplateColumns: `repeat(${packageData.itinerary.length}, minmax(0, 1fr))`}}>
+                      {packageData.itinerary.map((day, index) => (
+                        <TabsTrigger key={index} value={`day${day.day}`}>
+                          Day {day.day}
+                        </TabsTrigger>
+                      ))}
+                    </TabsList>
+                    {packageData.itinerary.map((day, index) => (
+                      <TabsContent
+                        key={index}
+                        value={`day${day.day}`}
+                        className="p-3 sm:p-4"
+                      >
+                        <div className="space-y-4">
+                          <h3 className="text-lg sm:text-xl font-semibold">
+                            Day {day.day}: {day.title}
+                          </h3>
+                          {day.accommodation && (
+                            <div className="bg-blue-50 p-3 rounded-lg">
+                              <div className="flex items-center gap-2 mb-2">
+                                <Building className="h-4 w-4 text-blue-600" />
+                                <span className="font-medium text-blue-900">Accommodation</span>
+                              </div>
+                              <p className="text-sm text-blue-800">{day.accommodation}</p>
+                            </div>
+                          )}
+                          <p className="text-sm sm:text-base text-neutral-700 leading-relaxed">
+                            {day.description}
+                          </p>
+                          {day.activities && day.activities.length > 0 && (
+                            <div>
+                              <h4 className="font-medium mb-2">Activities:</h4>
+                              <ul className="space-y-1">
+                                {day.activities.map((activity, actIndex) => (
+                                  <li key={actIndex} className="flex items-start gap-2 text-sm">
+                                    <span className="text-blue-600 font-bold">•</span>
+                                    <span>{activity}</span>
+                                  </li>
+                                ))}
+                              </ul>
+                            </div>
+                          )}
+                          {day.meals && day.meals.length > 0 && (
+                            <div>
+                              <h4 className="font-medium mb-2">Meals:</h4>
+                              <div className="flex flex-wrap gap-2">
+                                {day.meals.map((meal, mealIndex) => (
+                                  <Badge key={mealIndex} variant="outline" className="text-xs">
+                                    {meal}
+                                  </Badge>
+                                ))}
+                              </div>
+                            </div>
+                          )}
+                        </div>
+                      </TabsContent>
+                    ))}
+                  </Tabs>
                 </CardContent>
               </Card>
             )}
