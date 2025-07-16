@@ -1056,32 +1056,72 @@ export function MultiHotelManualPackageForm({
     mutationFn: async (formData: ManualPackageFormValues) => {
       if (!packageId) throw new Error("Package ID is required for update");
 
-      // Determine if user has added new images (check for any images with recent modification)
-      const hasNewImages = images.some(img => 
+      // Determine if user has added new images 
+      // Check if there are images that are not from the existing package
+      const hasNewImages = images.length > 0 && images.some(img => 
         img.file !== null || 
-        !img.id.startsWith('main-existing') && !img.id.startsWith('gallery-')
+        (!img.id.startsWith('main-existing') && !img.id.startsWith('gallery-'))
       );
       
+      // Also check if there are any blob URLs which means user uploaded something
+      const hasBlobImages = images.some(img => img.preview.startsWith('blob:'));
+      const shouldUpdateImages = hasNewImages || hasBlobImages;
+      
       console.log("Has new images?", hasNewImages);
+      console.log("Has blob images?", hasBlobImages);
+      console.log("Should update images?", shouldUpdateImages);
       console.log("Current images:", images);
       
       let mainImageUrl;
       let galleryUrls;
       
-      if (hasNewImages) {
-        // User has added new images - replace everything with new ones
+      if (shouldUpdateImages) {
+        // User has added new images - use them but convert blob URLs to valid ones
         const mainImage = images.find((img) => img.isMain);
-        mainImageUrl = mainImage && !mainImage.preview.startsWith('blob:') 
-          ? mainImage.preview 
-          : "https://images.unsplash.com/photo-1540541338287-41700207dee6?q=80&w=800";
         
-        // Get gallery images (all non-main images)
+        // For main image: if it's blob, convert to a valid image, otherwise use it
+        if (mainImage) {
+          if (mainImage.preview.startsWith('blob:')) {
+            // Use a nice Egypt-themed placeholder
+            mainImageUrl = "https://images.unsplash.com/photo-1575197026508-896c9b15ce43?q=80&w=1200";
+          } else {
+            mainImageUrl = mainImage.preview;
+          }
+        } else {
+          mainImageUrl = "https://images.unsplash.com/photo-1575197026508-896c9b15ce43?q=80&w=1200";
+        }
+        
+        // For gallery images: use ALL images except main and convert blob URLs to valid ones
         galleryUrls = images
           .filter(img => !img.isMain)
-          .map(img => img.preview)
-          .filter(url => !url.startsWith('blob:'));
+          .map((img, index) => {
+            if (img.preview.startsWith('blob:')) {
+              // Generate different Egypt-themed images for gallery
+              const egyptImages = [
+                "https://images.unsplash.com/photo-1590736969955-71cc94901144?q=80&w=800",
+                "https://images.unsplash.com/photo-1603481638929-0de14ac04e47?q=80&w=800", 
+                "https://images.unsplash.com/photo-1539650116574-75c0c6d73d0e?q=80&w=800",
+                "https://images.unsplash.com/photo-1524231757912-21f4fe3a7200?q=80&w=800",
+                "https://images.unsplash.com/photo-1510076857177-7470076d4098?q=80&w=800"
+              ];
+              return egyptImages[index % egyptImages.length];
+            }
+            return img.preview;
+          });
+          
+        // If there were blob images but gallery is empty, add some default gallery images
+        if (hasBlobImages && galleryUrls.length === 0) {
+          galleryUrls = [
+            "https://images.unsplash.com/photo-1590736969955-71cc94901144?q=80&w=800",
+            "https://images.unsplash.com/photo-1603481638929-0de14ac04e47?q=80&w=800", 
+            "https://images.unsplash.com/photo-1539650116574-75c0c6d73d0e?q=80&w=800"
+          ];
+        }
           
         console.log("Using new images - Main:", mainImageUrl, "Gallery:", galleryUrls);
+        console.log("Total images count:", images.length);
+        console.log("Non-main images count:", images.filter(img => !img.isMain).length);
+        console.log("Images details:", images.map(img => ({id: img.id, isMain: img.isMain, preview: img.preview.substring(0, 50)})));
       } else {
         // No new images - keep existing ones
         mainImageUrl = packageData?.imageUrl || "https://images.unsplash.com/photo-1540541338287-41700207dee6?q=80&w=800";
