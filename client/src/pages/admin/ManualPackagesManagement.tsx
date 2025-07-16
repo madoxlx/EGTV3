@@ -42,7 +42,8 @@ import {
   Check,
   Loader2,
   Globe,
-  Hotel
+  Hotel,
+  Share
 } from "lucide-react";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Badge } from "@/components/ui/badge";
@@ -187,6 +188,28 @@ export default function ManualPackagesManagement() {
     setSlugValue(suggestedSlug);
   };
 
+  const handleShareUrl = (pkg: Package) => {
+    const baseUrl = window.location.origin;
+    const packageUrl = pkg.title?.startsWith('MANUAL:') 
+      ? `${baseUrl}/packages/manual/${pkg.id}` 
+      : `${baseUrl}/packages/${pkg.id}`;
+    
+    // Copy to clipboard
+    navigator.clipboard.writeText(packageUrl).then(() => {
+      toast({
+        title: "Success",
+        description: "Package URL copied to clipboard!",
+      });
+    }).catch((err) => {
+      console.error('Failed to copy URL:', err);
+      toast({
+        title: "Error",
+        description: "Failed to copy URL to clipboard",
+        variant: "destructive",
+      });
+    });
+  };
+
   const confirmSlugUpdate = () => {
     if (slugPackageId && slugValue.trim()) {
       updateSlugMutation.mutate({ 
@@ -296,6 +319,13 @@ export default function ManualPackagesManagement() {
                             >
                               <Globe size={16} />
                               Edit URL
+                            </DropdownMenuItem>
+                            <DropdownMenuItem 
+                              onClick={() => handleShareUrl(pkg)}
+                              className="gap-2"
+                            >
+                              <Share size={16} />
+                              Share URL
                             </DropdownMenuItem>
                             <DropdownMenuSeparator />
                             <DropdownMenuItem 
@@ -428,6 +458,13 @@ export default function ManualPackagesManagement() {
                             >
                               <Globe size={16} />
                               Edit URL
+                            </DropdownMenuItem>
+                            <DropdownMenuItem 
+                              onClick={() => handleShareUrl(pkg)}
+                              className="gap-2"
+                            >
+                              <Share size={16} />
+                              Share URL
                             </DropdownMenuItem>
                             <DropdownMenuSeparator />
                             <DropdownMenuItem 
