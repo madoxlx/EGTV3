@@ -628,10 +628,7 @@ export default function ManualPackageDetail() {
                 )}
               </CardContent>
             </Card>
-          </div>
 
-          {/* Sidebar Content */}
-          <div className="lg:col-span-1 space-y-6">
             {/* Contact Information */}
             <Card>
               <CardHeader>
@@ -647,7 +644,7 @@ export default function ManualPackageDetail() {
                   <span className="text-sm">info@egyptexpress.com</span>
                 </div>
                 <Button className="w-full mt-4">
-                  Book This Package
+                  Contact Us
                 </Button>
               </CardContent>
             </Card>
