@@ -553,29 +553,53 @@ const HomepageSectionsManagement: React.FC = () => {
               
               <CardContent className="pt-0">
                 <div className="space-y-3">
-                  {/* Image Preview */}
-                  {section.imageUrl && (
-                    <div className="relative">
-                      <img 
-                        src={section.imageUrl} 
-                        alt={section.title}
-                        className="w-full h-32 object-cover rounded-lg"
-                      />
-                      <div className="absolute top-2 right-2 bg-black/50 text-white px-2 py-1 rounded text-xs">
-                        {section.imagePosition === 'left' ? 'Left' : 'Right'}
-                      </div>
+                  {/* Check if this is a Why Choose Us section */}
+                  {section.features && section.features.length > 0 && section.features.some(f => f.subFeatures) ? (
+                    /* Why Choose Us Features Display */
+                    <div className="space-y-3">
+                      <div className="text-sm font-medium text-gray-700 mb-2">Features:</div>
+                      {section.features.map((feature, index) => (
+                        <div key={index} className="border-l-4 border-blue-500 pl-3 py-2 bg-blue-50 rounded-r">
+                          <div className="font-medium text-sm text-blue-900">{feature.title}</div>
+                          {feature.subFeatures && feature.subFeatures.length > 0 && (
+                            <div className="mt-1 space-y-1">
+                              {feature.subFeatures.map((subFeature, subIndex) => (
+                                <div key={subIndex} className="text-xs text-gray-600 ml-2">
+                                  • {subFeature.title}
+                                </div>
+                              ))}
+                            </div>
+                          )}
+                        </div>
+                      ))}
                     </div>
-                  )}
+                  ) : (
+                    /* Regular Section Image Preview */
+                    <>
+                      {section.imageUrl && (
+                        <div className="relative">
+                          <img 
+                            src={section.imageUrl} 
+                            alt={section.title}
+                            className="w-full h-32 object-cover rounded-lg"
+                          />
+                          <div className="absolute top-2 right-2 bg-black/50 text-white px-2 py-1 rounded text-xs">
+                            {section.imagePosition === 'left' ? 'Left' : 'Right'}
+                          </div>
+                        </div>
+                      )}
 
-                  {/* Features */}
-                  <div className="flex items-center gap-2 text-sm">
-                    {section.showStatistics && (
-                      <Badge variant="outline" className="text-xs">Statistics</Badge>
-                    )}
-                    {section.showFeatures && (
-                      <Badge variant="outline" className="text-xs">Features</Badge>
-                    )}
-                  </div>
+                      {/* Features */}
+                      <div className="flex items-center gap-2 text-sm">
+                        {section.showStatistics && (
+                          <Badge variant="outline" className="text-xs">Statistics</Badge>
+                        )}
+                        {section.showFeatures && (
+                          <Badge variant="outline" className="text-xs">Features</Badge>
+                        )}
+                      </div>
+                    </>
+                  )}
 
                   {/* Actions */}
                   <div className="flex justify-between items-center pt-2">
