@@ -68,7 +68,9 @@ import {
 const roomEntrySchema = z.object({
   id: z.string().optional(),
   type: z.string().min(1, { message: "Room type is required" }),
-  pricePerNight: z.coerce.number().positive({ message: "Price must be positive" }),
+  pricePerNight: z.coerce
+    .number()
+    .positive({ message: "Price must be positive" }),
   maxOccupancy: z.coerce.number().min(1).max(10).default(2),
   amenities: z.array(z.string()).default([]),
 });
@@ -103,15 +105,11 @@ const manualPackageFormSchema = z.object({
   hotels: z
     .array(hotelEntrySchema)
     .min(1, { message: "At least one hotel is required" }),
-  transportationDetails: z
-    .string()
-    .min(3, {
-      message: "Transportation details must be at least 3 characters",
-    }),
+  transportationDetails: z.string().min(3, {
+    message: "Transportation details must be at least 3 characters",
+  }),
   tourDetails: z.string().optional(),
-  selectedTourIds: z
-    .array(z.number())
-    .optional(),
+  selectedTourIds: z.array(z.number()).optional(),
   duration: z.coerce
     .number()
     .positive({ message: "Duration must be a positive number" }),
@@ -140,9 +138,9 @@ interface MultiHotelManualPackageFormProps {
   packageId?: number;
 }
 
-export function MultiHotelManualPackageForm({ 
-  isEditMode = false, 
-  packageId 
+export function MultiHotelManualPackageForm({
+  isEditMode = false,
+  packageId,
 }: MultiHotelManualPackageFormProps = {}) {
   const { toast } = useToast();
   const { t } = useLanguage();
@@ -191,20 +189,22 @@ export function MultiHotelManualPackageForm({
   const tourDropdownRef = useRef<HTMLDivElement>(null);
   const [showInclusionSuggestions, setShowInclusionSuggestions] =
     useState(false);
-  
+
   // State for selected tours with editable prices
-  const [selectedToursWithPrices, setSelectedToursWithPrices] = useState<Array<{
-    id: number;
-    name: string;
-    description: string;
-    duration: string;
-    originalPrice: number;
-    customPrice: number; // Editable price
-  }>>([]);
-  
+  const [selectedToursWithPrices, setSelectedToursWithPrices] = useState<
+    Array<{
+      id: number;
+      name: string;
+      description: string;
+      duration: string;
+      originalPrice: number;
+      customPrice: number; // Editable price
+    }>
+  >([]);
+
   // Debug log for selected tours
   useEffect(() => {
-    console.log('Selected tours with prices:', selectedToursWithPrices);
+    console.log("Selected tours with prices:", selectedToursWithPrices);
   }, [selectedToursWithPrices]);
 
   // Dialog state for adding/editing hotels
@@ -264,14 +264,18 @@ export function MultiHotelManualPackageForm({
   const { data: tours = [] } = useQuery<any[]>({
     queryKey: ["/api/tours"],
   });
-  
+
   // Debug log for tours data
   useEffect(() => {
-    console.log('Tours loaded:', tours.length, tours);
+    console.log("Tours loaded:", tours.length, tours);
   }, [tours]);
 
   // Fetch package data for edit mode - try both admin and public endpoints
-  const { data: packageDataResponse, isLoading: isLoadingPackage, error: packageError } = useQuery({
+  const {
+    data: packageDataResponse,
+    isLoading: isLoadingPackage,
+    error: packageError,
+  } = useQuery({
     queryKey: ["/api/admin/packages", packageId],
     enabled: isEditMode && !!packageId,
     retry: 1,
@@ -279,36 +283,38 @@ export function MultiHotelManualPackageForm({
       // Try admin endpoint first
       try {
         const response = await fetch(`/api/admin/packages/${packageId}`, {
-          credentials: 'include',
+          credentials: "include",
         });
         if (response.ok) {
           return await response.json();
         }
       } catch (error) {
-        console.warn('Admin endpoint failed, trying public endpoint');
+        console.warn("Admin endpoint failed, trying public endpoint");
       }
-      
+
       // Fallback to public endpoint
       const response = await fetch(`/api/packages/${packageId}`);
       if (!response.ok) {
         throw new Error(`Failed to fetch package: ${response.statusText}`);
       }
       return await response.json();
-    }
+    },
   });
 
   // Extract package data from response (handle both array and object responses)
   const packageData = React.useMemo(() => {
     if (!packageDataResponse) return null;
-    
-    console.log('Raw package data response:', packageDataResponse);
-    
+
+    console.log("Raw package data response:", packageDataResponse);
+
     // If it's an array, get the first item (or find by ID)
     if (Array.isArray(packageDataResponse)) {
-      const foundPackage = packageDataResponse.find(pkg => pkg.id === packageId || pkg.id === String(packageId));
+      const foundPackage = packageDataResponse.find(
+        (pkg) => pkg.id === packageId || pkg.id === String(packageId),
+      );
       return foundPackage || packageDataResponse[0] || null;
     }
-    
+
     // If it's an object, use it directly
     return packageDataResponse;
   }, [packageDataResponse, packageId]);
@@ -316,30 +322,73 @@ export function MultiHotelManualPackageForm({
   const form = useForm<ManualPackageFormValues>({
     resolver: zodResolver(manualPackageFormSchema),
     defaultValues: {
-      title: "",
-      description: "",
-      price: 0,
-      discountedPrice: 0,
-      discountType: "percentage",
-      discountValue: 0,
-      markup: 0,
-      hotels: [],
-      transportationDetails: "",
-      tourDetails: "",
-      selectedTourIds: [],
-      duration: 1,
-      destinationId: undefined,
-      countryId: undefined,
-      cityId: undefined,
-      categoryId: undefined,
-      type: "manual",
-      featured: false,
-      inclusions: [],
-      excludedItems: [],
-      cancellationPolicy: "",
-      childrenPolicy: "",
-      termsAndConditions: "",
-      customText: "",
+      title: "Egyptian Wonders Package", // Default from earlier example
+      description:
+        "Explore Egypt's wonders with a 7-day tour including Cairo, Luxor, and Aswan, featuring a Nile Cruise, historical sites, and more.", // Default from earlier example
+      price: 47750, // Converted from 955 USD (approx. 47,750 EGP at 50 EGP/USD)
+      discountedPrice: 0, // No discount specified, default to 0
+      discountType: "percentage", // Default discount type
+      discountValue: 0, // No discount value specified, default to 0
+      markup: 0, // No markup specified, default to 0
+      hotels: [
+        {
+          id: "hotel-1",
+          name: "Nile Cruise 5-Star", // Inferred from earlier example
+          stars: 5, // Inferred from 5-star Nile Cruise
+          rooms: [
+            {
+              id: "room-1",
+              type: "Deluxe Cabin",
+              pricePerNight: 5000, // Estimated price per night
+              maxOccupancy: 2,
+              amenities: ["WiFi", "AC", "Balcony"],
+            },
+          ],
+        },
+        {
+          id: "hotel-2",
+          name: "Cairo Marriott Hotel", // Inferred from Cairo stay
+          stars: 4, // Assumed 4-star hotel
+          rooms: [
+            {
+              id: "room-2",
+              type: "Standard Room",
+              pricePerNight: 3000, // Estimated price per night
+              maxOccupancy: 2,
+              amenities: ["WiFi", "TV", "Minibar"],
+            },
+          ],
+        },
+      ],
+      transportationDetails: "Private car transfers and domestic flights", // Inferred from earlier example
+      tourDetails: "", // Not specified, default empty
+      selectedTourIds: [], // Initialize empty, to be populated via tour selection
+      duration: 7, // 7 days from earlier example
+      destinationId: undefined, // Requires selection from destinations API
+      countryId: undefined, // Auto-populated from destination
+      cityId: undefined, // Auto-populated from destination
+      categoryId: undefined, // Requires selection from categories API
+      type: "manual", // Fixed as per schema
+      featured: false, // Default to not featured
+      inclusions: [
+        "Full-board meals on Nile Cruise",
+        "Sightseeing tours",
+        "All transfers",
+        "English-speaking guides",
+        "Entrance fees",
+      ], // Inferred from earlier example
+      excludedItems: [
+        "International airfare",
+        "Visa fees",
+        "Personal expenses",
+      ], // Inferred from earlier example
+      cancellationPolicy:
+        "Cancellations 30 days prior are refundable minus 10% fee. 15-29 days: 50% penalty. Within 14 days: non-refundable.", // Inferred example
+      childrenPolicy:
+        "Children 2-11 years: 25% discount. Infants 0-23 months: free.", // Inferred example
+      termsAndConditions:
+        "Subject to availability. Prices per person based on double occupancy. Egypt Travel Express reserves right to alter itineraries.", // Inferred example
+      customText: "Book this package for an unforgettable Egyptian adventure!", // Default custom text
     },
   });
 
@@ -420,17 +469,17 @@ export function MultiHotelManualPackageForm({
   // Populate form with package data for edit mode
   useEffect(() => {
     if (isEditMode && packageData && !isLoadingPackage) {
-      console.log('Loading package data for edit:', packageData);
-      
+      console.log("Loading package data for edit:", packageData);
+
       // Parse JSON fields safely
       const parseJSONField = (field: any, fallback: any = []) => {
         if (!field) return fallback;
-        if (typeof field === 'string') {
+        if (typeof field === "string") {
           try {
             const parsed = JSON.parse(field);
             return Array.isArray(parsed) ? parsed : fallback;
           } catch (e) {
-            console.warn('Failed to parse JSON field:', field, e);
+            console.warn("Failed to parse JSON field:", field, e);
             return fallback;
           }
         }
@@ -442,83 +491,93 @@ export function MultiHotelManualPackageForm({
       if (hotelsData.length === 0) {
         hotelsData = parseJSONField(packageData?.rooms, []);
       }
-      
+
       // If no structured data, try to extract from description
       if (hotelsData.length === 0 && packageData?.description) {
-        const hotelMatches = packageData.description.match(/Hotels:\n([\s\S]*?)(?:\n\nTransportation:|$)/);
+        const hotelMatches = packageData.description.match(
+          /Hotels:\n([\s\S]*?)(?:\n\nTransportation:|$)/,
+        );
         if (hotelMatches) {
           const hotelText = hotelMatches[1];
           const hotelBlocks = hotelText.split(/\n\n(?=\S)/);
-          
-          hotelsData = hotelBlocks.map(block => {
-            const lines = block.split('\n');
-            const hotelLine = lines[0];
-            const hotelMatch = hotelLine.match(/^(.*?)\s*\((\d+)★\)$/);
-            
-            if (hotelMatch) {
-              const hotelName = hotelMatch[1].trim();
-              const stars = parseInt(hotelMatch[2]);
-              
-              const rooms = [];
-              for (let i = 1; i < lines.length; i++) {
-                const roomMatch = lines[i].match(/^\s*•\s*(.*?)\s*-\s*\$(\d+)\/night\s*\(Max:\s*(\d+)\s*guests\)$/);
-                if (roomMatch) {
-                  rooms.push({
-                    id: `room-${i}`,
-                    type: roomMatch[1].trim(),
-                    pricePerNight: parseInt(roomMatch[2]),
-                    maxOccupancy: parseInt(roomMatch[3]),
-                    amenities: []
-                  });
+
+          hotelsData = hotelBlocks
+            .map((block) => {
+              const lines = block.split("\n");
+              const hotelLine = lines[0];
+              const hotelMatch = hotelLine.match(/^(.*?)\s*\((\d+)★\)$/);
+
+              if (hotelMatch) {
+                const hotelName = hotelMatch[1].trim();
+                const stars = parseInt(hotelMatch[2]);
+
+                const rooms = [];
+                for (let i = 1; i < lines.length; i++) {
+                  const roomMatch = lines[i].match(
+                    /^\s*•\s*(.*?)\s*-\s*\$(\d+)\/night\s*\(Max:\s*(\d+)\s*guests\)$/,
+                  );
+                  if (roomMatch) {
+                    rooms.push({
+                      id: `room-${i}`,
+                      type: roomMatch[1].trim(),
+                      pricePerNight: parseInt(roomMatch[2]),
+                      maxOccupancy: parseInt(roomMatch[3]),
+                      amenities: [],
+                    });
+                  }
                 }
+
+                return {
+                  id: `hotel-${hotelName.replace(/\s+/g, "-").toLowerCase()}`,
+                  name: hotelName,
+                  stars: stars,
+                  rooms: rooms,
+                };
               }
-              
-              return {
-                id: `hotel-${hotelName.replace(/\s+/g, '-').toLowerCase()}`,
-                name: hotelName,
-                stars: stars,
-                rooms: rooms
-              };
-            }
-            return null;
-          }).filter(Boolean);
+              return null;
+            })
+            .filter(Boolean);
         }
       }
-      
-      console.log('Parsed hotels data:', hotelsData);
+
+      console.log("Parsed hotels data:", hotelsData);
 
       // Extract tour data from description or fields
       let selectedTourIds = parseJSONField(packageData?.tourSelection, []);
       if (selectedTourIds.length === 0) {
         selectedTourIds = parseJSONField(packageData?.selectedTourIds, []);
       }
-      
+
       // If no structured tour data, extract from description
       let toursFromDescription = [];
       if (selectedTourIds.length === 0 && packageData?.description) {
-        const tourMatches = packageData.description.match(/Tours:\s*(.*?)(?:\n|$)/);
+        const tourMatches = packageData.description.match(
+          /Tours:\s*(.*?)(?:\n|$)/,
+        );
         if (tourMatches) {
           const tourText = tourMatches[1];
-          const tourParts = tourText.split(', ');
-          toursFromDescription = tourParts.map(part => {
+          const tourParts = tourText.split(", ");
+          toursFromDescription = tourParts.map((part) => {
             const match = part.match(/^(.*?)\s*\((\d+)\s*EGP\)$/);
             if (match) {
               return {
                 name: match[1].trim(),
-                customPrice: parseInt(match[2])
+                customPrice: parseInt(match[2]),
               };
             }
             return { name: part.trim(), customPrice: 0 };
           });
         }
       }
-      
-      console.log('Tours from description:', toursFromDescription);
+
+      console.log("Tours from description:", toursFromDescription);
 
       // Extract transportation from description
       let transportationDetails = packageData?.transportationDetails || "";
       if (!transportationDetails && packageData?.description) {
-        const transportMatch = packageData.description.match(/Transportation:\s*(.*?)(?:\n\n|$)/);
+        const transportMatch = packageData.description.match(
+          /Transportation:\s*(.*?)(?:\n\n|$)/,
+        );
         if (transportMatch) {
           transportationDetails = transportMatch[1].trim();
         }
@@ -529,18 +588,20 @@ export function MultiHotelManualPackageForm({
       if (cleanDescription) {
         // Remove hotel, transportation, and tour sections that were auto-added
         cleanDescription = cleanDescription
-          .replace(/\n\nHotels:\n[\s\S]*?(?=\n\nTransportation:|$)/, '')
-          .replace(/\n\nTransportation:\s*.*?(?=\n\nTours:|$)/, '')
-          .replace(/\n\nTours:\s*.*?$/, '')
+          .replace(/\n\nHotels:\n[\s\S]*?(?=\n\nTransportation:|$)/, "")
+          .replace(/\n\nTransportation:\s*.*?(?=\n\nTours:|$)/, "")
+          .replace(/\n\nTours:\s*.*?$/, "")
           .trim();
       }
 
       // Set form values with proper data conversion
       const formData = {
-        title: packageData?.title?.replace('MANUAL:', '') || "",
+        title: packageData?.title?.replace("MANUAL:", "") || "",
         description: cleanDescription,
         price: packageData?.price ? Math.round(packageData.price / 100) : 0, // Convert from cents
-        discountedPrice: packageData?.discountedPrice ? Math.round(packageData.discountedPrice / 100) : 0,
+        discountedPrice: packageData?.discountedPrice
+          ? Math.round(packageData.discountedPrice / 100)
+          : 0,
         discountType: packageData?.discountType || "percentage",
         discountValue: packageData?.discountValue || 0,
         markup: packageData?.markup || 0,
@@ -563,18 +624,23 @@ export function MultiHotelManualPackageForm({
         customText: packageData?.customText || "",
       };
 
-      console.log('Form data to populate:', formData);
+      console.log("Form data to populate:", formData);
       form.reset(formData);
 
       // Set selected tours with prices from description data
       if (toursFromDescription.length > 0 && tours.length > 0) {
-        const matchedTours = toursFromDescription.map(tourFromDesc => {
+        const matchedTours = toursFromDescription.map((tourFromDesc) => {
           // Try to find matching tour by name
-          const matchedTour = tours.find(dbTour => 
-            dbTour.name.toLowerCase().includes(tourFromDesc.name.toLowerCase()) ||
-            tourFromDesc.name.toLowerCase().includes(dbTour.name.toLowerCase())
+          const matchedTour = tours.find(
+            (dbTour) =>
+              dbTour.name
+                .toLowerCase()
+                .includes(tourFromDesc.name.toLowerCase()) ||
+              tourFromDesc.name
+                .toLowerCase()
+                .includes(dbTour.name.toLowerCase()),
           );
-          
+
           if (matchedTour) {
             return {
               id: matchedTour.id,
@@ -582,7 +648,7 @@ export function MultiHotelManualPackageForm({
               description: matchedTour.description || "",
               duration: `${matchedTour.duration} days` || "",
               originalPrice: matchedTour.price || 0,
-              customPrice: tourFromDesc.customPrice
+              customPrice: tourFromDesc.customPrice,
             };
           } else {
             // If no match found, create a temporary entry
@@ -592,16 +658,18 @@ export function MultiHotelManualPackageForm({
               description: "",
               duration: "",
               originalPrice: tourFromDesc.customPrice * 100,
-              customPrice: tourFromDesc.customPrice
+              customPrice: tourFromDesc.customPrice,
             };
           }
         });
-        
-        console.log('Matched tours:', matchedTours);
+
+        console.log("Matched tours:", matchedTours);
         setSelectedToursWithPrices(matchedTours);
-        
+
         // Update form with matched tour IDs
-        const tourIds = matchedTours.filter(tour => tour.id < 1000).map(tour => tour.id);
+        const tourIds = matchedTours
+          .filter((tour) => tour.id < 1000)
+          .map((tour) => tour.id);
         form.setValue("selectedTourIds", tourIds);
       }
 
@@ -612,51 +680,61 @@ export function MultiHotelManualPackageForm({
           id: `existing-${index}`,
           file: null,
           preview: url,
-          isMain: false
+          isMain: false,
         }));
         setImages(imageData);
       }
 
       // Set main image
       if (packageData?.imageUrl) {
-        setImages(prev => [
-          { id: 'main-existing', file: null, preview: packageData.imageUrl, isMain: true },
-          ...prev.map(img => ({ ...img, isMain: false }))
+        setImages((prev) => [
+          {
+            id: "main-existing",
+            file: null,
+            preview: packageData.imageUrl,
+            isMain: true,
+          },
+          ...prev.map((img) => ({ ...img, isMain: false })),
         ]);
       }
 
       // Set location states
       if (packageData?.countryId) {
         setSelectedCountry(packageData.countryId);
-        console.log('Updated selectedCountryId state to:', packageData.countryId);
+        console.log(
+          "Updated selectedCountryId state to:",
+          packageData.countryId,
+        );
       }
       if (packageData?.cityId) {
         setSelectedCity(packageData.cityId);
-        console.log('Updated selectedCityId state to:', packageData.cityId);
+        console.log("Updated selectedCityId state to:", packageData.cityId);
       }
 
       // Set selected tours with prices when tours are loaded
       if (selectedTourIds.length > 0 && tours.length > 0) {
-        const selectedToursData = selectedTourIds.map((tourId: number) => {
-          const tour = tours.find(t => t.id === tourId);
-          if (tour) {
-            return {
-              id: tour.id,
-              name: tour.name,
-              description: tour.description || "",
-              duration: `${tour.duration} days` || "",
-              originalPrice: tour.price || 0,
-              customPrice: Math.round((tour.price || 0) / 100), // Convert to EGP
-            };
-          }
-          return null;
-        }).filter(Boolean);
-        
-        console.log('Setting selected tours with prices:', selectedToursData);
+        const selectedToursData = selectedTourIds
+          .map((tourId: number) => {
+            const tour = tours.find((t) => t.id === tourId);
+            if (tour) {
+              return {
+                id: tour.id,
+                name: tour.name,
+                description: tour.description || "",
+                duration: `${tour.duration} days` || "",
+                originalPrice: tour.price || 0,
+                customPrice: Math.round((tour.price || 0) / 100), // Convert to EGP
+              };
+            }
+            return null;
+          })
+          .filter(Boolean);
+
+        console.log("Setting selected tours with prices:", selectedToursData);
         setSelectedToursWithPrices(selectedToursData);
       }
 
-      console.log('Form populated with package data');
+      console.log("Form populated with package data");
     }
   }, [isEditMode, packageData, isLoadingPackage, form, tours]);
 
@@ -664,40 +742,45 @@ export function MultiHotelManualPackageForm({
   useEffect(() => {
     function handleClickOutside(event: MouseEvent) {
       const target = event.target as HTMLElement;
-      
+
       // Don't close if clicking on the search input or dropdown content
-      if (tourDropdownRef.current && !tourDropdownRef.current.contains(target)) {
-        console.log('Clicked outside tour dropdown, closing');
+      if (
+        tourDropdownRef.current &&
+        !tourDropdownRef.current.contains(target)
+      ) {
+        console.log("Clicked outside tour dropdown, closing");
         setShowTourDropdown(false);
       }
     }
-    
+
     // Only add listener when dropdown is open
     if (showTourDropdown) {
-      document.addEventListener('mousedown', handleClickOutside);
+      document.addEventListener("mousedown", handleClickOutside);
     }
-    
+
     return () => {
-      document.removeEventListener('mousedown', handleClickOutside);
+      document.removeEventListener("mousedown", handleClickOutside);
     };
   }, [showTourDropdown]);
 
   // Tour selection functions
   const handleTourSelection = (tourId: number) => {
-    console.log('Attempting to select tour with ID:', tourId);
-    
-    const selectedTour = tours.find(tour => tour.id === tourId);
-    console.log('Found tour:', selectedTour);
-    
+    console.log("Attempting to select tour with ID:", tourId);
+
+    const selectedTour = tours.find((tour) => tour.id === tourId);
+    console.log("Found tour:", selectedTour);
+
     if (!selectedTour) {
-      console.log('Tour not found!');
+      console.log("Tour not found!");
       return;
     }
 
     // Check if tour is already selected
-    const isAlreadySelected = selectedToursWithPrices.some(tour => tour.id === tourId);
+    const isAlreadySelected = selectedToursWithPrices.some(
+      (tour) => tour.id === tourId,
+    );
     if (isAlreadySelected) {
-      console.log('Tour already selected');
+      console.log("Tour already selected");
       toast({
         title: "Tour Already Selected",
         description: "This tour is already added to your package",
@@ -717,16 +800,16 @@ export function MultiHotelManualPackageForm({
     };
 
     const updatedSelectedTours = [...selectedToursWithPrices, newSelectedTour];
-    console.log('About to update selected tours state...');
+    console.log("About to update selected tours state...");
     setSelectedToursWithPrices(updatedSelectedTours);
-    console.log('Updated selected tours:', updatedSelectedTours);
+    console.log("Updated selected tours:", updatedSelectedTours);
 
     // Update form field
-    const tourIds = updatedSelectedTours.map(tour => tour.id);
-    console.log('About to update form field...');
+    const tourIds = updatedSelectedTours.map((tour) => tour.id);
+    console.log("About to update form field...");
     form.setValue("selectedTourIds", tourIds);
-    console.log('Updated form selectedTourIds:', tourIds);
-    console.log('Tour selection process completed successfully!');
+    console.log("Updated form selectedTourIds:", tourIds);
+    console.log("Tour selection process completed successfully!");
 
     // Show success message
     toast({
@@ -740,28 +823,32 @@ export function MultiHotelManualPackageForm({
   };
 
   const removeTour = (tourIdToRemove: number) => {
-    const updatedSelectedTours = selectedToursWithPrices.filter(tour => tour.id !== tourIdToRemove);
+    const updatedSelectedTours = selectedToursWithPrices.filter(
+      (tour) => tour.id !== tourIdToRemove,
+    );
     setSelectedToursWithPrices(updatedSelectedTours);
 
     // Update form field
-    const tourIds = updatedSelectedTours.map(tour => tour.id);
+    const tourIds = updatedSelectedTours.map((tour) => tour.id);
     form.setValue("selectedTourIds", tourIds);
   };
 
   const updateTourPrice = (tourId: number, newPrice: number) => {
-    setSelectedToursWithPrices(prev => 
-      prev.map(tour => 
-        tour.id === tourId 
-          ? { ...tour, customPrice: newPrice }
-          : tour
-      )
+    setSelectedToursWithPrices((prev) =>
+      prev.map((tour) =>
+        tour.id === tourId ? { ...tour, customPrice: newPrice } : tour,
+      ),
     );
   };
 
   const filteredTours = React.useMemo(() => {
-    return tours.filter(tour => {
-      const matchesSearch = tour.name.toLowerCase().includes(tourSearchQuery.toLowerCase());
-      const notAlreadySelected = !selectedToursWithPrices.some(selected => selected.id === tour.id);
+    return tours.filter((tour) => {
+      const matchesSearch = tour.name
+        .toLowerCase()
+        .includes(tourSearchQuery.toLowerCase());
+      const notAlreadySelected = !selectedToursWithPrices.some(
+        (selected) => selected.id === tour.id,
+      );
       return matchesSearch && notAlreadySelected;
     });
   }, [tours, tourSearchQuery, selectedToursWithPrices]);
@@ -777,13 +864,13 @@ export function MultiHotelManualPackageForm({
 
       // Get all gallery image URLs
       const galleryUrls = images.map((img) => img.preview);
-      
+
       // Prepare tour data with custom prices for storage
-      const tourPriceData = selectedToursWithPrices.map(tour => ({
+      const tourPriceData = selectedToursWithPrices.map((tour) => ({
         id: tour.id,
         name: tour.name,
         customPrice: tour.customPrice * 100, // Convert back to cents for storage
-        originalPrice: tour.originalPrice
+        originalPrice: tour.originalPrice,
       }));
 
       // Transform the form data to match the API schema
@@ -812,7 +899,7 @@ export function MultiHotelManualPackageForm({
         categoryId: formData.categoryId,
         selectedTourIds: formData.selectedTourIds || [],
         selectedHotels: formData.hotels, // Store hotels in proper field
-        rooms: formData.hotels.flatMap(hotel => hotel.rooms), // Store all rooms
+        rooms: formData.hotels.flatMap((hotel) => hotel.rooms), // Store all rooms
         transportationDetails: formData.transportationDetails, // Store in proper field
         tourPriceData: tourPriceData, // Custom tour prices
         type: formData.type,
@@ -863,24 +950,28 @@ export function MultiHotelManualPackageForm({
 
       // Get the main image URL (or keep existing if none is set)
       const mainImage = images.find((img) => img.isMain);
-      const mainImageUrl = mainImage ? mainImage.preview : packageData?.imageUrl || "";
+      const mainImageUrl = mainImage
+        ? mainImage.preview
+        : packageData?.imageUrl || "";
 
       // Get all gallery image URLs
       const galleryUrls = images.map((img) => img.preview);
-      
+
       // Prepare tour data with custom prices for storage
-      const tourPriceData = selectedToursWithPrices.map(tour => ({
+      const tourPriceData = selectedToursWithPrices.map((tour) => ({
         id: tour.id,
         name: tour.name,
         customPrice: tour.customPrice * 100, // Convert back to cents for storage
-        originalPrice: tour.originalPrice
+        originalPrice: tour.originalPrice,
       }));
 
       const payload = {
         title: "MANUAL:" + formData.title,
         description: formData.description, // Keep description clean without auto-generated content
         price: formData.price * 100, // Convert to cents
-        discountedPrice: formData.discountedPrice ? formData.discountedPrice * 100 : null,
+        discountedPrice: formData.discountedPrice
+          ? formData.discountedPrice * 100
+          : null,
         imageUrl: mainImageUrl,
         galleryUrls,
         duration: formData.duration,
@@ -899,7 +990,7 @@ export function MultiHotelManualPackageForm({
         discountValue: formData.discountValue,
         selectedTourIds: formData.selectedTourIds || [],
         selectedHotels: formData.hotels, // Store hotels in proper field
-        rooms: formData.hotels.flatMap(hotel => hotel.rooms), // Store all rooms
+        rooms: formData.hotels.flatMap((hotel) => hotel.rooms), // Store all rooms
         transportationDetails: formData.transportationDetails, // Store in proper field
         tourPriceData: tourPriceData, // Custom tour prices
         type: "manual",
@@ -913,24 +1004,14 @@ export function MultiHotelManualPackageForm({
         body: JSON.stringify(payload),
       });
 
-      if (!response.ok) {
-        const errorData = await response.text();
-        console.error("Update error response:", errorData);
-        
-        try {
-          const errorJson = JSON.parse(errorData);
-          throw new Error(errorJson.message || "Failed to update package");
-        } catch {
-          throw new Error(errorData || "Failed to update package");
-        }
-      }
-
-      return response.json();
+      return response;
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["/api/admin/packages"] });
       queryClient.invalidateQueries({ queryKey: ["/api/packages"] });
-      queryClient.invalidateQueries({ queryKey: ["/api/admin/packages", packageId] });
+      queryClient.invalidateQueries({
+        queryKey: ["/api/admin/packages", packageId],
+      });
 
       toast({
         title: "Manual Package Updated",
@@ -972,7 +1053,6 @@ export function MultiHotelManualPackageForm({
         "duration",
         "destinationId",
         "categoryId",
-
       ],
       {
         title: "Package Title",
@@ -982,7 +1062,6 @@ export function MultiHotelManualPackageForm({
         duration: "Duration",
         destinationId: "Destination",
         categoryId: "Package Category",
-
       },
     );
 
@@ -1037,7 +1116,7 @@ export function MultiHotelManualPackageForm({
     setHotelFormData({
       name: hotel.name,
       stars: hotel.stars,
-      rooms: (hotel.rooms || []).map(room => ({
+      rooms: (hotel.rooms || []).map((room) => ({
         ...room,
         id: room.id || Math.random().toString(36).substring(7),
       })),
@@ -1156,7 +1235,7 @@ export function MultiHotelManualPackageForm({
       id: Math.random().toString(36).substring(7),
       name: hotelFormData.name,
       stars: hotelFormData.stars,
-      rooms: hotelFormData.rooms.map(room => ({
+      rooms: hotelFormData.rooms.map((room) => ({
         id: room.id,
         type: room.type,
         pricePerNight: room.pricePerNight,
@@ -1341,8 +1420,6 @@ export function MultiHotelManualPackageForm({
     setShowTransportationSuggestions(value.length >= 3);
   };
 
-
-
   const handleInclusionInputChange = (
     e: React.ChangeEvent<HTMLInputElement>,
   ) => {
@@ -1401,8 +1478,8 @@ export function MultiHotelManualPackageForm({
         <CardContent className="p-6">
           <div className="text-center text-red-600">
             <p>Failed to load package data: {packageError.message}</p>
-            <Button 
-              onClick={() => window.location.reload()} 
+            <Button
+              onClick={() => window.location.reload()}
               className="mt-4"
               variant="outline"
             >
@@ -1422,14 +1499,17 @@ export function MultiHotelManualPackageForm({
           <div className="mb-6 p-4 bg-blue-50 border border-blue-200 rounded-lg">
             <div className="flex items-center gap-2">
               <Edit className="h-5 w-5 text-blue-600" />
-              <h3 className="font-medium text-blue-900">Editing Manual Package</h3>
+              <h3 className="font-medium text-blue-900">
+                Editing Manual Package
+              </h3>
             </div>
             <p className="text-sm text-blue-700 mt-1">
-              Package ID: {packageData.id} | All existing data has been loaded into the form fields.
+              Package ID: {packageData.id} | All existing data has been loaded
+              into the form fields.
             </p>
           </div>
         )}
-        
+
         <Form {...form}>
           <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-8">
             <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
@@ -1496,7 +1576,8 @@ export function MultiHotelManualPackageForm({
                         />
                       </FormControl>
                       <FormDescription>
-                        Custom text to display on the package detail page below "Book This Package"
+                        Custom text to display on the package detail page below
+                        "Book This Package"
                       </FormDescription>
                       <FormMessage />
                     </FormItem>
@@ -1900,12 +1981,20 @@ export function MultiHotelManualPackageForm({
                                 {renderStars(hotel.stars)}
                               </span>
                               <span>
-                                {hotel.rooms.length} room{hotel.rooms.length !== 1 ? 's' : ''}
+                                {hotel.rooms.length} room
+                                {hotel.rooms.length !== 1 ? "s" : ""}
                               </span>
                               {hotel.rooms.length > 0 && (
                                 <span>
-                                  ${Math.min(...hotel.rooms.map(r => r.pricePerNight))} - 
-                                  ${Math.max(...hotel.rooms.map(r => r.pricePerNight))}/night
+                                  $
+                                  {Math.min(
+                                    ...hotel.rooms.map((r) => r.pricePerNight),
+                                  )}{" "}
+                                  - $
+                                  {Math.max(
+                                    ...hotel.rooms.map((r) => r.pricePerNight),
+                                  )}
+                                  /night
                                 </span>
                               )}
                             </div>
@@ -1986,7 +2075,7 @@ export function MultiHotelManualPackageForm({
                   <FormLabel>
                     Select Tours <span className="text-destructive">*</span>
                   </FormLabel>
-                  
+
                   {/* Tour Search Input */}
                   <div className="relative" ref={tourDropdownRef}>
                     <Input
@@ -2002,50 +2091,69 @@ export function MultiHotelManualPackageForm({
                         setShowTourDropdown(true);
                       }}
                     />
-                    
+
                     {/* Tour Dropdown */}
-                    {showTourDropdown && (
-                      tourSearchQuery.length > 0 ? filteredTours.length > 0 : tours.filter(tour => 
-                        !selectedToursWithPrices.some(selected => selected.id === tour.id)
-                      ).length > 0
-                    ) && (
-                      <div className="absolute z-10 w-full mt-1 max-h-60 overflow-auto bg-white border rounded-md shadow-lg">
-                        {/* Close Button */}
-                        <div className="flex justify-between items-center p-2 border-b bg-gray-50">
-                          <span className="text-sm font-medium text-gray-700">Select Tours</span>
-                          <button
-                            type="button"
-                            onClick={() => setShowTourDropdown(false)}
-                            className="p-1 hover:bg-gray-200 rounded"
-                          >
-                            <X className="w-4 h-4 text-gray-500" />
-                          </button>
+                    {showTourDropdown &&
+                      (tourSearchQuery.length > 0
+                        ? filteredTours.length > 0
+                        : tours.filter(
+                            (tour) =>
+                              !selectedToursWithPrices.some(
+                                (selected) => selected.id === tour.id,
+                              ),
+                          ).length > 0) && (
+                        <div className="absolute z-10 w-full mt-1 max-h-60 overflow-auto bg-white border rounded-md shadow-lg">
+                          {/* Close Button */}
+                          <div className="flex justify-between items-center p-2 border-b bg-gray-50">
+                            <span className="text-sm font-medium text-gray-700">
+                              Select Tours
+                            </span>
+                            <button
+                              type="button"
+                              onClick={() => setShowTourDropdown(false)}
+                              className="p-1 hover:bg-gray-200 rounded"
+                            >
+                              <X className="w-4 h-4 text-gray-500" />
+                            </button>
+                          </div>
+                          {(tourSearchQuery.length > 0
+                            ? filteredTours
+                            : tours
+                                .filter(
+                                  (tour) =>
+                                    !selectedToursWithPrices.some(
+                                      (selected) => selected.id === tour.id,
+                                    ),
+                                )
+                                .slice(0, 10)
+                          ).map((tour) => (
+                            <button
+                              key={tour.id}
+                              type="button"
+                              className="w-full px-4 py-3 text-left cursor-pointer hover:bg-zinc-100 border-b last:border-b-0 focus:bg-zinc-100 focus:outline-none"
+                              onMouseDown={(e) => {
+                                e.preventDefault();
+                                e.stopPropagation();
+                                console.log(
+                                  "Tour clicked:",
+                                  tour.id,
+                                  tour.name,
+                                );
+                                handleTourSelection(tour.id);
+                              }}
+                            >
+                              <div className="font-medium">{tour.name}</div>
+                              <div className="text-sm text-gray-600 truncate">
+                                {tour.description}
+                              </div>
+                              <div className="text-sm text-blue-600">
+                                ${(tour.price / 100).toFixed(2)} •{" "}
+                                {tour.duration} duration
+                              </div>
+                            </button>
+                          ))}
                         </div>
-                        {(tourSearchQuery.length > 0 ? filteredTours : tours.filter(tour => 
-                          !selectedToursWithPrices.some(selected => selected.id === tour.id)
-                        ).slice(0, 10)).map((tour) => (
-                          <button
-                            key={tour.id}
-                            type="button"
-                            className="w-full px-4 py-3 text-left cursor-pointer hover:bg-zinc-100 border-b last:border-b-0 focus:bg-zinc-100 focus:outline-none"
-                            onMouseDown={(e) => {
-                              e.preventDefault();
-                              e.stopPropagation();
-                              console.log('Tour clicked:', tour.id, tour.name);
-                              handleTourSelection(tour.id);
-                            }}
-                          >
-                            <div className="font-medium">{tour.name}</div>
-                            <div className="text-sm text-gray-600 truncate">
-                              {tour.description}
-                            </div>
-                            <div className="text-sm text-blue-600">
-                              ${(tour.price / 100).toFixed(2)} • {tour.duration} duration
-                            </div>
-                          </button>
-                        ))}
-                      </div>
-                    )}
+                      )}
                   </div>
 
                   {/* Selected Tours Display */}
@@ -2055,11 +2163,18 @@ export function MultiHotelManualPackageForm({
                         <h4 className="text-sm font-medium text-green-700">
                           Selected Tours ({selectedToursWithPrices.length})
                         </h4>
-                        <Badge variant="outline" className="bg-green-50 text-green-700 border-green-200">
-                          Total: {selectedToursWithPrices.reduce((sum, tour) => sum + tour.customPrice, 0).toFixed(2)} EGP
+                        <Badge
+                          variant="outline"
+                          className="bg-green-50 text-green-700 border-green-200"
+                        >
+                          Total:{" "}
+                          {selectedToursWithPrices
+                            .reduce((sum, tour) => sum + tour.customPrice, 0)
+                            .toFixed(2)}{" "}
+                          EGP
                         </Badge>
                       </div>
-                      
+
                       <div className="space-y-3 max-h-80 overflow-y-auto">
                         {selectedToursWithPrices.map((tour) => (
                           <div
@@ -2069,8 +2184,13 @@ export function MultiHotelManualPackageForm({
                             <div className="flex items-start justify-between mb-3">
                               <div className="flex-1">
                                 <div className="flex items-center gap-2 mb-1">
-                                  <div className="font-medium text-green-800">{tour.name}</div>
-                                  <Badge variant="secondary" className="text-xs">
+                                  <div className="font-medium text-green-800">
+                                    {tour.name}
+                                  </div>
+                                  <Badge
+                                    variant="secondary"
+                                    className="text-xs"
+                                  >
                                     ID: {tour.id}
                                   </Badge>
                                 </div>
@@ -2091,7 +2211,7 @@ export function MultiHotelManualPackageForm({
                                 <X className="h-4 w-4" />
                               </Button>
                             </div>
-                            
+
                             {/* Editable Price Section */}
                             <div className="grid grid-cols-2 gap-4">
                               <div className="p-2 bg-white rounded border">
@@ -2104,14 +2224,20 @@ export function MultiHotelManualPackageForm({
                               </div>
                               <div className="p-2 bg-white rounded border">
                                 <label className="text-xs font-medium text-gray-700">
-                                  Custom Price <span className="text-red-500">*</span>
+                                  Custom Price{" "}
+                                  <span className="text-red-500">*</span>
                                 </label>
                                 <Input
                                   type="number"
                                   min="0"
                                   step="0.01"
                                   value={tour.customPrice}
-                                  onChange={(e) => updateTourPrice(tour.id, parseFloat(e.target.value) || 0)}
+                                  onChange={(e) =>
+                                    updateTourPrice(
+                                      tour.id,
+                                      parseFloat(e.target.value) || 0,
+                                    )
+                                  }
                                   className="mt-1 text-sm h-8"
                                   placeholder="Enter price"
                                 />
@@ -2126,7 +2252,10 @@ export function MultiHotelManualPackageForm({
                   {/* Empty State */}
                   {selectedToursWithPrices.length === 0 && (
                     <div className="mt-4 p-4 border-2 border-dashed border-gray-200 rounded-lg text-center">
-                      <p className="text-sm text-gray-500">No tours selected yet. Search and click on tours above to add them to your package.</p>
+                      <p className="text-sm text-gray-500">
+                        No tours selected yet. Search and click on tours above
+                        to add them to your package.
+                      </p>
                     </div>
                   )}
 
@@ -2435,60 +2564,88 @@ export function MultiHotelManualPackageForm({
               <h3 className="text-lg font-semibold text-blue-800 border-b border-blue-200 pb-2">
                 Package Cost Summary
               </h3>
-              
+
               <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                 {/* Hotels & Rooms Section */}
                 <div className="space-y-3">
-                  <h4 className="font-medium text-blue-700">Hotels & Accommodation</h4>
+                  <h4 className="font-medium text-blue-700">
+                    Hotels & Accommodation
+                  </h4>
                   {form.watch("hotels")?.length > 0 ? (
                     <div className="space-y-2">
                       {form.watch("hotels").map((hotel, index) => {
-                        const hotelTotal = hotel.rooms?.reduce((sum, room) => {
-                          return sum + (room.pricePerNight || 0);
-                        }, 0) || 0;
-                        
+                        const hotelTotal =
+                          hotel.rooms?.reduce((sum, room) => {
+                            return sum + (room.pricePerNight || 0);
+                          }, 0) || 0;
+
                         return (
-                          <div key={index} className="bg-white p-3 rounded border">
-                            <div className="font-medium text-sm">{hotel.name}</div>
+                          <div
+                            key={index}
+                            className="bg-white p-3 rounded border"
+                          >
+                            <div className="font-medium text-sm">
+                              {hotel.name}
+                            </div>
                             <div className="text-xs text-gray-600 mb-2">
-                              ⭐ {hotel.stars} stars • {hotel.rooms?.length || 0} room(s)
+                              ⭐ {hotel.stars} stars •{" "}
+                              {hotel.rooms?.length || 0} room(s)
                             </div>
                             {hotel.rooms?.map((room, roomIndex) => (
-                              <div key={roomIndex} className="flex justify-between text-xs text-gray-700">
+                              <div
+                                key={roomIndex}
+                                className="flex justify-between text-xs text-gray-700"
+                              >
                                 <span>{room.type}</span>
-                                <span>{room.pricePerNight.toFixed(2)} EGP/night</span>
+                                <span>
+                                  {room.pricePerNight.toFixed(2)} EGP/night
+                                </span>
                               </div>
                             ))}
                             <div className="flex justify-between font-medium text-sm border-t pt-1 mt-1">
                               <span>Hotel Total:</span>
-                              <span className="text-blue-600">{hotelTotal.toFixed(2)} EGP</span>
+                              <span className="text-blue-600">
+                                {hotelTotal.toFixed(2)} EGP
+                              </span>
                             </div>
                           </div>
                         );
                       })}
                     </div>
                   ) : (
-                    <p className="text-sm text-gray-500 italic">No hotels added yet</p>
+                    <p className="text-sm text-gray-500 italic">
+                      No hotels added yet
+                    </p>
                   )}
                 </div>
 
                 {/* Tours Section */}
                 <div className="space-y-3">
-                  <h4 className="font-medium text-blue-700">Tours & Activities</h4>
+                  <h4 className="font-medium text-blue-700">
+                    Tours & Activities
+                  </h4>
                   {selectedToursWithPrices.length > 0 ? (
                     <div className="space-y-2">
                       {selectedToursWithPrices.map((tour) => (
-                        <div key={tour.id} className="bg-white p-3 rounded border">
+                        <div
+                          key={tour.id}
+                          className="bg-white p-3 rounded border"
+                        >
                           <div className="flex justify-between items-start">
                             <div className="flex-1">
-                              <div className="font-medium text-sm">{tour.name}</div>
-                              <div className="text-xs text-gray-600">Duration: {tour.duration}</div>
+                              <div className="font-medium text-sm">
+                                {tour.name}
+                              </div>
+                              <div className="text-xs text-gray-600">
+                                Duration: {tour.duration}
+                              </div>
                             </div>
                             <div className="text-right">
                               <div className="text-sm font-medium text-blue-600">
                                 {tour.customPrice.toFixed(2)} EGP
                               </div>
-                              {tour.originalPrice !== (tour.customPrice * 100) && (
+                              {tour.originalPrice !==
+                                tour.customPrice * 100 && (
                                 <div className="text-xs text-gray-500 line-through">
                                   {(tour.originalPrice / 100).toFixed(2)} EGP
                                 </div>
@@ -2499,7 +2656,9 @@ export function MultiHotelManualPackageForm({
                       ))}
                     </div>
                   ) : (
-                    <p className="text-sm text-gray-500 italic">No tours selected yet</p>
+                    <p className="text-sm text-gray-500 italic">
+                      No tours selected yet
+                    </p>
                   )}
                 </div>
               </div>
@@ -2510,15 +2669,27 @@ export function MultiHotelManualPackageForm({
                   <div className="flex justify-between text-sm">
                     <span>Total Accommodation Cost:</span>
                     <span className="font-medium">
-                      {(form.watch("hotels")?.reduce((total, hotel) => {
-                        return total + (hotel.rooms?.reduce((sum, room) => sum + (room.pricePerNight || 0), 0) || 0);
-                      }, 0) || 0).toFixed(2)} EGP
+                      {(
+                        form.watch("hotels")?.reduce((total, hotel) => {
+                          return (
+                            total +
+                            (hotel.rooms?.reduce(
+                              (sum, room) => sum + (room.pricePerNight || 0),
+                              0,
+                            ) || 0)
+                          );
+                        }, 0) || 0
+                      ).toFixed(2)}{" "}
+                      EGP
                     </span>
                   </div>
                   <div className="flex justify-between text-sm">
                     <span>Total Tours Cost:</span>
                     <span className="font-medium">
-                      {selectedToursWithPrices.reduce((sum, tour) => sum + tour.customPrice, 0).toFixed(2)} EGP
+                      {selectedToursWithPrices
+                        .reduce((sum, tour) => sum + tour.customPrice, 0)
+                        .toFixed(2)}{" "}
+                      EGP
                     </span>
                   </div>
                   <div className="flex justify-between text-lg font-bold text-blue-800 border-t pt-2">
@@ -2526,14 +2697,25 @@ export function MultiHotelManualPackageForm({
                     <span>
                       {(
                         (form.watch("hotels")?.reduce((total, hotel) => {
-                          return total + (hotel.rooms?.reduce((sum, room) => sum + (room.pricePerNight || 0), 0) || 0);
-                        }, 0) || 0) + 
-                        selectedToursWithPrices.reduce((sum, tour) => sum + tour.customPrice, 0)
-                      ).toFixed(2)} EGP
+                          return (
+                            total +
+                            (hotel.rooms?.reduce(
+                              (sum, room) => sum + (room.pricePerNight || 0),
+                              0,
+                            ) || 0)
+                          );
+                        }, 0) || 0) +
+                        selectedToursWithPrices.reduce(
+                          (sum, tour) => sum + tour.customPrice,
+                          0,
+                        )
+                      ).toFixed(2)}{" "}
+                      EGP
                     </span>
                   </div>
                   <div className="text-xs text-gray-600 text-center mt-2">
-                    *Final package price may include additional markup as configured in package settings
+                    *Final package price may include additional markup as
+                    configured in package settings
                   </div>
                 </div>
               </div>
@@ -2550,7 +2732,7 @@ export function MultiHotelManualPackageForm({
               <Button
                 type="submit"
                 disabled={
-                  isEditMode 
+                  isEditMode
                     ? updateManualPackageMutation.isPending || isLoadingPackage
                     : createManualPackageMutation.isPending
                 }
@@ -2564,15 +2746,13 @@ export function MultiHotelManualPackageForm({
                   ) : (
                     "Update Manual Package"
                   )
+                ) : createManualPackageMutation.isPending ? (
+                  <>
+                    <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                    Creating...
+                  </>
                 ) : (
-                  createManualPackageMutation.isPending ? (
-                    <>
-                      <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                      Creating...
-                    </>
-                  ) : (
-                    "Create Manual Package"
-                  )
+                  "Create Manual Package"
                 )}
               </Button>
             </div>
@@ -2675,7 +2855,7 @@ export function MultiHotelManualPackageForm({
                   Add Room
                 </Button>
               </div>
-              
+
               {hotelFormData.rooms.length === 0 ? (
                 <div className="text-sm text-muted-foreground text-center py-4 border border-dashed rounded-md">
                   No rooms added yet. Click "Add Room" to get started.
@@ -2690,7 +2870,8 @@ export function MultiHotelManualPackageForm({
                       <div className="flex-1">
                         <div className="font-medium text-sm">{room.type}</div>
                         <div className="text-xs text-muted-foreground">
-                          ${room.pricePerNight}/night • Max {room.maxOccupancy} guests
+                          ${room.pricePerNight}/night • Max {room.maxOccupancy}{" "}
+                          guests
                         </div>
                         {room.amenities.length > 0 && (
                           <div className="text-xs text-muted-foreground mt-1">
@@ -2790,7 +2971,8 @@ export function MultiHotelManualPackageForm({
                   htmlFor="pricePerNight"
                   className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70"
                 >
-                  Price Per Night ($) <span className="text-destructive">*</span>
+                  Price Per Night ($){" "}
+                  <span className="text-destructive">*</span>
                 </label>
                 <Input
                   id="pricePerNight"
@@ -2798,7 +2980,9 @@ export function MultiHotelManualPackageForm({
                   placeholder="e.g., 120"
                   value={roomFormData.pricePerNight || ""}
                   onChange={(e) => {
-                    const value = e.target.value ? parseFloat(e.target.value) : 0;
+                    const value = e.target.value
+                      ? parseFloat(e.target.value)
+                      : 0;
                     handleRoomFormChange("pricePerNight", value);
                   }}
                 />
@@ -2839,7 +3023,17 @@ export function MultiHotelManualPackageForm({
                 Amenities (Optional)
               </label>
               <div className="grid grid-cols-3 gap-2">
-                {["WiFi", "AC", "TV", "Minibar", "Safe", "Balcony", "Ocean View", "City View", "Kitchenette"].map((amenity) => (
+                {[
+                  "WiFi",
+                  "AC",
+                  "TV",
+                  "Minibar",
+                  "Safe",
+                  "Balcony",
+                  "Ocean View",
+                  "City View",
+                  "Kitchenette",
+                ].map((amenity) => (
                   <div key={amenity} className="flex items-center space-x-2">
                     <input
                       type="checkbox"
@@ -2847,9 +3041,15 @@ export function MultiHotelManualPackageForm({
                       checked={roomFormData.amenities.includes(amenity)}
                       onChange={(e) => {
                         if (e.target.checked) {
-                          handleRoomFormChange("amenities", [...roomFormData.amenities, amenity]);
+                          handleRoomFormChange("amenities", [
+                            ...roomFormData.amenities,
+                            amenity,
+                          ]);
                         } else {
-                          handleRoomFormChange("amenities", roomFormData.amenities.filter(a => a !== amenity));
+                          handleRoomFormChange(
+                            "amenities",
+                            roomFormData.amenities.filter((a) => a !== amenity),
+                          );
                         }
                       }}
                       className="h-4 w-4 text-primary border-gray-300 rounded"
