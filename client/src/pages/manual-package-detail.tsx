@@ -215,7 +215,7 @@ export default function ManualPackageDetail() {
         {packageData.imageUrl && !packageData.imageUrl.startsWith('blob:') ? (
           <div className="mb-8">
             <img
-              src={packageData.imageUrl}
+              src={`${packageData.imageUrl}?v=${packageData.updatedAt || Date.now()}`}
               alt={packageData.title}
               className="w-full h-64 object-cover rounded-lg"
               onError={(e) => {
@@ -257,7 +257,7 @@ export default function ManualPackageDetail() {
                       .map((imageUrl: string, index: number) => (
                         <div key={index} className="aspect-square overflow-hidden rounded-lg">
                           <img
-                            src={imageUrl}
+                            src={`${imageUrl}?v=${packageData.updatedAt || Date.now()}`}
                             alt={`Gallery image ${index + 1}`}
                             className="w-full h-full object-cover hover:scale-105 transition-transform duration-300"
                             onError={(e) => {

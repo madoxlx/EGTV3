@@ -760,29 +760,35 @@ export function MultiHotelManualPackageForm({
         form.setValue("selectedTourIds", tourIds);
       }
 
-      // Set gallery images if available
+      // Initialize images array for edit mode
+      const imageArray = [];
+      
+      // Add main image first if it exists
+      if (packageData?.imageUrl) {
+        imageArray.push({
+          id: "main-existing",
+          file: null,
+          preview: packageData.imageUrl,
+          isMain: true,
+        });
+      }
+      
+      // Add gallery images
       const galleryUrls = parseJSONField(packageData?.galleryUrls, []);
       if (galleryUrls.length > 0) {
-        const imageData = galleryUrls.map((url: string, index: number) => ({
-          id: `existing-${index}`,
+        const galleryImages = galleryUrls.map((url: string, index: number) => ({
+          id: `gallery-${index}`,
           file: null,
           preview: url,
           isMain: false,
         }));
-        setImages(imageData);
+        imageArray.push(...galleryImages);
       }
-
-      // Set main image
-      if (packageData?.imageUrl) {
-        setImages((prev) => [
-          {
-            id: "main-existing",
-            file: null,
-            preview: packageData.imageUrl,
-            isMain: true,
-          },
-          ...prev.map((img) => ({ ...img, isMain: false })),
-        ]);
+      
+      // Set all images at once
+      if (imageArray.length > 0) {
+        setImages(imageArray);
+        console.log("Loaded existing images:", imageArray);
       }
 
       // Set location states
@@ -1050,38 +1056,43 @@ export function MultiHotelManualPackageForm({
     mutationFn: async (formData: ManualPackageFormValues) => {
       if (!packageId) throw new Error("Package ID is required for update");
 
-      // Get the main image URL - replace with new image if provided, otherwise keep existing
-      const mainImage = images.find((img) => img.isMain);
+      // Determine if user has added new images (check for any images with recent modification)
+      const hasNewImages = images.some(img => 
+        img.file !== null || 
+        !img.id.startsWith('main-existing') && !img.id.startsWith('gallery-')
+      );
+      
+      console.log("Has new images?", hasNewImages);
+      console.log("Current images:", images);
+      
       let mainImageUrl;
-      
-      if (mainImage && !mainImage.preview.startsWith('blob:')) {
-        // Use new valid main image
-        mainImageUrl = mainImage.preview;
-      } else if (mainImage && mainImage.preview.startsWith('blob:')) {
-        // If user uploaded new image but it's blob, use placeholder (this shouldn't happen with our fixes)
-        mainImageUrl = "https://images.unsplash.com/photo-1540541338287-41700207dee6?q=80&w=800";
-      } else {
-        // No new main image selected, keep existing one
-        mainImageUrl = packageData?.imageUrl || "https://images.unsplash.com/photo-1540541338287-41700207dee6?q=80&w=800";
-      }
-
-      // Get all gallery image URLs - use new images if provided, otherwise keep existing ones
-      const validNewImages = images
-        .map((img) => img.preview)
-        .filter((url) => !url.startsWith('blob:'));
-      
       let galleryUrls;
       
-      // If user has added new images, use only the new ones (replacing old ones)
-      if (validNewImages.length > 0) {
-        galleryUrls = validNewImages;
+      if (hasNewImages) {
+        // User has added new images - replace everything with new ones
+        const mainImage = images.find((img) => img.isMain);
+        mainImageUrl = mainImage && !mainImage.preview.startsWith('blob:') 
+          ? mainImage.preview 
+          : "https://images.unsplash.com/photo-1540541338287-41700207dee6?q=80&w=800";
+        
+        // Get gallery images (all non-main images)
+        galleryUrls = images
+          .filter(img => !img.isMain)
+          .map(img => img.preview)
+          .filter(url => !url.startsWith('blob:'));
+          
+        console.log("Using new images - Main:", mainImageUrl, "Gallery:", galleryUrls);
       } else {
-        // If no new images, keep existing gallery URLs if they exist and are valid
+        // No new images - keep existing ones
+        mainImageUrl = packageData?.imageUrl || "https://images.unsplash.com/photo-1540541338287-41700207dee6?q=80&w=800";
+        
         const existingGalleryUrls = packageData?.galleryUrls ? 
           (Array.isArray(packageData.galleryUrls) ? packageData.galleryUrls : 
            JSON.parse(packageData.galleryUrls as string || '[]'))
           .filter((url: string) => !url.startsWith('blob:')) : [];
         galleryUrls = existingGalleryUrls;
+        
+        console.log("Using existing images - Main:", mainImageUrl, "Gallery:", galleryUrls);
       }
 
       // Prepare tour data with custom prices for storage
@@ -1151,6 +1162,16 @@ export function MultiHotelManualPackageForm({
         description: "تم حفظ الصور الجديدة وتحديث جميع البيانات",
         variant: "default",
       });
+
+      // Force reload of all images in browser cache
+      setTimeout(() => {
+        const allImages = document.querySelectorAll('img');
+        allImages.forEach(img => {
+          const src = img.src;
+          img.src = '';
+          img.src = src + (src.includes('?') ? '&' : '?') + 'v=' + Date.now();
+        });
+      }, 500);
 
       // Navigate back to package detail page to show updated images
       navigate(`/packages/manual/${packageId}`);
