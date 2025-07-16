@@ -1,5 +1,5 @@
 import React from "react";
-import { Link, useLocation } from "wouter";
+import { Link, useLocation, useRouter } from "wouter";
 import logo from "../assets/EgyptExpressTvl-logo.png";
 import { Button } from "@/components/ui/button";
 import {
@@ -42,6 +42,7 @@ const Header: React.FC = () => {
   const [expandedMobileMenus, setExpandedMobileMenus] = React.useState<Record<number, boolean>>({});
   const [openDropdowns, setOpenDropdowns] = React.useState<Record<number, boolean>>({});
   const [location] = useLocation();
+  const router = useRouter();
   const { cartItems } = useCart();
 
   // Add safety check for auth context
@@ -114,7 +115,7 @@ const Header: React.FC = () => {
                 {menuItems?.map((item) => (
                   <NavigationMenuItem key={item.id}>
                     {item.children && item.children.length > 0 ? (
-                      // Parent item with children - show dropdown on hover
+                      // Parent item with children - clickable trigger that goes to URL
                       <>
                         <NavigationMenuTrigger 
                           className={`font-medium bg-transparent relative group/trigger hover:bg-transparent hover:text-inherit focus:bg-transparent focus:text-inherit data-[state=open]:bg-transparent data-[state=open]:text-inherit ${
@@ -125,6 +126,12 @@ const Header: React.FC = () => {
                               ? "text-primary" 
                               : ""
                           }`}
+                          onClick={() => {
+                            // Navigate to parent URL when clicked
+                            if (item.url) {
+                              router.navigate(item.url);
+                            }
+                          }}
                         >
                           <span className="absolute bottom-0 left-0 h-0.5 w-0 bg-red-500 transition-all duration-300 ease-out group-hover/trigger:w-full"></span>
                           {item.title}
@@ -132,25 +139,7 @@ const Header: React.FC = () => {
                         <NavigationMenuContent>
                           <div className="w-[200px] p-2">
                             <div className="grid gap-1">
-                              {/* Parent item as clickable link */}
-                              {item.url && (
-                                <NavigationMenuLink asChild>
-                                  <Link
-                                    href={item.url}
-                                    className={`block px-3 py-2 text-sm font-medium rounded-md hover:bg-accent hover:text-accent-foreground transition-colors relative group/dropdown ${
-                                      location === item.url ? "text-primary bg-accent" : ""
-                                    }`}
-                                    target={item.target === '_blank' ? '_blank' : undefined}
-                                    rel={item.target === '_blank' ? 'noopener noreferrer' : undefined}
-                                  >
-                                    <span className="absolute bottom-0 left-0 h-0.5 w-0 bg-red-500 transition-all duration-300 ease-out group-hover/dropdown:w-full"></span>
-                                    {item.title}
-                                  </Link>
-                                </NavigationMenuLink>
-                              )}
-                              {/* Separator if parent has URL */}
-                              {item.url && <div className="h-px bg-border my-1" />}
-                              {/* Child items */}
+                              {/* Child items only */}
                               {item.children.map((child) => (
                                 <NavigationMenuLink key={child.id} asChild>
                                   <Link
