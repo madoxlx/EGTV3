@@ -45,21 +45,24 @@ const WhyChooseUs: React.FC = () => {
         {/* Features Grid */}
         <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
           {features.map((feature, index) => (
-            <div key={index} className="text-center group">
-              {/* Icon Circle */}
-              <div className="w-20 h-20 bg-white rounded-full flex items-center justify-center mx-auto mb-6 shadow-lg group-hover:shadow-xl transition-shadow duration-300">
-                <feature.icon className={`w-10 h-10 ${feature.color}`} />
-              </div>
-              
-              {/* Content */}
-              <div className="space-y-3">
+            <div key={index} className="group">
+              {/* Icon and Title Row */}
+              <div className="flex items-center gap-4 mb-4">
+                {/* Icon Circle */}
+                <div className="w-16 h-16 bg-white rounded-full flex items-center justify-center shadow-lg group-hover:shadow-xl transition-shadow duration-300 flex-shrink-0">
+                  <feature.icon className={`w-8 h-8 ${feature.color}`} />
+                </div>
+                
+                {/* Title */}
                 <h3 className="text-xl font-semibold text-gray-900">
                   {isRTL ? feature.titleAr : feature.title}
                 </h3>
-                <p className="text-gray-600 leading-relaxed">
-                  {isRTL ? feature.descriptionAr : feature.description}
-                </p>
               </div>
+              
+              {/* Description */}
+              <p className="text-gray-600 leading-relaxed text-center">
+                {isRTL ? feature.descriptionAr : feature.description}
+              </p>
             </div>
           ))}
         </div>
