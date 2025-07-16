@@ -9,6 +9,7 @@ import RecommendedDestinations from "@/components/RecommendedDestinations";
 import PopularPackages from "@/components/PopularPackages";
 import SocialMediaBox from "@/components/SocialMediaBox";
 import DynamicHomepageSection from "@/components/homepage/DynamicHomepageSection";
+import VideoPromoSection from "@/components/VideoPromoSection";
 import { useLanguage } from "@/hooks/use-language";
 
 const Home: React.FC = () => {
@@ -41,6 +42,9 @@ const Home: React.FC = () => {
           ))}
         </div>
       )}
+
+      {/* Video Promo Section - positioned after Why Choose Us */}
+      <VideoPromoSection />
       
       <div className="container mx-auto px-4">
         <div className="my-12">
