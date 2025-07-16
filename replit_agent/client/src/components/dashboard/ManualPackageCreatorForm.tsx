@@ -49,7 +49,7 @@ const manualPackageFormSchema = z.object({
   discountedPrice: z.coerce.number().optional(),
   hotels: z.array(hotelEntrySchema).min(1, { message: "At least one hotel is required" }),
   transportationDetails: z.string().min(3, { message: "Transportation details must be at least 3 characters" }),
-  tourDetails: z.string().min(3, { message: "Tour details must be at least 3 characters" }),
+  tourDetails: z.string().optional(),
   duration: z.coerce.number().positive({ message: "Duration must be a positive number" }),
   destinationId: z.coerce.number({ required_error: "Please select a destination" }),
   categoryId: z.coerce.number({ required_error: "Please select a package category" }),
@@ -259,14 +259,13 @@ export function ManualPackageCreatorForm() {
     // Validation
     const requiredFieldsValid = validateRequiredFields(
       data,
-      ['title', 'description', 'price', 'hotelName', 'transportationDetails', 'tourDetails', 'duration', 'destinationId', 'type'],
+      ['title', 'description', 'price', 'hotelName', 'transportationDetails', 'duration', 'destinationId', 'type'],
       {
         title: 'Package Title',
         description: 'Description',
         price: 'Price',
         hotelName: 'Hotel Name',
         transportationDetails: 'Transportation Details',
-        tourDetails: 'Tour Details',
         duration: 'Duration',
         destinationId: 'Destination',
         type: 'Package Type'
@@ -761,7 +760,7 @@ export function ManualPackageCreatorForm() {
                   name="tourDetails"
                   render={({ field }) => (
                     <FormItem className="suggestion-dropdown">
-                      <FormLabel>Tour Details <span className="text-destructive">*</span></FormLabel>
+                      <FormLabel>Tour Details</FormLabel>
                       <FormControl>
                         <div className="relative">
                           <Input 

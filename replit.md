@@ -106,6 +106,13 @@ The application uses a comprehensive PostgreSQL schema with the following core e
 
 ## Recent Changes
 
+- **Manual Package Creation Tour Details Field Made Optional (July 16, 2025)**: Successfully updated all manual package creation forms to make tour details field optional instead of required
+  - **Schema Updates**: Modified manualPackageFormSchema in all package creation components to make tourDetails field optional using z.string().optional()
+  - **Validation Updates**: Removed "tourDetails" from required fields validation in onSubmit functions across all manual package creation forms
+  - **UI Updates**: Removed red asterisk (*) from Tour Details field labels to indicate field is no longer required
+  - **Consistency**: Applied changes to both client and replit_agent versions of MultiHotelManualPackageForm and ManualPackageCreatorForm components
+  - **User Experience**: Package creators can now submit forms without filling in tour details, making the workflow more flexible for different package types
+
 - **Navigation Manager Drag-and-Drop Implementation Complete (July 16, 2025)**: Successfully implemented comprehensive drag-and-drop reordering functionality and visual hierarchy for navigation menu management
   - **Drag-and-Drop Reordering**: Added @dnd-kit library integration with sortable menu item cards that can be dragged to reorder
   - **Visual Hierarchy for Nested Items**: Child menu items now display with left margins (ml-8), blue left border, blue background tint, and arrow indicator (↳)

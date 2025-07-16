@@ -51,7 +51,7 @@ const manualPackageFormSchema = z.object({
   discountedPrice: z.coerce.number().optional(),
   hotels: z.array(hotelEntrySchema).min(1, { message: "At least one hotel is required" }),
   transportationDetails: z.string().min(3, { message: "Transportation details must be at least 3 characters" }),
-  tourDetails: z.string().min(3, { message: "Tour details must be at least 3 characters" }),
+  tourDetails: z.string().optional(),
   duration: z.coerce.number().positive({ message: "Duration must be a positive number" }),
   destinationId: z.coerce.number({ required_error: "Please select a destination" }),
   categoryId: z.coerce.number({ required_error: "Please select a category" }),
@@ -295,13 +295,12 @@ export function MultiHotelManualPackageForm() {
     // Validation
     const requiredFieldsValid = validateRequiredFields(
       data,
-      ['title', 'description', 'price', 'transportationDetails', 'tourDetails', 'duration', 'destinationId', 'categoryId', 'type'],
+      ['title', 'description', 'price', 'transportationDetails', 'duration', 'destinationId', 'categoryId', 'type'],
       {
         title: 'Package Title',
         description: 'Description',
         price: 'Price',
         transportationDetails: 'Transportation Details',
-        tourDetails: 'Tour Details',
         duration: 'Duration',
         destinationId: 'Destination',
         categoryId: 'Package Category',
