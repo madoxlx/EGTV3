@@ -212,15 +212,30 @@ export default function ManualPackageDetail() {
         </div>
 
         {/* Main Image */}
-        {packageData.imageUrl && (
+        {packageData.imageUrl && !packageData.imageUrl.startsWith('blob:') ? (
           <div className="mb-8">
             <img
               src={packageData.imageUrl}
               alt={packageData.title}
               className="w-full h-64 object-cover rounded-lg"
+              onError={(e) => {
+                // Hide the image if it fails to load
+                const img = e.target as HTMLImageElement;
+                img.style.display = 'none';
+              }}
             />
           </div>
-        )}
+        ) : packageData.imageUrl && packageData.imageUrl.startsWith('blob:') ? (
+          <div className="mb-8">
+            <div className="w-full h-64 bg-gray-100 rounded-lg flex items-center justify-center">
+              <div className="text-center">
+                <Camera className="h-16 w-16 text-gray-400 mx-auto mb-4" />
+                <p className="text-gray-500 font-medium">Package Image Unavailable</p>
+                <p className="text-sm text-gray-400 mt-2">The original image is temporarily unavailable</p>
+              </div>
+            </div>
+          </div>
+        ) : null}
 
         {/* Content Grid */}
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
@@ -237,15 +252,32 @@ export default function ManualPackageDetail() {
                 </CardHeader>
                 <CardContent>
                   <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
-                    {packageData.galleryUrls.map((imageUrl: string, index: number) => (
-                      <div key={index} className="aspect-square overflow-hidden rounded-lg">
-                        <img
-                          src={imageUrl}
-                          alt={`Gallery image ${index + 1}`}
-                          className="w-full h-full object-cover hover:scale-105 transition-transform duration-300"
-                        />
+                    {packageData.galleryUrls
+                      .filter((imageUrl: string) => !imageUrl.startsWith('blob:')) // Filter out blob URLs
+                      .map((imageUrl: string, index: number) => (
+                        <div key={index} className="aspect-square overflow-hidden rounded-lg">
+                          <img
+                            src={imageUrl}
+                            alt={`Gallery image ${index + 1}`}
+                            className="w-full h-full object-cover hover:scale-105 transition-transform duration-300"
+                            onError={(e) => {
+                              // Replace with placeholder if image fails to load
+                              const img = e.target as HTMLImageElement;
+                              img.style.display = 'none';
+                            }}
+                          />
+                        </div>
+                      ))}
+                    {/* If no valid images, show placeholder */}
+                    {packageData.galleryUrls.filter((url: string) => !url.startsWith('blob:')).length === 0 && (
+                      <div className="col-span-full text-center py-8">
+                        <div className="bg-gray-100 rounded-lg p-8">
+                          <Camera className="h-12 w-12 text-gray-400 mx-auto mb-4" />
+                          <p className="text-gray-500">Package images are temporarily unavailable</p>
+                          <p className="text-sm text-gray-400 mt-2">Please contact support for assistance</p>
+                        </div>
                       </div>
-                    ))}
+                    )}
                   </div>
                 </CardContent>
               </Card>

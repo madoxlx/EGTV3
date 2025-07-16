@@ -952,12 +952,19 @@ export function MultiHotelManualPackageForm({
     mutationFn: async (formData: ManualPackageFormValues) => {
       // Get the main image URL (or a default if none is set)
       const mainImage = images.find((img) => img.isMain);
-      const mainImageUrl = mainImage
+      let mainImageUrl = mainImage
         ? mainImage.preview
         : "https://images.unsplash.com/photo-1540541338287-41700207dee6?q=80&w=800";
 
-      // Get all gallery image URLs
-      const galleryUrls = images.map((img) => img.preview);
+      // If the main image is a blob URL, use a placeholder instead
+      if (mainImageUrl && mainImageUrl.startsWith('blob:')) {
+        mainImageUrl = "https://images.unsplash.com/photo-1540541338287-41700207dee6?q=80&w=800";
+      }
+
+      // Get all gallery image URLs, filtering out blob URLs
+      const galleryUrls = images
+        .map((img) => img.preview)
+        .filter((url) => !url.startsWith('blob:'));
 
       // Prepare tour data with custom prices for storage
       const tourPriceData = selectedToursWithPrices.map((tour) => ({
@@ -1045,12 +1052,27 @@ export function MultiHotelManualPackageForm({
 
       // Get the main image URL (or keep existing if none is set)
       const mainImage = images.find((img) => img.isMain);
-      const mainImageUrl = mainImage
+      let mainImageUrl = mainImage
         ? mainImage.preview
         : packageData?.imageUrl || "";
 
-      // Get all gallery image URLs
-      const galleryUrls = images.map((img) => img.preview);
+      // If the main image is a blob URL, keep the existing image URL or use placeholder
+      if (mainImageUrl && mainImageUrl.startsWith('blob:')) {
+        mainImageUrl = packageData?.imageUrl || "https://images.unsplash.com/photo-1540541338287-41700207dee6?q=80&w=800";
+      }
+
+      // Get all gallery image URLs, filtering out blob URLs and keeping existing valid ones
+      const validNewImages = images
+        .map((img) => img.preview)
+        .filter((url) => !url.startsWith('blob:'));
+      
+      // Combine with existing gallery URLs if they exist and are valid
+      const existingGalleryUrls = packageData?.galleryUrls ? 
+        (Array.isArray(packageData.galleryUrls) ? packageData.galleryUrls : 
+         JSON.parse(packageData.galleryUrls as string || '[]'))
+        .filter((url: string) => !url.startsWith('blob:')) : [];
+      
+      const galleryUrls = [...existingGalleryUrls, ...validNewImages];
 
       // Prepare tour data with custom prices for storage
       const tourPriceData = selectedToursWithPrices.map((tour) => ({

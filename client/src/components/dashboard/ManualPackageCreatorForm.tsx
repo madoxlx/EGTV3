@@ -198,10 +198,17 @@ export function ManualPackageCreatorForm() {
     mutationFn: async (formData: ManualPackageFormValues) => {
       // Get the main image URL (or a default if none is set)
       const mainImage = images.find(img => img.isMain);
-      const mainImageUrl = mainImage ? mainImage.preview : "https://images.unsplash.com/photo-1540541338287-41700207dee6?q=80&w=800";
+      let mainImageUrl = mainImage ? mainImage.preview : "https://images.unsplash.com/photo-1540541338287-41700207dee6?q=80&w=800";
       
-      // Get all gallery image URLs
-      const galleryUrls = images.map(img => img.preview);
+      // If the main image is a blob URL, use a placeholder instead
+      if (mainImageUrl && mainImageUrl.startsWith('blob:')) {
+        mainImageUrl = "https://images.unsplash.com/photo-1540541338287-41700207dee6?q=80&w=800";
+      }
+      
+      // Get all gallery image URLs, filtering out blob URLs
+      const galleryUrls = images
+        .map(img => img.preview)
+        .filter(url => !url.startsWith('blob:'));
       
       // Transform the form data to match the API schema
       const packageData = {
