@@ -8,11 +8,12 @@
 - **Fix**: Added `/api/menus` public API route in server/routes.ts
 - **Status**: ✅ RESOLVED - Route now returns menu data
 
-### 2. **IN PROGRESS**: Menu Data Filtering Issue  
+### 2. **CRITICAL FINDING**: Route Handler Disconnect
 - **Problem**: API returns empty array `[]` despite database having 7 menu items
-- **Database**: Contains 7 footer menu items (Home, About Us, Tours, etc.)
-- **Issue**: Boolean filtering logic in storage.listMenus() may be faulty
-- **Status**: 🔧 INVESTIGATING
+- **Root Cause**: Debug logging shows routes exist but storage layer isn't being called
+- **Evidence**: Enhanced debug logging not appearing in server logs
+- **Issue**: Possible route registration conflict or caching issue
+- **Status**: 🔧 IMPLEMENTING comprehensive debug tracing
 
 ### 3. **IDENTIFIED**: Database Schema Mismatches
 - **Hotels table**: Has `active` column but code references non-existent `status` column
