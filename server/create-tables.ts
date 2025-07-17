@@ -1,167 +1,262 @@
-import { pool, db } from './db';
-import * as schema from '@shared/schema';
+import { pool } from "./db";
 
 async function createTables() {
-  console.log('Creating PostgreSQL tables...');
-  
+  console.log("Creating PostgreSQL tables...");
+
   try {
-    // Create tables for all entities in the schema
+    await pool.query("BEGIN");
+
+    // Countries
     await pool.query(`
       CREATE TABLE IF NOT EXISTS countries (
         id SERIAL PRIMARY KEY,
         name TEXT NOT NULL,
-        code TEXT NOT NULL,
+        code TEXT NOT NULL UNIQUE,
         description TEXT,
         image_url TEXT,
         active BOOLEAN DEFAULT TRUE,
         created_at TIMESTAMP NOT NULL DEFAULT NOW(),
-        updated_at TIMESTAMP DEFAULT NOW()
+        updated_at TIMESTAMP
       );
     `);
 
-    await db.run(`
+    // Nationalities
+    await pool.query(`
+      CREATE TABLE IF NOT EXISTS nationalities (
+        id SERIAL PRIMARY KEY,
+        name TEXT NOT NULL,
+        code TEXT NOT NULL UNIQUE,
+        description TEXT,
+        active BOOLEAN DEFAULT TRUE,
+        created_at TIMESTAMP NOT NULL DEFAULT NOW(),
+        updated_at TIMESTAMP
+      );
+    `);
+
+    // Visas
+    await pool.query(`
+      CREATE TABLE IF NOT EXISTS visas (
+        id SERIAL PRIMARY KEY,
+        country_id INTEGER NOT NULL,
+        name TEXT NOT NULL,
+        description TEXT,
+        requirements JSONB,
+        active BOOLEAN DEFAULT TRUE,
+        created_at TIMESTAMP NOT NULL DEFAULT NOW(),
+        updated_at TIMESTAMP,
+        FOREIGN KEY (country_id) REFERENCES countries(id) ON DELETE CASCADE
+      );
+    `);
+
+    // Nationality Visa Requirements
+    await pool.query(`
+      CREATE TABLE IF NOT EXISTS nationality_visa_requirements (
+        id SERIAL PRIMARY KEY,
+        nationality_id INTEGER NOT NULL,
+        visa_id INTEGER NOT NULL,
+        is_required BOOLEAN DEFAULT TRUE,
+        notes TEXT,
+        created_at TIMESTAMP NOT NULL DEFAULT NOW(),
+        updated_at TIMESTAMP,
+        FOREIGN KEY (nationality_id) REFERENCES nationalities(id) ON DELETE CASCADE,
+        FOREIGN KEY (visa_id) REFERENCES visas(id) ON DELETE CASCADE
+      );
+    `);
+
+    // Cities
+    await pool.query(`
       CREATE TABLE IF NOT EXISTS cities (
-        id INTEGER PRIMARY KEY AUTOINCREMENT,
+        id SERIAL PRIMARY KEY,
         name TEXT NOT NULL,
         country_id INTEGER NOT NULL,
         description TEXT,
         image_url TEXT,
-        active INTEGER DEFAULT 1,
-        created_at TEXT NOT NULL,
-        updated_at TEXT,
-        FOREIGN KEY (country_id) REFERENCES countries(id)
+        active BOOLEAN DEFAULT TRUE,
+        created_at TIMESTAMP NOT NULL DEFAULT NOW(),
+        updated_at TIMESTAMP,
+        FOREIGN KEY (country_id) REFERENCES countries(id) ON DELETE CASCADE
       );
     `);
 
-    await db.run(`
+    // Airports
+    await pool.query(`
       CREATE TABLE IF NOT EXISTS airports (
-        id INTEGER PRIMARY KEY AUTOINCREMENT,
+        id SERIAL PRIMARY KEY,
         name TEXT NOT NULL,
         city_id INTEGER NOT NULL,
-        code TEXT,
+        code TEXT UNIQUE,
         description TEXT,
         image_url TEXT,
-        active INTEGER DEFAULT 1,
-        created_at TEXT NOT NULL,
-        updated_at TEXT,
-        FOREIGN KEY (city_id) REFERENCES cities(id)
+        active BOOLEAN DEFAULT TRUE,
+        created_at TIMESTAMP NOT NULL DEFAULT NOW(),
+        updated_at TIMESTAMP,
+        FOREIGN KEY (city_id) REFERENCES cities(id) ON DELETE CASCADE
       );
     `);
 
-    await db.run(`
+    // Users (added nationality)
+    await pool.query(`
       CREATE TABLE IF NOT EXISTS users (
-        id INTEGER PRIMARY KEY AUTOINCREMENT,
+        id SERIAL PRIMARY KEY,
         username TEXT NOT NULL UNIQUE,
-        password TEXT NOT NULL,
+        password_hash TEXT NOT NULL,
         email TEXT NOT NULL UNIQUE,
         display_name TEXT,
         first_name TEXT,
         last_name TEXT,
         phone_number TEXT,
         full_name TEXT,
+        nationality TEXT, -- Added for admin setup
         role TEXT NOT NULL DEFAULT 'user',
         bio TEXT,
         avatar_url TEXT,
         status TEXT DEFAULT 'active',
-        created_at TEXT NOT NULL,
-        updated_at TEXT
+        created_at TIMESTAMP NOT NULL DEFAULT NOW(),
+        updated_at TIMESTAMP
       );
     `);
 
-    await db.run(`
+    // Destinations
+    await pool.query(`
       CREATE TABLE IF NOT EXISTS destinations (
-        id INTEGER PRIMARY KEY AUTOINCREMENT,
+        id SERIAL PRIMARY KEY,
         name TEXT NOT NULL,
         country TEXT NOT NULL,
         country_id INTEGER,
         city_id INTEGER,
         description TEXT,
         image_url TEXT,
-        featured INTEGER DEFAULT 0,
-        created_at TEXT NOT NULL,
-        updated_at TEXT,
-        FOREIGN KEY (country_id) REFERENCES countries(id),
-        FOREIGN KEY (city_id) REFERENCES cities(id)
+        featured BOOLEAN DEFAULT FALSE,
+        created_at TIMESTAMP NOT NULL DEFAULT NOW(),
+        updated_at TIMESTAMP,
+        FOREIGN KEY (country_id) REFERENCES countries(id) ON DELETE SET NULL,
+        FOREIGN KEY (city_id) REFERENCES cities(id) ON DELETE SET NULL
       );
     `);
 
-    await db.run(`
+    // Package Categories
+    await pool.query(`
+      CREATE TABLE IF NOT EXISTS package_categories (
+        id SERIAL PRIMARY KEY,
+        name TEXT NOT NULL,
+        description TEXT,
+        active BOOLEAN DEFAULT TRUE,
+        created_at TIMESTAMP NOT NULL DEFAULT NOW(),
+        updated_at TIMESTAMP
+      );
+    `);
+
+    // Tour Categories
+    await pool.query(`
+      CREATE TABLE IF NOT EXISTS tour_categories (
+        id SERIAL PRIMARY KEY,
+        name TEXT NOT NULL,
+        description TEXT,
+        active BOOLEAN DEFAULT TRUE,
+        created_at TIMESTAMP NOT NULL DEFAULT NOW(),
+        updated_at TIMESTAMP
+      );
+    `);
+
+    // Homepage Sections
+    await pool.query(`
+      CREATE TABLE IF NOT EXISTS homepage_sections (
+        id SERIAL PRIMARY KEY,
+        title TEXT NOT NULL,
+        subtitle TEXT,
+        content TEXT,
+        image_url TEXT,
+        order_number INTEGER NOT NULL,
+        active BOOLEAN DEFAULT TRUE,
+        created_at TIMESTAMP NOT NULL DEFAULT NOW(),
+        updated_at TIMESTAMP
+      );
+    `);
+
+    // Packages (added short_description and slug)
+    await pool.query(`
       CREATE TABLE IF NOT EXISTS packages (
-        id INTEGER PRIMARY KEY AUTOINCREMENT,
+        id SERIAL PRIMARY KEY,
         title TEXT NOT NULL,
         description TEXT NOT NULL,
+        short_description TEXT, -- Added for listPackages
+        slug TEXT UNIQUE, -- Added for URL-friendly identifier
         price INTEGER NOT NULL,
         discounted_price INTEGER,
         image_url TEXT,
-        gallery_urls TEXT,
+        gallery_urls JSONB,
         duration INTEGER NOT NULL,
         rating INTEGER,
         review_count INTEGER DEFAULT 0,
         destination_id INTEGER,
-        featured INTEGER DEFAULT 0,
+        featured BOOLEAN DEFAULT FALSE,
         type TEXT,
-        inclusions TEXT,
-        FOREIGN KEY (destination_id) REFERENCES destinations(id)
+        inclusions JSONB,
+        FOREIGN KEY (destination_id) REFERENCES destinations(id) ON DELETE SET NULL
       );
     `);
 
-    await db.run(`
+    // Bookings
+    await pool.query(`
       CREATE TABLE IF NOT EXISTS bookings (
-        id INTEGER PRIMARY KEY AUTOINCREMENT,
+        id SERIAL PRIMARY KEY,
         user_id INTEGER,
         package_id INTEGER,
-        booking_date TEXT NOT NULL,
-        travel_date TEXT NOT NULL,
+        booking_date TIMESTAMP NOT NULL DEFAULT NOW(),
+        travel_date TIMESTAMP NOT NULL,
         number_of_travelers INTEGER NOT NULL,
         total_price INTEGER NOT NULL,
         status TEXT NOT NULL DEFAULT 'pending',
-        FOREIGN KEY (user_id) REFERENCES users(id),
-        FOREIGN KEY (package_id) REFERENCES packages(id)
+        FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE SET NULL,
+        FOREIGN KEY (package_id) REFERENCES packages(id) ON DELETE SET NULL
       );
     `);
 
-    await db.run(`
+    // Favorites
+    await pool.query(`
       CREATE TABLE IF NOT EXISTS favorites (
         user_id INTEGER NOT NULL,
         destination_id INTEGER NOT NULL,
-        created_at TEXT NOT NULL,
+        created_at TIMESTAMP NOT NULL DEFAULT NOW(),
         PRIMARY KEY (user_id, destination_id),
-        FOREIGN KEY (user_id) REFERENCES users(id),
-        FOREIGN KEY (destination_id) REFERENCES destinations(id)
+        FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE,
+        FOREIGN KEY (destination_id) REFERENCES destinations(id) ON DELETE CASCADE
       );
     `);
 
-    await db.run(`
+    // Tours
+    await pool.query(`
       CREATE TABLE IF NOT EXISTS tours (
-        id INTEGER PRIMARY KEY AUTOINCREMENT,
+        id SERIAL PRIMARY KEY,
         name TEXT NOT NULL,
         description TEXT,
         image_url TEXT,
-        gallery_urls TEXT,
+        gallery_urls JSONB,
         destination_id INTEGER,
         trip_type TEXT,
         duration INTEGER NOT NULL,
-        date TEXT,
+        date TIMESTAMP,
         num_passengers INTEGER,
         price INTEGER NOT NULL,
         discounted_price INTEGER,
-        included TEXT,
-        excluded TEXT,
-        itinerary TEXT,
+        included JSONB,
+        excluded JSONB,
+        itinerary JSONB,
         max_group_size INTEGER,
-        featured INTEGER DEFAULT 0,
+        featured BOOLEAN DEFAULT FALSE,
         rating REAL,
         review_count INTEGER DEFAULT 0,
         status TEXT DEFAULT 'active',
-        created_at TEXT NOT NULL,
-        updated_at TEXT,
-        FOREIGN KEY (destination_id) REFERENCES destinations(id)
+        created_at TIMESTAMP NOT NULL DEFAULT NOW(),
+        updated_at TIMESTAMP,
+        FOREIGN KEY (destination_id) REFERENCES destinations(id) ON DELETE SET NULL
       );
     `);
 
-    await db.run(`
+    // Hotels
+    await pool.query(`
       CREATE TABLE IF NOT EXISTS hotels (
-        id INTEGER PRIMARY KEY AUTOINCREMENT,
+        id SERIAL PRIMARY KEY,
         name TEXT NOT NULL,
         description TEXT,
         destination_id INTEGER,
@@ -174,24 +269,25 @@ async function createTables() {
         website TEXT,
         image_url TEXT,
         stars INTEGER,
-        amenities TEXT,
-        check_in_time TEXT,
-        check_out_time TEXT,
+        amenities JSONB,
+        check_in_time TIME,
+        check_out_time TIME,
         longitude REAL,
         latitude REAL,
-        featured INTEGER DEFAULT 0,
+        featured BOOLEAN DEFAULT FALSE,
         rating REAL,
         review_count INTEGER DEFAULT 0,
         status TEXT DEFAULT 'active',
-        created_at TEXT NOT NULL,
-        updated_at TEXT,
-        FOREIGN KEY (destination_id) REFERENCES destinations(id)
+        created_at TIMESTAMP NOT NULL DEFAULT NOW(),
+        updated_at TIMESTAMP,
+        FOREIGN KEY (destination_id) REFERENCES destinations(id) ON DELETE SET NULL
       );
     `);
 
-    await db.run(`
+    // Rooms
+    await pool.query(`
       CREATE TABLE IF NOT EXISTS rooms (
-        id INTEGER PRIMARY KEY AUTOINCREMENT,
+        id SERIAL PRIMARY KEY,
         name TEXT NOT NULL,
         description TEXT,
         hotel_id INTEGER NOT NULL,
@@ -205,47 +301,50 @@ async function createTables() {
         image_url TEXT,
         size TEXT,
         bed_type TEXT,
-        amenities TEXT,
+        amenities JSONB,
         view TEXT,
-        available INTEGER DEFAULT 1,
+        available BOOLEAN DEFAULT TRUE,
         status TEXT DEFAULT 'active',
-        created_at TEXT NOT NULL,
-        updated_at TEXT,
-        FOREIGN KEY (hotel_id) REFERENCES hotels(id)
+        created_at TIMESTAMP NOT NULL DEFAULT NOW(),
+        updated_at TIMESTAMP,
+        FOREIGN KEY (hotel_id) REFERENCES hotels(id) ON DELETE CASCADE
       );
     `);
 
-    await db.run(`
+    // Room Combinations
+    await pool.query(`
       CREATE TABLE IF NOT EXISTS room_combinations (
-        id INTEGER PRIMARY KEY AUTOINCREMENT,
+        id SERIAL PRIMARY KEY,
         room_id INTEGER NOT NULL,
         adults_count INTEGER NOT NULL,
         children_count INTEGER NOT NULL DEFAULT 0,
         infants_count INTEGER NOT NULL DEFAULT 0,
         description TEXT,
-        is_default INTEGER DEFAULT 0,
-        active INTEGER DEFAULT 1,
-        created_at TEXT NOT NULL,
-        updated_at TEXT,
-        FOREIGN KEY (room_id) REFERENCES rooms(id)
+        is_default BOOLEAN DEFAULT FALSE,
+        active BOOLEAN DEFAULT TRUE,
+        created_at TIMESTAMP NOT NULL DEFAULT NOW(),
+        updated_at TIMESTAMP,
+        FOREIGN KEY (room_id) REFERENCES rooms(id) ON DELETE CASCADE
       );
     `);
 
-    await db.run(`
+    // Menus
+    await pool.query(`
       CREATE TABLE IF NOT EXISTS menus (
-        id INTEGER PRIMARY KEY AUTOINCREMENT,
+        id SERIAL PRIMARY KEY,
         name TEXT NOT NULL UNIQUE,
         location TEXT NOT NULL,
         description TEXT,
-        active INTEGER DEFAULT 1,
-        created_at TEXT NOT NULL,
-        updated_at TEXT
+        active BOOLEAN DEFAULT TRUE,
+        created_at TIMESTAMP NOT NULL DEFAULT NOW(),
+        updated_at TIMESTAMP
       );
     `);
 
-    await db.run(`
+    // Menu Items (ensuring item_order is used)
+    await pool.query(`
       CREATE TABLE IF NOT EXISTS menu_items (
-        id INTEGER PRIMARY KEY AUTOINCREMENT,
+        id SERIAL PRIMARY KEY,
         menu_id INTEGER NOT NULL,
         parent_id INTEGER,
         title TEXT NOT NULL,
@@ -253,43 +352,49 @@ async function createTables() {
         icon TEXT,
         icon_type TEXT DEFAULT 'fas',
         item_type TEXT DEFAULT 'link',
-        "order" INTEGER NOT NULL,
+        item_order INTEGER NOT NULL,
         target TEXT DEFAULT '_self',
-        active INTEGER DEFAULT 1,
-        created_at TEXT NOT NULL,
-        updated_at TEXT,
-        FOREIGN KEY (menu_id) REFERENCES menus(id),
-        FOREIGN KEY (parent_id) REFERENCES menu_items(id)
+        active BOOLEAN DEFAULT TRUE,
+        created_at TIMESTAMP NOT NULL DEFAULT NOW(),
+        updated_at TIMESTAMP,
+        FOREIGN KEY (menu_id) REFERENCES menus(id) ON DELETE CASCADE,
+        FOREIGN KEY (parent_id) REFERENCES menu_items(id) ON DELETE SET NULL
       );
     `);
 
-    await db.run(`
+    // Translations (added created_by as INTEGER referencing users)
+    await pool.query(`
       CREATE TABLE IF NOT EXISTS translations (
-        id INTEGER PRIMARY KEY AUTOINCREMENT,
+        id SERIAL PRIMARY KEY,
         key TEXT NOT NULL,
         en_text TEXT NOT NULL,
         ar_text TEXT,
         context TEXT,
         category TEXT,
-        created_at TEXT NOT NULL,
-        updated_at TEXT
+        created_by INTEGER, -- Added for listTranslations
+        created_at TIMESTAMP NOT NULL DEFAULT NOW(),
+        updated_at TIMESTAMP,
+        UNIQUE (key, category),
+        FOREIGN KEY (created_by) REFERENCES users(id) ON DELETE SET NULL
       );
     `);
 
-    await db.run(`
+    // Site Language Settings
+    await pool.query(`
       CREATE TABLE IF NOT EXISTS site_language_settings (
-        id INTEGER PRIMARY KEY AUTOINCREMENT,
+        id SERIAL PRIMARY KEY,
         default_language TEXT NOT NULL DEFAULT 'en',
-        available_languages TEXT DEFAULT '["en", "ar"]',
-        rtl_languages TEXT DEFAULT '["ar"]',
-        created_at TEXT NOT NULL,
-        updated_at TEXT
+        available_languages JSONB DEFAULT '["en", "ar"]',
+        rtl_languages JSONB DEFAULT '["ar"]',
+        created_at TIMESTAMP NOT NULL DEFAULT NOW(),
+        updated_at TIMESTAMP
       );
     `);
 
-    await db.run(`
+    // Dictionary Entries
+    await pool.query(`
       CREATE TABLE IF NOT EXISTS dictionary_entries (
-        id INTEGER PRIMARY KEY AUTOINCREMENT,
+        id SERIAL PRIMARY KEY,
         word TEXT NOT NULL,
         english_definition TEXT NOT NULL,
         arabic_translation TEXT NOT NULL,
@@ -297,59 +402,63 @@ async function createTables() {
         context TEXT,
         example TEXT,
         notes TEXT,
-        created_at TEXT NOT NULL,
-        updated_at TEXT
+        created_at TIMESTAMP NOT NULL DEFAULT NOW(),
+        updated_at TIMESTAMP
       );
     `);
 
-    await db.run(`
+    // Transport Locations
+    await pool.query(`
       CREATE TABLE IF NOT EXISTS transport_locations (
-        id INTEGER PRIMARY KEY AUTOINCREMENT,
+        id SERIAL PRIMARY KEY,
         name TEXT NOT NULL,
         city TEXT NOT NULL,
         country TEXT NOT NULL,
         location_type TEXT NOT NULL,
         description TEXT,
         image_url TEXT,
-        popular INTEGER DEFAULT 0,
+        popular BOOLEAN DEFAULT FALSE,
         latitude REAL,
         longitude REAL,
         status TEXT DEFAULT 'active',
-        created_at TEXT NOT NULL,
-        updated_at TEXT
+        created_at TIMESTAMP NOT NULL DEFAULT NOW(),
+        updated_at TIMESTAMP
       );
     `);
 
-    await db.run(`
+    // Transport Durations
+    await pool.query(`
       CREATE TABLE IF NOT EXISTS transport_durations (
-        id INTEGER PRIMARY KEY AUTOINCREMENT,
+        id SERIAL PRIMARY KEY,
         name TEXT NOT NULL,
         hours INTEGER NOT NULL,
         description TEXT,
         status TEXT DEFAULT 'active',
-        created_at TEXT NOT NULL,
-        updated_at TEXT
+        created_at TIMESTAMP NOT NULL DEFAULT NOW(),
+        updated_at TIMESTAMP
       );
     `);
 
-    await db.run(`
+    // Transport Types
+    await pool.query(`
       CREATE TABLE IF NOT EXISTS transport_types (
-        id INTEGER PRIMARY KEY AUTOINCREMENT,
+        id SERIAL PRIMARY KEY,
         name TEXT NOT NULL,
         description TEXT,
         image_url TEXT,
         passenger_capacity INTEGER NOT NULL,
         baggage_capacity INTEGER NOT NULL,
-        default_features TEXT,
+        default_features JSONB,
         status TEXT DEFAULT 'active',
-        created_at TEXT NOT NULL,
-        updated_at TEXT
+        created_at TIMESTAMP NOT NULL DEFAULT NOW(),
+        updated_at TIMESTAMP
       );
     `);
 
-    await db.run(`
+    // Transportation
+    await pool.query(`
       CREATE TABLE IF NOT EXISTS transportation (
-        id INTEGER PRIMARY KEY AUTOINCREMENT,
+        id SERIAL PRIMARY KEY,
         name TEXT NOT NULL,
         description TEXT,
         type_id INTEGER,
@@ -362,30 +471,64 @@ async function createTables() {
         price INTEGER NOT NULL,
         discounted_price INTEGER,
         image_url TEXT,
-        gallery_urls TEXT,
-        features TEXT,
-        with_driver INTEGER DEFAULT 1,
-        available INTEGER DEFAULT 1,
-        pickup_included INTEGER DEFAULT 1,
-        featured INTEGER DEFAULT 0,
+        gallery_urls JSONB,
+        features JSONB,
+        with_driver BOOLEAN DEFAULT TRUE,
+        available BOOLEAN DEFAULT TRUE,
+        pickup_included BOOLEAN DEFAULT TRUE,
+        featured BOOLEAN DEFAULT FALSE,
         rating REAL,
         review_count INTEGER DEFAULT 0,
         status TEXT DEFAULT 'active',
-        created_at TEXT NOT NULL,
-        updated_at TEXT,
-        FOREIGN KEY (type_id) REFERENCES transport_types(id),
-        FOREIGN KEY (destination_id) REFERENCES destinations(id),
-        FOREIGN KEY (from_location_id) REFERENCES transport_locations(id),
-        FOREIGN KEY (to_location_id) REFERENCES transport_locations(id),
-        FOREIGN KEY (duration_id) REFERENCES transport_durations(id)
+        created_at TIMESTAMP NOT NULL DEFAULT NOW(),
+        updated_at TIMESTAMP,
+        FOREIGN KEY (type_id) REFERENCES transport_types(id) ON DELETE SET NULL,
+        FOREIGN KEY (destination_id) REFERENCES destinations(id) ON DELETE SET NULL,
+        FOREIGN KEY (from_location_id) REFERENCES transport_locations(id) ON DELETE SET NULL,
+        FOREIGN KEY (to_location_id) REFERENCES transport_locations(id) ON DELETE SET NULL,
+        FOREIGN KEY (duration_id) REFERENCES transport_durations(id) ON DELETE SET NULL
       );
     `);
 
-    console.log('All tables created successfully!');
+    // Seed initial data for menus to fix 404 errors
+    await pool.query(`
+      INSERT INTO menus (name, location, description, active, created_at)
+      VALUES
+        ('Header Menu', 'header', 'Main navigation menu', TRUE, NOW()),
+        ('Footer Menu', 'footer', 'Footer navigation menu', TRUE, NOW())
+      ON CONFLICT (name) DO NOTHING;
+    `);
+
+    // Seed initial menu items (example)
+    await pool.query(`
+      INSERT INTO menu_items (menu_id, title, url, item_order, active, created_at)
+      SELECT id, 'Home', '/', 1, TRUE, NOW() FROM menus WHERE location = 'header'
+      ON CONFLICT DO NOTHING;
+      INSERT INTO menu_items (menu_id, title, url, item_order, active, created_at)
+      SELECT id, 'About', '/about', 2, TRUE, NOW() FROM menus WHERE location = 'header'
+      ON CONFLICT DO NOTHING;
+      INSERT INTO menu_items (menu_id, title, url, item_order, active, created_at)
+      SELECT id, 'Contact', '/contact', 1, TRUE, NOW() FROM menus WHERE location = 'footer'
+      ON CONFLICT DO NOTHING;
+    `);
+
+    await pool.query("COMMIT");
+    console.log("All tables created and seeded successfully!");
+    return { success: true };
   } catch (error) {
-    console.error('Error creating tables:', error);
+    await pool.query("ROLLBACK");
+    console.error("Error creating tables:", error);
+    return { success: false, error };
   }
 }
 
 // Execute the function
-createTables().catch(console.error);
+createTables()
+  .then((result) => {
+    if (result.success) {
+      console.log("Schema creation completed.");
+    } else {
+      console.error("Schema creation failed:", result.error);
+    }
+  })
+  .catch(console.error);
