@@ -16,12 +16,7 @@ import MemoryStoreFactory from "memorystore";
 // Load environment variables first
 dotenv.config();
 
-// Set DATABASE_URL if not present in environment
-if (!process.env.DATABASE_URL) {
-  process.env.DATABASE_URL =
-    "postgresql://egsite:Pass2020@74.179.85.9:5432/egsite_db?sslmode=disable";
-  console.log("🔗 Using fallback DATABASE_URL");
-}
+// Database URL should be provided by Replit environment
 
 const app = express();
 

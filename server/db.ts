@@ -3,10 +3,8 @@ import { drizzle } from "drizzle-orm/node-postgres";
 import { sql } from "drizzle-orm";
 import * as schema from "@shared/schema";
 
-// Set fallback DATABASE_URL if not present
-const DATABASE_URL =
-  process.env.DATABASE_URL ||
-  "postgresql://egsite:Pass2020@74.179.85.9:5432/egsite_db?sslmode=disable";
+// Use Replit's PostgreSQL database
+const DATABASE_URL = process.env.DATABASE_URL;
 
 if (!DATABASE_URL) {
   throw new Error(
@@ -14,12 +12,11 @@ if (!DATABASE_URL) {
   );
 }
 
-// Create connection pool with timeout settings for Azure PostgreSQL
+// Create connection pool with timeout settings for Replit PostgreSQL
 export const pool = new Pool({
   connectionString: DATABASE_URL,
   connectionTimeoutMillis: 10000,
   idleTimeoutMillis: 30000,
-  ssl: false, // Disable SSL for self-signed certificate issues
 });
 export const db = drizzle(pool, { schema });
 
