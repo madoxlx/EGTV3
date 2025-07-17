@@ -1,0 +1,196 @@
+❌ STORAGE ERROR listing menus: error: column "description" does not exist
+    at /home/runner/workspace/node_modules/pg-pool/index.js:45:11
+    at process.processTicksAndRejections (node:internal/process/task_queues:95:5)
+    at async <anonymous> (/home/runner/workspace/node_modules/src/node-postgres/session.ts:104:19)
+    at async DatabaseStorage.listMenus (/home/runner/workspace/server/storage.ts:1115:18)
+    at async <anonymous> (/home/runner/workspace/server/routes.ts:4599:21) {
+  length: 111,
+  severity: 'ERROR',
+  code: '42703',
+  detail: undefined,
+  hint: undefined,
+  position: '34',
+  internalPosition: undefined,
+  internalQuery: undefined,
+  where: undefined,
+  schema: undefined,
+  table: undefined,
+  column: undefined,
+  dataType: undefined,
+  constraint: undefined,
+  file: 'parse_relation.c',
+  line: '3722',
+  routine: 'errorMissingColumn'
+}
+❌ Stack trace: error: column "description" does not exist
+    at /home/runner/workspace/node_modules/pg-pool/index.js:45:11
+    at process.processTicksAndRejections (node:internal/process/task_queues:95:5)
+    at async <anonymous> (/home/runner/workspace/node_modules/src/node-postgres/session.ts:104:19)
+    at async DatabaseStorage.listMenus (/home/runner/workspace/server/storage.ts:1115:18)
+    at async <anonymous> (/home/runner/workspace/server/routes.ts:4599:21)
+7:51:15 AM [express] GET /api/menus 200 in 2159ms :: []
+✅ Package categories already seeded
+🌱 Seeding data...
+✅ Data already seeded
+✅ Database initialization complete!
+🔥 API ROUTE DEBUG: GET /api/cart
+🔥 Query params: {}
+Cart GET request - userId: undefined sessionId: undefined
+7:51:19 AM [express] GET /api/cart 304 in 1ms :: []
+🔥 API ROUTE DEBUG: GET /api/countries
+🔥 Query params: {}
+7:51:19 AM [express] GET /api/hero-slides/active 304 in 1ms :: [{"id":1,"title":"Welcome to Sahara Journeys","subtitle":"Discover the Magic of the Middle East","descrip…
+🔥 API ROUTE DEBUG: GET /api/menus/location/header
+🔥 Query params: {}
+🔥 STORAGE: getMenuByLocation called with location: header
+🔥 API ROUTE DEBUG: GET /api/cities
+🔥 Query params: {}
+7:51:19 AM [express] GET /api/tour-categories 304 in 108ms :: [{"id":3,"name":"Food & Culinary","description":"Local cuisine and culinary experiences","icon":"utensils"…
+7:51:19 AM [express] GET /api/countries 304 in 115ms :: [{"id":6,"name":"Egypt","code":"EG","description":"A country linking northeast Africa with the Middle East, date…
+🔥 API ROUTE DEBUG: GET /api/destinations
+🔥 Query params: {}
+🔥 API ROUTE DEBUG: GET /api/packages
+🔥 Query params: {}
+7:51:19 AM [express] GET /api/destinations 304 in 115ms :: [{"id":5,"name":"Marrakech","country":"Morocco","countryId":9,"cityId":8,"description":"Immerse yourself in t…
+🔥 API ROUTE DEBUG: GET /api/homepage-sections?active=true
+🔥 Query params: { active: 'true' }
+Error listing packages: error: column "currency" does not exist
+    at /home/runner/workspace/node_modules/pg-pool/index.js:45:11
+    at process.processTicksAndRejections (node:internal/process/task_queues:95:5)
+    at async <anonymous> (/home/runner/workspace/node_modules/src/node-postgres/session.ts:104:19)
+    at async DatabaseStorage.listPackages (/home/runner/workspace/server/storage.ts:545:14)
+    at async <anonymous> (/home/runner/workspace/server/routes.ts:574:24) {
+  length: 109,
+  severity: 'ERROR',
+  code: '42703',
+  detail: undefined,
+  hint: undefined,
+  position: '100',
+  internalPosition: undefined,
+  internalQuery: undefined,
+  where: undefined,
+  schema: undefined,
+  table: undefined,
+  column: undefined,
+  dataType: undefined,
+  constraint: undefined,
+  file: 'parse_relation.c',
+  line: '3722',
+  routine: 'errorMissingColumn'
+}
+7:51:19 AM [express] GET /api/packages 304 in 111ms :: []
+🔥 API ROUTE DEBUG: GET /api/menus/location/footer
+🔥 Query params: {}
+🔥 STORAGE: getMenuByLocation called with location: footer
+Error listing homepage sections: error: column "description" does not exist
+    at /home/runner/workspace/node_modules/pg-pool/index.js:45:11
+    at process.processTicksAndRejections (node:internal/process/task_queues:95:5)
+    at async <anonymous> (/home/runner/workspace/node_modules/src/node-postgres/session.ts:104:19)
+    at async DatabaseStorage.listHomepageSections (/home/runner/workspace/server/storage.ts:1002:16)
+    at async <anonymous> (/home/runner/workspace/server/routes.ts:6484:24) {
+  length: 111,
+  severity: 'ERROR',
+  code: '42703',
+  detail: undefined,
+  hint: undefined,
+  position: '35',
+  internalPosition: undefined,
+  internalQuery: undefined,
+  where: undefined,
+  schema: undefined,
+  table: undefined,
+  column: undefined,
+  dataType: undefined,
+  constraint: undefined,
+  file: 'parse_relation.c',
+  line: '3722',
+  routine: 'errorMissingColumn'
+}
+7:51:20 AM [express] GET /api/homepage-sections 304 in 116ms :: []
+7:51:20 AM [express] GET /api/cities 304 in 772ms :: [{"id":5,"name":"Abu Dhabi","countryId":7,"description":"The capital of the UAE, known for its cultural landmarks a…
+❌ STORAGE ERROR getting menu by location: error: column "description" does not exist
+    at /home/runner/workspace/node_modules/pg-pool/index.js:45:11
+    at process.processTicksAndRejections (node:internal/process/task_queues:95:5)
+    at async <anonymous> (/home/runner/workspace/node_modules/src/node-postgres/session.ts:104:19)
+    at async DatabaseStorage.getMenuByLocation (/home/runner/workspace/server/storage.ts:1073:22)
+    at async <anonymous> (/home/runner/workspace/server/routes.ts:4575:20) {
+  length: 111,
+  severity: 'ERROR',
+  code: '42703',
+  detail: undefined,
+  hint: undefined,
+  position: '34',
+  internalPosition: undefined,
+  internalQuery: undefined,
+  where: undefined,
+  schema: undefined,
+  table: undefined,
+  column: undefined,
+  dataType: undefined,
+  constraint: undefined,
+  file: 'parse_relation.c',
+  line: '3722',
+  routine: 'errorMissingColumn'
+}
+❌ Stack trace: error: column "description" does not exist
+    at /home/runner/workspace/node_modules/pg-pool/index.js:45:11
+    at process.processTicksAndRejections (node:internal/process/task_queues:95:5)
+    at async <anonymous> (/home/runner/workspace/node_modules/src/node-postgres/session.ts:104:19)
+    at async DatabaseStorage.getMenuByLocation (/home/runner/workspace/server/storage.ts:1073:22)
+    at async <anonymous> (/home/runner/workspace/server/routes.ts:4575:20)
+7:51:20 AM [express] GET /api/menus/location/header 404 in 777ms :: {"message":"Menu not found for this location"}
+❌ STORAGE ERROR getting menu by location: error: column "description" does not exist
+    at /home/runner/workspace/node_modules/pg-pool/index.js:45:11
+    at process.processTicksAndRejections (node:internal/process/task_queues:95:5)
+    at async <anonymous> (/home/runner/workspace/node_modules/src/node-postgres/session.ts:104:19)
+    at async DatabaseStorage.getMenuByLocation (/home/runner/workspace/server/storage.ts:1073:22)
+    at async <anonymous> (/home/runner/workspace/server/routes.ts:4575:20) {
+  length: 111,
+  severity: 'ERROR',
+  code: '42703',
+  detail: undefined,
+  hint: undefined,
+  position: '34',
+  internalPosition: undefined,
+  internalQuery: undefined,
+  where: undefined,
+  schema: undefined,
+  table: undefined,
+  column: undefined,
+  dataType: undefined,
+  constraint: undefined,
+  file: 'parse_relation.c',
+  line: '3722',
+  routine: 'errorMissingColumn'
+}
+❌ Stack trace: error: column "description" does not exist
+    at /home/runner/workspace/node_modules/pg-pool/index.js:45:11
+    at process.processTicksAndRejections (node:internal/process/task_queues:95:5)
+    at async <anonymous> (/home/runner/workspace/node_modules/src/node-postgres/session.ts:104:19)
+    at async DatabaseStorage.getMenuByLocation (/home/runner/workspace/server/storage.ts:1073:22)
+    at async <anonymous> (/home/runner/workspace/server/routes.ts:4575:20)
+7:51:20 AM [express] GET /api/menus/location/footer 404 in 762ms :: {"message":"Menu not found for this location"}
+Error listing translations: error: column "created_by" does not exist
+    at /home/runner/workspace/node_modules/pg-pool/index.js:45:11
+    at process.processTicksAndRejections (node:internal/process/task_queues:95:5)
+    at async <anonymous> (/home/runner/workspace/node_modules/src/node-postgres/session.ts:104:19)
+    at async DatabaseStorage.listTranslations (/home/runner/workspace/server/storage.ts:1375:14)
+    at async <anonymous> (/home/runner/workspace/server/index.ts:171:30) {
+  length: 180,
+  severity: 'ERROR',
+  code: '42703',
+  detail: undefined,
+  hint: 'Perhaps you meant to reference the column "translations.created_at".',
+  position: '94',
+  internalPosition: undefined,
+  internalQuery: undefined,
+  where: undefined,
+  schema: undefined,
+  table: undefined,
+  column: undefined,
+  dataType: undefined,
+  constraint: undefined,
+  file: 'parse_relation.c',
+  line: '3729',
+  routine: 'errorMissingColumn'
+}
