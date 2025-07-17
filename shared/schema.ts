@@ -24,8 +24,6 @@ export const countries = pgTable("countries", {
   active: boolean("active").default(true),
   createdAt: timestamp("created_at").notNull().defaultNow(),
   updatedAt: timestamp("updated_at").defaultNow(),
-  createdBy: integer("created_by").references(() => users.id),
-  updatedBy: integer("updated_by").references(() => users.id),
 });
 
 // Cities table
@@ -40,8 +38,6 @@ export const cities = pgTable("cities", {
   active: boolean("active").default(true),
   createdAt: timestamp("created_at").notNull().defaultNow(),
   updatedAt: timestamp("updated_at").defaultNow(),
-  createdBy: integer("created_by").references(() => users.id),
-  updatedBy: integer("updated_by").references(() => users.id),
 });
 
 // Airports table
@@ -57,8 +53,6 @@ export const airports = pgTable("airports", {
   active: boolean("active").default(true),
   createdAt: timestamp("created_at").notNull().defaultNow(),
   updatedAt: timestamp("updated_at").defaultNow(),
-  createdBy: integer("created_by").references(() => users.id),
-  updatedBy: integer("updated_by").references(() => users.id),
 });
 
 // Define relations after all tables are defined to avoid circular dependencies
@@ -216,8 +210,6 @@ export const destinations = pgTable("destinations", {
   featured: boolean("featured").default(false),
   createdAt: timestamp("created_at").notNull().defaultNow(),
   updatedAt: timestamp("updated_at").defaultNow(),
-  createdBy: integer("created_by").references(() => users.id),
-  updatedBy: integer("updated_by").references(() => users.id),
 });
 
 export const packages = pgTable("packages", {
