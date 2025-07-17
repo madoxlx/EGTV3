@@ -5143,6 +5143,20 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
   // Public Menu API Routes (for frontend components)
   
+  // Get all menus (public API)
+  app.get('/api/menus', async (req, res) => {
+    try {
+      const active = req.query.active === 'true' ? true : 
+                    req.query.active === 'false' ? false : undefined;
+      const menus = await storage.listMenus(active);
+      console.log('🔍 API /api/menus returning', menus.length, 'menus');
+      res.json(menus);
+    } catch (error) {
+      console.error('❌ Error fetching menus:', error);
+      res.status(500).json({ message: 'Failed to fetch menus' });
+    }
+  });
+  
   // Get a menu by location
   app.get('/api/menus/location/:location', async (req, res) => {
     try {

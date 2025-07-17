@@ -1097,20 +1097,26 @@ export class DatabaseStorage implements IStorage {
 
   async listMenus(active?: boolean): Promise<Menu[]> {
     try {
+      console.log("🔍 Storage.listMenus called with active filter:", active);
+      
       if (active !== undefined) {
-        return await db
+        const result = await db
           .select()
           .from(menus)
           .where(eq(menus.active, active))
           .orderBy(asc(menus.name));
+        console.log("📊 Storage.listMenus with filter returned:", result.length, "menus");
+        return result;
       }
       
-      return await db
+      const result = await db
         .select()
         .from(menus)
         .orderBy(asc(menus.name));
+      console.log("📊 Storage.listMenus without filter returned:", result.length, "menus");
+      return result;
     } catch (error) {
-      console.error("Error listing menus:", error);
+      console.error("❌ Error listing menus:", error);
       return [];
     }
   }
