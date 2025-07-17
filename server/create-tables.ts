@@ -341,7 +341,7 @@ async function createTables() {
       );
     `);
 
-    // Menu Items (ensuring item_order is used)
+    // Menu Items (using "order" column to match current database)
     await pool.query(`
       CREATE TABLE IF NOT EXISTS menu_items (
         id SERIAL PRIMARY KEY,
@@ -352,7 +352,7 @@ async function createTables() {
         icon TEXT,
         icon_type TEXT DEFAULT 'fas',
         item_type TEXT DEFAULT 'link',
-        item_order INTEGER NOT NULL,
+        "order" INTEGER NOT NULL,
         target TEXT DEFAULT '_self',
         active BOOLEAN DEFAULT TRUE,
         created_at TIMESTAMP NOT NULL DEFAULT NOW(),
@@ -501,13 +501,13 @@ async function createTables() {
 
     // Seed initial menu items (example)
     await pool.query(`
-      INSERT INTO menu_items (menu_id, title, url, item_order, active, created_at)
+      INSERT INTO menu_items (menu_id, title, url, "order", active, created_at)
       SELECT id, 'Home', '/', 1, TRUE, NOW() FROM menus WHERE location = 'header'
       ON CONFLICT DO NOTHING;
-      INSERT INTO menu_items (menu_id, title, url, item_order, active, created_at)
+      INSERT INTO menu_items (menu_id, title, url, "order", active, created_at)
       SELECT id, 'About', '/about', 2, TRUE, NOW() FROM menus WHERE location = 'header'
       ON CONFLICT DO NOTHING;
-      INSERT INTO menu_items (menu_id, title, url, item_order, active, created_at)
+      INSERT INTO menu_items (menu_id, title, url, "order", active, created_at)
       SELECT id, 'Contact', '/contact', 1, TRUE, NOW() FROM menus WHERE location = 'footer'
       ON CONFLICT DO NOTHING;
     `);

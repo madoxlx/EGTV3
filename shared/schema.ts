@@ -550,9 +550,10 @@ export const menuItems = pgTable("menu_items", {
   title: text("title").notNull(),
   url: text("url"), // URL is now optional
   icon: text("icon"), // FontAwesome icon name
-  type: text("type").default("link"), // "link" or "heading"
+  iconType: text("icon_type").default("fas"), // FontAwesome icon type
+  type: text("item_type").default("link"), // "link" or "heading"
   target: text("target").default("_self"), // _self, _blank, etc.
-  orderPosition: integer("order_position"),
+  orderPosition: integer("order"),
   active: boolean("active").default(true),
   createdAt: timestamp("created_at").notNull().defaultNow(),
   updatedAt: timestamp("updated_at").defaultNow(),
