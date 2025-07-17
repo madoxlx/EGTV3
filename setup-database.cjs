@@ -365,20 +365,332 @@ async function setupDatabase() {
       )
     `);
     
+    // Create menus table
+    await db.execute(sql`
+      CREATE TABLE IF NOT EXISTS menus (
+        id SERIAL PRIMARY KEY,
+        name TEXT NOT NULL UNIQUE,
+        location TEXT NOT NULL,
+        description TEXT,
+        active BOOLEAN DEFAULT true,
+        created_at TIMESTAMP NOT NULL DEFAULT NOW(),
+        updated_at TIMESTAMP DEFAULT NOW()
+      )
+    `);
+    
+    // Create menu_items table
+    await db.execute(sql`
+      CREATE TABLE IF NOT EXISTS menu_items (
+        id SERIAL PRIMARY KEY,
+        menu_id INTEGER NOT NULL,
+        parent_id INTEGER,
+        title TEXT NOT NULL,
+        url TEXT,
+        icon TEXT,
+        type TEXT DEFAULT 'link',
+        target TEXT DEFAULT '_self',
+        order_position INTEGER,
+        active BOOLEAN DEFAULT true,
+        created_at TIMESTAMP NOT NULL DEFAULT NOW(),
+        updated_at TIMESTAMP DEFAULT NOW(),
+        FOREIGN KEY (menu_id) REFERENCES menus(id) ON DELETE CASCADE,
+        FOREIGN KEY (parent_id) REFERENCES menu_items(id) ON DELETE CASCADE
+      )
+    `);
+    
+    // Create translations table
+    await db.execute(sql`
+      CREATE TABLE IF NOT EXISTS translations (
+        id SERIAL PRIMARY KEY,
+        key TEXT NOT NULL UNIQUE,
+        en_text TEXT NOT NULL,
+        ar_text TEXT,
+        context TEXT,
+        category TEXT,
+        created_at TIMESTAMP NOT NULL DEFAULT NOW(),
+        updated_at TIMESTAMP DEFAULT NOW(),
+        created_by INTEGER,
+        updated_by INTEGER,
+        FOREIGN KEY (created_by) REFERENCES users(id) ON DELETE SET NULL,
+        FOREIGN KEY (updated_by) REFERENCES users(id) ON DELETE SET NULL
+      )
+    `);
+    
+    // Create site_language_settings table
+    await db.execute(sql`
+      CREATE TABLE IF NOT EXISTS site_language_settings (
+        id SERIAL PRIMARY KEY,
+        default_language TEXT DEFAULT 'en' NOT NULL,
+        available_languages JSONB DEFAULT '["en", "ar"]',
+        rtl_languages JSONB DEFAULT '["ar"]',
+        created_at TIMESTAMP NOT NULL DEFAULT NOW(),
+        updated_at TIMESTAMP DEFAULT NOW(),
+        created_by INTEGER,
+        updated_by INTEGER,
+        FOREIGN KEY (created_by) REFERENCES users(id) ON DELETE SET NULL,
+        FOREIGN KEY (updated_by) REFERENCES users(id) ON DELETE SET NULL
+      )
+    `);
+    
+    // Create nationalities table
+    await db.execute(sql`
+      CREATE TABLE IF NOT EXISTS nationalities (
+        id SERIAL PRIMARY KEY,
+        name TEXT NOT NULL,
+        code TEXT NOT NULL,
+        description TEXT,
+        image_url TEXT,
+        active BOOLEAN DEFAULT true,
+        created_at TIMESTAMP NOT NULL DEFAULT NOW(),
+        updated_at TIMESTAMP DEFAULT NOW(),
+        created_by INTEGER,
+        updated_by INTEGER,
+        FOREIGN KEY (created_by) REFERENCES users(id) ON DELETE SET NULL,
+        FOREIGN KEY (updated_by) REFERENCES users(id) ON DELETE SET NULL
+      )
+    `);
+    
+    // Create visas table
+    await db.execute(sql`
+      CREATE TABLE IF NOT EXISTS visas (
+        id SERIAL PRIMARY KEY,
+        title TEXT NOT NULL,
+        description TEXT,
+        target_country_id INTEGER NOT NULL,
+        image_url TEXT,
+        price INTEGER,
+        currency TEXT DEFAULT 'EGP' NOT NULL,
+        processing_time TEXT,
+        required_documents JSONB,
+        validity_period TEXT,
+        entry_type TEXT,
+        active BOOLEAN DEFAULT true,
+        created_at TIMESTAMP NOT NULL DEFAULT NOW(),
+        updated_at TIMESTAMP DEFAULT NOW(),
+        created_by INTEGER,
+        updated_by INTEGER,
+        FOREIGN KEY (target_country_id) REFERENCES countries(id) ON DELETE CASCADE,
+        FOREIGN KEY (created_by) REFERENCES users(id) ON DELETE SET NULL,
+        FOREIGN KEY (updated_by) REFERENCES users(id) ON DELETE SET NULL
+      )
+    `);
+    
+    // Create nationality_visa_requirements table
+    await db.execute(sql`
+      CREATE TABLE IF NOT EXISTS nationality_visa_requirements (
+        id SERIAL PRIMARY KEY,
+        visa_id INTEGER NOT NULL,
+        nationality_id INTEGER NOT NULL,
+        requirement_details TEXT,
+        additional_documents JSONB,
+        fees INTEGER,
+        processing_time TEXT,
+        notes TEXT,
+        active BOOLEAN DEFAULT true,
+        created_at TIMESTAMP NOT NULL DEFAULT NOW(),
+        updated_at TIMESTAMP DEFAULT NOW(),
+        created_by INTEGER,
+        updated_by INTEGER,
+        FOREIGN KEY (visa_id) REFERENCES visas(id) ON DELETE CASCADE,
+        FOREIGN KEY (nationality_id) REFERENCES nationalities(id) ON DELETE CASCADE,
+        FOREIGN KEY (created_by) REFERENCES users(id) ON DELETE SET NULL,
+        FOREIGN KEY (updated_by) REFERENCES users(id) ON DELETE SET NULL
+      )
+    `);
+    
+    // Create package_categories table
+    await db.execute(sql`
+      CREATE TABLE IF NOT EXISTS package_categories (
+        id SERIAL PRIMARY KEY,
+        name TEXT NOT NULL,
+        description TEXT,
+        image_url TEXT,
+        active BOOLEAN DEFAULT true,
+        created_at TIMESTAMP NOT NULL DEFAULT NOW(),
+        updated_at TIMESTAMP DEFAULT NOW(),
+        created_by INTEGER,
+        updated_by INTEGER,
+        FOREIGN KEY (created_by) REFERENCES users(id) ON DELETE SET NULL,
+        FOREIGN KEY (updated_by) REFERENCES users(id) ON DELETE SET NULL
+      )
+    `);
+    
+    // Create tour_categories table
+    await db.execute(sql`
+      CREATE TABLE IF NOT EXISTS tour_categories (
+        id SERIAL PRIMARY KEY,
+        name TEXT NOT NULL,
+        description TEXT,
+        image_url TEXT,
+        active BOOLEAN DEFAULT true,
+        created_at TIMESTAMP NOT NULL DEFAULT NOW(),
+        updated_at TIMESTAMP DEFAULT NOW(),
+        created_by INTEGER,
+        updated_by INTEGER,
+        FOREIGN KEY (created_by) REFERENCES users(id) ON DELETE SET NULL,
+        FOREIGN KEY (updated_by) REFERENCES users(id) ON DELETE SET NULL
+      )
+    `);
+    
+    // Create hotel_categories table
+    await db.execute(sql`
+      CREATE TABLE IF NOT EXISTS hotel_categories (
+        id SERIAL PRIMARY KEY,
+        name TEXT NOT NULL,
+        description TEXT,
+        image_url TEXT,
+        active BOOLEAN DEFAULT true,
+        created_at TIMESTAMP NOT NULL DEFAULT NOW(),
+        updated_at TIMESTAMP DEFAULT NOW(),
+        created_by INTEGER,
+        updated_by INTEGER,
+        FOREIGN KEY (created_by) REFERENCES users(id) ON DELETE SET NULL,
+        FOREIGN KEY (updated_by) REFERENCES users(id) ON DELETE SET NULL
+      )
+    `);
+    
+    // Create hotel_facilities table
+    await db.execute(sql`
+      CREATE TABLE IF NOT EXISTS hotel_facilities (
+        id SERIAL PRIMARY KEY,
+        name TEXT NOT NULL,
+        description TEXT,
+        icon TEXT,
+        active BOOLEAN DEFAULT true,
+        created_at TIMESTAMP NOT NULL DEFAULT NOW(),
+        updated_at TIMESTAMP DEFAULT NOW()
+      )
+    `);
+    
+    // Create hotel_highlights table
+    await db.execute(sql`
+      CREATE TABLE IF NOT EXISTS hotel_highlights (
+        id SERIAL PRIMARY KEY,
+        name TEXT NOT NULL,
+        description TEXT,
+        icon TEXT,
+        active BOOLEAN DEFAULT true,
+        created_at TIMESTAMP NOT NULL DEFAULT NOW(),
+        updated_at TIMESTAMP DEFAULT NOW()
+      )
+    `);
+    
+    // Create cleanliness_features table
+    await db.execute(sql`
+      CREATE TABLE IF NOT EXISTS cleanliness_features (
+        id SERIAL PRIMARY KEY,
+        name TEXT NOT NULL,
+        description TEXT,
+        icon TEXT,
+        active BOOLEAN DEFAULT true,
+        created_at TIMESTAMP NOT NULL DEFAULT NOW(),
+        updated_at TIMESTAMP DEFAULT NOW()
+      )
+    `);
+    
+    // Create transport_types table
+    await db.execute(sql`
+      CREATE TABLE IF NOT EXISTS transport_types (
+        id SERIAL PRIMARY KEY,
+        name TEXT NOT NULL,
+        description TEXT,
+        icon TEXT,
+        active BOOLEAN DEFAULT true,
+        created_at TIMESTAMP NOT NULL DEFAULT NOW(),
+        updated_at TIMESTAMP DEFAULT NOW()
+      )
+    `);
+    
+    // Create rooms table
+    await db.execute(sql`
+      CREATE TABLE IF NOT EXISTS rooms (
+        id SERIAL PRIMARY KEY,
+        name TEXT NOT NULL,
+        description TEXT,
+        hotel_id INTEGER NOT NULL,
+        type TEXT NOT NULL,
+        max_occupancy INTEGER NOT NULL,
+        max_adults INTEGER NOT NULL,
+        max_children INTEGER NOT NULL DEFAULT 0,
+        max_infants INTEGER NOT NULL DEFAULT 0,
+        price INTEGER NOT NULL,
+        discounted_price INTEGER,
+        currency TEXT DEFAULT 'EGP' NOT NULL,
+        image_url TEXT,
+        size TEXT,
+        bed_type TEXT,
+        amenities JSONB,
+        view TEXT,
+        available BOOLEAN DEFAULT true,
+        status TEXT DEFAULT 'active',
+        created_at TIMESTAMP NOT NULL DEFAULT NOW(),
+        updated_at TIMESTAMP DEFAULT NOW(),
+        created_by INTEGER,
+        updated_by INTEGER,
+        FOREIGN KEY (hotel_id) REFERENCES hotels(id) ON DELETE CASCADE,
+        FOREIGN KEY (created_by) REFERENCES users(id) ON DELETE SET NULL,
+        FOREIGN KEY (updated_by) REFERENCES users(id) ON DELETE SET NULL
+      )
+    `);
+    
+    // Create why_choose_us_sections table
+    await db.execute(sql`
+      CREATE TABLE IF NOT EXISTS why_choose_us_sections (
+        id SERIAL PRIMARY KEY,
+        title TEXT NOT NULL,
+        description TEXT,
+        icon TEXT,
+        "order" INTEGER DEFAULT 0,
+        active BOOLEAN DEFAULT true,
+        created_at TIMESTAMP NOT NULL DEFAULT NOW(),
+        updated_at TIMESTAMP DEFAULT NOW(),
+        created_by INTEGER,
+        updated_by INTEGER,
+        FOREIGN KEY (created_by) REFERENCES users(id) ON DELETE SET NULL,
+        FOREIGN KEY (updated_by) REFERENCES users(id) ON DELETE SET NULL
+      )
+    `);
+    
     // Create foreign key constraints for users table
     await db.execute(sql`
-      ALTER TABLE countries ADD CONSTRAINT fk_countries_created_by FOREIGN KEY (created_by) REFERENCES users(id) ON DELETE SET NULL;
-      ALTER TABLE countries ADD CONSTRAINT fk_countries_updated_by FOREIGN KEY (updated_by) REFERENCES users(id) ON DELETE SET NULL;
-      ALTER TABLE cities ADD CONSTRAINT fk_cities_created_by FOREIGN KEY (created_by) REFERENCES users(id) ON DELETE SET NULL;
-      ALTER TABLE cities ADD CONSTRAINT fk_cities_updated_by FOREIGN KEY (updated_by) REFERENCES users(id) ON DELETE SET NULL;
-      ALTER TABLE airports ADD CONSTRAINT fk_airports_created_by FOREIGN KEY (created_by) REFERENCES users(id) ON DELETE SET NULL;
-      ALTER TABLE airports ADD CONSTRAINT fk_airports_updated_by FOREIGN KEY (updated_by) REFERENCES users(id) ON DELETE SET NULL;
-      ALTER TABLE destinations ADD CONSTRAINT fk_destinations_created_by FOREIGN KEY (created_by) REFERENCES users(id) ON DELETE SET NULL;
-      ALTER TABLE destinations ADD CONSTRAINT fk_destinations_updated_by FOREIGN KEY (updated_by) REFERENCES users(id) ON DELETE SET NULL;
-      ALTER TABLE hero_slides ADD CONSTRAINT fk_hero_slides_created_by FOREIGN KEY (created_by) REFERENCES users(id) ON DELETE SET NULL;
-      ALTER TABLE hero_slides ADD CONSTRAINT fk_hero_slides_updated_by FOREIGN KEY (updated_by) REFERENCES users(id) ON DELETE SET NULL;
-      ALTER TABLE homepage_sections ADD CONSTRAINT fk_homepage_sections_created_by FOREIGN KEY (created_by) REFERENCES users(id) ON DELETE SET NULL;
-      ALTER TABLE homepage_sections ADD CONSTRAINT fk_homepage_sections_updated_by FOREIGN KEY (updated_by) REFERENCES users(id) ON DELETE SET NULL;
+      DO $$ BEGIN
+        IF NOT EXISTS (SELECT 1 FROM information_schema.table_constraints WHERE constraint_name = 'fk_countries_created_by') THEN
+          ALTER TABLE countries ADD CONSTRAINT fk_countries_created_by FOREIGN KEY (created_by) REFERENCES users(id) ON DELETE SET NULL;
+        END IF;
+        IF NOT EXISTS (SELECT 1 FROM information_schema.table_constraints WHERE constraint_name = 'fk_countries_updated_by') THEN
+          ALTER TABLE countries ADD CONSTRAINT fk_countries_updated_by FOREIGN KEY (updated_by) REFERENCES users(id) ON DELETE SET NULL;
+        END IF;
+        IF NOT EXISTS (SELECT 1 FROM information_schema.table_constraints WHERE constraint_name = 'fk_cities_created_by') THEN
+          ALTER TABLE cities ADD CONSTRAINT fk_cities_created_by FOREIGN KEY (created_by) REFERENCES users(id) ON DELETE SET NULL;
+        END IF;
+        IF NOT EXISTS (SELECT 1 FROM information_schema.table_constraints WHERE constraint_name = 'fk_cities_updated_by') THEN
+          ALTER TABLE cities ADD CONSTRAINT fk_cities_updated_by FOREIGN KEY (created_by) REFERENCES users(id) ON DELETE SET NULL;
+        END IF;
+        IF NOT EXISTS (SELECT 1 FROM information_schema.table_constraints WHERE constraint_name = 'fk_airports_created_by') THEN
+          ALTER TABLE airports ADD CONSTRAINT fk_airports_created_by FOREIGN KEY (created_by) REFERENCES users(id) ON DELETE SET NULL;
+        END IF;
+        IF NOT EXISTS (SELECT 1 FROM information_schema.table_constraints WHERE constraint_name = 'fk_airports_updated_by') THEN
+          ALTER TABLE airports ADD CONSTRAINT fk_airports_updated_by FOREIGN KEY (updated_by) REFERENCES users(id) ON DELETE SET NULL;
+        END IF;
+        IF NOT EXISTS (SELECT 1 FROM information_schema.table_constraints WHERE constraint_name = 'fk_destinations_created_by') THEN
+          ALTER TABLE destinations ADD CONSTRAINT fk_destinations_created_by FOREIGN KEY (created_by) REFERENCES users(id) ON DELETE SET NULL;
+        END IF;
+        IF NOT EXISTS (SELECT 1 FROM information_schema.table_constraints WHERE constraint_name = 'fk_destinations_updated_by') THEN
+          ALTER TABLE destinations ADD CONSTRAINT fk_destinations_updated_by FOREIGN KEY (updated_by) REFERENCES users(id) ON DELETE SET NULL;
+        END IF;
+        IF NOT EXISTS (SELECT 1 FROM information_schema.table_constraints WHERE constraint_name = 'fk_hero_slides_created_by') THEN
+          ALTER TABLE hero_slides ADD CONSTRAINT fk_hero_slides_created_by FOREIGN KEY (created_by) REFERENCES users(id) ON DELETE SET NULL;
+        END IF;
+        IF NOT EXISTS (SELECT 1 FROM information_schema.table_constraints WHERE constraint_name = 'fk_hero_slides_updated_by') THEN
+          ALTER TABLE hero_slides ADD CONSTRAINT fk_hero_slides_updated_by FOREIGN KEY (updated_by) REFERENCES users(id) ON DELETE SET NULL;
+        END IF;
+        IF NOT EXISTS (SELECT 1 FROM information_schema.table_constraints WHERE constraint_name = 'fk_homepage_sections_created_by') THEN
+          ALTER TABLE homepage_sections ADD CONSTRAINT fk_homepage_sections_created_by FOREIGN KEY (created_by) REFERENCES users(id) ON DELETE SET NULL;
+        END IF;
+        IF NOT EXISTS (SELECT 1 FROM information_schema.table_constraints WHERE constraint_name = 'fk_homepage_sections_updated_by') THEN
+          ALTER TABLE homepage_sections ADD CONSTRAINT fk_homepage_sections_updated_by FOREIGN KEY (updated_by) REFERENCES users(id) ON DELETE SET NULL;
+        END IF;
+      END $$;
     `);
     
     console.log('✅ Database schema created successfully');

@@ -1,0 +1,851 @@
+
+> rest-express@1.0.0 dev
+> cross-env NODE_ENV=development tsx server/index.ts
+
+Testing database connection...
+🔑 Google AI API Key status: Found (AIzaSyBLsu...)
+🔍 Full environment check: {
+  hasGoogleAIKey: false,
+  hasOldGoogleKey: false,
+  hasGeminiKey: false,
+  nodeEnv: 'development',
+  keyLength: 39,
+  usingFallback: true
+}
+⏳ Waiting for database initialization...
+Database connection established successfully
+✅ Database initialized.
+🔐 Setting up admin users...
+✅ Main admin user created successfully!
+✅ Test admin user created successfully!
+✅ Admin setup completed
+✅ Unified auth setup completed
+✅ Hero slides routes setup completed
+🔧 Setting up upload routes...
+✅ Upload routes and static serving setup completed
+🔧 Setting up upload routes...
+✅ API routes registered successfully
+🔧 Initializing database...
+📋 Creating database schema...
+✅ Vite development setup completed
+8:09:33 AM [express] ✅ Server serving on port 8080
+🌍 Application available at http://localhost:8080
+✅ Database schema created successfully
+🔄 Checking database setup...
+✅ Ensured packages table has slug column
+✅ Ensured countries table exists
+✅ Ensured nationalities table exists
+✅ Ensured visas table exists
+✅ Ensured nationality_visa_requirements table exists
+✅ All necessary visa tables are created
+✅ Database setup complete!
+🔐 Setting up admin users...
+✅ Main admin user already exists
+✅ Test admin user already exists
+🏷️ Seeding package categories...
+🏷️ Seeding package categories...
+Error listing package categories: error: relation "package_categories" does not exist
+    at /home/runner/workspace/node_modules/pg/lib/client.js:545:17
+    at process.processTicksAndRejections (node:internal/process/task_queues:95:5)
+    at async DatabaseStorage.listPackageCategories (/home/runner/workspace/server/storage.ts:1167:22)
+    at async seedPackageCategories (/home/runner/workspace/server/seed-package-categories.ts:8:32) {
+  length: 117,
+  severity: 'ERROR',
+  code: '42P01',
+  detail: undefined,
+  hint: undefined,
+  position: '15',
+  internalPosition: undefined,
+  internalQuery: undefined,
+  where: undefined,
+  schema: undefined,
+  table: undefined,
+  column: undefined,
+  dataType: undefined,
+  constraint: undefined,
+  file: 'parse_relation.c',
+  line: '1449',
+  routine: 'parserOpenTable'
+}
+Error creating package category: error: relation "package_categories" does not exist
+    at /home/runner/workspace/node_modules/pg/lib/client.js:545:17
+    at process.processTicksAndRejections (node:internal/process/task_queues:95:5)
+    at async DatabaseStorage.createPackageCategory (/home/runner/workspace/server/storage.ts:1181:22)
+    at async seedPackageCategories (/home/runner/workspace/server/seed-package-categories.ts:56:7) {
+  length: 117,
+  severity: 'ERROR',
+  code: '42P01',
+  detail: undefined,
+  hint: undefined,
+  position: '13',
+  internalPosition: undefined,
+  internalQuery: undefined,
+  where: undefined,
+  schema: undefined,
+  table: undefined,
+  column: undefined,
+  dataType: undefined,
+  constraint: undefined,
+  file: 'parse_relation.c',
+  line: '1449',
+  routine: 'parserOpenTable'
+}
+❌ Error seeding package categories: error: relation "package_categories" does not exist
+    at /home/runner/workspace/node_modules/pg/lib/client.js:545:17
+    at process.processTicksAndRejections (node:internal/process/task_queues:95:5)
+    at async DatabaseStorage.createPackageCategory (/home/runner/workspace/server/storage.ts:1181:22)
+    at async seedPackageCategories (/home/runner/workspace/server/seed-package-categories.ts:56:7) {
+  length: 117,
+  severity: 'ERROR',
+  code: '42P01',
+  detail: undefined,
+  hint: undefined,
+  position: '13',
+  internalPosition: undefined,
+  internalQuery: undefined,
+  where: undefined,
+  schema: undefined,
+  table: undefined,
+  column: undefined,
+  dataType: undefined,
+  constraint: undefined,
+  file: 'parse_relation.c',
+  line: '1449',
+  routine: 'parserOpenTable'
+}
+✅ Package categories seeding complete
+Error listing package categories: error: relation "package_categories" does not exist
+    at /home/runner/workspace/node_modules/pg/lib/client.js:545:17
+    at process.processTicksAndRejections (node:internal/process/task_queues:95:5)
+    at async DatabaseStorage.listPackageCategories (/home/runner/workspace/server/storage.ts:1167:22)
+    at async Module.seedPackageCategories (/home/runner/workspace/server/seed-package-categories.ts:8:32)
+    at async initializeDatabase (/home/runner/workspace/server/init-database.ts:27:5)
+    at async <anonymous> (/home/runner/workspace/server/index.ts:277:9) {
+  length: 117,
+  severity: 'ERROR',
+  code: '42P01',
+  detail: undefined,
+  hint: undefined,
+  position: '15',
+  internalPosition: undefined,
+  internalQuery: undefined,
+  where: undefined,
+  schema: undefined,
+  table: undefined,
+  column: undefined,
+  dataType: undefined,
+  constraint: undefined,
+  file: 'parse_relation.c',
+  line: '1449',
+  routine: 'parserOpenTable'
+}
+Error creating package category: error: relation "package_categories" does not exist
+    at /home/runner/workspace/node_modules/pg/lib/client.js:545:17
+    at process.processTicksAndRejections (node:internal/process/task_queues:95:5)
+    at async DatabaseStorage.createPackageCategory (/home/runner/workspace/server/storage.ts:1181:22)
+    at async Module.seedPackageCategories (/home/runner/workspace/server/seed-package-categories.ts:56:7)
+    at async initializeDatabase (/home/runner/workspace/server/init-database.ts:27:5)
+    at async <anonymous> (/home/runner/workspace/server/index.ts:277:9) {
+  length: 117,
+  severity: 'ERROR',
+  code: '42P01',
+  detail: undefined,
+  hint: undefined,
+  position: '13',
+  internalPosition: undefined,
+  internalQuery: undefined,
+  where: undefined,
+  schema: undefined,
+  table: undefined,
+  column: undefined,
+  dataType: undefined,
+  constraint: undefined,
+  file: 'parse_relation.c',
+  line: '1449',
+  routine: 'parserOpenTable'
+}
+❌ Error seeding package categories: error: relation "package_categories" does not exist
+    at /home/runner/workspace/node_modules/pg/lib/client.js:545:17
+    at process.processTicksAndRejections (node:internal/process/task_queues:95:5)
+    at async DatabaseStorage.createPackageCategory (/home/runner/workspace/server/storage.ts:1181:22)
+    at async Module.seedPackageCategories (/home/runner/workspace/server/seed-package-categories.ts:56:7)
+    at async initializeDatabase (/home/runner/workspace/server/init-database.ts:27:5)
+    at async <anonymous> (/home/runner/workspace/server/index.ts:277:9) {
+  length: 117,
+  severity: 'ERROR',
+  code: '42P01',
+  detail: undefined,
+  hint: undefined,
+  position: '13',
+  internalPosition: undefined,
+  internalQuery: undefined,
+  where: undefined,
+  schema: undefined,
+  table: undefined,
+  column: undefined,
+  dataType: undefined,
+  constraint: undefined,
+  file: 'parse_relation.c',
+  line: '1449',
+  routine: 'parserOpenTable'
+}
+🌱 Seeding data...
+🌍 Seeding countries...
+🏙️ Seeding cities...
+✈️ Seeding airports...
+📍 Seeding destinations...
+📦 Seeding packages...
+✅ Data seeded successfully!
+🌱 Seeding translations...
+❌ Error seeding data: error: relation "translations" does not exist
+    at /home/runner/workspace/node_modules/pg-pool/index.js:45:11
+    at process.processTicksAndRejections (node:internal/process/task_queues:95:5)
+    at async <anonymous> (/home/runner/workspace/node_modules/src/node-postgres/session.ts:104:19)
+    at async seedTranslations (/home/runner/workspace/server/seed-translations.ts:11:32)
+    at async Module.seed (/home/runner/workspace/server/seed.ts:626:5)
+    at async initializeDatabase (/home/runner/workspace/server/init-database.ts:30:5)
+    at async <anonymous> (/home/runner/workspace/server/index.ts:277:9) {
+  length: 112,
+  severity: 'ERROR',
+  code: '42P01',
+  detail: undefined,
+  hint: undefined,
+  position: '126',
+  internalPosition: undefined,
+  internalQuery: undefined,
+  where: undefined,
+  schema: undefined,
+  table: undefined,
+  column: undefined,
+  dataType: undefined,
+  constraint: undefined,
+  file: 'parse_relation.c',
+  line: '1449',
+  routine: 'parserOpenTable'
+}
+✅ Database initialization complete!
+🔥 API ROUTE DEBUG: GET /api/cities
+🔥 Query params: {}
+🔥 API ROUTE DEBUG: GET /api/countries
+🔥 Query params: {}
+🔥 API ROUTE DEBUG: GET /api/destinations
+🔥 Query params: {}
+🔥 API ROUTE DEBUG: GET /api/menus/location/header
+🔥 Query params: {}
+🔥 STORAGE: getMenuByLocation called with location: header
+8:10:05 AM [express] GET /api/hero-slides/active 200 in 2ms :: [{"id":1,"title":"Welcome to Sahara Journeys","subtitle":"Discover the Magic of the Middle East","descrip…
+8:10:05 AM [express] GET /api/countries 200 in 814ms :: [{"id":1,"name":"Egypt","code":"EG","description":"A country linking northeast Africa with the Middle East, date…
+8:10:05 AM [express] GET /api/cities 200 in 821ms :: [{"id":5,"name":"Abu Dhabi","countryId":2,"description":"The capital of the UAE, known for its cultural landmarks a…
+8:10:05 AM [express] GET /api/destinations 200 in 816ms :: [{"id":5,"name":"Marrakech","country":"Morocco","countryId":4,"cityId":8,"description":"Immerse yourself in t…
+🔥 API ROUTE DEBUG: GET /api/homepage-sections?active=true
+🔥 Query params: { active: 'true' }
+🔥 API ROUTE DEBUG: GET /api/menus/location/footer
+🔥 Query params: {}
+🔥 STORAGE: getMenuByLocation called with location: footer
+8:10:05 AM [express] GET /api/homepage-sections 200 in 114ms :: []
+❌ STORAGE ERROR getting menu by location: error: relation "menus" does not exist
+    at /home/runner/workspace/node_modules/pg-pool/index.js:45:11
+    at process.processTicksAndRejections (node:internal/process/task_queues:95:5)
+    at async <anonymous> (/home/runner/workspace/node_modules/src/node-postgres/session.ts:104:19)
+    at async DatabaseStorage.getMenuByLocation (/home/runner/workspace/server/storage.ts:1073:22)
+    at async <anonymous> (/home/runner/workspace/server/routes.ts:4575:20) {
+  length: 104,
+  severity: 'ERROR',
+  code: '42P01',
+  detail: undefined,
+  hint: undefined,
+  position: '91',
+  internalPosition: undefined,
+  internalQuery: undefined,
+  where: undefined,
+  schema: undefined,
+  table: undefined,
+  column: undefined,
+  dataType: undefined,
+  constraint: undefined,
+  file: 'parse_relation.c',
+  line: '1449',
+  routine: 'parserOpenTable'
+}
+❌ Stack trace: error: relation "menus" does not exist
+    at /home/runner/workspace/node_modules/pg-pool/index.js:45:11
+    at process.processTicksAndRejections (node:internal/process/task_queues:95:5)
+    at async <anonymous> (/home/runner/workspace/node_modules/src/node-postgres/session.ts:104:19)
+    at async DatabaseStorage.getMenuByLocation (/home/runner/workspace/server/storage.ts:1073:22)
+    at async <anonymous> (/home/runner/workspace/server/routes.ts:4575:20)
+8:10:05 AM [express] GET /api/menus/location/footer 404 in 140ms :: {"message":"Menu not found for this location"}
+Error listing translations: error: relation "translations" does not exist
+    at /home/runner/workspace/node_modules/pg-pool/index.js:45:11
+    at process.processTicksAndRejections (node:internal/process/task_queues:95:5)
+    at async <anonymous> (/home/runner/workspace/node_modules/src/node-postgres/session.ts:104:19)
+    at async DatabaseStorage.listTranslations (/home/runner/workspace/server/storage.ts:1375:14)
+    at async <anonymous> (/home/runner/workspace/server/index.ts:171:30) {
+  length: 112,
+  severity: 'ERROR',
+  code: '42P01',
+  detail: undefined,
+  hint: undefined,
+  position: '126',
+  internalPosition: undefined,
+  internalQuery: undefined,
+  where: undefined,
+  schema: undefined,
+  table: undefined,
+  column: undefined,
+  dataType: undefined,
+  constraint: undefined,
+  file: 'parse_relation.c',
+  line: '1449',
+  routine: 'parserOpenTable'
+}
+8:10:05 AM [express] GET /api/translations 200 in 141ms :: []
+Error getting site language settings: error: relation "site_language_settings" does not exist
+    at /home/runner/workspace/node_modules/pg/lib/client.js:545:17
+    at process.processTicksAndRejections (node:internal/process/task_queues:95:5)
+    at async DatabaseStorage.getSiteLanguageSettings (/home/runner/workspace/server/storage.ts:1440:22)
+    at async <anonymous> (/home/runner/workspace/server/index.ts:194:26) {
+  length: 121,
+  severity: 'ERROR',
+  code: '42P01',
+  detail: undefined,
+  hint: undefined,
+  position: '15',
+  internalPosition: undefined,
+  internalQuery: undefined,
+  where: undefined,
+  schema: undefined,
+  table: undefined,
+  column: undefined,
+  dataType: undefined,
+  constraint: undefined,
+  file: 'parse_relation.c',
+  line: '1449',
+  routine: 'parserOpenTable'
+}
+8:10:05 AM [express] GET /api/translations/settings 200 in 110ms :: {"defaultLanguage":"en","availableLanguages":["en","ar"],"rtlLanguages":["ar"]}
+❌ STORAGE ERROR getting menu by location: error: relation "menus" does not exist
+    at /home/runner/workspace/node_modules/pg-pool/index.js:45:11
+    at process.processTicksAndRejections (node:internal/process/task_queues:95:5)
+    at async <anonymous> (/home/runner/workspace/node_modules/src/node-postgres/session.ts:104:19)
+    at async DatabaseStorage.getMenuByLocation (/home/runner/workspace/server/storage.ts:1073:22)
+    at async <anonymous> (/home/runner/workspace/server/routes.ts:4575:20) {
+  length: 104,
+  severity: 'ERROR',
+  code: '42P01',
+  detail: undefined,
+  hint: undefined,
+  position: '91',
+  internalPosition: undefined,
+  internalQuery: undefined,
+  where: undefined,
+  schema: undefined,
+  table: undefined,
+  column: undefined,
+  dataType: undefined,
+  constraint: undefined,
+  file: 'parse_relation.c',
+  line: '1449',
+  routine: 'parserOpenTable'
+}
+❌ Stack trace: error: relation "menus" does not exist
+    at /home/runner/workspace/node_modules/pg-pool/index.js:45:11
+    at process.processTicksAndRejections (node:internal/process/task_queues:95:5)
+    at async <anonymous> (/home/runner/workspace/node_modules/src/node-postgres/session.ts:104:19)
+    at async DatabaseStorage.getMenuByLocation (/home/runner/workspace/server/storage.ts:1073:22)
+    at async <anonymous> (/home/runner/workspace/server/routes.ts:4575:20)
+8:10:06 AM [express] GET /api/menus/location/header 404 in 785ms :: {"message":"Menu not found for this location"}
+Error listing tour categories: error: relation "tour_categories" does not exist
+    at /home/runner/workspace/node_modules/pg/lib/client.js:545:17
+    at process.processTicksAndRejections (node:internal/process/task_queues:95:5)
+    at async DatabaseStorage.listTourCategories (/home/runner/workspace/server/storage.ts:1341:18)
+    at async <anonymous> (/home/runner/workspace/server/index.ts:183:28) {
+  length: 114,
+  severity: 'ERROR',
+  code: '42P01',
+  detail: undefined,
+  hint: undefined,
+  position: '15',
+  internalPosition: undefined,
+  internalQuery: undefined,
+  where: undefined,
+  schema: undefined,
+  table: undefined,
+  column: undefined,
+  dataType: undefined,
+  constraint: undefined,
+  file: 'parse_relation.c',
+  line: '1449',
+  routine: 'parserOpenTable'
+}
+8:10:06 AM [express] GET /api/tour-categories 200 in 781ms :: []
+🔥 API ROUTE DEBUG: GET /api/packages
+🔥 Query params: {}
+8:10:07 AM [express] GET /api/packages 200 in 783ms :: [{"id":8,"title":"Fly & Stay: Dubai Getaway","description":"All-inclusive package with international flights to D…
+🔥 API ROUTE DEBUG: POST /api/cart/add
+🔥 Query params: {}
+Cart add request - Session user: undefined
+Cart add request - User ID: undefined
+Cart add request - Body: {
+  itemType: 'package',
+  itemId: 2,
+  itemName: 'Dubai Luxury Weekend',
+  priceAtAdd: 999,
+  discountedPriceAtAdd: 999,
+  quantity: 1,
+  adults: 2,
+  children: 0,
+  infants: 0,
+  travelDate: '2025-08-16',
+  configuration: {
+    duration: 4,
+    imageUrl: 'https://images.unsplash.com/photo-1548813395-e5217e9a3520?q=80&w=800&auto=format&fit=crop',
+    selectedRooms: [],
+    dateMode: 'single',
+    startDate: '',
+    endDate: ''
+  }
+}
+Parsed cart data: {
+  itemType: 'package',
+  itemId: 2,
+  quantity: 1,
+  adults: 2,
+  children: 0,
+  infants: 0,
+  checkInDate: null,
+  checkOutDate: null,
+  travelDate: 2025-08-16T00:00:00.000Z,
+  configuration: {
+    duration: 4,
+    imageUrl: 'https://images.unsplash.com/photo-1548813395-e5217e9a3520?q=80&w=800&auto=format&fit=crop',
+    selectedRooms: [],
+    dateMode: 'single',
+    startDate: '',
+    endDate: ''
+  },
+  priceAtAdd: 999,
+  discountedPriceAtAdd: 999
+}
+No authenticated user, using test user ID 11
+Error adding to cart: error: relation "cart_items" does not exist
+    at /home/runner/workspace/node_modules/pg-pool/index.js:45:11
+    at process.processTicksAndRejections (node:internal/process/task_queues:95:5)
+    at async <anonymous> (/home/runner/workspace/node_modules/src/node-postgres/session.ts:104:19)
+    at async <anonymous> (/home/runner/workspace/server/routes.ts:251:22) {
+  length: 109,
+  severity: 'ERROR',
+  code: '42P01',
+  detail: undefined,
+  hint: undefined,
+  position: '13',
+  internalPosition: undefined,
+  internalQuery: undefined,
+  where: undefined,
+  schema: undefined,
+  table: undefined,
+  column: undefined,
+  dataType: undefined,
+  constraint: undefined,
+  file: 'parse_relation.c',
+  line: '1449',
+  routine: 'parserOpenTable'
+}
+Error details: relation "cart_items" does not exist
+8:10:18 AM [express] POST /api/cart/add 500 in 117ms :: {"message":"Failed to add item to cart","error":"relation \"cart_items\" does not exist"}
+🔥 API ROUTE DEBUG: GET /api/destinations
+🔥 Query params: {}
+🔥 API ROUTE DEBUG: GET /api/cities
+🔥 Query params: {}
+🔥 API ROUTE DEBUG: GET /api/countries
+🔥 Query params: {}
+8:10:51 AM [express] GET /api/hero-slides/active 304 in 1ms :: [{"id":1,"title":"Welcome to Sahara Journeys","subtitle":"Discover the Magic of the Middle East","descrip…
+🔥 API ROUTE DEBUG: GET /api/menus/location/header
+🔥 Query params: {}
+🔥 STORAGE: getMenuByLocation called with location: header
+🔥 API ROUTE DEBUG: GET /api/packages
+🔥 Query params: {}
+8:10:51 AM [express] GET /api/destinations 304 in 792ms :: [{"id":5,"name":"Marrakech","country":"Morocco","countryId":4,"cityId":8,"description":"Immerse yourself in t…
+Error listing tour categories: error: relation "tour_categories" does not exist
+    at /home/runner/workspace/node_modules/pg/lib/client.js:545:17
+    at process.processTicksAndRejections (node:internal/process/task_queues:95:5)
+    at async DatabaseStorage.listTourCategories (/home/runner/workspace/server/storage.ts:1341:18)
+    at async <anonymous> (/home/runner/workspace/server/index.ts:183:28) {
+  length: 114,
+  severity: 'ERROR',
+  code: '42P01',
+  detail: undefined,
+  hint: undefined,
+  position: '15',
+  internalPosition: undefined,
+  internalQuery: undefined,
+  where: undefined,
+  schema: undefined,
+  table: undefined,
+  column: undefined,
+  dataType: undefined,
+  constraint: undefined,
+  file: 'parse_relation.c',
+  line: '1449',
+  routine: 'parserOpenTable'
+}
+8:10:51 AM [express] GET /api/tour-categories 304 in 825ms :: []
+8:10:51 AM [express] GET /api/cities 304 in 828ms :: [{"id":5,"name":"Abu Dhabi","countryId":2,"description":"The capital of the UAE, known for its cultural landmarks a…
+8:10:51 AM [express] GET /api/countries 304 in 779ms :: [{"id":1,"name":"Egypt","code":"EG","description":"A country linking northeast Africa with the Middle East, date…
+❌ STORAGE ERROR getting menu by location: error: relation "menus" does not exist
+    at /home/runner/workspace/node_modules/pg-pool/index.js:45:11
+    at process.processTicksAndRejections (node:internal/process/task_queues:95:5)
+    at async <anonymous> (/home/runner/workspace/node_modules/src/node-postgres/session.ts:104:19)
+    at async DatabaseStorage.getMenuByLocation (/home/runner/workspace/server/storage.ts:1073:22)
+    at async <anonymous> (/home/runner/workspace/server/routes.ts:4575:20) {
+  length: 104,
+  severity: 'ERROR',
+  code: '42P01',
+  detail: undefined,
+  hint: undefined,
+  position: '91',
+  internalPosition: undefined,
+  internalQuery: undefined,
+  where: undefined,
+  schema: undefined,
+  table: undefined,
+  column: undefined,
+  dataType: undefined,
+  constraint: undefined,
+  file: 'parse_relation.c',
+  line: '1449',
+  routine: 'parserOpenTable'
+}
+❌ Stack trace: error: relation "menus" does not exist
+    at /home/runner/workspace/node_modules/pg-pool/index.js:45:11
+    at process.processTicksAndRejections (node:internal/process/task_queues:95:5)
+    at async <anonymous> (/home/runner/workspace/node_modules/src/node-postgres/session.ts:104:19)
+    at async DatabaseStorage.getMenuByLocation (/home/runner/workspace/server/storage.ts:1073:22)
+    at async <anonymous> (/home/runner/workspace/server/routes.ts:4575:20)
+8:10:51 AM [express] GET /api/menus/location/header 404 in 815ms :: {"message":"Menu not found for this location"}
+8:10:51 AM [express] GET /api/packages 304 in 511ms :: [{"id":8,"title":"Fly & Stay: Dubai Getaway","description":"All-inclusive package with international flights to D…
+🔥 API ROUTE DEBUG: GET /api/homepage-sections?active=true
+🔥 Query params: { active: 'true' }
+🔥 API ROUTE DEBUG: GET /api/menus/location/footer
+🔥 Query params: {}
+🔥 STORAGE: getMenuByLocation called with location: footer
+8:10:52 AM [express] GET /api/homepage-sections 304 in 111ms :: []
+❌ STORAGE ERROR getting menu by location: error: relation "menus" does not exist
+    at /home/runner/workspace/node_modules/pg-pool/index.js:45:11
+    at process.processTicksAndRejections (node:internal/process/task_queues:95:5)
+    at async <anonymous> (/home/runner/workspace/node_modules/src/node-postgres/session.ts:104:19)
+    at async DatabaseStorage.getMenuByLocation (/home/runner/workspace/server/storage.ts:1073:22)
+    at async <anonymous> (/home/runner/workspace/server/routes.ts:4575:20) {
+  length: 104,
+  severity: 'ERROR',
+  code: '42P01',
+  detail: undefined,
+  hint: undefined,
+  position: '91',
+  internalPosition: undefined,
+  internalQuery: undefined,
+  where: undefined,
+  schema: undefined,
+  table: undefined,
+  column: undefined,
+  dataType: undefined,
+  constraint: undefined,
+  file: 'parse_relation.c',
+  line: '1449',
+  routine: 'parserOpenTable'
+}
+❌ Stack trace: error: relation "menus" does not exist
+    at /home/runner/workspace/node_modules/pg-pool/index.js:45:11
+    at process.processTicksAndRejections (node:internal/process/task_queues:95:5)
+    at async <anonymous> (/home/runner/workspace/node_modules/src/node-postgres/session.ts:104:19)
+    at async DatabaseStorage.getMenuByLocation (/home/runner/workspace/server/storage.ts:1073:22)
+    at async <anonymous> (/home/runner/workspace/server/routes.ts:4575:20)
+8:10:52 AM [express] GET /api/menus/location/footer 404 in 112ms :: {"message":"Menu not found for this location"}
+Error listing translations: error: relation "translations" does not exist
+    at /home/runner/workspace/node_modules/pg-pool/index.js:45:11
+    at process.processTicksAndRejections (node:internal/process/task_queues:95:5)
+    at async <anonymous> (/home/runner/workspace/node_modules/src/node-postgres/session.ts:104:19)
+    at async DatabaseStorage.listTranslations (/home/runner/workspace/server/storage.ts:1375:14)
+    at async <anonymous> (/home/runner/workspace/server/index.ts:171:30) {
+  length: 112,
+  severity: 'ERROR',
+  code: '42P01',
+  detail: undefined,
+  hint: undefined,
+  position: '126',
+  internalPosition: undefined,
+  internalQuery: undefined,
+  where: undefined,
+  schema: undefined,
+  table: undefined,
+  column: undefined,
+  dataType: undefined,
+  constraint: undefined,
+  file: 'parse_relation.c',
+  line: '1449',
+  routine: 'parserOpenTable'
+}
+8:10:52 AM [express] GET /api/translations 304 in 772ms :: []
+Error getting site language settings: error: relation "site_language_settings" does not exist
+    at /home/runner/workspace/node_modules/pg/lib/client.js:545:17
+    at process.processTicksAndRejections (node:internal/process/task_queues:95:5)
+    at async DatabaseStorage.getSiteLanguageSettings (/home/runner/workspace/server/storage.ts:1440:22)
+    at async <anonymous> (/home/runner/workspace/server/index.ts:194:26) {
+  length: 121,
+  severity: 'ERROR',
+  code: '42P01',
+  detail: undefined,
+  hint: undefined,
+  position: '15',
+  internalPosition: undefined,
+  internalQuery: undefined,
+  where: undefined,
+  schema: undefined,
+  table: undefined,
+  column: undefined,
+  dataType: undefined,
+  constraint: undefined,
+  file: 'parse_relation.c',
+  line: '1449',
+  routine: 'parserOpenTable'
+}
+8:10:53 AM [express] GET /api/translations/settings 304 in 109ms :: {"defaultLanguage":"en","availableLanguages":["en","ar"],"rtlLanguages":["ar"]}
+🔥 API ROUTE DEBUG: GET /api/menus/location/header
+🔥 Query params: {}
+🔥 STORAGE: getMenuByLocation called with location: header
+🔥 API ROUTE DEBUG: GET /api/packages
+🔥 Query params: {}
+🔥 API ROUTE DEBUG: GET /api/menus/location/footer
+🔥 Query params: {}
+🔥 STORAGE: getMenuByLocation called with location: footer
+Error listing translations: error: relation "translations" does not exist
+    at /home/runner/workspace/node_modules/pg-pool/index.js:45:11
+    at process.processTicksAndRejections (node:internal/process/task_queues:95:5)
+    at async <anonymous> (/home/runner/workspace/node_modules/src/node-postgres/session.ts:104:19)
+    at async DatabaseStorage.listTranslations (/home/runner/workspace/server/storage.ts:1375:14)
+    at async <anonymous> (/home/runner/workspace/server/index.ts:171:30) {
+  length: 112,
+  severity: 'ERROR',
+  code: '42P01',
+  detail: undefined,
+  hint: undefined,
+  position: '126',
+  internalPosition: undefined,
+  internalQuery: undefined,
+  where: undefined,
+  schema: undefined,
+  table: undefined,
+  column: undefined,
+  dataType: undefined,
+  constraint: undefined,
+  file: 'parse_relation.c',
+  line: '1449',
+  routine: 'parserOpenTable'
+}
+8:11:38 AM [express] GET /api/translations 304 in 770ms :: []
+Error getting site language settings: error: relation "site_language_settings" does not exist
+    at /home/runner/workspace/node_modules/pg/lib/client.js:545:17
+    at process.processTicksAndRejections (node:internal/process/task_queues:95:5)
+    at async DatabaseStorage.getSiteLanguageSettings (/home/runner/workspace/server/storage.ts:1440:22)
+    at async <anonymous> (/home/runner/workspace/server/index.ts:194:26) {
+  length: 121,
+  severity: 'ERROR',
+  code: '42P01',
+  detail: undefined,
+  hint: undefined,
+  position: '15',
+  internalPosition: undefined,
+  internalQuery: undefined,
+  where: undefined,
+  schema: undefined,
+  table: undefined,
+  column: undefined,
+  dataType: undefined,
+  constraint: undefined,
+  file: 'parse_relation.c',
+  line: '1449',
+  routine: 'parserOpenTable'
+}
+8:11:38 AM [express] GET /api/translations/settings 304 in 785ms :: {"defaultLanguage":"en","availableLanguages":["en","ar"],"rtlLanguages":["ar"]}
+❌ STORAGE ERROR getting menu by location: error: relation "menus" does not exist
+    at /home/runner/workspace/node_modules/pg-pool/index.js:45:11
+    at process.processTicksAndRejections (node:internal/process/task_queues:95:5)
+    at async <anonymous> (/home/runner/workspace/node_modules/src/node-postgres/session.ts:104:19)
+    at async DatabaseStorage.getMenuByLocation (/home/runner/workspace/server/storage.ts:1073:22)
+    at async <anonymous> (/home/runner/workspace/server/routes.ts:4575:20) {
+  length: 104,
+  severity: 'ERROR',
+  code: '42P01',
+  detail: undefined,
+  hint: undefined,
+  position: '91',
+  internalPosition: undefined,
+  internalQuery: undefined,
+  where: undefined,
+  schema: undefined,
+  table: undefined,
+  column: undefined,
+  dataType: undefined,
+  constraint: undefined,
+  file: 'parse_relation.c',
+  line: '1449',
+  routine: 'parserOpenTable'
+}
+❌ Stack trace: error: relation "menus" does not exist
+    at /home/runner/workspace/node_modules/pg-pool/index.js:45:11
+    at process.processTicksAndRejections (node:internal/process/task_queues:95:5)
+    at async <anonymous> (/home/runner/workspace/node_modules/src/node-postgres/session.ts:104:19)
+    at async DatabaseStorage.getMenuByLocation (/home/runner/workspace/server/storage.ts:1073:22)
+    at async <anonymous> (/home/runner/workspace/server/routes.ts:4575:20)
+8:11:38 AM [express] GET /api/menus/location/header 404 in 966ms :: {"message":"Menu not found for this location"}
+8:11:39 AM [express] GET /api/packages 304 in 1841ms :: [{"id":8,"title":"Fly & Stay: Dubai Getaway","description":"All-inclusive package with international flights to …
+❌ STORAGE ERROR getting menu by location: error: relation "menus" does not exist
+    at /home/runner/workspace/node_modules/pg-pool/index.js:45:11
+    at process.processTicksAndRejections (node:internal/process/task_queues:95:5)
+    at async <anonymous> (/home/runner/workspace/node_modules/src/node-postgres/session.ts:104:19)
+    at async DatabaseStorage.getMenuByLocation (/home/runner/workspace/server/storage.ts:1073:22)
+    at async <anonymous> (/home/runner/workspace/server/routes.ts:4575:20) {
+  length: 104,
+  severity: 'ERROR',
+  code: '42P01',
+  detail: undefined,
+  hint: undefined,
+  position: '91',
+  internalPosition: undefined,
+  internalQuery: undefined,
+  where: undefined,
+  schema: undefined,
+  table: undefined,
+  column: undefined,
+  dataType: undefined,
+  constraint: undefined,
+  file: 'parse_relation.c',
+  line: '1449',
+  routine: 'parserOpenTable'
+}
+❌ Stack trace: error: relation "menus" does not exist
+    at /home/runner/workspace/node_modules/pg-pool/index.js:45:11
+    at process.processTicksAndRejections (node:internal/process/task_queues:95:5)
+    at async <anonymous> (/home/runner/workspace/node_modules/src/node-postgres/session.ts:104:19)
+    at async DatabaseStorage.getMenuByLocation (/home/runner/workspace/server/storage.ts:1073:22)
+    at async <anonymous> (/home/runner/workspace/server/routes.ts:4575:20)
+8:11:39 AM [express] GET /api/menus/location/footer 404 in 1944ms :: {"message":"Menu not found for this location"}
+🔥 API ROUTE DEBUG: GET /api/hotels
+🔥 Query params: {}
+🏨 Listing hotels with active filter: undefined
+🔥 API ROUTE DEBUG: GET /api/admin/settings
+🔥 Query params: {}
+⚠️ Using temporary admin access - session not found
+8:11:51 AM [express] GET /api/admin/settings 200 in 2ms :: {"general":{"siteName":"Sahara Journeys","siteDescription":"Premium Middle Eastern travel experiences","defau…
+🔥 API ROUTE DEBUG: GET /api/admin/hotels
+🔥 Query params: {}
+🏨 Listing hotels with active filter: undefined
+❌ Error listing hotels: error: column "short_description" does not exist
+    at /home/runner/workspace/node_modules/pg-pool/index.js:45:11
+    at process.processTicksAndRejections (node:internal/process/task_queues:95:5)
+    at async <anonymous> (/home/runner/workspace/node_modules/src/node-postgres/session.ts:104:19)
+    at async DatabaseStorage.listHotels (/home/runner/workspace/server/storage.ts:609:22)
+    at async <anonymous> (/home/runner/workspace/server/routes.ts:1064:22) {
+  length: 117,
+  severity: 'ERROR',
+  code: '42703',
+  detail: undefined,
+  hint: undefined,
+  position: '37',
+  internalPosition: undefined,
+  internalQuery: undefined,
+  where: undefined,
+  schema: undefined,
+  table: undefined,
+  column: undefined,
+  dataType: undefined,
+  constraint: undefined,
+  file: 'parse_relation.c',
+  line: '3722',
+  routine: 'errorMissingColumn'
+}
+8:11:52 AM [express] GET /api/hotels 200 in 788ms :: []
+🔥 API ROUTE DEBUG: GET /api/tours
+🔥 Query params: {}
+🔥 API ROUTE DEBUG: GET /api/admin/rooms
+🔥 Query params: {}
+🔍 Admin check - Session user: undefined
+🔍 Admin check - Request path: /api/admin/rooms
+⚠️ No session user found, using temporary admin access for development
+🔑 Temporary admin panel access granted
+Admin rooms endpoint called
+🔍 Listing rooms with hotelId: undefined
+🔥 API ROUTE DEBUG: GET /api/destinations
+🔥 Query params: {}
+❌ Error listing hotels: error: column "short_description" does not exist
+    at /home/runner/workspace/node_modules/pg-pool/index.js:45:11
+    at process.processTicksAndRejections (node:internal/process/task_queues:95:5)
+    at async <anonymous> (/home/runner/workspace/node_modules/src/node-postgres/session.ts:104:19)
+    at async DatabaseStorage.listHotels (/home/runner/workspace/server/storage.ts:609:22)
+    at async <anonymous> (/home/runner/workspace/server/routes.ts:3355:22) {
+  length: 117,
+  severity: 'ERROR',
+  code: '42703',
+  detail: undefined,
+  hint: undefined,
+  position: '37',
+  internalPosition: undefined,
+  internalQuery: undefined,
+  where: undefined,
+  schema: undefined,
+  table: undefined,
+  column: undefined,
+  dataType: undefined,
+  constraint: undefined,
+  file: 'parse_relation.c',
+  line: '3722',
+  routine: 'errorMissingColumn'
+}
+8:11:53 AM [express] GET /api/admin/hotels 200 in 1678ms :: []
+Error listing tours: error: column "created_by" does not exist
+    at /home/runner/workspace/node_modules/pg-pool/index.js:45:11
+    at process.processTicksAndRejections (node:internal/process/task_queues:95:5)
+    at async <anonymous> (/home/runner/workspace/node_modules/src/node-postgres/session.ts:104:19)
+    at async DatabaseStorage.listTours (/home/runner/workspace/server/storage.ts:906:14)
+    at async <anonymous> (/home/runner/workspace/server/routes.ts:1006:21) {
+  length: 174,
+  severity: 'ERROR',
+  code: '42703',
+  detail: undefined,
+  hint: 'Perhaps you meant to reference the column "tours.created_at".',
+  position: '164',
+  internalPosition: undefined,
+  internalQuery: undefined,
+  where: undefined,
+  schema: undefined,
+  table: undefined,
+  column: undefined,
+  dataType: undefined,
+  constraint: undefined,
+  file: 'parse_relation.c',
+  line: '3729',
+  routine: 'errorMissingColumn'
+}
+8:11:53 AM [express] GET /api/tours 200 in 1618ms :: []
+❌ Error listing rooms: error: relation "rooms" does not exist
+    at /home/runner/workspace/node_modules/pg/lib/client.js:545:17
+    at process.processTicksAndRejections (node:internal/process/task_queues:95:5)
+    at async DatabaseStorage.listRooms (/home/runner/workspace/server/storage.ts:1476:22)
+    at async <anonymous> (/home/runner/workspace/server/routes.ts:3726:21) {
+  length: 104,
+  severity: 'ERROR',
+  code: '42P01',
+  detail: undefined,
+  hint: undefined,
+  position: '15',
+  internalPosition: undefined,
+  internalQuery: undefined,
+  where: undefined,
+  schema: undefined,
+  table: undefined,
+  column: undefined,
+  dataType: undefined,
+  constraint: undefined,
+  file: 'parse_relation.c',
+  line: '1449',
+  routine: 'parserOpenTable'
+}
