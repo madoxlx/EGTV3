@@ -1069,15 +1069,17 @@ export class DatabaseStorage implements IStorage {
 
   async getMenuByLocation(location: string): Promise<Menu | undefined> {
     try {
-      console.log("DEBUG: Looking for menu with location:", location);
-      const [menu] = await db
+      console.log("🔥 STORAGE: getMenuByLocation called with location:", location);
+      const result = await db
         .select()
         .from(menus)
         .where(eq(menus.location, location));
-      console.log("DEBUG: Found menu:", menu);
-      return menu || undefined;
+      console.log("🔥 STORAGE: getMenuByLocation query returned:", result.length, "results");
+      console.log("🔥 STORAGE: Found menu:", result[0] ? JSON.stringify(result[0]) : "None");
+      return result[0] || undefined;
     } catch (error) {
-      console.error("Error getting menu by location:", error);
+      console.error("❌ STORAGE ERROR getting menu by location:", error);
+      console.error("❌ Stack trace:", error.stack);
       return undefined;
     }
   }
@@ -1097,26 +1099,31 @@ export class DatabaseStorage implements IStorage {
 
   async listMenus(active?: boolean): Promise<Menu[]> {
     try {
-      console.log("🔍 Storage.listMenus called with active filter:", active);
+      console.log("🔥 STORAGE: listMenus called with active filter:", active);
       
+      let result;
       if (active !== undefined) {
-        const result = await db
+        console.log("🔥 STORAGE: Querying with active filter =", active);
+        result = await db
           .select()
           .from(menus)
           .where(eq(menus.active, active))
           .orderBy(asc(menus.name));
-        console.log("📊 Storage.listMenus with filter returned:", result.length, "menus");
-        return result;
+        console.log("🔥 STORAGE: Query with filter returned:", result.length, "menus");
+      } else {
+        console.log("🔥 STORAGE: Querying all menus without filter");
+        result = await db
+          .select()
+          .from(menus)
+          .orderBy(asc(menus.name));
+        console.log("🔥 STORAGE: Query without filter returned:", result.length, "menus");
       }
       
-      const result = await db
-        .select()
-        .from(menus)
-        .orderBy(asc(menus.name));
-      console.log("📊 Storage.listMenus without filter returned:", result.length, "menus");
+      console.log("🔥 STORAGE: First menu item:", result[0] ? JSON.stringify(result[0]) : "None");
       return result;
     } catch (error) {
-      console.error("❌ Error listing menus:", error);
+      console.error("❌ STORAGE ERROR listing menus:", error);
+      console.error("❌ Stack trace:", error.stack);
       return [];
     }
   }

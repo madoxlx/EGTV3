@@ -5146,10 +5146,15 @@ export async function registerRoutes(app: Express): Promise<Server> {
   // Get all menus (public API)
   app.get('/api/menus', async (req, res) => {
     try {
+      console.log('🔥 MENU API CALLED - Request received at /api/menus');
       const active = req.query.active === 'true' ? true : 
                     req.query.active === 'false' ? false : undefined;
+      console.log('🔥 Active filter:', active);
+      
       const menus = await storage.listMenus(active);
-      console.log('🔍 API /api/menus returning', menus.length, 'menus');
+      console.log('🔥 Storage returned:', menus.length, 'menus');
+      console.log('🔥 Menu data:', JSON.stringify(menus, null, 2));
+      
       res.json(menus);
     } catch (error) {
       console.error('❌ Error fetching menus:', error);

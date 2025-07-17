@@ -239,6 +239,13 @@ app.use((req, res, next) => {
       }
     });
 
+    // Add comprehensive API debugging middleware BEFORE route registration
+    app.use("/api/*", (req, res, next) => {
+      console.log(`🔥 API ROUTE DEBUG: ${req.method} ${req.originalUrl}`);
+      console.log(`🔥 Query params:`, req.query);
+      next();
+    });
+
     // Register API routes BEFORE frontend setup
     let server: any;
     try {
@@ -276,11 +283,7 @@ app.use((req, res, next) => {
       }
     })();
 
-    // Add API route debugging middleware BEFORE error handler
-    app.use("/api/*", (req, res, next) => {
-      console.log(`📍 API Route Hit: ${req.method} ${req.path}`);
-      next();
-    });
+
 
     app.use((err: any, _req: Request, res: Response, _next: NextFunction) => {
       const status = err.status || err.statusCode || 500;
