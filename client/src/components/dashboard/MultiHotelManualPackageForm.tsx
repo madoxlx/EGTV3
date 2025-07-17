@@ -130,14 +130,20 @@ const manualPackageFormSchema = z.object({
   childrenPolicy: z.string().optional(),
   termsAndConditions: z.string().optional(),
   customText: z.string().optional(),
-  itinerary: z.array(z.object({
-    day: z.number(),
-    title: z.string().min(1, { message: "Day title is required" }),
-    description: z.string().min(1, { message: "Day description is required" }),
-    activities: z.array(z.string()).optional(),
-    meals: z.array(z.string()).optional(),
-    accommodation: z.string().optional(),
-  })).optional(),
+  itinerary: z
+    .array(
+      z.object({
+        day: z.number(),
+        title: z.string().min(1, { message: "Day title is required" }),
+        description: z
+          .string()
+          .min(1, { message: "Day description is required" }),
+        activities: z.array(z.string()).optional(),
+        meals: z.array(z.string()).optional(),
+        accommodation: z.string().optional(),
+      }),
+    )
+    .optional(),
 });
 
 type ManualPackageFormValues = z.infer<typeof manualPackageFormSchema>;
@@ -241,14 +247,16 @@ export function MultiHotelManualPackageForm({
   });
 
   // Itinerary state
-  const [itinerary, setItinerary] = useState<Array<{
-    day: number;
-    title: string;
-    description: string;
-    activities: string[];
-    meals: string[];
-    accommodation: string;
-  }>>([]);
+  const [itinerary, setItinerary] = useState<
+    Array<{
+      day: number;
+      title: string;
+      description: string;
+      activities: string[];
+      meals: string[];
+      accommodation: string;
+    }>
+  >([]);
   const [newActivity, setNewActivity] = useState("");
   const [newMeal, setNewMeal] = useState("");
 
@@ -279,7 +287,7 @@ export function MultiHotelManualPackageForm({
     const renumberedItinerary = updatedItinerary.map((day, i) => ({
       ...day,
       day: i + 1,
-      title: day.title.replace(/Day \d+/, `Day ${i + 1}`)
+      title: day.title.replace(/Day \d+/, `Day ${i + 1}`),
     }));
     setItinerary(renumberedItinerary);
     form.setValue("itinerary", renumberedItinerary);
@@ -762,7 +770,7 @@ export function MultiHotelManualPackageForm({
 
       // Initialize images array for edit mode
       const imageArray = [];
-      
+
       // Add main image first if it exists
       if (packageData?.imageUrl) {
         imageArray.push({
@@ -772,7 +780,7 @@ export function MultiHotelManualPackageForm({
           isMain: true,
         });
       }
-      
+
       // Add gallery images
       const galleryUrls = parseJSONField(packageData?.galleryUrls, []);
       if (galleryUrls.length > 0) {
@@ -784,7 +792,7 @@ export function MultiHotelManualPackageForm({
         }));
         imageArray.push(...galleryImages);
       }
-      
+
       // Set all images at once
       if (imageArray.length > 0) {
         setImages(imageArray);
@@ -956,21 +964,16 @@ export function MultiHotelManualPackageForm({
   // Create manual package mutation
   const createManualPackageMutation = useMutation({
     mutationFn: async (formData: ManualPackageFormValues) => {
-      // Get the main image URL (or a default if none is set)
+      // Get the main image
       const mainImage = images.find((img) => img.isMain);
-      let mainImageUrl = mainImage
-        ? mainImage.preview
-        : "https://images.unsplash.com/photo-1540541338287-41700207dee6?q=80&w=800";
-
-      // If the main image is a blob URL, use a placeholder instead
-      if (mainImageUrl && mainImageUrl.startsWith('blob:')) {
-        mainImageUrl = "https://images.unsplash.com/photo-1540541338287-41700207dee6?q=80&w=800";
+      if (!mainImage || !mainImage.file) {
+        throw new Error("A main image must be uploaded");
       }
 
-      // Get all gallery image URLs, filtering out blob URLs
+      // Get gallery images, excluding the main image
       const galleryUrls = images
-        .map((img) => img.preview)
-        .filter((url) => !url.startsWith('blob:'));
+        .filter((img) => !img.isMain && img.file && !img.preview.startsWith('blob:'))
+        .map((img) => img.preview);
 
       // Prepare tour data with custom prices for storage
       const tourPriceData = selectedToursWithPrices.map((tour) => ({
@@ -982,13 +985,12 @@ export function MultiHotelManualPackageForm({
 
       // Transform the form data to match the API schema
       const packageData = {
-        title: "MANUAL:" + formData.title, // Prefix with MANUAL: to identify manual packages
-        description: formData.description, // Keep description clean without auto-generated content
+        title: "MANUAL:" + formData.title,
+        description: formData.description,
         price: formData.price,
-        discountedPrice:
-          formData.discountedPrice || Math.round(formData.price * 0.9), // Use provided discounted price or 10% off
-        imageUrl: mainImageUrl,
-        galleryUrls: galleryUrls,
+        discountedPrice: formData.discountedPrice || null,
+        imageUrl: mainImage.preview, // Use uploaded main image
+        galleryUrls: galleryUrls, // Use uploaded gallery images
         duration: formData.duration,
         rating: 45, // Default 4.5 stars (stored as 45 in DB)
         destinationId: formData.destinationId,
@@ -1005,13 +1007,13 @@ export function MultiHotelManualPackageForm({
         cityId: formData.cityId,
         categoryId: formData.categoryId,
         selectedTourIds: formData.selectedTourIds || [],
-        selectedHotels: formData.hotels, // Store hotels in proper field
-        rooms: formData.hotels.flatMap((hotel) => hotel.rooms), // Store all rooms
-        transportationDetails: formData.transportationDetails, // Store in proper field
-        tourPriceData: tourPriceData, // Custom tour prices
+        selectedHotels: formData.hotels,
+        rooms: formData.hotels.flatMap((hotel) => hotel.rooms),
+        transportationDetails: formData.transportationDetails,
+        tourPriceData: tourPriceData,
         type: formData.type,
         customText: formData.customText,
-        itinerary: itinerary, // Include itinerary data
+        itinerary: itinerary,
       };
 
       const response = await fetch("/api/admin/packages", {
@@ -1029,15 +1031,11 @@ export function MultiHotelManualPackageForm({
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["/api/packages"] });
-
-      // Show success message
       toast({
         title: "Manual Package Created",
         description: "The manual package was created successfully",
         variant: "default",
       });
-
-      // Reset form and state
       form.reset();
       setImages([]);
       setNewInclusion("");
@@ -1056,83 +1054,115 @@ export function MultiHotelManualPackageForm({
     mutationFn: async (formData: ManualPackageFormValues) => {
       if (!packageId) throw new Error("Package ID is required for update");
 
-      // Determine if user has added new images 
+      // Determine if user has added new images
       // Check if there are images that are not from the existing package
-      const hasNewImages = images.length > 0 && images.some(img => 
-        img.file !== null || 
-        (!img.id.startsWith('main-existing') && !img.id.startsWith('gallery-'))
-      );
-      
+      const hasNewImages =
+        images.length > 0 &&
+        images.some(
+          (img) =>
+            img.file !== null ||
+            (!img.id.startsWith("main-existing") &&
+              !img.id.startsWith("gallery-")),
+        );
+
       // Also check if there are any blob URLs which means user uploaded something
-      const hasBlobImages = images.some(img => img.preview.startsWith('blob:'));
+      const hasBlobImages = images.some((img) =>
+        img.preview.startsWith("blob:"),
+      );
       const shouldUpdateImages = hasNewImages || hasBlobImages;
-      
+
       console.log("Has new images?", hasNewImages);
       console.log("Has blob images?", hasBlobImages);
       console.log("Should update images?", shouldUpdateImages);
       console.log("Current images:", images);
-      
+
       let mainImageUrl;
       let galleryUrls;
-      
+
       if (shouldUpdateImages) {
         // User has added new images - use them but convert blob URLs to valid ones
         const mainImage = images.find((img) => img.isMain);
-        
+
         // For main image: if it's blob, convert to a valid image, otherwise use it
         if (mainImage) {
-          if (mainImage.preview.startsWith('blob:')) {
+          if (mainImage.preview.startsWith("blob:")) {
             // Use a nice Egypt-themed placeholder
-            mainImageUrl = "https://images.unsplash.com/photo-1575197026508-896c9b15ce43?q=80&w=1200";
+            mainImageUrl =
+              "https://images.unsplash.com/photo-1575197026508-896c9b15ce43?q=80&w=1200";
           } else {
             mainImageUrl = mainImage.preview;
           }
         } else {
-          mainImageUrl = "https://images.unsplash.com/photo-1575197026508-896c9b15ce43?q=80&w=1200";
+          mainImageUrl =
+            "https://images.unsplash.com/photo-1575197026508-896c9b15ce43?q=80&w=1200";
         }
-        
+
         // For gallery images: use ALL images except main and convert blob URLs to valid ones
         galleryUrls = images
-          .filter(img => !img.isMain)
+          .filter((img) => !img.isMain)
           .map((img, index) => {
-            if (img.preview.startsWith('blob:')) {
+            if (img.preview.startsWith("blob:")) {
               // Generate different Egypt-themed images for gallery
               const egyptImages = [
                 "https://images.unsplash.com/photo-1590736969955-71cc94901144?q=80&w=800",
-                "https://images.unsplash.com/photo-1603481638929-0de14ac04e47?q=80&w=800", 
+                "https://images.unsplash.com/photo-1603481638929-0de14ac04e47?q=80&w=800",
                 "https://images.unsplash.com/photo-1539650116574-75c0c6d73d0e?q=80&w=800",
                 "https://images.unsplash.com/photo-1524231757912-21f4fe3a7200?q=80&w=800",
-                "https://images.unsplash.com/photo-1510076857177-7470076d4098?q=80&w=800"
+                "https://images.unsplash.com/photo-1510076857177-7470076d4098?q=80&w=800",
               ];
               return egyptImages[index % egyptImages.length];
             }
             return img.preview;
           });
-          
+
         // If there were blob images but gallery is empty, add some default gallery images
         if (hasBlobImages && galleryUrls.length === 0) {
           galleryUrls = [
             "https://images.unsplash.com/photo-1590736969955-71cc94901144?q=80&w=800",
-            "https://images.unsplash.com/photo-1603481638929-0de14ac04e47?q=80&w=800", 
-            "https://images.unsplash.com/photo-1539650116574-75c0c6d73d0e?q=80&w=800"
+            "https://images.unsplash.com/photo-1603481638929-0de14ac04e47?q=80&w=800",
+            "https://images.unsplash.com/photo-1539650116574-75c0c6d73d0e?q=80&w=800",
           ];
         }
-          
-        console.log("Using new images - Main:", mainImageUrl, "Gallery:", galleryUrls);
+
+        console.log(
+          "Using new images - Main:",
+          mainImageUrl,
+          "Gallery:",
+          galleryUrls,
+        );
         console.log("Total images count:", images.length);
-        console.log("Non-main images count:", images.filter(img => !img.isMain).length);
-        console.log("Images details:", images.map(img => ({id: img.id, isMain: img.isMain, preview: img.preview.substring(0, 50)})));
+        console.log(
+          "Non-main images count:",
+          images.filter((img) => !img.isMain).length,
+        );
+        console.log(
+          "Images details:",
+          images.map((img) => ({
+            id: img.id,
+            isMain: img.isMain,
+            preview: img.preview.substring(0, 50),
+          })),
+        );
       } else {
         // No new images - keep existing ones
-        mainImageUrl = packageData?.imageUrl || "https://images.unsplash.com/photo-1540541338287-41700207dee6?q=80&w=800";
-        
-        const existingGalleryUrls = packageData?.galleryUrls ? 
-          (Array.isArray(packageData.galleryUrls) ? packageData.galleryUrls : 
-           JSON.parse(packageData.galleryUrls as string || '[]'))
-          .filter((url: string) => !url.startsWith('blob:')) : [];
+        mainImageUrl =
+          packageData?.imageUrl ||
+          "https://images.unsplash.com/photo-1540541338287-41700207dee6?q=80&w=800";
+
+        const existingGalleryUrls = packageData?.galleryUrls
+          ? (Array.isArray(packageData.galleryUrls)
+              ? packageData.galleryUrls
+              : JSON.parse((packageData.galleryUrls as string) || "[]")
+            ).filter((url: string) => !url.startsWith("blob:"))
+          : [];
         galleryUrls = existingGalleryUrls;
-        
-        console.log("Using existing images - Main:", mainImageUrl, "Gallery:", galleryUrls);
+
+        console.log(
+          "Using existing images - Main:",
+          mainImageUrl,
+          "Gallery:",
+          galleryUrls,
+        );
       }
 
       // Prepare tour data with custom prices for storage
@@ -1192,7 +1222,7 @@ export function MultiHotelManualPackageForm({
       queryClient.invalidateQueries({
         queryKey: ["/api/admin/packages", packageId],
       });
-      
+
       // Force refresh of the specific package cache
       queryClient.removeQueries({ queryKey: ["/api/packages"] });
       queryClient.refetchQueries({ queryKey: ["/api/packages"] });
@@ -1205,11 +1235,11 @@ export function MultiHotelManualPackageForm({
 
       // Force reload of all images in browser cache
       setTimeout(() => {
-        const allImages = document.querySelectorAll('img');
-        allImages.forEach(img => {
+        const allImages = document.querySelectorAll("img");
+        allImages.forEach((img) => {
           const src = img.src;
-          img.src = '';
-          img.src = src + (src.includes('?') ? '&' : '?') + 'v=' + Date.now();
+          img.src = "";
+          img.src = src + (src.includes("?") ? "&" : "?") + "v=" + Date.now();
         });
       }, 500);
 
@@ -1236,7 +1266,36 @@ export function MultiHotelManualPackageForm({
       return;
     }
 
-    // Validation
+    // Validation for images
+    if (
+      images.length === 0 ||
+      images.every(
+        (img) => img.file === null && img.preview.startsWith("https://"),
+      )
+    ) {
+      toast({
+        title: "No Images Uploaded",
+        description: "Please upload at least one image for the package",
+        variant: "destructive",
+      });
+      return;
+    }
+
+    // Validate that at least one image is not a Blob URL (to ensure it's a valid upload)
+    const hasValidImage = images.some(
+      (img) => img.file !== null || !img.preview.startsWith("blob:"),
+    );
+    if (!hasValidImage) {
+      toast({
+        title: "Invalid Images",
+        description:
+          "All uploaded images must be valid. Please re-upload your images.",
+        variant: "destructive",
+      });
+      return;
+    }
+
+    // Other validations
     const requiredFieldsValid = validateRequiredFields(
       data,
       [
@@ -1285,14 +1344,12 @@ export function MultiHotelManualPackageForm({
     if (!customValidationsValid) return;
 
     // All validations passed, proceed with submission
-    // Call appropriate mutation based on mode
     if (isEditMode) {
       updateManualPackageMutation.mutate(data);
     } else {
       createManualPackageMutation.mutate(data);
     }
   };
-
   // Hotel dialog handlers
   const openAddHotelDialog = () => {
     setEditingHotelIndex(null);
@@ -2772,7 +2829,9 @@ export function MultiHotelManualPackageForm({
               {itinerary.length === 0 ? (
                 <div className="text-center p-8 border border-dashed rounded-lg">
                   <Calendar className="h-12 w-12 mx-auto text-gray-400 mb-4" />
-                  <p className="text-gray-500 mb-4">No itinerary days added yet</p>
+                  <p className="text-gray-500 mb-4">
+                    No itinerary days added yet
+                  </p>
                   <Button
                     type="button"
                     onClick={addItineraryDay}
@@ -2785,7 +2844,10 @@ export function MultiHotelManualPackageForm({
               ) : (
                 <div className="space-y-6">
                   {itinerary.map((day, index) => (
-                    <div key={index} className="border rounded-lg p-4 space-y-4">
+                    <div
+                      key={index}
+                      className="border rounded-lg p-4 space-y-4"
+                    >
                       <div className="flex items-center justify-between">
                         <h4 className="text-lg font-semibold text-blue-700">
                           Day {day.day}
@@ -2808,7 +2870,9 @@ export function MultiHotelManualPackageForm({
                           </label>
                           <Input
                             value={day.title}
-                            onChange={(e) => updateItineraryDay(index, 'title', e.target.value)}
+                            onChange={(e) =>
+                              updateItineraryDay(index, "title", e.target.value)
+                            }
                             placeholder="e.g., Arrival in Cairo"
                           />
                         </div>
@@ -2819,7 +2883,13 @@ export function MultiHotelManualPackageForm({
                           </label>
                           <Input
                             value={day.accommodation}
-                            onChange={(e) => updateItineraryDay(index, 'accommodation', e.target.value)}
+                            onChange={(e) =>
+                              updateItineraryDay(
+                                index,
+                                "accommodation",
+                                e.target.value,
+                              )
+                            }
                             placeholder="e.g., Cairo Marriott Hotel"
                           />
                         </div>
@@ -2827,11 +2897,18 @@ export function MultiHotelManualPackageForm({
 
                       <div className="space-y-2">
                         <label className="text-sm font-medium">
-                          Day Description <span className="text-red-500">*</span>
+                          Day Description{" "}
+                          <span className="text-red-500">*</span>
                         </label>
                         <Textarea
                           value={day.description}
-                          onChange={(e) => updateItineraryDay(index, 'description', e.target.value)}
+                          onChange={(e) =>
+                            updateItineraryDay(
+                              index,
+                              "description",
+                              e.target.value,
+                            )
+                          }
                           placeholder="Describe the day's activities..."
                           rows={3}
                         />
@@ -2840,7 +2917,9 @@ export function MultiHotelManualPackageForm({
                       <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                         {/* Activities */}
                         <div className="space-y-2">
-                          <label className="text-sm font-medium">Activities</label>
+                          <label className="text-sm font-medium">
+                            Activities
+                          </label>
                           <div className="flex gap-2">
                             <Input
                               value={newActivity}
@@ -2877,7 +2956,9 @@ export function MultiHotelManualPackageForm({
                                   {activity}
                                   <X
                                     className="h-3 w-3 cursor-pointer"
-                                    onClick={() => removeActivityFromDay(index, actIndex)}
+                                    onClick={() =>
+                                      removeActivityFromDay(index, actIndex)
+                                    }
                                   />
                                 </Badge>
                               ))}
@@ -2924,7 +3005,9 @@ export function MultiHotelManualPackageForm({
                                   {meal}
                                   <X
                                     className="h-3 w-3 cursor-pointer"
-                                    onClick={() => removeMealFromDay(index, mealIndex)}
+                                    onClick={() =>
+                                      removeMealFromDay(index, mealIndex)
+                                    }
                                   />
                                 </Badge>
                               ))}
