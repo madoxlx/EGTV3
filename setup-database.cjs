@@ -712,58 +712,141 @@ async function createSampleData() {
   console.log('📊 Creating sample data...');
   
   try {
-    // Create admin user
-    await db.execute(sql`
-      INSERT INTO users (username, email, password, full_name, role, bio)
-      VALUES ('admin', 'admin@saharajourneys.com', 'admin123.salt', 'System Administrator', 'admin', 'System administrator for Sahara Journeys')
-      ON CONFLICT (username) DO NOTHING
-    `);
+    // Check if admin user exists, if not create one
+    const existingAdmin = await db.execute(sql`SELECT id FROM users WHERE username = 'admin'`);
+    if (existingAdmin.rows.length === 0) {
+      await db.execute(sql`
+        INSERT INTO users (username, email, password, full_name, role, bio)
+        VALUES ('admin', 'admin@saharajourneys.com', 'admin123.salt', 'System Administrator', 'admin', 'System administrator for Sahara Journeys')
+      `);
+    }
     
-    // Create sample countries
-    await db.execute(sql`
-      INSERT INTO countries (name, code, description, image_url, active) VALUES
-      ('Egypt', 'EG', 'Land of the Pharaohs', 'https://images.unsplash.com/photo-1539650116574-75c0c6d2db36?w=500', true),
-      ('Morocco', 'MA', 'Kingdom of Morocco', 'https://images.unsplash.com/photo-1489749798305-4fea3ae436d6?w=500', true),
-      ('Jordan', 'JO', 'Hashemite Kingdom of Jordan', 'https://images.unsplash.com/photo-1578662996442-48f60103fc96?w=500', true),
-      ('UAE', 'AE', 'United Arab Emirates', 'https://images.unsplash.com/photo-1512453979798-5ea266f8880c?w=500', true)
-      ON CONFLICT (code) DO NOTHING
-    `);
+    // Create sample countries (check if they exist first)
+    const countries = [
+      { name: 'Egypt', code: 'EG', description: 'Land of the Pharaohs', image_url: 'https://images.unsplash.com/photo-1539650116574-75c0c6d2db36?w=500' },
+      { name: 'Morocco', code: 'MA', description: 'Kingdom of Morocco', image_url: 'https://images.unsplash.com/photo-1489749798305-4fea3ae436d6?w=500' },
+      { name: 'Jordan', code: 'JO', description: 'Hashemite Kingdom of Jordan', image_url: 'https://images.unsplash.com/photo-1578662996442-48f60103fc96?w=500' },
+      { name: 'UAE', code: 'AE', description: 'United Arab Emirates', image_url: 'https://images.unsplash.com/photo-1512453979798-5ea266f8880c?w=500' }
+    ];
+    
+    for (const country of countries) {
+      const existing = await db.execute(sql`SELECT id FROM countries WHERE code = ${country.code}`);
+      if (existing.rows.length === 0) {
+        await db.execute(sql`
+          INSERT INTO countries (name, code, description, image_url, active) 
+          VALUES (${country.name}, ${country.code}, ${country.description}, ${country.image_url}, true)
+        `);
+      }
+    }
     
     // Create sample cities
-    await db.execute(sql`
-      INSERT INTO cities (name, country_id, description, image_url, active) VALUES
-      ('Cairo', 1, 'Capital of Egypt', 'https://images.unsplash.com/photo-1539650116574-75c0c6d2db36?w=500', true),
-      ('Luxor', 1, 'Ancient city of Thebes', 'https://images.unsplash.com/photo-1569154941061-e231b4725ef1?w=500', true),
-      ('Marrakech', 2, 'Red City of Morocco', 'https://images.unsplash.com/photo-1489749798305-4fea3ae436d6?w=500', true),
-      ('Amman', 3, 'Capital of Jordan', 'https://images.unsplash.com/photo-1578662996442-48f60103fc96?w=500', true),
-      ('Dubai', 4, 'Modern metropolis', 'https://images.unsplash.com/photo-1512453979798-5ea266f8880c?w=500', true)
-      ON CONFLICT DO NOTHING
-    `);
+    const cities = [
+      { name: 'Cairo', country_id: 1, description: 'Capital of Egypt', image_url: 'https://images.unsplash.com/photo-1539650116574-75c0c6d2db36?w=500' },
+      { name: 'Luxor', country_id: 1, description: 'Ancient city of Thebes', image_url: 'https://images.unsplash.com/photo-1569154941061-e231b4725ef1?w=500' },
+      { name: 'Marrakech', country_id: 2, description: 'Red City of Morocco', image_url: 'https://images.unsplash.com/photo-1489749798305-4fea3ae436d6?w=500' },
+      { name: 'Amman', country_id: 3, description: 'Capital of Jordan', image_url: 'https://images.unsplash.com/photo-1578662996442-48f60103fc96?w=500' },
+      { name: 'Dubai', country_id: 4, description: 'Modern metropolis', image_url: 'https://images.unsplash.com/photo-1512453979798-5ea266f8880c?w=500' }
+    ];
     
-    // Create sample destinations
-    await db.execute(sql`
-      INSERT INTO destinations (name, country, country_id, city_id, description, image_url, featured) VALUES
-      ('Great Pyramids of Giza', 'Egypt', 1, 1, 'Ancient wonder of the world', 'https://images.unsplash.com/photo-1539650116574-75c0c6d2db36?w=500', true),
-      ('Valley of the Kings', 'Egypt', 1, 2, 'Ancient pharaoh tombs', 'https://images.unsplash.com/photo-1569154941061-e231b4725ef1?w=500', true),
-      ('Jemaa el-Fnaa', 'Morocco', 2, 3, 'Famous square in Marrakech', 'https://images.unsplash.com/photo-1489749798305-4fea3ae436d6?w=500', true),
-      ('Burj Khalifa', 'UAE', 4, 5, 'World\'s tallest building', 'https://images.unsplash.com/photo-1512453979798-5ea266f8880c?w=500', true)
-      ON CONFLICT DO NOTHING
-    `);
+    for (const city of cities) {
+      const existing = await db.execute(sql`SELECT id FROM cities WHERE name = ${city.name} AND country_id = ${city.country_id}`);
+      if (existing.rows.length === 0) {
+        await db.execute(sql`
+          INSERT INTO cities (name, country_id, description, image_url, active) 
+          VALUES (${city.name}, ${city.country_id}, ${city.description}, ${city.image_url}, true)
+        `);
+      }
+    }
     
-    // Create sample hero slides
-    await db.execute(sql`
-      INSERT INTO hero_slides (title, subtitle, description, image_url, button_text, button_link, "order", active) VALUES
-      ('Discover the Magic of the Middle East', 'Unforgettable Adventures Await', 'Experience the rich culture, stunning landscapes, and ancient wonders of the Middle East with our expertly crafted tour packages.', 'https://images.unsplash.com/photo-1539650116574-75c0c6d2db36?w=1200', 'Explore Packages', '/packages', 1, true),
-      ('Ancient Wonders, Modern Comfort', 'Luxury Travel Experiences', 'Journey through time while enjoying world-class accommodations and personalized service throughout your adventure.', 'https://images.unsplash.com/photo-1489749798305-4fea3ae436d6?w=1200', 'View Tours', '/tours', 2, true)
-      ON CONFLICT DO NOTHING
-    `);
+    // Create essential categories
+    const packageCategories = [
+      { name: 'Adventure', description: 'Adventure travel packages' },
+      { name: 'Cultural', description: 'Cultural experiences and heritage tours' },
+      { name: 'Luxury', description: 'Premium luxury travel experiences' },
+      { name: 'Family', description: 'Family-friendly travel packages' },
+      { name: 'Business', description: 'Business travel and corporate packages' }
+    ];
     
-    // Create sample homepage section
-    await db.execute(sql`
-      INSERT INTO homepage_sections (title, subtitle, description, image_url, button_text, button_link, tourists_count, destinations_count, hotels_count, "order", active) VALUES
-      ('Why Choose Sahara Journeys?', 'Your Gateway to Middle Eastern Adventures', 'We specialize in creating unforgettable travel experiences across the Middle East, combining ancient wonders with modern comfort and exceptional service.', 'https://images.unsplash.com/photo-1578662996442-48f60103fc96?w=800', 'Learn More', '/about', '5000+', '300+', '150+', 1, true)
-      ON CONFLICT DO NOTHING
-    `);
+    for (const category of packageCategories) {
+      const existing = await db.execute(sql`SELECT id FROM package_categories WHERE name = ${category.name}`);
+      if (existing.rows.length === 0) {
+        await db.execute(sql`
+          INSERT INTO package_categories (name, description, active) 
+          VALUES (${category.name}, ${category.description}, true)
+        `);
+      }
+    }
+    
+    const tourCategories = [
+      { name: 'Cultural', description: 'Cultural tours and experiences' },
+      { name: 'Adventure', description: 'Adventure and outdoor activities' },
+      { name: 'Historical', description: 'Historical sites and monuments' },
+      { name: 'Religious', description: 'Religious and spiritual tours' },
+      { name: 'Nature', description: 'Nature and wildlife experiences' }
+    ];
+    
+    for (const category of tourCategories) {
+      const existing = await db.execute(sql`SELECT id FROM tour_categories WHERE name = ${category.name}`);
+      if (existing.rows.length === 0) {
+        await db.execute(sql`
+          INSERT INTO tour_categories (name, description, active) 
+          VALUES (${category.name}, ${category.description}, true)
+        `);
+      }
+    }
+    
+    const hotelCategories = [
+      { name: 'Luxury', description: 'Luxury hotels and resorts' },
+      { name: 'Business', description: 'Business hotels and conference facilities' },
+      { name: 'Budget', description: 'Budget-friendly accommodations' },
+      { name: 'Boutique', description: 'Boutique and unique hotels' },
+      { name: 'Resort', description: 'Resort and leisure properties' }
+    ];
+    
+    for (const category of hotelCategories) {
+      const existing = await db.execute(sql`SELECT id FROM hotel_categories WHERE name = ${category.name}`);
+      if (existing.rows.length === 0) {
+        await db.execute(sql`
+          INSERT INTO hotel_categories (name, description, active) 
+          VALUES (${category.name}, ${category.description}, true)
+        `);
+      }
+    }
+    
+    // Create essential translations
+    const translations = [
+      { key: 'welcome', en_text: 'Welcome to Sahara Journeys', ar_text: 'مرحباً بكم في رحلات الصحراء', category: 'common' },
+      { key: 'home', en_text: 'Home', ar_text: 'الرئيسية', category: 'navigation' },
+      { key: 'packages', en_text: 'Packages', ar_text: 'الباقات', category: 'navigation' },
+      { key: 'tours', en_text: 'Tours', ar_text: 'الجولات', category: 'navigation' },
+      { key: 'hotels', en_text: 'Hotels', ar_text: 'الفنادق', category: 'navigation' },
+      { key: 'destinations', en_text: 'Destinations', ar_text: 'الوجهات', category: 'navigation' },
+      { key: 'contact', en_text: 'Contact', ar_text: 'اتصل بنا', category: 'navigation' },
+      { key: 'about', en_text: 'About', ar_text: 'حول', category: 'navigation' },
+      { key: 'book_now', en_text: 'Book Now', ar_text: 'احجز الآن', category: 'common' },
+      { key: 'learn_more', en_text: 'Learn More', ar_text: 'اعرف المزيد', category: 'common' },
+      { key: 'admin', en_text: 'Admin', ar_text: 'الإدارة', category: 'navigation' },
+      { key: 'login', en_text: 'Login', ar_text: 'تسجيل الدخول', category: 'common' }
+    ];
+    
+    for (const translation of translations) {
+      const existing = await db.execute(sql`SELECT id FROM translations WHERE key = ${translation.key}`);
+      if (existing.rows.length === 0) {
+        await db.execute(sql`
+          INSERT INTO translations (key, en_text, ar_text, category) 
+          VALUES (${translation.key}, ${translation.en_text}, ${translation.ar_text}, ${translation.category})
+        `);
+      }
+    }
+    
+    // Create language settings
+    const existingSettings = await db.execute(sql`SELECT id FROM site_language_settings WHERE default_language = 'en'`);
+    if (existingSettings.rows.length === 0) {
+      await db.execute(sql`
+        INSERT INTO site_language_settings (default_language, available_languages, rtl_languages) 
+        VALUES ('en', '["en", "ar"]', '["ar"]')
+      `);
+    }
     
     console.log('✅ Sample data created successfully');
     
