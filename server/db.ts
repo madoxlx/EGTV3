@@ -15,8 +15,10 @@ if (!DATABASE_URL) {
 // Create connection pool with timeout settings for external PostgreSQL
 export const pool = new Pool({
   connectionString: DATABASE_URL,
-  connectionTimeoutMillis: 10000,
-  idleTimeoutMillis: 30000,
+  connectionTimeoutMillis: 30000, // Increased from 10s to 30s
+  idleTimeoutMillis: 60000, // Increased from 30s to 60s
+  max: 10, // Maximum number of clients in the pool
+  min: 2, // Minimum number of clients in the pool
   ssl: DATABASE_URL.includes('sslmode=require') ? { rejectUnauthorized: false } : 
        DATABASE_URL.includes('sslmode=disable') ? false : { rejectUnauthorized: false },
 });

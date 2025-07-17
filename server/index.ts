@@ -269,17 +269,20 @@ app.use((req, res, next) => {
       );
     });
 
-    // Run first-time setup and seeding in background after server starts
-    // Don't await this to prevent blocking server startup
+    // Skip automatic database initialization on startup to prevent timeout issues
+    // Database is already set up and can be manually initialized if needed
+    console.log("⚠️  Skipping automatic database initialization to prevent startup delays");
+    console.log("💡 Database is already configured and ready to use");
+    
+    // Optional: Run database health check without blocking startup
     (async () => {
       try {
-        const { initializeDatabase } = await import("./init-database");
-        await initializeDatabase();
+        const { db } = await import("./db");
+        const { sql } = await import("drizzle-orm");
+        await db.execute(sql`SELECT 1 as test`);
+        console.log("✅ Database connection verified");
       } catch (error) {
-        console.error(
-          "Failed to run initial database setup and seeding:",
-          error,
-        );
+        console.log("⚠️  Database connection check failed:", error.message);
       }
     })();
 

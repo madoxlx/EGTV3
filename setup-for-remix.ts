@@ -9,6 +9,16 @@ export async function setupDatabase() {
   console.log('🔄 Checking database setup...');
   
   try {
+    // Test connection with timeout
+    const testPromise = db.execute(sql`SELECT 1 as test`);
+    const timeoutPromise = new Promise((_, reject) => 
+      setTimeout(() => reject(new Error('Database connection timeout')), 10000)
+    );
+    
+    await Promise.race([testPromise, timeoutPromise]);
+    console.log('✅ Database connection verified');
+    
+    // Now proceed with setup
     // Add the slug column to packages table if it doesn't exist
     await db.execute(sql`
       ALTER TABLE packages ADD COLUMN IF NOT EXISTS slug TEXT UNIQUE;
