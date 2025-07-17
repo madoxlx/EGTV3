@@ -11,7 +11,8 @@ if (!DATABASE_URL) {
 
 const pool = new Pool({
   connectionString: DATABASE_URL,
-  ssl: DATABASE_URL.includes('sslmode=require') ? { rejectUnauthorized: false } : false,
+  ssl: DATABASE_URL.includes('sslmode=require') ? { rejectUnauthorized: false } : 
+       DATABASE_URL.includes('sslmode=disable') ? false : { rejectUnauthorized: false },
 });
 
 const db = drizzle(pool, { schema });
@@ -166,33 +167,85 @@ async function setupDatabase() {
       ON CONFLICT (username) DO NOTHING
     `);
     
-    // Insert sample data
-    await db.execute(sql`
+    // Insert sample data with proper handling
+    const countryResult = await db.execute(sql`
       INSERT INTO countries (name, code)
       VALUES 
         ('Egypt', 'EG'),
         ('Jordan', 'JO'),
         ('UAE', 'AE')
       ON CONFLICT (code) DO NOTHING
+      RETURNING id, code
     `);
     
-    await db.execute(sql`
-      INSERT INTO cities (name, country_id)
-      VALUES 
-        ('Cairo', (SELECT id FROM countries WHERE code = 'EG')),
-        ('Luxor', (SELECT id FROM countries WHERE code = 'EG')),
-        ('Amman', (SELECT id FROM countries WHERE code = 'JO')),
-        ('Dubai', (SELECT id FROM countries WHERE code = 'AE'))
-    `);
+    // Check if countries exist
+    const egyptCountry = await db.execute(sql`SELECT id FROM countries WHERE code = 'EG' LIMIT 1`);
+    const jordanCountry = await db.execute(sql`SELECT id FROM countries WHERE code = 'JO' LIMIT 1`);
+    const uaeCountry = await db.execute(sql`SELECT id FROM countries WHERE code = 'AE' LIMIT 1`);
     
-    await db.execute(sql`
-      INSERT INTO destinations (name, description, city_id)
-      VALUES 
-        ('Pyramids of Giza', 'Ancient Egyptian pyramids', (SELECT id FROM cities WHERE name = 'Cairo')),
-        ('Valley of Kings', 'Ancient Egyptian tombs', (SELECT id FROM cities WHERE name = 'Luxor')),
-        ('Petra', 'Ancient city carved in rock', (SELECT id FROM cities WHERE name = 'Amman')),
-        ('Burj Khalifa', 'World tallest building', (SELECT id FROM cities WHERE name = 'Dubai'))
-    `);
+    if (egyptCountry.rows.length > 0) {
+      await db.execute(sql`
+        INSERT INTO cities (name, country_id)
+        VALUES 
+          ('Cairo', ${egyptCountry.rows[0].id}),
+          ('Luxor', ${egyptCountry.rows[0].id})
+        ON CONFLICT (name, country_id) DO NOTHING
+      `);
+    }
+    
+    if (jordanCountry.rows.length > 0) {
+      await db.execute(sql`
+        INSERT INTO cities (name, country_id)
+        VALUES ('Amman', ${jordanCountry.rows[0].id})
+        ON CONFLICT (name, country_id) DO NOTHING
+      `);
+    }
+    
+    if (uaeCountry.rows.length > 0) {
+      await db.execute(sql`
+        INSERT INTO cities (name, country_id)
+        VALUES ('Dubai', ${uaeCountry.rows[0].id})
+        ON CONFLICT (name, country_id) DO NOTHING
+      `);
+    }
+    
+    // Insert destinations
+    const cairoCity = await db.execute(sql`SELECT id FROM cities WHERE name = 'Cairo' LIMIT 1`);
+    const luxorCity = await db.execute(sql`SELECT id FROM cities WHERE name = 'Luxor' LIMIT 1`);
+    const ammanCity = await db.execute(sql`SELECT id FROM cities WHERE name = 'Amman' LIMIT 1`);
+    const dubaiCity = await db.execute(sql`SELECT id FROM cities WHERE name = 'Dubai' LIMIT 1`);
+    
+    if (cairoCity.rows.length > 0) {
+      await db.execute(sql`
+        INSERT INTO destinations (name, description, city_id)
+        VALUES ('Pyramids of Giza', 'Ancient Egyptian pyramids', ${cairoCity.rows[0].id})
+        ON CONFLICT DO NOTHING
+      `);
+    }
+    
+    if (luxorCity.rows.length > 0) {
+      await db.execute(sql`
+        INSERT INTO destinations (name, description, city_id)
+        VALUES ('Valley of Kings', 'Ancient Egyptian tombs', ${luxorCity.rows[0].id})
+        ON CONFLICT DO NOTHING
+      `);
+    }
+    
+    if (ammanCity.rows.length > 0) {
+      await db.execute(sql`
+        INSERT INTO destinations (name, description, city_id)
+        VALUES ('Petra', 'Ancient city carved in rock', ${ammanCity.rows[0].id})
+        ON CONFLICT DO NOTHING
+      `);
+    }
+    
+    if (dubaiCity.rows.length > 0) {
+      await db.execute(sql`
+        INSERT INTO destinations (name, description, city_id)
+        VALUES ('Burj Khalifa', 'World tallest building', ${dubaiCity.rows[0].id})
+        ON CONFLICT DO NOTHING
+      `);
+    }
     
     console.log("Sample data inserted!");
     

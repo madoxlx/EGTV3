@@ -73,6 +73,28 @@ The application uses a comprehensive PostgreSQL schema with the following core e
 
 ## Recent Changes
 
+### External PostgreSQL Database Migration Complete - July 17, 2025
+- ✅ Successfully migrated from Replit's internal PostgreSQL to external PostgreSQL database
+- ✅ Database connection details updated:
+  - Host: 20.77.106.39:5432
+  - Database: eet
+  - User: eetadmin
+  - SSL: disabled (sslmode=disable)
+- ✅ Updated database connection configuration in server/db.ts to handle external PostgreSQL
+- ✅ Created and ran database setup script to initialize all required tables:
+  - Core tables: users, countries, cities, destinations
+  - Travel services: packages, tours, hotels, bookings
+  - Categories: package_categories, tour_categories, hotel_categories
+  - Additional tables: nationalities, visas, nationality_visa_requirements
+- ✅ Populated database with sample data:
+  - 1 admin user (username: admin, password: admin123)
+  - 3 countries (Egypt, Jordan, UAE)
+  - 4 cities (Cairo, Luxor, Amman, Dubai)
+  - 4 destinations (Pyramids of Giza, Valley of Kings, Petra, Burj Khalifa)
+  - Category data for packages, tours, and hotels
+- ✅ Verified database connection and data integrity
+- ✅ Application successfully running with external PostgreSQL database
+
 ### Database Creation and Setup Complete - July 17, 2025
 - ✅ PostgreSQL database provisioned and configured successfully
 - ✅ Database tables created with proper schema and relationships:

@@ -12,12 +12,13 @@ if (!DATABASE_URL) {
   );
 }
 
-// Create connection pool with timeout settings for Neon PostgreSQL
+// Create connection pool with timeout settings for external PostgreSQL
 export const pool = new Pool({
   connectionString: DATABASE_URL,
   connectionTimeoutMillis: 10000,
   idleTimeoutMillis: 30000,
-  ssl: DATABASE_URL.includes('sslmode=require') ? { rejectUnauthorized: false } : false,
+  ssl: DATABASE_URL.includes('sslmode=require') ? { rejectUnauthorized: false } : 
+       DATABASE_URL.includes('sslmode=disable') ? false : { rejectUnauthorized: false },
 });
 export const db = drizzle(pool, { schema });
 
