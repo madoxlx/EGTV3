@@ -600,8 +600,6 @@ export const translations = pgTable("translations", {
   category: text("category"),
   createdAt: timestamp("created_at").notNull().defaultNow(),
   updatedAt: timestamp("updated_at").defaultNow(),
-  createdBy: integer("created_by").references(() => users.id),
-  updatedBy: integer("updated_by").references(() => users.id),
 });
 
 export const siteLanguageSettings = pgTable("site_language_settings", {

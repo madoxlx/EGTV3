@@ -309,14 +309,20 @@ export class DatabaseStorage implements IStorage {
 
   async listCountries(active?: boolean): Promise<Country[]> {
     try {
+      console.log('🔍 listCountries called with active:', active);
+      let result;
       if (active !== undefined) {
-        return await db
+        result = await db
           .select()
           .from(countries)
           .where(eq(countries.active, active))
           .orderBy(asc(countries.name));
+      } else {
+        result = await db.select().from(countries).orderBy(asc(countries.name));
       }
-      return await db.select().from(countries).orderBy(asc(countries.name));
+      console.log('🔍 listCountries returning:', result.length, 'countries');
+      console.log('🔍 Sample data:', result[0]);
+      return result;
     } catch (error) {
       console.error("Error listing countries:", error);
       return [];
@@ -1217,7 +1223,7 @@ export class DatabaseStorage implements IStorage {
         query += ' WHERE ' + conditions.join(' AND ');
       }
       
-      query += ' ORDER BY "order_position"';
+      query += ' ORDER BY "order"';
       
       result = await client.query(query, params);
       client.release();
@@ -1234,7 +1240,7 @@ export class DatabaseStorage implements IStorage {
       console.log('Creating menu item with data:', item);
       console.log('Order value:', item.order);
       const result = await client.query(
-        'INSERT INTO menu_items (menu_id, parent_id, title, url, icon, order_position, active) VALUES ($1, $2, $3, $4, $5, $6, $7) RETURNING *',
+        'INSERT INTO menu_items (menu_id, parent_id, title, url, icon, "order", active) VALUES ($1, $2, $3, $4, $5, $6, $7) RETURNING *',
         [
           item.menuId,
           item.parentId || null,
@@ -1291,7 +1297,7 @@ export class DatabaseStorage implements IStorage {
         values.push(item.parentId);
       }
       if (item.orderPosition !== undefined) {
-        setClause.push(`"order_position" = $${paramIndex++}`);
+        setClause.push(`"order" = $${paramIndex++}`);
         values.push(item.orderPosition);
       }
       if (item.active !== undefined) {

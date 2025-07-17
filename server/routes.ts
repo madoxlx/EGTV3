@@ -1170,9 +1170,13 @@ export async function registerRoutes(app: Express): Promise<Server> {
   // Get all countries
   app.get('/api/countries', async (req, res) => {
     try {
+      console.log('🔥 API ROUTE: GET /api/countries');
+      console.log('🔥 Query params:', req.query);
       const active = req.query.active === 'true' ? true : 
                     req.query.active === 'false' ? false : undefined;
+      console.log('🔥 Active filter:', active);
       const countries = await storage.listCountries(active);
+      console.log('🔥 Countries returned from storage:', countries.length);
       res.json(countries);
     } catch (error) {
       console.error('Error fetching countries:', error);
