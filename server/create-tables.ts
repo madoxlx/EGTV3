@@ -94,7 +94,7 @@ async function createTables() {
       );
     `);
 
-    // Users (added nationality)
+    // Users
     await pool.query(`
       CREATE TABLE IF NOT EXISTS users (
         id SERIAL PRIMARY KEY,
@@ -106,7 +106,7 @@ async function createTables() {
         last_name TEXT,
         phone_number TEXT,
         full_name TEXT,
-        nationality TEXT, -- Added for admin setup
+        nationality TEXT,
         role TEXT NOT NULL DEFAULT 'user',
         bio TEXT,
         avatar_url TEXT,
@@ -164,7 +164,7 @@ async function createTables() {
         id SERIAL PRIMARY KEY,
         title TEXT NOT NULL,
         subtitle TEXT,
-        content TEXT,
+        description TEXT,
         image_url TEXT,
         order_number INTEGER NOT NULL,
         active BOOLEAN DEFAULT TRUE,
@@ -173,14 +173,14 @@ async function createTables() {
       );
     `);
 
-    // Packages (added short_description and slug)
+    // Packages
     await pool.query(`
       CREATE TABLE IF NOT EXISTS packages (
         id SERIAL PRIMARY KEY,
         title TEXT NOT NULL,
         description TEXT NOT NULL,
-        short_description TEXT, -- Added for listPackages
-        slug TEXT UNIQUE, -- Added for URL-friendly identifier
+        short_description TEXT,
+        slug TEXT UNIQUE,
         price INTEGER NOT NULL,
         discounted_price INTEGER,
         image_url TEXT,
@@ -341,7 +341,7 @@ async function createTables() {
       );
     `);
 
-    // Menu Items (using "order" column to match current database)
+    // Menu Items
     await pool.query(`
       CREATE TABLE IF NOT EXISTS menu_items (
         id SERIAL PRIMARY KEY,
@@ -362,7 +362,7 @@ async function createTables() {
       );
     `);
 
-    // Translations (added created_by as INTEGER referencing users)
+    // Translations
     await pool.query(`
       CREATE TABLE IF NOT EXISTS translations (
         id SERIAL PRIMARY KEY,
@@ -371,7 +371,7 @@ async function createTables() {
         ar_text TEXT,
         context TEXT,
         category TEXT,
-        created_by INTEGER, -- Added for listTranslations
+        created_by INTEGER,
         created_at TIMESTAMP NOT NULL DEFAULT NOW(),
         updated_at TIMESTAMP,
         UNIQUE (key, category),
@@ -490,7 +490,7 @@ async function createTables() {
       );
     `);
 
-    // Seed initial data for menus to fix 404 errors
+    // Seed initial data for menus
     await pool.query(`
       INSERT INTO menus (name, location, description, active, created_at)
       VALUES
@@ -499,7 +499,7 @@ async function createTables() {
       ON CONFLICT (name) DO NOTHING;
     `);
 
-    // Seed initial menu items (example)
+    // Seed initial menu items
     await pool.query(`
       INSERT INTO menu_items (menu_id, title, url, "order", active, created_at)
       SELECT id, 'Home', '/', 1, TRUE, NOW() FROM menus WHERE location = 'header'
@@ -532,3 +532,5 @@ createTables()
     }
   })
   .catch(console.error);
+
+export { createTables };

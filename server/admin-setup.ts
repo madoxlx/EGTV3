@@ -28,6 +28,7 @@ async function setupAdmin() {
       await db.insert(users).values({
         username: 'EETADMIN',
         password: hashedPassword,
+        passwordHash: hashedPassword,
         email: 'admin@egyptexpress.com',
         displayName: 'Admin User',
         role: 'admin',
@@ -50,6 +51,7 @@ async function setupAdmin() {
       await db.insert(users).values({
         username: 'testadmin',
         password: testAdminPassword,
+        passwordHash: testAdminPassword,
         email: 'testadmin@egyptexpress.com',
         displayName: 'Test Admin',
         role: 'admin',
