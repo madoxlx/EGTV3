@@ -1,0 +1,165 @@
+Error listing tours: error: column "title" does not exist
+    at /home/runner/workspace/node_modules/pg-pool/index.js:45:11
+    at process.processTicksAndRejections (node:internal/process/task_queues:95:5)
+    at async <anonymous> (/home/runner/workspace/node_modules/src/node-postgres/session.ts:104:19)
+    at async DatabaseStorage.listTours (/home/runner/workspace/server/storage.ts:917:14)
+    at async <anonymous> (/home/runner/workspace/server/routes.ts:1006:21) {
+  length: 105,
+  severity: 'ERROR',
+  code: '42703',
+  detail: undefined,
+  hint: undefined,
+  position: '14',
+  internalPosition: undefined,
+  internalQuery: undefined,
+  where: undefined,
+  schema: undefined,
+  table: undefined,
+  column: undefined,
+  dataType: undefined,
+  constraint: undefined,
+  file: 'parse_relation.c',
+  line: '3647',
+  routine: 'errorMissingColumn'
+}
+12:39:44 PM [express] GET /api/tours 200 in 91ms :: []
+❌ Error listing hotels: error: column "short_description" does not exist
+    at /home/runner/workspace/node_modules/pg-pool/index.js:45:11
+    at process.processTicksAndRejections (node:internal/process/task_queues:95:5)
+    at async <anonymous> (/home/runner/workspace/node_modules/src/node-postgres/session.ts:104:19)
+    at async DatabaseStorage.listHotels (/home/runner/workspace/server/storage.ts:620:22)
+    at async <anonymous> (/home/runner/workspace/server/routes.ts:1064:22) {
+  length: 117,
+  severity: 'ERROR',
+  code: '42703',
+  detail: undefined,
+  hint: undefined,
+  position: '37',
+  internalPosition: undefined,
+  internalQuery: undefined,
+  where: undefined,
+  schema: undefined,
+  table: undefined,
+  column: undefined,
+  dataType: undefined,
+  constraint: undefined,
+  file: 'parse_relation.c',
+  line: '3647',
+  routine: 'errorMissingColumn'
+}
+12:39:44 PM [express] GET /api/hotels 200 in 90ms :: []
+❌ Error listing hotels: error: column "short_description" does not exist
+    at /home/runner/workspace/node_modules/pg-pool/index.js:45:11
+    at process.processTicksAndRejections (node:internal/process/task_queues:95:5)
+    at async <anonymous> (/home/runner/workspace/node_modules/src/node-postgres/session.ts:104:19)
+    at async DatabaseStorage.listHotels (/home/runner/workspace/server/storage.ts:620:22)
+    at async <anonymous> (/home/runner/workspace/server/routes.ts:3359:22) {
+  length: 117,
+  severity: 'ERROR',
+  code: '42703',
+  detail: undefined,
+  hint: undefined,
+  position: '37',
+  internalPosition: undefined,
+  internalQuery: undefined,
+  where: undefined,
+  schema: undefined,
+  table: undefined,
+  column: undefined,
+  dataType: undefined,
+  constraint: undefined,
+  file: 'parse_relation.c',
+  line: '3647',
+  routine: 'errorMissingColumn'
+}
+12:39:44 PM [express] GET /api/admin/hotels 200 in 91ms :: []
+🔥 API ROUTE DEBUG: GET /api/admin/rooms
+🔥 Query params: {}
+🔍 Admin check - Session user: {
+  id: 3,
+  username: 'EETADMIN',
+  role: 'admin',
+  displayName: 'Admin User',
+  avatarUrl: null,
+  email: 'admin@egyptexpress.com'
+}
+🔍 Admin check - Request path: /api/admin/rooms
+✅ Admin check passed for user: EETADMIN (ID: 3)
+Admin rooms endpoint called
+🔍 Listing rooms with hotelId: undefined
+✅ Rooms query result: 0 rooms found
+Rooms returned from storage: 0 rooms
+12:39:45 PM [express] GET /api/admin/rooms 200 in 96ms :: []
+12:40:59 PM [vite] hmr update /src/pages/manual-package-detail.tsx, /src/index.css?v=TVqdf_9wKNCUVSnWIwbib (x6)
+🔥 API ROUTE DEBUG: GET /api/auth/user
+🔥 Query params: {}
+12:41:20 PM [express] GET /api/auth/user 200 in 5ms
+12:41:21 PM [vite] hmr update /src/pages/manual-package-detail.tsx, /src/index.css?v=TVqdf_9wKNCUVSnWIwbib (x7)
+🔥 API ROUTE DEBUG: GET /api/auth/user
+🔥 Query params: {}
+12:41:27 PM [express] GET /api/auth/user 200 in 4ms
+12:41:33 PM [vite] hmr update /src/pages/manual-package-detail.tsx, /src/index.css?v=TVqdf_9wKNCUVSnWIwbib (x8)
+12:41:49 PM [vite] hmr update /src/pages/manual-package-detail.tsx, /src/index.css?v=TVqdf_9wKNCUVSnWIwbib (x9)
+🔥 API ROUTE DEBUG: GET /api/auth/user
+🔥 Query params: {}
+12:41:51 PM [express] GET /api/auth/user 200 in 6ms
+🔥 API ROUTE DEBUG: GET /api/auth/user
+🔥 Query params: {}
+12:41:55 PM [express] GET /api/auth/user 200 in 7ms
+12:42:04 PM [vite] hmr update /src/pages/manual-package-detail.tsx, /src/index.css?v=TVqdf_9wKNCUVSnWIwbib (x10)
+🔥 API ROUTE DEBUG: GET /api/auth/user
+🔥 Query params: {}
+12:42:18 PM [express] GET /api/auth/user 200 in 9ms
+🔥 API ROUTE DEBUG: GET /api/cart
+🔥 Query params: {}
+Cart GET request - userId: 3 sessionId: undefined
+🔥 API ROUTE DEBUG: GET /api/destinations
+🔥 Query params: {}
+🔥 API ROUTE DEBUG: GET /api/menus/location/header
+🔥 Query params: {}
+🔥 STORAGE: getMenuByLocation called with location: header
+🔥 API ROUTE DEBUG: GET /api/auth/user
+🔥 Query params: {}
+🔥 API ROUTE DEBUG: GET /api/packages
+🔥 Query params: {}
+12:43:32 PM [express] GET /api/auth/user 200 in 8ms
+Error fetching cart: error: column "price_at_add" does not exist
+    at /home/runner/workspace/node_modules/pg-pool/index.js:45:11
+    at process.processTicksAndRejections (node:internal/process/task_queues:95:5)
+    at async <anonymous> (/home/runner/workspace/node_modules/src/node-postgres/session.ts:104:19)
+    at async <anonymous> (/home/runner/workspace/server/routes.ts:174:25) {
+  length: 113,
+  severity: 'ERROR',
+  code: '42703',
+  detail: undefined,
+  hint: undefined,
+  position: '175',
+  internalPosition: undefined,
+  internalQuery: undefined,
+  where: undefined,
+  schema: undefined,
+  table: undefined,
+  column: undefined,
+  dataType: undefined,
+  constraint: undefined,
+  file: 'parse_relation.c',
+  line: '3647',
+  routine: 'errorMissingColumn'
+}
+12:43:32 PM [express] GET /api/cart 500 in 91ms :: {"message":"Failed to fetch cart items"}
+12:43:32 PM [express] GET /api/destinations 304 in 89ms :: []
+🔥 STORAGE: getMenuByLocation query returned: 1 results
+🔥 STORAGE: Found menu: {"id":1,"name":"Header Menu","location":"header","description":"Main navigation menu","active":true,"createdAt":"2025-07-20T10:21:53.131Z","updatedAt":null}
+12:43:32 PM [express] GET /api/menus/location/header 304 in 177ms :: {"menu":{"id":1,"name":"Header Menu","location":"header","description":"Main navigation menu","activ…
+12:43:32 PM [express] GET /api/packages 304 in 179ms :: [{"id":6,"title":"Maldives & Dubai Luxury Experience","description":"Discover the perfect blend of urban luxury i…
+🔥 API ROUTE DEBUG: GET /api/menus/location/footer
+🔥 Query params: {}
+🔥 STORAGE: getMenuByLocation called with location: footer
+🔥 STORAGE: getMenuByLocation query returned: 1 results
+🔥 STORAGE: Found menu: {"id":2,"name":"Footer Menu","location":"footer","description":"Footer navigation menu","active":true,"createdAt":"2025-07-20T10:21:53.131Z","updatedAt":null}
+12:43:32 PM [express] GET /api/menus/location/footer 304 in 175ms :: {"menu":{"id":2,"name":"Footer Menu","location":"footer","description":"Footer navigation menu","act…
+12:43:32 PM [express] GET /api/translations 304 in 89ms :: []
+12:43:32 PM [express] GET /api/translations/settings 304 in 88ms :: {"defaultLanguage":"en","availableLanguages":["en","ar"],"rtlLanguages":["ar"]}
+🔥 API ROUTE DEBUG: GET /api/auth/user
+🔥 Query params: {}
+12:43:33 PM [express] GET /api/auth/user 200 in 7ms

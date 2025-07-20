@@ -188,6 +188,23 @@ export default function ManualPackageDetail() {
     }
   };
 
+  // Handle copy package link
+  const handleCopyLink = async () => {
+    try {
+      await navigator.clipboard.writeText(window.location.href);
+      toast({
+        title: "Link Copied!",
+        description: "Package URL copied to clipboard",
+      });
+    } catch (error) {
+      toast({
+        title: "Copy Failed",
+        description: "Could not copy link to clipboard",
+        variant: "destructive",
+      });
+    }
+  };
+
   // Admin-only functions
   const handleDeletePackage = async () => {
     if (window.confirm("Are you sure you want to delete this package? This action cannot be undone.")) {
@@ -321,31 +338,43 @@ export default function ManualPackageDetail() {
               {isAdmin && (
                 <div className="absolute top-4 right-4 z-20">
                   <div className="flex items-center gap-2">
+                    {/* Primary Admin Actions */}
                     <Button
                       variant="secondary"
                       size="sm"
                       onClick={handleEdit}
-                      className="flex items-center gap-2 bg-white/10 backdrop-blur-sm border-white/20 text-white hover:bg-white/20"
+                      className="flex items-center gap-2 bg-gradient-to-r from-blue-500/90 to-blue-600/90 backdrop-blur-sm border-blue-400/30 text-white hover:from-blue-600/90 hover:to-blue-700/90 shadow-lg"
                     >
                       <Edit className="h-4 w-4" />
-                      Edit
+                      Edit Package
                     </Button>
                     
+                    <Button
+                      variant="secondary"
+                      size="sm"
+                      onClick={handleShare}
+                      className="flex items-center gap-2 bg-gradient-to-r from-green-500/90 to-green-600/90 backdrop-blur-sm border-green-400/30 text-white hover:from-green-600/90 hover:to-green-700/90 shadow-lg"
+                    >
+                      <Share className="h-4 w-4" />
+                      Share Link
+                    </Button>
+                    
+                    {/* More Actions Dropdown */}
                     <DropdownMenu>
                       <DropdownMenuTrigger asChild>
                         <Button
                           variant="secondary"
                           size="sm"
-                          className="flex items-center gap-2 bg-white/10 backdrop-blur-sm border-white/20 text-white hover:bg-white/20"
+                          className="flex items-center gap-2 bg-white/10 backdrop-blur-sm border-white/20 text-white hover:bg-white/20 shadow-lg"
                         >
                           <MoreVertical className="h-4 w-4" />
-                          Actions
+                          More
                         </Button>
                       </DropdownMenuTrigger>
-                      <DropdownMenuContent align="end" className="w-48">
-                        <DropdownMenuItem onClick={handleShare} className="flex items-center gap-2">
-                          <Share className="h-4 w-4" />
-                          Share Package
+                      <DropdownMenuContent align="end" className="w-52 bg-white/95 backdrop-blur-sm">
+                        <DropdownMenuItem onClick={handleCopyLink} className="flex items-center gap-2">
+                          <Copy className="h-4 w-4" />
+                          Copy Package Link
                         </DropdownMenuItem>
                         <DropdownMenuItem onClick={handleDuplicatePackage} className="flex items-center gap-2">
                           <Copy className="h-4 w-4" />
@@ -357,7 +386,22 @@ export default function ManualPackageDetail() {
                         </DropdownMenuItem>
                         <DropdownMenuItem onClick={handleExportPackage} className="flex items-center gap-2">
                           <Download className="h-4 w-4" />
-                          Export Data
+                          Export Package Data
+                        </DropdownMenuItem>
+                        <DropdownMenuSeparator />
+                        <DropdownMenuItem 
+                          onClick={() => navigate('/admin/packages')}
+                          className="flex items-center gap-2"
+                        >
+                          <Eye className="h-4 w-4" />
+                          View All Packages
+                        </DropdownMenuItem>
+                        <DropdownMenuItem 
+                          onClick={() => navigate('/admin/packages/create-manual')}
+                          className="flex items-center gap-2"
+                        >
+                          <Settings className="h-4 w-4" />
+                          Create New Package
                         </DropdownMenuItem>
                         <DropdownMenuSeparator />
                         <DropdownMenuItem 
@@ -369,6 +413,13 @@ export default function ManualPackageDetail() {
                         </DropdownMenuItem>
                       </DropdownMenuContent>
                     </DropdownMenu>
+                  </div>
+                  
+                  {/* Admin Status Indicator */}
+                  <div className="absolute -bottom-8 right-0">
+                    <Badge className="bg-orange-500/90 text-white text-xs backdrop-blur-sm">
+                      Admin View
+                    </Badge>
                   </div>
                 </div>
               )}
@@ -416,6 +467,56 @@ export default function ManualPackageDetail() {
                   <span className="text-lg">Group Tour</span>
                 </div>
               </div>
+
+              {/* Admin Action Section */}
+              {isAdmin && (
+                <div className="mb-6">
+                  <div className="bg-white/10 backdrop-blur-sm rounded-lg p-4 border border-white/20">
+                    <h3 className="text-lg font-semibold text-white mb-3">Quick Admin Actions</h3>
+                    <div className="flex flex-wrap items-center gap-3">
+                      <Button
+                        onClick={handleEdit}
+                        className="bg-gradient-to-r from-blue-500 to-blue-600 hover:from-blue-600 hover:to-blue-700 text-white"
+                      >
+                        <Edit className="h-4 w-4 mr-2" />
+                        Edit Package
+                      </Button>
+                      <Button
+                        onClick={handleShare}
+                        variant="outline"
+                        className="bg-white/10 backdrop-blur-sm border-white/30 text-white hover:bg-white/20"
+                      >
+                        <Share className="h-4 w-4 mr-2" />
+                        Share Link
+                      </Button>
+                      <Button
+                        onClick={handleDuplicatePackage}
+                        variant="outline"
+                        className="bg-white/10 backdrop-blur-sm border-white/30 text-white hover:bg-white/20"
+                      >
+                        <Copy className="h-4 w-4 mr-2" />
+                        Duplicate
+                      </Button>
+                      <Button
+                        onClick={handleToggleFeatured}
+                        variant="outline"
+                        className="bg-white/10 backdrop-blur-sm border-white/30 text-white hover:bg-white/20"
+                      >
+                        <Star className="h-4 w-4 mr-2" />
+                        {packageData.featured ? 'Unfeature' : 'Feature'}
+                      </Button>
+                      <Button
+                        onClick={() => navigate('/admin/packages')}
+                        variant="outline"
+                        className="bg-white/10 backdrop-blur-sm border-white/30 text-white hover:bg-white/20"
+                      >
+                        <Eye className="h-4 w-4 mr-2" />
+                        All Packages
+                      </Button>
+                    </div>
+                  </div>
+                </div>
+              )}
 
               {/* Price Section */}
               <div className="flex items-center gap-4">
@@ -1014,6 +1115,70 @@ export default function ManualPackageDetail() {
           </div>
         </div>
       </div>
+
+      {/* Floating Admin Toolbar */}
+      {isAdmin && (
+        <div className="fixed bottom-6 right-6 z-50">
+          <div className="bg-gradient-to-r from-slate-800/95 to-slate-900/95 backdrop-blur-sm rounded-full p-2 shadow-xl border border-slate-700/50">
+            <div className="flex items-center gap-2">
+              <Button
+                size="sm"
+                onClick={handleEdit}
+                className="bg-blue-600 hover:bg-blue-700 text-white rounded-full p-2 h-10 w-10"
+                title="Edit Package"
+              >
+                <Edit className="h-4 w-4" />
+              </Button>
+              <Button
+                size="sm"
+                onClick={handleCopyLink}
+                className="bg-green-600 hover:bg-green-700 text-white rounded-full p-2 h-10 w-10"
+                title="Copy Share Link"
+              >
+                <Copy className="h-4 w-4" />
+              </Button>
+              <Button
+                size="sm"
+                onClick={handleShare}
+                className="bg-purple-600 hover:bg-purple-700 text-white rounded-full p-2 h-10 w-10"
+                title="Share Package"
+              >
+                <Share className="h-4 w-4" />
+              </Button>
+              <DropdownMenu>
+                <DropdownMenuTrigger asChild>
+                  <Button
+                    size="sm"
+                    className="bg-slate-600 hover:bg-slate-700 text-white rounded-full p-2 h-10 w-10"
+                    title="More Actions"
+                  >
+                    <MoreVertical className="h-4 w-4" />
+                  </Button>
+                </DropdownMenuTrigger>
+                <DropdownMenuContent align="end" className="mb-2">
+                  <DropdownMenuItem onClick={handleDuplicatePackage}>
+                    <Copy className="h-4 w-4 mr-2" />
+                    Duplicate
+                  </DropdownMenuItem>
+                  <DropdownMenuItem onClick={handleToggleFeatured}>
+                    <Star className="h-4 w-4 mr-2" />
+                    {packageData.featured ? 'Unfeature' : 'Feature'}
+                  </DropdownMenuItem>
+                  <DropdownMenuItem onClick={() => navigate('/admin/packages')}>
+                    <Eye className="h-4 w-4 mr-2" />
+                    All Packages
+                  </DropdownMenuItem>
+                  <DropdownMenuSeparator />
+                  <DropdownMenuItem onClick={handleDeletePackage} className="text-red-600">
+                    <Trash2 className="h-4 w-4 mr-2" />
+                    Delete
+                  </DropdownMenuItem>
+                </DropdownMenuContent>
+              </DropdownMenu>
+            </div>
+          </div>
+        </div>
+      )}
     </PackageLayout>
   );
 }
