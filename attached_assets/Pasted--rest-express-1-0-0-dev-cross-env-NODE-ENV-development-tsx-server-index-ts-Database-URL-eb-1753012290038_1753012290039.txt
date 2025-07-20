@@ -1,0 +1,630 @@
+
+> rest-express@1.0.0 dev
+> cross-env NODE_ENV=development tsx server/index.ts
+
+Database URL: ebn elwes5a postgresql:****@20.77.106.39:5432/mydb
+Attempting to connect to external PostgreSQL database...
+Database URL: postgresql:****@20.77.106.39:5432/mydb
+🔑 Google AI API Key status: Found (AIzaSyBLsu...)
+🔍 Full environment check: {
+  hasGoogleAIKey: false,
+  hasOldGoogleKey: false,
+  hasGeminiKey: false,
+  nodeEnv: 'development',
+  keyLength: 39,
+  usingFallback: true
+}
+⏳ Waiting for database initialization...
+✅ Database connection established successfully
+Connected to database: mydb
+✅ Database initialized.
+🔐 Setting up admin users...
+✅ Main admin user already exists
+✅ Test admin user already exists
+✅ Admin setup completed
+✅ Unified auth setup completed
+✅ Hero slides routes setup completed
+🔧 Setting up upload routes...
+✅ Upload routes and static serving setup completed
+🔧 Setting up upload routes...
+✅ API routes registered successfully
+⚠️  Skipping automatic database initialization to prevent startup delays
+💡 Database is already configured and ready to use
+✅ Database connection verified
+✅ Vite development setup completed
+11:24:22 AM [express] ✅ Server serving on port 8080
+🌍 Application available at http://localhost:8080
+🔥 API ROUTE DEBUG: GET /api/menus/location/header
+🔥 Query params: {}
+🔥 STORAGE: getMenuByLocation called with location: header
+11:25:46 AM [express] GET /api/hero-slides/active 200 in 3ms :: [{"id":1,"title":"Welcome to Sahara Journeys","subtitle":"Discover the Magic of the Middle East","descrip…
+🔥 API ROUTE DEBUG: GET /api/cities
+🔥 Query params: {}
+🔥 API ROUTE DEBUG: GET /api/countries
+🔥 Query params: {}
+🔥 API ROUTE: GET /api/countries
+🔥 Query params: {}
+🔥 Active filter: undefined
+🔍 listCountries called with active: undefined
+🔥 API ROUTE DEBUG: GET /api/destinations
+🔥 Query params: {}
+🔥 STORAGE: getMenuByLocation query returned: 1 results
+🔥 STORAGE: Found menu: {"id":1,"name":"Header Menu","location":"header","description":"Main navigation menu","active":true,"createdAt":"2025-07-20T10:21:53.131Z","updatedAt":null}
+11:25:46 AM [express] GET /api/menus/location/header 200 in 219ms :: {"menu":{"id":1,"name":"Header Menu","location":"header","description":"Main navigation menu","activ…
+🔥 API ROUTE DEBUG: GET /api/packages
+🔥 Query params: {}
+Error listing packages: error: column "route" does not exist
+    at /home/runner/workspace/node_modules/pg-pool/index.js:45:11
+    at process.processTicksAndRejections (node:internal/process/task_queues:95:5)
+    at async <anonymous> (/home/runner/workspace/node_modules/src/node-postgres/session.ts:104:19)
+    at async DatabaseStorage.listPackages (/home/runner/workspace/server/storage.ts:551:14)
+    at async <anonymous> (/home/runner/workspace/server/routes.ts:574:24) {
+  length: 106,
+  severity: 'ERROR',
+  code: '42703',
+  detail: undefined,
+  hint: undefined,
+  position: '308',
+  internalPosition: undefined,
+  internalQuery: undefined,
+  where: undefined,
+  schema: undefined,
+  table: undefined,
+  column: undefined,
+  dataType: undefined,
+  constraint: undefined,
+  file: 'parse_relation.c',
+  line: '3647',
+  routine: 'errorMissingColumn'
+}
+11:25:46 AM [express] GET /api/packages 200 in 139ms :: []
+🔥 API ROUTE DEBUG: GET /api/homepage-sections?active=true
+🔥 Query params: { active: 'true' }
+🔥 API ROUTE DEBUG: GET /api/menus/location/footer
+🔥 Query params: {}
+🔥 STORAGE: getMenuByLocation called with location: footer
+11:25:47 AM [express] GET /api/destinations 200 in 859ms :: []
+11:25:47 AM [express] GET /api/cities 200 in 873ms :: []
+🔍 listCountries returning: 5 countries
+🔍 Sample data: {
+  id: 1,
+  name: 'Egypt',
+  code: 'EG',
+  description: 'The land of pharaohs and ancient wonders',
+  imageUrl: null,
+  active: true,
+  createdAt: 2025-07-20T11:02:42.638Z,
+  updatedAt: null
+}
+🔥 Countries returned from storage: 5
+11:25:47 AM [express] GET /api/countries 200 in 869ms :: [{"id":1,"name":"Egypt","code":"EG","description":"The land of pharaohs and ancient wonders","imageUrl":null,"ac…
+11:25:47 AM [express] GET /api/tour-categories 200 in 865ms :: []
+11:25:47 AM [express] GET /api/translations 200 in 105ms :: []
+11:25:47 AM [express] GET /api/translations/settings 200 in 102ms :: {"defaultLanguage":"en","availableLanguages":["en","ar"],"rtlLanguages":["ar"]}
+Error listing homepage sections: error: column "tourists_label" does not exist
+    at /home/runner/workspace/node_modules/pg-pool/index.js:45:11
+    at process.processTicksAndRejections (node:internal/process/task_queues:95:5)
+    at async <anonymous> (/home/runner/workspace/node_modules/src/node-postgres/session.ts:104:19)
+    at async DatabaseStorage.listHomepageSections (/home/runner/workspace/server/storage.ts:1008:16)
+    at async <anonymous> (/home/runner/workspace/server/routes.ts:6488:24) {
+  length: 115,
+  severity: 'ERROR',
+  code: '42703',
+  detail: undefined,
+  hint: undefined,
+  position: '149',
+  internalPosition: undefined,
+  internalQuery: undefined,
+  where: undefined,
+  schema: undefined,
+  table: undefined,
+  column: undefined,
+  dataType: undefined,
+  constraint: undefined,
+  file: 'parse_relation.c',
+  line: '3647',
+  routine: 'errorMissingColumn'
+}
+11:25:47 AM [express] GET /api/homepage-sections 200 in 835ms :: []
+🔥 STORAGE: getMenuByLocation query returned: 1 results
+🔥 STORAGE: Found menu: {"id":2,"name":"Footer Menu","location":"footer","description":"Footer navigation menu","active":true,"createdAt":"2025-07-20T10:21:53.131Z","updatedAt":null}
+11:25:48 AM [express] GET /api/menus/location/footer 200 in 942ms :: {"menu":{"id":2,"name":"Footer Menu","location":"footer","description":"Footer navigation menu","act…
+11:26:29 AM [express] POST /api/login 400 in 147ms :: {"message":"Invalid username or password"}
+11:26:37 AM [express] POST /api/login 200 in 147ms :: {"id":3,"username":"EETADMIN","role":"admin","displayName":"Admin User","avatarUrl":null}
+🔥 API ROUTE DEBUG: GET /api/cart
+🔥 Query params: {}
+Cart GET request - userId: 3 sessionId: undefined
+Error fetching cart: error: column "item_id" does not exist
+    at /home/runner/workspace/node_modules/pg-pool/index.js:45:11
+    at process.processTicksAndRejections (node:internal/process/task_queues:95:5)
+    at async <anonymous> (/home/runner/workspace/node_modules/src/node-postgres/session.ts:104:19)
+    at async <anonymous> (/home/runner/workspace/server/routes.ts:174:25) {
+  length: 208,
+  severity: 'ERROR',
+  code: '42703',
+  detail: undefined,
+  hint: 'Perhaps you meant to reference the column "cart_items.user_id" or the column "cart_items.hotel_id".',
+  position: '52',
+  internalPosition: undefined,
+  internalQuery: undefined,
+  where: undefined,
+  schema: undefined,
+  table: undefined,
+  column: undefined,
+  dataType: undefined,
+  constraint: undefined,
+  file: 'parse_relation.c',
+  line: '3667',
+  routine: 'errorMissingColumn'
+}
+11:26:38 AM [express] GET /api/cart 500 in 108ms :: {"message":"Failed to fetch cart items"}
+🔥 API ROUTE DEBUG: GET /api/admin/dashboard-stats
+🔥 Query params: {}
+11:26:42 AM [express] GET /api/admin/dashboard-stats 200 in 5ms
+11:26:42 AM [express] GET /api/user 200 in 1ms :: {"id":3,"username":"EETADMIN","email":"admin@egyptexpress.com","role":"admin"}
+🔥 API ROUTE DEBUG: GET /api/admin/dashboard-stats
+🔥 Query params: {}
+11:26:43 AM [express] GET /api/admin/dashboard-stats 200 in 4ms
+11:26:43 AM [express] GET /api/user 304 in 1ms :: {"id":3,"username":"EETADMIN","email":"admin@egyptexpress.com","role":"admin"}
+11:26:58 AM [express] GET /api/user 304 in 1ms :: {"id":3,"username":"EETADMIN","email":"admin@egyptexpress.com","role":"admin"}
+🔥 API ROUTE DEBUG: GET /api/admin/dashboard/stats
+🔥 Query params: {}
+🔥 API ROUTE DEBUG: GET /api/admin/system/health
+🔥 Query params: {}
+Dashboard stats error: error: function sum() does not exist
+    at /home/runner/workspace/node_modules/pg-pool/index.js:45:11
+    at process.processTicksAndRejections (node:internal/process/task_queues:95:5)
+    at async <anonymous> (/home/runner/workspace/node_modules/src/node-postgres/session.ts:104:19)
+    at async <anonymous> (/home/runner/workspace/server/admin-api-routes.ts:49:30) {
+  length: 199,
+  severity: 'ERROR',
+  code: '42883',
+  detail: undefined,
+  hint: 'No function matches the given name and argument types. You might need to add explicit type casts.',
+  position: '132',
+  internalPosition: undefined,
+  internalQuery: undefined,
+  where: undefined,
+  schema: undefined,
+  table: undefined,
+  column: undefined,
+  dataType: undefined,
+  constraint: undefined,
+  file: 'parse_func.c',
+  line: '629',
+  routine: 'ParseFuncOrColumn'
+}
+11:27:03 AM [express] GET /api/admin/dashboard/stats 500 in 213ms :: {"message":"Failed to fetch dashboard statistics"}
+System health check error: TypeError: (intermediate value) is not iterable
+    at <anonymous> (/home/runner/workspace/server/admin-api-routes.ts:330:31)
+    at process.processTicksAndRejections (node:internal/process/task_queues:95:5)
+11:27:03 AM [express] GET /api/admin/system/health 500 in 210ms :: {"status":"critical","message":"System health check failed"}
+🔥 API ROUTE DEBUG: GET /api/admin/bookings/recent
+🔥 Query params: {}
+🔥 API ROUTE DEBUG: GET /api/admin/dashboard/stats
+🔥 Query params: {}
+Recent bookings error: error: column bookings.booking_reference does not exist
+    at /home/runner/workspace/node_modules/pg-pool/index.js:45:11
+    at process.processTicksAndRejections (node:internal/process/task_queues:95:5)
+    at async <anonymous> (/home/runner/workspace/node_modules/src/node-postgres/session.ts:104:19)
+    at async <anonymous> (/home/runner/workspace/server/admin-api-routes.ts:442:30) {
+  length: 124,
+  severity: 'ERROR',
+  code: '42703',
+  detail: undefined,
+  hint: undefined,
+  position: '25',
+  internalPosition: undefined,
+  internalQuery: undefined,
+  where: undefined,
+  schema: undefined,
+  table: undefined,
+  column: undefined,
+  dataType: undefined,
+  constraint: undefined,
+  file: 'parse_relation.c',
+  line: '3647',
+  routine: 'errorMissingColumn'
+}
+11:27:04 AM [express] GET /api/admin/bookings/recent 500 in 108ms :: {"message":"Failed to fetch recent bookings"}
+Dashboard stats error: error: function sum() does not exist
+    at /home/runner/workspace/node_modules/pg-pool/index.js:45:11
+    at process.processTicksAndRejections (node:internal/process/task_queues:95:5)
+    at async <anonymous> (/home/runner/workspace/node_modules/src/node-postgres/session.ts:104:19)
+    at async <anonymous> (/home/runner/workspace/server/admin-api-routes.ts:49:30) {
+  length: 199,
+  severity: 'ERROR',
+  code: '42883',
+  detail: undefined,
+  hint: 'No function matches the given name and argument types. You might need to add explicit type casts.',
+  position: '132',
+  internalPosition: undefined,
+  internalQuery: undefined,
+  where: undefined,
+  schema: undefined,
+  table: undefined,
+  column: undefined,
+  dataType: undefined,
+  constraint: undefined,
+  file: 'parse_func.c',
+  line: '629',
+  routine: 'ParseFuncOrColumn'
+}
+11:27:04 AM [express] GET /api/admin/dashboard/stats 500 in 206ms :: {"message":"Failed to fetch dashboard statistics"}
+11:27:04 AM [express] GET /api/user 304 in 1ms :: {"id":3,"username":"EETADMIN","email":"admin@egyptexpress.com","role":"admin"}
+🔥 API ROUTE DEBUG: GET /api/admin/system/health
+🔥 Query params: {}
+System health check error: TypeError: (intermediate value) is not iterable
+    at <anonymous> (/home/runner/workspace/server/admin-api-routes.ts:330:31)
+    at process.processTicksAndRejections (node:internal/process/task_queues:95:5)
+11:27:05 AM [express] GET /api/admin/system/health 500 in 208ms :: {"status":"critical","message":"System health check failed"}
+🔥 API ROUTE DEBUG: GET /api/admin/roles
+🔥 Query params: {}
+11:27:07 AM [express] GET /api/admin/roles 200 in 4ms
+🔥 API ROUTE DEBUG: GET /api/admin/users
+🔥 Query params: {}
+11:27:08 AM [express] GET /api/admin/users 200 in 105ms :: [{"id":4,"username":"testadmin","passwordHash":"4886ba6af0e7025dd4d1622173b95f6c08f2dad2bb2abb426f82fc86ac0ce4…
+🔥 API ROUTE DEBUG: GET /api/admin/users/stats
+🔥 Query params: {}
+🔍 Admin check - Session user: {
+  id: 3,
+  username: 'EETADMIN',
+  role: 'admin',
+  displayName: 'Admin User',
+  avatarUrl: null,
+  email: 'admin@egyptexpress.com'
+}
+🔍 Admin check - Request path: /api/admin/users/stats
+✅ Admin check passed for user: EETADMIN (ID: 3)
+11:27:08 AM [express] GET /api/admin/users/stats 400 in 2ms :: {"message":"Invalid user ID"}
+11:27:08 AM [express] GET /api/user 304 in 0ms :: {"id":3,"username":"EETADMIN","email":"admin@egyptexpress.com","role":"admin"}
+🔥 API ROUTE DEBUG: GET /api/admin/bookings
+🔥 Query params: {}
+Bookings fetch error: TypeError: Cannot convert undefined or null to object
+    at Function.entries (<anonymous>)
+    at orderSelectedFields (/home/runner/workspace/node_modules/src/utils.ts:77:16)
+    at <anonymous> (/home/runner/workspace/node_modules/src/utils.ts:88:19)
+    at Array.reduce (<anonymous>)
+    at orderSelectedFields (/home/runner/workspace/node_modules/src/utils.ts:77:32)
+    at <anonymous> (/home/runner/workspace/node_modules/src/pg-core/query-builders/select.ts:979:23)
+    at Object.startActiveSpan (/home/runner/workspace/node_modules/src/tracing.ts:27:11)
+    at PgSelectBase._prepare (/home/runner/workspace/node_modules/src/pg-core/query-builders/select.ts:978:17)
+    at <anonymous> (/home/runner/workspace/node_modules/src/pg-core/query-builders/select.ts:1009:16)
+    at Object.startActiveSpan (/home/runner/workspace/node_modules/src/tracing.ts:27:11)
+    at PgSelectBase.execute (/home/runner/workspace/node_modules/src/pg-core/query-builders/select.ts:1008:17)
+    at PgSelectBase.then (/home/runner/workspace/node_modules/src/query-promise.ts:31:15)
+    at process.processTicksAndRejections (node:internal/process/task_queues:95:5)
+11:27:12 AM [express] GET /api/admin/bookings 500 in 35ms :: {"message":"Failed to fetch bookings"}
+🔥 API ROUTE DEBUG: GET /api/admin/bookings/stats
+🔥 Query params: {}
+Booking stats error: error: function sum() does not exist
+    at /home/runner/workspace/node_modules/pg-pool/index.js:45:11
+    at process.processTicksAndRejections (node:internal/process/task_queues:95:5)
+    at async <anonymous> (/home/runner/workspace/node_modules/src/node-postgres/session.ts:104:19)
+    at async <anonymous> (/home/runner/workspace/server/admin-api-routes.ts:188:23) {
+  length: 199,
+  severity: 'ERROR',
+  code: '42883',
+  detail: undefined,
+  hint: 'No function matches the given name and argument types. You might need to add explicit type casts.',
+  position: '184',
+  internalPosition: undefined,
+  internalQuery: undefined,
+  where: undefined,
+  schema: undefined,
+  table: undefined,
+  column: undefined,
+  dataType: undefined,
+  constraint: undefined,
+  file: 'parse_func.c',
+  line: '629',
+  routine: 'ParseFuncOrColumn'
+}
+11:27:12 AM [express] GET /api/admin/bookings/stats 500 in 128ms :: {"message":"Failed to fetch booking statistics"}
+🔥 API ROUTE DEBUG: GET /api/admin/bookings/stats
+🔥 Query params: {}
+11:27:13 AM [express] GET /api/user 304 in 1ms :: {"id":3,"username":"EETADMIN","email":"admin@egyptexpress.com","role":"admin"}
+Booking stats error: error: function sum() does not exist
+    at /home/runner/workspace/node_modules/pg-pool/index.js:45:11
+    at process.processTicksAndRejections (node:internal/process/task_queues:95:5)
+    at async <anonymous> (/home/runner/workspace/node_modules/src/node-postgres/session.ts:104:19)
+    at async <anonymous> (/home/runner/workspace/server/admin-api-routes.ts:188:23) {
+  length: 199,
+  severity: 'ERROR',
+  code: '42883',
+  detail: undefined,
+  hint: 'No function matches the given name and argument types. You might need to add explicit type casts.',
+  position: '184',
+  internalPosition: undefined,
+  internalQuery: undefined,
+  where: undefined,
+  schema: undefined,
+  table: undefined,
+  column: undefined,
+  dataType: undefined,
+  constraint: undefined,
+  file: 'parse_func.c',
+  line: '629',
+  routine: 'ParseFuncOrColumn'
+}
+11:27:13 AM [express] GET /api/admin/bookings/stats 500 in 106ms :: {"message":"Failed to fetch booking statistics"}
+🔥 API ROUTE DEBUG: GET /api/admin/bookings
+🔥 Query params: {}
+Bookings fetch error: TypeError: Cannot convert undefined or null to object
+    at Function.entries (<anonymous>)
+    at orderSelectedFields (/home/runner/workspace/node_modules/src/utils.ts:77:16)
+    at <anonymous> (/home/runner/workspace/node_modules/src/utils.ts:88:19)
+    at Array.reduce (<anonymous>)
+    at orderSelectedFields (/home/runner/workspace/node_modules/src/utils.ts:77:32)
+    at <anonymous> (/home/runner/workspace/node_modules/src/pg-core/query-builders/select.ts:979:23)
+    at Object.startActiveSpan (/home/runner/workspace/node_modules/src/tracing.ts:27:11)
+    at PgSelectBase._prepare (/home/runner/workspace/node_modules/src/pg-core/query-builders/select.ts:978:17)
+    at <anonymous> (/home/runner/workspace/node_modules/src/pg-core/query-builders/select.ts:1009:16)
+    at Object.startActiveSpan (/home/runner/workspace/node_modules/src/tracing.ts:27:11)
+    at PgSelectBase.execute (/home/runner/workspace/node_modules/src/pg-core/query-builders/select.ts:1008:17)
+    at PgSelectBase.then (/home/runner/workspace/node_modules/src/query-promise.ts:31:15)
+    at process.processTicksAndRejections (node:internal/process/task_queues:95:5)
+11:27:14 AM [express] GET /api/admin/bookings 500 in 3ms :: {"message":"Failed to fetch bookings"}
+Storage: Attempting to fetch hero slides...
+Storage: Error getting active hero slides: error: relation "hero_slides" does not exist
+    at /home/runner/workspace/node_modules/pg-pool/index.js:45:11
+    at process.processTicksAndRejections (node:internal/process/task_queues:95:5)
+    at async <anonymous> (/home/runner/workspace/node_modules/src/node-postgres/session.ts:104:19)
+    at async DatabaseStorage.getActiveHeroSlides (/home/runner/workspace/server/storage.ts:973:22)
+    at async <anonymous> (/home/runner/workspace/server/hero-slides-routes.ts:8:22) {
+  length: 111,
+  severity: 'ERROR',
+  code: '42P01',
+  detail: undefined,
+  hint: undefined,
+  position: '222',
+  internalPosition: undefined,
+  internalQuery: undefined,
+  where: undefined,
+  schema: undefined,
+  table: undefined,
+  column: undefined,
+  dataType: undefined,
+  constraint: undefined,
+  file: 'parse_relation.c',
+  line: '1381',
+  routine: 'parserOpenTable'
+}
+11:27:16 AM [express] GET /api/hero-slides 200 in 104ms :: []
+11:27:16 AM [express] GET /api/user 304 in 1ms :: {"id":3,"username":"EETADMIN","email":"admin@egyptexpress.com","role":"admin"}
+🔥 API ROUTE DEBUG: GET /api/admin/cities
+🔥 Query params: {}
+🔍 Admin check - Session user: {
+  id: 3,
+  username: 'EETADMIN',
+  role: 'admin',
+  displayName: 'Admin User',
+  avatarUrl: null,
+  email: 'admin@egyptexpress.com'
+}
+🔍 Admin check - Request path: /api/admin/cities
+✅ Admin check passed for user: EETADMIN (ID: 3)
+11:27:17 AM [express] GET /api/admin/cities 200 in 110ms :: []
+🔥 API ROUTE DEBUG: GET /api/admin/airports
+🔥 Query params: {}
+🔍 Admin check - Session user: {
+  id: 3,
+  username: 'EETADMIN',
+  role: 'admin',
+  displayName: 'Admin User',
+  avatarUrl: null,
+  email: 'admin@egyptexpress.com'
+}
+🔍 Admin check - Request path: /api/admin/airports
+✅ Admin check passed for user: EETADMIN (ID: 3)
+🔥 API ROUTE DEBUG: GET /api/admin/countries
+🔥 Query params: {}
+🔍 Admin check - Session user: {
+  id: 3,
+  username: 'EETADMIN',
+  role: 'admin',
+  displayName: 'Admin User',
+  avatarUrl: null,
+  email: 'admin@egyptexpress.com'
+}
+🔍 Admin check - Request path: /api/admin/countries
+✅ Admin check passed for user: EETADMIN (ID: 3)
+🔍 listCountries called with active: undefined
+11:27:18 AM [express] GET /api/user 304 in 1ms :: {"id":3,"username":"EETADMIN","email":"admin@egyptexpress.com","role":"admin"}
+11:27:18 AM [express] GET /api/admin/airports 200 in 107ms :: []
+🔍 listCountries returning: 5 countries
+🔍 Sample data: {
+  id: 1,
+  name: 'Egypt',
+  code: 'EG',
+  description: 'The land of pharaohs and ancient wonders',
+  imageUrl: null,
+  active: true,
+  createdAt: 2025-07-20T11:02:42.638Z,
+  updatedAt: null
+}
+11:27:18 AM [express] GET /api/admin/countries 200 in 106ms :: [{"id":1,"name":"Egypt","code":"EG","description":"The land of pharaohs and ancient wonders","imageUrl":nu…
+11:27:20 AM [express] GET /api/user 304 in 1ms :: {"id":3,"username":"EETADMIN","email":"admin@egyptexpress.com","role":"admin"}
+🔥 API ROUTE DEBUG: GET /api/admin/tours
+🔥 Query params: {}
+🔍 Admin check - Session user: {
+  id: 3,
+  username: 'EETADMIN',
+  role: 'admin',
+  displayName: 'Admin User',
+  avatarUrl: null,
+  email: 'admin@egyptexpress.com'
+}
+🔍 Admin check - Request path: /api/admin/tours
+✅ Admin check passed for user: EETADMIN (ID: 3)
+Error listing tours: error: column "title" does not exist
+    at /home/runner/workspace/node_modules/pg-pool/index.js:45:11
+    at process.processTicksAndRejections (node:internal/process/task_queues:95:5)
+    at async <anonymous> (/home/runner/workspace/node_modules/src/node-postgres/session.ts:104:19)
+    at async DatabaseStorage.listTours (/home/runner/workspace/server/storage.ts:912:14)
+    at async <anonymous> (/home/runner/workspace/server/routes.ts:2827:21) {
+  length: 105,
+  severity: 'ERROR',
+  code: '42703',
+  detail: undefined,
+  hint: undefined,
+  position: '14',
+  internalPosition: undefined,
+  internalQuery: undefined,
+  where: undefined,
+  schema: undefined,
+  table: undefined,
+  column: undefined,
+  dataType: undefined,
+  constraint: undefined,
+  file: 'parse_relation.c',
+  line: '3647',
+  routine: 'errorMissingColumn'
+}
+11:27:31 AM [express] GET /api/admin/tours 200 in 105ms :: []
+11:27:31 AM [express] GET /api/user 304 in 1ms :: {"id":3,"username":"EETADMIN","email":"admin@egyptexpress.com","role":"admin"}
+🔥 API ROUTE DEBUG: GET /api/admin/hotels
+🔥 Query params: {}
+🏨 Listing hotels with active filter: undefined
+🔥 API ROUTE DEBUG: GET /api/admin/hotel-categories
+🔥 Query params: {}
+11:27:36 AM [express] GET /api/admin/hotel-categories 200 in 5ms
+❌ Error listing hotels: error: column "short_description" does not exist
+    at /home/runner/workspace/node_modules/pg-pool/index.js:45:11
+    at process.processTicksAndRejections (node:internal/process/task_queues:95:5)
+    at async <anonymous> (/home/runner/workspace/node_modules/src/node-postgres/session.ts:104:19)
+    at async DatabaseStorage.listHotels (/home/runner/workspace/server/storage.ts:615:22)
+    at async <anonymous> (/home/runner/workspace/server/routes.ts:3359:22) {
+  length: 117,
+  severity: 'ERROR',
+  code: '42703',
+  detail: undefined,
+  hint: undefined,
+  position: '37',
+  internalPosition: undefined,
+  internalQuery: undefined,
+  where: undefined,
+  schema: undefined,
+  table: undefined,
+  column: undefined,
+  dataType: undefined,
+  constraint: undefined,
+  file: 'parse_relation.c',
+  line: '3647',
+  routine: 'errorMissingColumn'
+}
+11:27:36 AM [express] GET /api/admin/hotels 200 in 104ms :: []
+🔥 API ROUTE DEBUG: GET /api/admin/destinations
+🔥 Query params: {}
+11:27:37 AM [express] GET /api/admin/destinations 200 in 4ms
+11:27:37 AM [express] GET /api/user 304 in 1ms :: {"id":3,"username":"EETADMIN","email":"admin@egyptexpress.com","role":"admin"}
+🔥 API ROUTE DEBUG: GET /api/admin/hotel-categories
+🔥 Query params: {}
+11:27:37 AM [express] GET /api/admin/hotel-categories 200 in 5ms
+11:47:25 AM [express] POST /api/login 200 in 868ms :: {"id":3,"username":"EETADMIN","role":"admin","displayName":"Admin User","avatarUrl":null}
+🔥 API ROUTE DEBUG: POST /api/admin/packages/manual
+🔥 Query params: {}
+11:48:21 AM [express] POST /api/admin/packages/manual 200 in 20ms
+🔥 API ROUTE DEBUG: GET /api/packages
+🔥 Query params: {}
+Error listing packages: error: column "route" does not exist
+    at /home/runner/workspace/node_modules/pg-pool/index.js:45:11
+    at process.processTicksAndRejections (node:internal/process/task_queues:95:5)
+    at async <anonymous> (/home/runner/workspace/node_modules/src/node-postgres/session.ts:104:19)
+    at async DatabaseStorage.listPackages (/home/runner/workspace/server/storage.ts:551:14)
+    at async <anonymous> (/home/runner/workspace/server/routes.ts:574:24) {
+  length: 106,
+  severity: 'ERROR',
+  code: '42703',
+  detail: undefined,
+  hint: undefined,
+  position: '308',
+  internalPosition: undefined,
+  internalQuery: undefined,
+  where: undefined,
+  schema: undefined,
+  table: undefined,
+  column: undefined,
+  dataType: undefined,
+  constraint: undefined,
+  file: 'parse_relation.c',
+  line: '3647',
+  routine: 'errorMissingColumn'
+}
+11:50:48 AM [express] GET /api/packages 200 in 106ms :: []
+🔥 API ROUTE DEBUG: GET /api/packages
+🔥 Query params: {}
+🔥 API ROUTE DEBUG: GET /api/destinations
+🔥 Query params: {}
+Error listing packages: error: column "route" does not exist
+    at /home/runner/workspace/node_modules/pg-pool/index.js:45:11
+    at process.processTicksAndRejections (node:internal/process/task_queues:95:5)
+    at async <anonymous> (/home/runner/workspace/node_modules/src/node-postgres/session.ts:104:19)
+    at async DatabaseStorage.listPackages (/home/runner/workspace/server/storage.ts:551:14)
+    at async <anonymous> (/home/runner/workspace/server/routes.ts:574:24) {
+  length: 106,
+  severity: 'ERROR',
+  code: '42703',
+  detail: undefined,
+  hint: undefined,
+  position: '308',
+  internalPosition: undefined,
+  internalQuery: undefined,
+  where: undefined,
+  schema: undefined,
+  table: undefined,
+  column: undefined,
+  dataType: undefined,
+  constraint: undefined,
+  file: 'parse_relation.c',
+  line: '3647',
+  routine: 'errorMissingColumn'
+}
+11:50:49 AM [express] GET /api/packages 304 in 105ms :: []
+11:50:49 AM [express] GET /api/destinations 304 in 103ms :: []
+🔥 API ROUTE DEBUG: GET /api/countries
+🔥 Query params: {}
+🔥 API ROUTE: GET /api/countries
+🔥 Query params: {}
+🔥 Active filter: undefined
+🔍 listCountries called with active: undefined
+🔥 API ROUTE DEBUG: GET /api/tours
+🔥 Query params: {}
+🔍 listCountries returning: 5 countries
+🔍 Sample data: {
+  id: 1,
+  name: 'Egypt',
+  code: 'EG',
+  description: 'The land of pharaohs and ancient wonders',
+  imageUrl: null,
+  active: true,
+  createdAt: 2025-07-20T11:02:42.638Z,
+  updatedAt: null
+}
+🔥 Countries returned from storage: 5
+11:50:49 AM [express] GET /api/countries 304 in 104ms :: [{"id":1,"name":"Egypt","code":"EG","description":"The land of pharaohs and ancient wonders","imageUrl":null,"ac…
+11:50:49 AM [express] GET /api/user 304 in 1ms :: {"id":3,"username":"EETADMIN","email":"admin@egyptexpress.com","role":"admin"}
+Error listing tours: error: column "title" does not exist
+    at /home/runner/workspace/node_modules/pg-pool/index.js:45:11
+    at process.processTicksAndRejections (node:internal/process/task_queues:95:5)
+    at async <anonymous> (/home/runner/workspace/node_modules/src/node-postgres/session.ts:104:19)
+    at async DatabaseStorage.listTours (/home/runner/workspace/server/storage.ts:912:14)
+    at async <anonymous> (/home/runner/workspace/server/routes.ts:1006:21) {
+  length: 105,
+  severity: 'ERROR',
+  code: '42703',
+  detail: undefined,
+  hint: undefined,
+  position: '14',
+  internalPosition: undefined,
+  internalQuery: undefined,
+  where: undefined,
+  schema: undefined,
+  table: undefined,
+  column: undefined,
+  dataType: undefined,
+  constraint: undefined,
+  file: 'parse_relation.c',
+  line: '3647',
+  routine: 'errorMissingColumn'
+}

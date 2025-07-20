@@ -492,11 +492,16 @@ export class DatabaseStorage implements IStorage {
   async createDestination(
     destination: InsertDestination,
   ): Promise<Destination> {
-    const [created] = await db
-      .insert(destinations)
-      .values(destination)
-      .returning();
-    return created;
+    try {
+      const [created] = await db
+        .insert(destinations)
+        .values(destination)
+        .returning();
+      return created;
+    } catch (error) {
+      console.error("Error creating destination:", error);
+      throw error;
+    }
   }
 
   async updateDestination(id: number, destination: Partial<InsertDestination>): Promise<Destination | undefined> {
@@ -1085,7 +1090,7 @@ export class DatabaseStorage implements IStorage {
       return result[0] || undefined;
     } catch (error) {
       console.error("❌ STORAGE ERROR getting menu by location:", error);
-      console.error("❌ Stack trace:", error.stack);
+      console.error("❌ Stack trace:", (error as Error).stack);
       return undefined;
     }
   }
@@ -1129,7 +1134,7 @@ export class DatabaseStorage implements IStorage {
       return result;
     } catch (error) {
       console.error("❌ STORAGE ERROR listing menus:", error);
-      console.error("❌ Stack trace:", error.stack);
+      console.error("❌ Stack trace:", (error as Error).stack);
       return [];
     }
   }

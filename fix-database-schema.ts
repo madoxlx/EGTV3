@@ -1,191 +1,312 @@
-#!/usr/bin/env tsx
-
-import { Pool } from "pg";
-
-const databaseUrl = "postgresql://myuser:MyStrongPass123!@20.77.106.39:5432/mydb";
-
-console.log("🔧 إصلاح هيكل قاعدة البيانات...");
-
-const pool = new Pool({
-  connectionString: databaseUrl,
-  ssl: false,
-  connectionTimeoutMillis: 30000,
-  max: 20,
-});
+import { pool } from "./server/db";
 
 async function fixDatabaseSchema() {
   try {
-    // Fix users table - add password column and map password_hash
-    console.log("🔨 إصلاح جدول المستخدمين...");
+    console.log("🔧 Starting database schema fixes...");
     
-    // Add password column if it doesn't exist
-    await pool.query(`
-      ALTER TABLE users 
-      ADD COLUMN IF NOT EXISTS password TEXT;
-    `);
+    const client = await pool.connect();
     
-    // Copy password_hash to password if password is empty
-    await pool.query(`
-      UPDATE users SET password = password_hash WHERE password IS NULL AND password_hash IS NOT NULL;
-    `);
-    
-    // Add missing columns to users table
-    const userColumns = [
-      'bio TEXT',
-      'date_of_birth TIMESTAMP',
-      'passport_number TEXT',
-      'passport_expiry TIMESTAMP',
-      'emergency_contact TEXT',
-      'emergency_phone TEXT',
-      'dietary_requirements TEXT',
-      'medical_conditions TEXT',
-      'preferred_language TEXT DEFAULT \'en\'',
-      'email_notifications BOOLEAN DEFAULT true',
-      'sms_notifications BOOLEAN DEFAULT false',
-      'marketing_emails BOOLEAN DEFAULT true',
-      'email_verified BOOLEAN DEFAULT false',
-      'phone_verified BOOLEAN DEFAULT false',
-      'last_login_at TIMESTAMP'
-    ];
-
-    for (const column of userColumns) {
-      const columnName = column.split(' ')[0];
-      try {
-        await pool.query(`ALTER TABLE users ADD COLUMN IF NOT EXISTS ${column};`);
-        console.log(`  ✅ عمود ${columnName} تم إضافته`);
-      } catch (error) {
-        console.log(`  ⚠️ عمود ${columnName} موجود بالفعل أو فشل إضافته`);
-      }
-    }
-
     // Fix packages table - add missing columns
-    console.log("🔨 إصلاح جدول الحزم...");
+    console.log("📦 Fixing packages table schema...");
     
-    const packageColumns = [
-      'name TEXT',
-      'overview TEXT',
-      'original_price DOUBLE PRECISION',
-      'currency TEXT DEFAULT \'USD\'',
-      'duration_type TEXT DEFAULT \'days\'',
-      'max_participants INTEGER DEFAULT 10',
-      'min_age INTEGER DEFAULT 0',
-      'max_age INTEGER DEFAULT 100',
-      'difficulty_level TEXT DEFAULT \'easy\'',
-      'country_id INTEGER',
-      'city_id INTEGER',
-      'category_id INTEGER',
-      'start_date TIMESTAMP',
-      'end_date TIMESTAMP',
-      'valid_until TIMESTAMP',
-      'booking_deadline TIMESTAMP',
-      'popular BOOLEAN DEFAULT false',
-      'active BOOLEAN DEFAULT true',
-      'availability_status TEXT DEFAULT \'available\'',
-      'main_image_url TEXT',
-      'included_features JSONB DEFAULT \'[]\'',
-      'excluded_features JSONB DEFAULT \'[]\'',
-      'itinerary JSONB DEFAULT \'[]\'',
-      'highlights JSONB DEFAULT \'[]\'',
-      'what_to_expect JSONB DEFAULT \'[]\'',
-      'additional_info JSONB DEFAULT \'[]\'',
-      'cancellation_policy TEXT',
-      'terms_and_conditions TEXT',
-      'special_instructions TEXT',
-      'meeting_point TEXT',
-      'pickup_locations JSONB DEFAULT \'[]\'',
-      'tags JSONB DEFAULT \'[]\'',
-      'seo_title TEXT',
-      'seo_description TEXT',
-      'seo_keywords TEXT',
-      'reviews_count INTEGER DEFAULT 0',
-      'booking_count INTEGER DEFAULT 0',
-      'views_count INTEGER DEFAULT 0',
-      'wishlist_count INTEGER DEFAULT 0',
-      'status TEXT DEFAULT \'active\''
+    const packageColumnFixes = [
+      "ALTER TABLE packages ADD COLUMN IF NOT EXISTS route TEXT",
+      "ALTER TABLE packages ADD COLUMN IF NOT EXISTS ideal_for JSONB",
+      "ALTER TABLE packages ADD COLUMN IF NOT EXISTS tour_selection JSONB", 
+      "ALTER TABLE packages ADD COLUMN IF NOT EXISTS selected_tour_id INTEGER",
+      "ALTER TABLE packages ADD COLUMN IF NOT EXISTS included_features JSONB",
+      "ALTER TABLE packages ADD COLUMN IF NOT EXISTS optional_excursions JSONB",
+      "ALTER TABLE packages ADD COLUMN IF NOT EXISTS excluded_features JSONB",
+      "ALTER TABLE packages ADD COLUMN IF NOT EXISTS itinerary JSONB",
+      "ALTER TABLE packages ADD COLUMN IF NOT EXISTS what_to_pack JSONB",
+      "ALTER TABLE packages ADD COLUMN IF NOT EXISTS travel_route JSONB",
+      "ALTER TABLE packages ADD COLUMN IF NOT EXISTS accommodation_highlights JSONB",
+      "ALTER TABLE packages ADD COLUMN IF NOT EXISTS transportation_details JSONB",
+      "ALTER TABLE packages ADD COLUMN IF NOT EXISTS transportation TEXT",
+      "ALTER TABLE packages ADD COLUMN IF NOT EXISTS transportation_price INTEGER",
+      "ALTER TABLE packages ADD COLUMN IF NOT EXISTS pricing_mode TEXT DEFAULT 'per_booking'",
+      "ALTER TABLE packages ADD COLUMN IF NOT EXISTS adult_count INTEGER DEFAULT 2",
+      "ALTER TABLE packages ADD COLUMN IF NOT EXISTS children_count INTEGER DEFAULT 0",
+      "ALTER TABLE packages ADD COLUMN IF NOT EXISTS infant_count INTEGER DEFAULT 0",
+      "ALTER TABLE packages ADD COLUMN IF NOT EXISTS max_group_size INTEGER DEFAULT 15",
+      "ALTER TABLE packages ADD COLUMN IF NOT EXISTS language TEXT DEFAULT 'english'",
+      "ALTER TABLE packages ADD COLUMN IF NOT EXISTS best_time_to_visit TEXT",
+      "ALTER TABLE packages ADD COLUMN IF NOT EXISTS selected_hotels JSONB",
+      "ALTER TABLE packages ADD COLUMN IF NOT EXISTS rooms JSONB",
+      "ALTER TABLE packages ADD COLUMN IF NOT EXISTS cancellation_policy TEXT",
+      "ALTER TABLE packages ADD COLUMN IF NOT EXISTS children_policy TEXT",
+      "ALTER TABLE packages ADD COLUMN IF NOT EXISTS terms_and_conditions TEXT",
+      "ALTER TABLE packages ADD COLUMN IF NOT EXISTS excluded_items JSONB",
+      "ALTER TABLE packages ADD COLUMN IF NOT EXISTS custom_text TEXT",
+      "ALTER TABLE packages ADD COLUMN IF NOT EXISTS markup INTEGER",
+      "ALTER TABLE packages ADD COLUMN IF NOT EXISTS markup_type TEXT",
+      "ALTER TABLE packages ADD COLUMN IF NOT EXISTS discount_type TEXT",
+      "ALTER TABLE packages ADD COLUMN IF NOT EXISTS discount_value INTEGER",
+      "ALTER TABLE packages ADD COLUMN IF NOT EXISTS has_arabic_version BOOLEAN DEFAULT false",
+      "ALTER TABLE packages ADD COLUMN IF NOT EXISTS title_ar TEXT",
+      "ALTER TABLE packages ADD COLUMN IF NOT EXISTS description_ar TEXT",
+      "ALTER TABLE packages ADD COLUMN IF NOT EXISTS short_description_ar TEXT",
+      "ALTER TABLE packages ADD COLUMN IF NOT EXISTS overview_ar TEXT",
+      "ALTER TABLE packages ADD COLUMN IF NOT EXISTS best_time_to_visit_ar TEXT",
+      "ALTER TABLE packages ADD COLUMN IF NOT EXISTS cancellation_policy_ar TEXT",
+      "ALTER TABLE packages ADD COLUMN IF NOT EXISTS children_policy_ar TEXT",
+      "ALTER TABLE packages ADD COLUMN IF NOT EXISTS terms_and_conditions_ar TEXT",
+      "ALTER TABLE packages ADD COLUMN IF NOT EXISTS custom_text_ar TEXT",
+      "ALTER TABLE packages ADD COLUMN IF NOT EXISTS included_features_ar JSONB",
+      "ALTER TABLE packages ADD COLUMN IF NOT EXISTS excluded_features_ar JSONB",
+      "ALTER TABLE packages ADD COLUMN IF NOT EXISTS ideal_for_ar JSONB",
+      "ALTER TABLE packages ADD COLUMN IF NOT EXISTS itinerary_ar JSONB",
+      "ALTER TABLE packages ADD COLUMN IF NOT EXISTS what_to_pack_ar JSONB",
+      "ALTER TABLE packages ADD COLUMN IF NOT EXISTS travel_route_ar JSONB",
+      "ALTER TABLE packages ADD COLUMN IF NOT EXISTS optional_excursions_ar JSONB",
+      "ALTER TABLE packages ADD COLUMN IF NOT EXISTS created_at TIMESTAMP DEFAULT NOW()",
+      "ALTER TABLE packages ADD COLUMN IF NOT EXISTS updated_at TIMESTAMP DEFAULT NOW()",
+      "ALTER TABLE packages ADD COLUMN IF NOT EXISTS created_by INTEGER",
+      "ALTER TABLE packages ADD COLUMN IF NOT EXISTS updated_by INTEGER"
     ];
-
-    for (const column of packageColumns) {
-      const columnName = column.split(' ')[0];
-      try {
-        await pool.query(`ALTER TABLE packages ADD COLUMN IF NOT EXISTS ${column};`);
-        console.log(`  ✅ عمود ${columnName} تم إضافته`);
-      } catch (error) {
-        console.log(`  ⚠️ عمود ${columnName} موجود بالفعل أو فشل إضافته`);
-      }
-    }
-
-    // Change price column from INTEGER to DOUBLE PRECISION
-    try {
-      await pool.query(`ALTER TABLE packages ALTER COLUMN price TYPE DOUBLE PRECISION;`);
-      console.log(`  ✅ نوع عمود price تم تعديله`);
-    } catch (error) {
-      console.log(`  ⚠️ فشل في تعديل نوع عمود price:`, error.message);
-    }
-
-    // Change rating column from INTEGER to DOUBLE PRECISION  
-    try {
-      await pool.query(`ALTER TABLE packages ALTER COLUMN rating TYPE DOUBLE PRECISION;`);
-      console.log(`  ✅ نوع عمود rating تم تعديله`);
-    } catch (error) {
-      console.log(`  ⚠️ فشل في تعديل نوع عمود rating:`, error.message);
-    }
-
-    // Rename review_count to reviews_count if needed
-    try {
-      await pool.query(`ALTER TABLE packages RENAME COLUMN review_count TO reviews_count;`);
-      console.log(`  ✅ عمود review_count تم إعادة تسميته إلى reviews_count`);
-    } catch (error) {
-      // Column might already be renamed or not exist
-    }
-
-    // Add admin user with correct password hash
-    console.log("👤 إضافة مستخدم الإدارة...");
-    try {
-      // Hash for password "admin123" 
-      const hashedPassword = '$2a$10$rQJ4lWrKhiHy1KOPTy5oquxOhzY2.LfVGF0rLbZHlkODlXgJD4v9C';
-      
-      await pool.query(`
-        INSERT INTO users (username, password, password_hash, email, role, display_name, first_name, last_name)
-        VALUES ('admin', $1, $1, 'admin@saharajourneys.com', 'admin', 'Administrator', 'Admin', 'User')
-        ON CONFLICT (username) DO UPDATE SET 
-          password = $1,
-          password_hash = $1,
-          email = 'admin@saharajourneys.com',
-          role = 'admin';
-      `, [hashedPassword]);
-      
-      console.log("✅ مستخدم الإدارة تم إضافته/تحديثه (admin/admin123)");
-    } catch (error) {
-      console.log("❌ فشل في إضافة مستخدم الإدارة:", error.message);
-    }
-
-    // Test the database structure
-    console.log("🧪 اختبار هيكل قاعدة البيانات...");
     
-    // Test packages query
-    try {
-      await pool.query('SELECT id, title, overview, price FROM packages LIMIT 1');
-      console.log("✅ استعلام الحزم يعمل بنجاح");
-    } catch (error) {
-      console.log("❌ فشل استعلام الحزم:", error.message);
+    for (const query of packageColumnFixes) {
+      await client.query(query);
     }
+    console.log("✅ Packages table schema fixed");
 
-    // Test users query
-    try {
-      await pool.query('SELECT id, username, password FROM users LIMIT 1');
-      console.log("✅ استعلام المستخدمين يعمل بنجاح");
-    } catch (error) {
-      console.log("❌ فشل استعلام المستخدمين:", error.message);
+    // Fix cart_items table - add missing columns
+    console.log("🛒 Fixing cart_items table schema...");
+    
+    const cartColumnFixes = [
+      "ALTER TABLE cart_items ADD COLUMN IF NOT EXISTS item_id INTEGER",
+      "ALTER TABLE cart_items ADD COLUMN IF NOT EXISTS item_type TEXT",
+      "ALTER TABLE cart_items ADD COLUMN IF NOT EXISTS item_name TEXT",
+      "ALTER TABLE cart_items ADD COLUMN IF NOT EXISTS quantity INTEGER DEFAULT 1",
+      "ALTER TABLE cart_items ADD COLUMN IF NOT EXISTS adults INTEGER DEFAULT 1",
+      "ALTER TABLE cart_items ADD COLUMN IF NOT EXISTS children INTEGER DEFAULT 0",
+      "ALTER TABLE cart_items ADD COLUMN IF NOT EXISTS infants INTEGER DEFAULT 0",
+      "ALTER TABLE cart_items ADD COLUMN IF NOT EXISTS check_in_date TIMESTAMP",
+      "ALTER TABLE cart_items ADD COLUMN IF NOT EXISTS check_out_date TIMESTAMP",
+      "ALTER TABLE cart_items ADD COLUMN IF NOT EXISTS travel_date TIMESTAMP",
+      "ALTER TABLE cart_items ADD COLUMN IF NOT EXISTS configuration JSONB",
+      "ALTER TABLE cart_items ADD COLUMN IF NOT EXISTS unit_price INTEGER",
+      "ALTER TABLE cart_items ADD COLUMN IF NOT EXISTS discounted_price INTEGER",
+      "ALTER TABLE cart_items ADD COLUMN IF NOT EXISTS total_price INTEGER",
+      "ALTER TABLE cart_items ADD COLUMN IF NOT EXISTS notes TEXT",
+      "ALTER TABLE cart_items ADD COLUMN IF NOT EXISTS created_at TIMESTAMP DEFAULT NOW()",
+      "ALTER TABLE cart_items ADD COLUMN IF NOT EXISTS updated_at TIMESTAMP DEFAULT NOW()",
+      "ALTER TABLE cart_items ADD COLUMN IF NOT EXISTS created_by INTEGER",
+      "ALTER TABLE cart_items ADD COLUMN IF NOT EXISTS updated_by INTEGER"
+    ];
+    
+    for (const query of cartColumnFixes) {
+      await client.query(query);
     }
+    console.log("✅ Cart items table schema fixed");
 
-    console.log("🎉 إصلاح قاعدة البيانات اكتمل!");
+    // Fix homepage_sections table - add missing columns
+    console.log("🏠 Fixing homepage_sections table schema...");
+    
+    const homepageColumnFixes = [
+      "ALTER TABLE homepage_sections ADD COLUMN IF NOT EXISTS tourists_count TEXT DEFAULT '5000+'",
+      "ALTER TABLE homepage_sections ADD COLUMN IF NOT EXISTS destinations_count TEXT DEFAULT '300+'",
+      "ALTER TABLE homepage_sections ADD COLUMN IF NOT EXISTS hotels_count TEXT DEFAULT '150+'",
+      "ALTER TABLE homepage_sections ADD COLUMN IF NOT EXISTS tourists_label TEXT DEFAULT 'Tourists'",
+      "ALTER TABLE homepage_sections ADD COLUMN IF NOT EXISTS destinations_label TEXT DEFAULT 'Destinations'",
+      "ALTER TABLE homepage_sections ADD COLUMN IF NOT EXISTS hotels_label TEXT DEFAULT 'Hotels'",
+      "ALTER TABLE homepage_sections ADD COLUMN IF NOT EXISTS tourists_label_ar TEXT DEFAULT 'السياح'",
+      "ALTER TABLE homepage_sections ADD COLUMN IF NOT EXISTS destinations_label_ar TEXT DEFAULT 'الوجهات'",
+      "ALTER TABLE homepage_sections ADD COLUMN IF NOT EXISTS hotels_label_ar TEXT DEFAULT 'الفنادق'",
+      "ALTER TABLE homepage_sections ADD COLUMN IF NOT EXISTS feature1_title TEXT DEFAULT 'Flexible Booking'",
+      "ALTER TABLE homepage_sections ADD COLUMN IF NOT EXISTS feature1_description TEXT DEFAULT 'Free cancellation options available'",
+      "ALTER TABLE homepage_sections ADD COLUMN IF NOT EXISTS feature1_icon TEXT DEFAULT 'calendar'",
+      "ALTER TABLE homepage_sections ADD COLUMN IF NOT EXISTS feature2_title TEXT DEFAULT 'Expert Guides'",
+      "ALTER TABLE homepage_sections ADD COLUMN IF NOT EXISTS feature2_description TEXT DEFAULT 'Local, knowledgeable tour guides'",
+      "ALTER TABLE homepage_sections ADD COLUMN IF NOT EXISTS feature2_icon TEXT DEFAULT 'user-check'",
+      "ALTER TABLE homepage_sections ADD COLUMN IF NOT EXISTS features JSONB DEFAULT '[]'",
+      "ALTER TABLE homepage_sections ADD COLUMN IF NOT EXISTS title_ar TEXT",
+      "ALTER TABLE homepage_sections ADD COLUMN IF NOT EXISTS subtitle_ar TEXT",
+      "ALTER TABLE homepage_sections ADD COLUMN IF NOT EXISTS description_ar TEXT",
+      "ALTER TABLE homepage_sections ADD COLUMN IF NOT EXISTS button_text_ar TEXT",
+      "ALTER TABLE homepage_sections ADD COLUMN IF NOT EXISTS feature1_title_ar TEXT",
+      "ALTER TABLE homepage_sections ADD COLUMN IF NOT EXISTS feature1_description_ar TEXT",
+      "ALTER TABLE homepage_sections ADD COLUMN IF NOT EXISTS feature2_title_ar TEXT",
+      "ALTER TABLE homepage_sections ADD COLUMN IF NOT EXISTS feature2_description_ar TEXT",
+      "ALTER TABLE homepage_sections ADD COLUMN IF NOT EXISTS order_position INTEGER DEFAULT 0",
+      "ALTER TABLE homepage_sections ADD COLUMN IF NOT EXISTS active BOOLEAN DEFAULT true",
+      "ALTER TABLE homepage_sections ADD COLUMN IF NOT EXISTS show_statistics BOOLEAN DEFAULT true",
+      "ALTER TABLE homepage_sections ADD COLUMN IF NOT EXISTS show_features BOOLEAN DEFAULT true",
+      "ALTER TABLE homepage_sections ADD COLUMN IF NOT EXISTS image_position TEXT DEFAULT 'left'",
+      "ALTER TABLE homepage_sections ADD COLUMN IF NOT EXISTS background_color TEXT DEFAULT 'white'",
+      "ALTER TABLE homepage_sections ADD COLUMN IF NOT EXISTS text_color TEXT DEFAULT 'black'",
+      "ALTER TABLE homepage_sections ADD COLUMN IF NOT EXISTS created_at TIMESTAMP DEFAULT NOW()",
+      "ALTER TABLE homepage_sections ADD COLUMN IF NOT EXISTS updated_at TIMESTAMP DEFAULT NOW()",
+      "ALTER TABLE homepage_sections ADD COLUMN IF NOT EXISTS created_by INTEGER",
+      "ALTER TABLE homepage_sections ADD COLUMN IF NOT EXISTS updated_by INTEGER"
+    ];
+    
+    for (const query of homepageColumnFixes) {
+      await client.query(query);
+    }
+    console.log("✅ Homepage sections table schema fixed");
 
+    // Fix bookings table - add missing columns
+    console.log("📋 Fixing bookings table schema...");
+    
+    const bookingColumnFixes = [
+      "ALTER TABLE bookings ADD COLUMN IF NOT EXISTS booking_reference TEXT",
+      "ALTER TABLE bookings ADD COLUMN IF NOT EXISTS user_id INTEGER",
+      "ALTER TABLE bookings ADD COLUMN IF NOT EXISTS package_id INTEGER",
+      "ALTER TABLE bookings ADD COLUMN IF NOT EXISTS tour_id INTEGER",
+      "ALTER TABLE bookings ADD COLUMN IF NOT EXISTS hotel_id INTEGER",
+      "ALTER TABLE bookings ADD COLUMN IF NOT EXISTS booking_date TIMESTAMP DEFAULT NOW()",
+      "ALTER TABLE bookings ADD COLUMN IF NOT EXISTS travel_date TIMESTAMP",
+      "ALTER TABLE bookings ADD COLUMN IF NOT EXISTS return_date TIMESTAMP",
+      "ALTER TABLE bookings ADD COLUMN IF NOT EXISTS number_of_travelers INTEGER",
+      "ALTER TABLE bookings ADD COLUMN IF NOT EXISTS adult_count INTEGER",
+      "ALTER TABLE bookings ADD COLUMN IF NOT EXISTS child_count INTEGER DEFAULT 0",
+      "ALTER TABLE bookings ADD COLUMN IF NOT EXISTS infant_count INTEGER DEFAULT 0",
+      "ALTER TABLE bookings ADD COLUMN IF NOT EXISTS total_price INTEGER",
+      "ALTER TABLE bookings ADD COLUMN IF NOT EXISTS base_price INTEGER",
+      "ALTER TABLE bookings ADD COLUMN IF NOT EXISTS tax_amount INTEGER DEFAULT 0",
+      "ALTER TABLE bookings ADD COLUMN IF NOT EXISTS discount_amount INTEGER DEFAULT 0",
+      "ALTER TABLE bookings ADD COLUMN IF NOT EXISTS currency TEXT DEFAULT 'EGP'",
+      "ALTER TABLE bookings ADD COLUMN IF NOT EXISTS status TEXT DEFAULT 'pending'",
+      "ALTER TABLE bookings ADD COLUMN IF NOT EXISTS payment_status TEXT DEFAULT 'pending'",
+      "ALTER TABLE bookings ADD COLUMN IF NOT EXISTS payment_method TEXT",
+      "ALTER TABLE bookings ADD COLUMN IF NOT EXISTS payment_reference TEXT",
+      "ALTER TABLE bookings ADD COLUMN IF NOT EXISTS special_requests TEXT",
+      "ALTER TABLE bookings ADD COLUMN IF NOT EXISTS notes TEXT",
+      "ALTER TABLE bookings ADD COLUMN IF NOT EXISTS confirmed_at TIMESTAMP",
+      "ALTER TABLE bookings ADD COLUMN IF NOT EXISTS cancelled_at TIMESTAMP",
+      "ALTER TABLE bookings ADD COLUMN IF NOT EXISTS cancellation_reason TEXT",
+      "ALTER TABLE bookings ADD COLUMN IF NOT EXISTS created_at TIMESTAMP DEFAULT NOW()",
+      "ALTER TABLE bookings ADD COLUMN IF NOT EXISTS updated_at TIMESTAMP DEFAULT NOW()",
+      "ALTER TABLE bookings ADD COLUMN IF NOT EXISTS created_by INTEGER",
+      "ALTER TABLE bookings ADD COLUMN IF NOT EXISTS updated_by INTEGER",
+      "ALTER TABLE bookings ADD COLUMN IF NOT EXISTS total_amount INTEGER"
+    ];
+    
+    for (const query of bookingColumnFixes) {
+      await client.query(query);
+    }
+    console.log("✅ Bookings table schema fixed");
+
+    // Create missing tables if they don't exist
+    console.log("🆕 Creating missing tables...");
+
+    const createTableQueries = [
+      `CREATE TABLE IF NOT EXISTS orders (
+        id SERIAL PRIMARY KEY,
+        order_number TEXT UNIQUE,
+        user_id INTEGER,
+        status TEXT DEFAULT 'pending',
+        payment_status TEXT DEFAULT 'pending',
+        total_amount INTEGER,
+        currency TEXT DEFAULT 'EGP',
+        payment_method TEXT,
+        payment_reference TEXT,
+        billing_address JSONB,
+        special_requests TEXT,
+        created_at TIMESTAMP DEFAULT NOW(),
+        updated_at TIMESTAMP DEFAULT NOW(),
+        created_by INTEGER,
+        updated_by INTEGER
+      )`,
+      
+      `CREATE TABLE IF NOT EXISTS order_items (
+        id SERIAL PRIMARY KEY,
+        order_id INTEGER REFERENCES orders(id),
+        item_type TEXT NOT NULL,
+        item_id INTEGER NOT NULL,
+        item_name TEXT NOT NULL,
+        quantity INTEGER NOT NULL DEFAULT 1,
+        adults INTEGER DEFAULT 1,
+        children INTEGER DEFAULT 0,
+        infants INTEGER DEFAULT 0,
+        check_in_date TIMESTAMP,
+        check_out_date TIMESTAMP,
+        travel_date TIMESTAMP,
+        configuration JSONB,
+        unit_price INTEGER NOT NULL,
+        discounted_price INTEGER,
+        total_price INTEGER NOT NULL,
+        notes TEXT,
+        created_at TIMESTAMP DEFAULT NOW(),
+        updated_at TIMESTAMP DEFAULT NOW(),
+        created_by INTEGER,
+        updated_by INTEGER
+      )`,
+
+      `CREATE TABLE IF NOT EXISTS package_categories (
+        id SERIAL PRIMARY KEY,
+        name TEXT NOT NULL,
+        description TEXT,
+        active BOOLEAN DEFAULT true,
+        created_at TIMESTAMP DEFAULT NOW(),
+        updated_at TIMESTAMP DEFAULT NOW()
+      )`,
+
+      `CREATE TABLE IF NOT EXISTS tour_categories (
+        id SERIAL PRIMARY KEY,
+        name TEXT NOT NULL,
+        description TEXT,
+        active BOOLEAN DEFAULT true,
+        created_at TIMESTAMP DEFAULT NOW(),
+        updated_at TIMESTAMP DEFAULT NOW()
+      )`
+    ];
+    
+    for (const query of createTableQueries) {
+      await client.query(query);
+    }
+    console.log("✅ Missing tables created");
+
+    // Add some default data
+    console.log("📝 Adding default data...");
+    
+    // Add default package categories
+    await client.query(`
+      INSERT INTO package_categories (name, description) 
+      VALUES 
+        ('Beach & Resort', 'Beach and resort packages'),
+        ('City Tours', 'Urban exploration packages'),
+        ('Adventure', 'Adventure and outdoor packages'),
+        ('Cultural', 'Cultural and historical packages')
+      ON CONFLICT DO NOTHING
+    `);
+
+    // Add default tour categories  
+    await client.query(`
+      INSERT INTO tour_categories (name, description)
+      VALUES
+        ('Sightseeing', 'City and landmark tours'),
+        ('Adventure', 'Adventure and outdoor tours'), 
+        ('Cultural', 'Cultural and historical tours'),
+        ('Food & Drink', 'Culinary experiences')
+      ON CONFLICT DO NOTHING
+    `);
+
+    console.log("✅ Default data added");
+
+    client.release();
+    
+    console.log("🎉 Database schema fixes completed successfully!");
+    console.log("📊 Summary of fixes:");
+    console.log("  ✅ Packages table: Added missing columns for manual packages");
+    console.log("  ✅ Cart items table: Added missing columns for cart functionality");
+    console.log("  ✅ Homepage sections: Added missing columns for sections");
+    console.log("  ✅ Bookings table: Added missing columns for booking system");
+    console.log("  ✅ Created missing tables: orders, order_items, categories");
+    console.log("  ✅ Added default category data");
+    
   } catch (error) {
-    console.error("❌ خطأ في إصلاح قاعدة البيانات:", error);
+    console.error("❌ Error fixing database schema:", error);
     throw error;
-  } finally {
-    await pool.end();
   }
 }
 
-fixDatabaseSchema().catch(console.error);
+// Run the script
+fixDatabaseSchema().then(() => {
+  console.log("🚀 Database schema fix completed!");
+  process.exit(0);
+}).catch((error) => {
+  console.error("💥 Database schema fix failed:", error);
+  process.exit(1);
+});
