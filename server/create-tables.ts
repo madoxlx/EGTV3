@@ -288,6 +288,94 @@ async function createTables() {
       );
     `);
 
+    // Cart Items
+    await pool.query(`
+      CREATE TABLE IF NOT EXISTS cart_items (
+        id SERIAL PRIMARY KEY,
+        user_id INTEGER,
+        session_id VARCHAR(255),
+        package_id INTEGER,
+        tour_id INTEGER,
+        hotel_id INTEGER,
+        item_type VARCHAR(50) NOT NULL DEFAULT 'package',
+        quantity INTEGER NOT NULL DEFAULT 1,
+        price DOUBLE PRECISION NOT NULL DEFAULT 0,
+        total_price DOUBLE PRECISION NOT NULL DEFAULT 0,
+        selected_options JSONB DEFAULT '{}',
+        special_requests TEXT,
+        travel_date TIMESTAMP,
+        number_of_travelers INTEGER DEFAULT 1,
+        room_preferences JSONB DEFAULT '{}',
+        meal_preferences JSONB DEFAULT '{}',
+        notes TEXT,
+        status VARCHAR(50) DEFAULT 'active',
+        created_at TIMESTAMP NOT NULL DEFAULT NOW(),
+        updated_at TIMESTAMP DEFAULT NOW(),
+        FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE,
+        FOREIGN KEY (package_id) REFERENCES packages(id) ON DELETE CASCADE,
+        CONSTRAINT cart_items_user_or_session_check 
+          CHECK (user_id IS NOT NULL OR session_id IS NOT NULL)
+      );
+    `);
+
+    // Orders
+    await pool.query(`
+      CREATE TABLE IF NOT EXISTS orders (
+        id SERIAL PRIMARY KEY,
+        user_id INTEGER,
+        session_id VARCHAR(255),
+        order_number VARCHAR(100) NOT NULL UNIQUE,
+        total_amount DOUBLE PRECISION NOT NULL DEFAULT 0,
+        currency VARCHAR(10) DEFAULT 'USD',
+        status VARCHAR(50) NOT NULL DEFAULT 'pending',
+        payment_status VARCHAR(50) DEFAULT 'pending',
+        payment_method VARCHAR(50),
+        payment_reference VARCHAR(255),
+        billing_address JSONB DEFAULT '{}',
+        shipping_address JSONB DEFAULT '{}',
+        customer_info JSONB DEFAULT '{}',
+        special_instructions TEXT,
+        order_date TIMESTAMP NOT NULL DEFAULT NOW(),
+        payment_date TIMESTAMP,
+        completion_date TIMESTAMP,
+        cancellation_date TIMESTAMP,
+        cancellation_reason TEXT,
+        created_at TIMESTAMP NOT NULL DEFAULT NOW(),
+        updated_at TIMESTAMP DEFAULT NOW(),
+        FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE SET NULL,
+        CONSTRAINT orders_user_or_session_check 
+          CHECK (user_id IS NOT NULL OR session_id IS NOT NULL)
+      );
+    `);
+
+    // Order Items
+    await pool.query(`
+      CREATE TABLE IF NOT EXISTS order_items (
+        id SERIAL PRIMARY KEY,
+        order_id INTEGER NOT NULL,
+        package_id INTEGER,
+        tour_id INTEGER,
+        hotel_id INTEGER,
+        item_type VARCHAR(50) NOT NULL DEFAULT 'package',
+        item_name VARCHAR(255) NOT NULL,
+        item_description TEXT,
+        quantity INTEGER NOT NULL DEFAULT 1,
+        unit_price DOUBLE PRECISION NOT NULL DEFAULT 0,
+        total_price DOUBLE PRECISION NOT NULL DEFAULT 0,
+        selected_options JSONB DEFAULT '{}',
+        travel_date TIMESTAMP,
+        number_of_travelers INTEGER DEFAULT 1,
+        room_preferences JSONB DEFAULT '{}',
+        meal_preferences JSONB DEFAULT '{}',
+        special_requests TEXT,
+        status VARCHAR(50) DEFAULT 'confirmed',
+        created_at TIMESTAMP NOT NULL DEFAULT NOW(),
+        updated_at TIMESTAMP DEFAULT NOW(),
+        FOREIGN KEY (order_id) REFERENCES orders(id) ON DELETE CASCADE,
+        FOREIGN KEY (package_id) REFERENCES packages(id) ON DELETE SET NULL
+      );
+    `);
+
     // Tours
     await pool.query(`
       CREATE TABLE IF NOT EXISTS tours (
