@@ -25,6 +25,7 @@ import {
   Building,
   Car,
   FileText,
+  Camera,
 } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 
