@@ -13,6 +13,13 @@ import { Badge } from "@/components/ui/badge";
 import { Separator } from "@/components/ui/separator";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+  DropdownMenuSeparator,
+} from "@/components/ui/dropdown-menu";
+import {
   MapPin,
   Calendar,
   Users,
@@ -26,6 +33,14 @@ import {
   Car,
   FileText,
   Camera,
+  Trash2,
+  Copy,
+  Eye,
+  MoreVertical,
+  Settings,
+  Download,
+  Heart,
+  Bookmark,
 } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 
@@ -173,93 +188,273 @@ export default function ManualPackageDetail() {
     }
   };
 
+  // Admin-only functions
+  const handleDeletePackage = async () => {
+    if (window.confirm("Are you sure you want to delete this package? This action cannot be undone.")) {
+      try {
+        const response = await fetch(`/api/admin/packages/${packageId}`, {
+          method: "DELETE",
+        });
+        if (response.ok) {
+          toast({
+            title: "Package Deleted",
+            description: "Package has been successfully deleted",
+          });
+          navigate("/admin/packages");
+        } else {
+          throw new Error("Failed to delete package");
+        }
+      } catch (error) {
+        toast({
+          title: "Delete Error",
+          description: "Failed to delete package",
+          variant: "destructive",
+        });
+      }
+    }
+  };
+
+  const handleDuplicatePackage = async () => {
+    try {
+      const response = await fetch(`/api/admin/packages/${packageId}/duplicate`, {
+        method: "POST",
+      });
+      if (response.ok) {
+        const newPackage = await response.json();
+        toast({
+          title: "Package Duplicated",
+          description: "Package has been successfully duplicated",
+        });
+        navigate(`/admin/packages/edit-manual/${newPackage.id}`);
+      } else {
+        throw new Error("Failed to duplicate package");
+      }
+    } catch (error) {
+      toast({
+        title: "Duplicate Error",
+        description: "Failed to duplicate package",
+        variant: "destructive",
+      });
+    }
+  };
+
+  const handleToggleFeatured = async () => {
+    try {
+      const response = await fetch(`/api/admin/packages/${packageId}/toggle-featured`, {
+        method: "PATCH",
+      });
+      if (response.ok) {
+        toast({
+          title: "Package Updated",
+          description: `Package ${packageData.featured ? 'removed from' : 'added to'} featured`,
+        });
+        // Refresh the data
+        window.location.reload();
+      } else {
+        throw new Error("Failed to toggle featured status");
+      }
+    } catch (error) {
+      toast({
+        title: "Update Error",
+        description: "Failed to update featured status",
+        variant: "destructive",
+      });
+    }
+  };
+
+  const handleExportPackage = async () => {
+    try {
+      const response = await fetch(`/api/admin/packages/${packageId}/export`);
+      if (response.ok) {
+        const blob = await response.blob();
+        const url = window.URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.style.display = 'none';
+        a.href = url;
+        a.download = `package-${packageData.title.replace(/\s+/g, '-').toLowerCase()}.json`;
+        document.body.appendChild(a);
+        a.click();
+        window.URL.revokeObjectURL(url);
+        toast({
+          title: "Export Successful",
+          description: "Package data has been exported",
+        });
+      } else {
+        throw new Error("Failed to export package");
+      }
+    } catch (error) {
+      toast({
+        title: "Export Error",
+        description: "Failed to export package data",
+        variant: "destructive",
+      });
+    }
+  };
+
   return (
     <PackageLayout>
-      <div className="container mx-auto px-4 py-8">
-        {/* Header Section */}
-        <div className="mb-8">
-          <div className="flex items-center justify-between mb-4">
-            <div className="flex items-center gap-2">
-              <Badge variant="secondary">Manual Package</Badge>
-              {packageData.featured && (
-                <Badge variant="default">Featured</Badge>
+      {/* Dynamic Hero Header Section */}
+      <div className="relative">
+        {/* Hero Background */}
+        <div className="relative h-96 overflow-hidden">
+          {packageData.imageUrl ? (
+            <div className="absolute inset-0">
+              <img
+                src={`${packageData.imageUrl}?v=${packageData.updatedAt || Date.now()}`}
+                alt={packageData.title}
+                className="w-full h-full object-cover"
+                onError={(e) => {
+                  const img = e.target as HTMLImageElement;
+                  img.style.display = "none";
+                }}
+              />
+              <div className="absolute inset-0 bg-gradient-to-r from-black/70 via-black/50 to-black/30"></div>
+            </div>
+          ) : (
+            <div className="absolute inset-0 bg-gradient-to-r from-blue-600 via-purple-600 to-indigo-700"></div>
+          )}
+          
+          {/* Hero Content */}
+          <div className="relative z-10 h-full flex items-end">
+            <div className="container mx-auto px-4 pb-8">
+              {/* Admin Controls Bar */}
+              {isAdmin && (
+                <div className="absolute top-4 right-4 z-20">
+                  <div className="flex items-center gap-2">
+                    <Button
+                      variant="secondary"
+                      size="sm"
+                      onClick={handleEdit}
+                      className="flex items-center gap-2 bg-white/10 backdrop-blur-sm border-white/20 text-white hover:bg-white/20"
+                    >
+                      <Edit className="h-4 w-4" />
+                      Edit
+                    </Button>
+                    
+                    <DropdownMenu>
+                      <DropdownMenuTrigger asChild>
+                        <Button
+                          variant="secondary"
+                          size="sm"
+                          className="flex items-center gap-2 bg-white/10 backdrop-blur-sm border-white/20 text-white hover:bg-white/20"
+                        >
+                          <MoreVertical className="h-4 w-4" />
+                          Actions
+                        </Button>
+                      </DropdownMenuTrigger>
+                      <DropdownMenuContent align="end" className="w-48">
+                        <DropdownMenuItem onClick={handleShare} className="flex items-center gap-2">
+                          <Share className="h-4 w-4" />
+                          Share Package
+                        </DropdownMenuItem>
+                        <DropdownMenuItem onClick={handleDuplicatePackage} className="flex items-center gap-2">
+                          <Copy className="h-4 w-4" />
+                          Duplicate Package
+                        </DropdownMenuItem>
+                        <DropdownMenuItem onClick={handleToggleFeatured} className="flex items-center gap-2">
+                          <Star className="h-4 w-4" />
+                          {packageData.featured ? 'Remove Featured' : 'Mark Featured'}
+                        </DropdownMenuItem>
+                        <DropdownMenuItem onClick={handleExportPackage} className="flex items-center gap-2">
+                          <Download className="h-4 w-4" />
+                          Export Data
+                        </DropdownMenuItem>
+                        <DropdownMenuSeparator />
+                        <DropdownMenuItem 
+                          onClick={handleDeletePackage} 
+                          className="flex items-center gap-2 text-red-600 hover:text-red-700 hover:bg-red-50"
+                        >
+                          <Trash2 className="h-4 w-4" />
+                          Delete Package
+                        </DropdownMenuItem>
+                      </DropdownMenuContent>
+                    </DropdownMenu>
+                  </div>
+                </div>
               )}
-              {destination && (
-                <Badge variant="outline" className="flex items-center gap-1">
-                  <MapPin className="h-3 w-3" />
-                  {destination.name}, {destination.country}
+
+              {/* Badges and Metadata */}
+              <div className="flex flex-wrap items-center gap-2 mb-4">
+                <Badge variant="secondary" className="bg-white/20 backdrop-blur-sm text-white border-white/30">
+                  Manual Package
                 </Badge>
-              )}
-            </div>
-
-            {/* Admin Edit/Share Buttons */}
-            {isAdmin && (
-              <div className="flex items-center gap-2">
-                <Button
-                  variant="outline"
-                  size="sm"
-                  onClick={handleEdit}
-                  className="flex items-center gap-2"
-                >
-                  <Edit className="h-4 w-4" />
-                  Edit
-                </Button>
-                <Button
-                  variant="outline"
-                  size="sm"
-                  onClick={handleShare}
-                  className="flex items-center gap-2"
-                >
-                  <Share className="h-4 w-4" />
-                  Share
-                </Button>
+                {packageData.featured && (
+                  <Badge className="bg-gradient-to-r from-yellow-400 to-orange-500 text-white border-0">
+                    <Star className="h-3 w-3 mr-1" />
+                    Featured
+                  </Badge>
+                )}
+                {destination && (
+                  <Badge variant="outline" className="bg-white/10 backdrop-blur-sm text-white border-white/30 flex items-center gap-1">
+                    <MapPin className="h-3 w-3" />
+                    {destination.name}, {destination.country}
+                  </Badge>
+                )}
+                <Badge variant="outline" className="bg-white/10 backdrop-blur-sm text-white border-white/30 flex items-center gap-1">
+                  <Calendar className="h-3 w-3" />
+                  {packageData.duration} days
+                </Badge>
               </div>
-            )}
-          </div>
 
-          <h1 className="text-3xl font-bold mb-2">{packageData.title}</h1>
-
-          <div className="flex items-center gap-6 text-sm text-gray-600 mb-4">
-            <div className="flex items-center gap-1">
-              <Calendar className="h-4 w-4" />
-              {packageData.duration} days
-            </div>
-            {packageData.startDate && packageData.endDate && (
-              <div className="flex items-center gap-1">
-                <Clock className="h-4 w-4" />
-                {new Date(packageData.startDate).toLocaleDateString()} -{" "}
-                {new Date(packageData.endDate).toLocaleDateString()}
+              {/* Title and Description */}
+              <h1 className="text-4xl md:text-5xl font-bold text-white mb-4 leading-tight">
+                {packageData.title}
+              </h1>
+              
+              {/* Package Meta Information */}
+              <div className="flex flex-wrap items-center gap-6 text-white/90 mb-6">
+                {packageData.startDate && packageData.endDate && (
+                  <div className="flex items-center gap-2">
+                    <Clock className="h-5 w-5" />
+                    <span className="text-lg">
+                      {new Date(packageData.startDate).toLocaleDateString()} - {new Date(packageData.endDate).toLocaleDateString()}
+                    </span>
+                  </div>
+                )}
+                <div className="flex items-center gap-2">
+                  <Users className="h-5 w-5" />
+                  <span className="text-lg">Group Tour</span>
+                </div>
               </div>
-            )}
-          </div>
 
-          <div className="flex items-center gap-4 mb-6">
-            <div className="text-2xl font-bold text-green-600">
-              {packageData.discountedPrice || packageData.price} LE
-              {packageData.discountedPrice && (
-                <span className="text-lg text-gray-500 line-through ml-2">
-                  {packageData.price} LE
-                </span>
-              )}
+              {/* Price Section */}
+              <div className="flex items-center gap-4">
+                <div className="bg-white/10 backdrop-blur-sm rounded-lg px-6 py-4 border border-white/20">
+                  <div className="text-3xl md:text-4xl font-bold text-white">
+                    {packageData.discountedPrice || packageData.price} LE
+                    {packageData.discountedPrice && (
+                      <span className="text-xl text-white/70 line-through ml-3">
+                        {packageData.price} LE
+                      </span>
+                    )}
+                  </div>
+                  <p className="text-white/80 text-lg">per person</p>
+                </div>
+                
+                {/* User Action Buttons */}
+                {!isAdmin && (
+                  <div className="flex items-center gap-3">
+                    <Button size="lg" className="bg-gradient-to-r from-green-500 to-green-600 hover:from-green-600 hover:to-green-700 text-white px-8">
+                      Book Now
+                    </Button>
+                    <Button
+                      variant="outline"
+                      size="lg"
+                      className="bg-white/10 backdrop-blur-sm border-white/30 text-white hover:bg-white/20"
+                      onClick={handleShare}
+                    >
+                      <Heart className="h-4 w-4 mr-2" />
+                      Save
+                    </Button>
+                  </div>
+                )}
+              </div>
             </div>
-            <span className="text-sm text-gray-500">per person</span>
           </div>
         </div>
+      </div>
 
-        {/* Main Image */}
-        {packageData.imageUrl && (
-          <div className="mb-8">
-            <img
-              src={`${packageData.imageUrl}?v=${packageData.updatedAt || Date.now()}`}
-              alt={packageData.title}
-              className="w-full h-64 object-cover rounded-lg"
-              onError={(e) => {
-                const img = e.target as HTMLImageElement;
-                img.style.display = "none";
-              }}
-            />
-          </div>
-        )}
+      <div className="container mx-auto px-4 py-8">
 
         {/* Content Grid */}
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
