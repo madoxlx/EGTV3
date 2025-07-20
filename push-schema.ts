@@ -7,12 +7,8 @@ import { sql } from 'drizzle-orm';
 async function main() {
   console.log('Connecting to database...');
   
-  // Check if DATABASE_URL is set
-  if (!process.env.DATABASE_URL) {
-    throw new Error('DATABASE_URL must be set. Did you forget to provision a database?');
-  }
-  
-  const client = postgres(process.env.DATABASE_URL, { max: 1 });
+  const databaseUrl = process.env.DATABASE_URL;
+  const client = postgres(databaseUrl, { max: 1 });
   const db = drizzle(client);
   
   console.log('Creating tables from schema...');

@@ -70,12 +70,8 @@ app.post('/api/register', async (req, res) => {
       });
     }
 
-    const DATABASE_URL = process.env.DATABASE_URL;
-    if (!DATABASE_URL) {
-      throw new Error('Database configuration missing');
-    }
-
-    client = postgres(DATABASE_URL, { ssl: 'require' });
+    const databaseUrl = process.env.DATABASE_URL;
+    client = postgres(databaseUrl, { ssl: 'require' });
 
     // Check if username or email already exists
     const existingUsers = await client`
@@ -152,12 +148,8 @@ app.post('/api/login', async (req, res) => {
       });
     }
 
-    const DATABASE_URL = process.env.DATABASE_URL;
-    if (!DATABASE_URL) {
-      throw new Error('Database configuration missing');
-    }
-
-    client = postgres(DATABASE_URL, { ssl: 'require' });
+    const databaseUrl = process.env.DATABASE_URL;
+    client = postgres(databaseUrl, { ssl: 'require' });
 
     // Find user by username or email
     const users = await client`

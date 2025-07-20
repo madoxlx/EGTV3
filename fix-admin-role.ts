@@ -4,12 +4,8 @@ import { users } from './shared/schema';
 import { eq } from 'drizzle-orm';
 
 async function fixAdminRole() {
-  const connectionString = process.env.DATABASE_URL;
-  if (!connectionString) {
-    throw new Error('DATABASE_URL not found');
-  }
-
-  const client = postgres(connectionString);
+  const databaseUrl = process.env.DATABASE_URL;
+  const client = postgres(databaseUrl);
   const db = drizzle(client);
 
   try {

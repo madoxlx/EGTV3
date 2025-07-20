@@ -4,13 +4,9 @@ import * as schema from './shared/schema';
 
 async function initializeDatabase() {
   try {
-    const DATABASE_URL = process.env.DATABASE_URL;
-    if (!DATABASE_URL) {
-      throw new Error('DATABASE_URL not found');
-    }
-
+    const databaseUrl = process.env.DATABASE_URL;
     console.log('Connecting to database...');
-    const client = postgres(DATABASE_URL, {
+    const client = postgres(databaseUrl, {
       ssl: 'require',
       max: 1
     });

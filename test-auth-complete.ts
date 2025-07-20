@@ -22,13 +22,9 @@ async function verifyPassword(password: string, hashedPassword: string): Promise
 
 async function testCompleteAuth() {
   try {
-    const DATABASE_URL = process.env.DATABASE_URL;
-    if (!DATABASE_URL) {
-      throw new Error('DATABASE_URL not found');
-    }
-
+    const databaseUrl = process.env.DATABASE_URL;
     console.log('Testing complete authentication system...');
-    const client = postgres(DATABASE_URL, { ssl: 'require' });
+    const client = postgres(databaseUrl, { ssl: 'require' });
 
     // Test Registration
     console.log('\n1. Testing Registration:');

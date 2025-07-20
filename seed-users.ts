@@ -3,11 +3,11 @@ import postgres from 'postgres';
 import { users } from './shared/schema';
 import bcrypt from 'bcryptjs';
 
-const DATABASE_URL = process.env.DATABASE_URL || 'postgresql://postgres:a@localhost:5432/postgres';
+const databaseUrl = process.env.DATABASE_URL;
 
 async function seedUsers() {
-  const client = postgres(DATABASE_URL, {
-    ssl: DATABASE_URL.includes('localhost') ? false : 'require',
+  const client = postgres(databaseUrl, {
+    ssl: databaseUrl?.includes('localhost') ? false : 'require',
   });
   
   const db = drizzle(client);

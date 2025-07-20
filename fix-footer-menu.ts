@@ -3,14 +3,14 @@ import postgres from 'postgres';
 import * as schema from "./shared/schema";
 import { eq } from 'drizzle-orm';
 
-const DATABASE_URL = process.env.DATABASE_URL || 'postgresql://postgres:a@localhost:5432/postgres';
+const databaseUrl = process.env.DATABASE_URL;
 
 async function fixFooterMenu() {
   console.log('Fixing footer menu...');
   
   try {
-    const client = postgres(DATABASE_URL, {
-      ssl: DATABASE_URL.includes('localhost') ? false : 'require',
+    const client = postgres(databaseUrl, {
+      ssl: databaseUrl?.includes('localhost') ? false : 'require',
     });
     
     const db = drizzle(client, { schema });

@@ -5,11 +5,11 @@ import { users } from './shared/schema';
 import bcrypt from 'bcryptjs';
 import { sql } from 'drizzle-orm';
 
-const DATABASE_URL = process.env.DATABASE_URL || 'postgresql://postgres:a@localhost:5432/postgres';
+const databaseUrl = process.env.DATABASE_URL;
 
 async function setupNewDatabase() {
-  const client = postgres(DATABASE_URL, {
-    ssl: DATABASE_URL.includes('localhost') ? false : 'require',
+  const client = postgres(databaseUrl, {
+    ssl: databaseUrl?.includes('localhost') ? false : 'require',
     max: 1
   });
   

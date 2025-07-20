@@ -11,12 +11,8 @@ async function hashPassword(password: string): Promise<string> {
 }
 
 async function createAdminUser() {
-  const connectionString = process.env.DATABASE_URL;
-  if (!connectionString) {
-    throw new Error('DATABASE_URL not found');
-  }
-
-  const client = postgres(connectionString);
+  const databaseUrl = process.env.DATABASE_URL;
+  const client = postgres(databaseUrl);
   const db = drizzle(client);
 
   const username = 'admin';
