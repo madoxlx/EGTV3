@@ -73,6 +73,12 @@ The application uses a comprehensive PostgreSQL schema with the following core e
 
 ## Recent Changes
 
+### Database Connection Configuration Update - January 20, 2025
+- ⚠️ **External Database Connection Issue**: User provided new DATABASE_URL (postgresql://postgres:asdasd123123@20.77.106.39:5432/eet?sslmode=disable)
+- ❌ **Connection Failed**: External PostgreSQL server blocking connections from Replit IP ("no pg_hba.conf entry for host")
+- ✅ **Current Status**: Replit's internal PostgreSQL database remains available and functional
+- 🔄 **Next Step**: User needs to choose between configuring external server access or using current working database
+
 ### External PostgreSQL Database Migration Complete - July 17, 2025
 - ✅ Successfully migrated from Replit's internal PostgreSQL to external PostgreSQL database
 - ✅ Database connection details updated:
