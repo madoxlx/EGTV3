@@ -3,7 +3,7 @@ import { drizzle } from "drizzle-orm/node-postgres";
 import { sql } from "drizzle-orm";
 import * as schema from "@shared/schema";
 
-// Use Replit's PostgreSQL database
+// Use external PostgreSQL database
 const DATABASE_URL = process.env.DATABASE_URL;
 
 if (!DATABASE_URL) {
@@ -12,30 +12,56 @@ if (!DATABASE_URL) {
   );
 }
 
-// Create connection pool with timeout settings for external PostgreSQL
+// Create connection pool with enhanced settings for external PostgreSQL
 export const pool = new Pool({
   connectionString: DATABASE_URL,
-  connectionTimeoutMillis: 30000, // Increased from 10s to 30s
-  idleTimeoutMillis: 60000, // Increased from 30s to 60s
-  max: 10, // Maximum number of clients in the pool
-  min: 2, // Minimum number of clients in the pool
+  connectionTimeoutMillis: 30000,
+  idleTimeoutMillis: 60000,
+  max: 20, // Increased max connections
+  min: 1, // Reduced min connections for external DB
   ssl: DATABASE_URL.includes('sslmode=require') ? { rejectUnauthorized: false } : 
        DATABASE_URL.includes('sslmode=disable') ? false : { rejectUnauthorized: false },
+  // Additional settings for external database connectivity
+  allowExitOnIdle: false,
+  keepAlive: true,
+  keepAliveInitialDelayMillis: 0,
 });
 export const db = drizzle(pool, { schema });
 
-// Initialize database connection with proper error handling
+// Initialize database connection with enhanced error handling for external DB
 async function initializeDatabase() {
   try {
-    console.log("Testing database connection...");
+    console.log("Attempting to connect to external PostgreSQL database...");
+    console.log("Database URL:", DATABASE_URL.replace(/:[^@]+@/, ':****@')); // Hide password
 
     // Test the connection with a simple query
-    await db.execute(sql`SELECT 1`);
-
-    console.log("Database connection established successfully");
+    const result = await db.execute(sql`SELECT version(), current_database(), current_user`);
+    
+    console.log("✅ Database connection established successfully");
+    console.log("Connected to database:", DATABASE_URL.split('/').pop()?.split('?')[0]);
     return true;
   } catch (error) {
-    console.error("Failed to connect to database:", error);
+    console.error("❌ Failed to connect to external database:");
+    
+    if (error instanceof Error) {
+      if (error.message.includes('pg_hba.conf')) {
+        console.error("🔒 Authentication issue: The PostgreSQL server is blocking connections from this IP address.");
+        console.error("💡 Solution: Configure pg_hba.conf on the server to allow connections from Replit.");
+      } else if (error.message.includes('timeout')) {
+        console.error("⏱️  Connection timeout: The database server may be unreachable or overloaded.");
+      } else if (error.message.includes('ENOTFOUND') || error.message.includes('ECONNREFUSED')) {
+        console.error("🌐 Network issue: Cannot reach the database server at the specified host/port.");
+      } else {
+        console.error("Error details:", error.message);
+      }
+    }
+    
+    console.error("📝 Please check:");
+    console.error("   1. Database server is running and accessible");
+    console.error("   2. Firewall allows connections from external IPs");
+    console.error("   3. pg_hba.conf includes entry for external connections");
+    console.error("   4. Credentials are correct");
+    
     return false;
   }
 }
