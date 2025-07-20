@@ -5,7 +5,7 @@ import * as schema from "@shared/schema";
 import "dotenv/config";
 
 // Force use of external database URL
-const databaseUrl = "postgresql://postgres:asdasd123123@20.77.106.39:5432/eet?sslmode=disable";
+const databaseUrl = "postgresql://myuser:MyStrongPass123!@20.77.106.39:5432/mydb";
 console.log(
   "Database URL: ebn elwes5a",
   databaseUrl?.replace(/:[^@]+@/, ":****@"),
