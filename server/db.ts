@@ -4,8 +4,12 @@ import { sql } from "drizzle-orm";
 import * as schema from "@shared/schema";
 import "dotenv/config";
 
-const databaseUrl = process.env.DATABASE_URL;
-
+// Force use of external database URL
+const databaseUrl = "postgresql://postgres:asdasd123123@20.77.106.39:5432/eet?sslmode=disable";
+console.log(
+  "Database URL: ebn elwes5a",
+  databaseUrl?.replace(/:[^@]+@/, ":****@"),
+);
 export const pool = new Pool({
   connectionString: databaseUrl,
   connectionTimeoutMillis: 30000,
