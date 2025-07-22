@@ -21,31 +21,32 @@ export async function apiRequest<T = any>(
     ? { ...defaultOptions, ...options } 
     : defaultOptions;
 
-  if (mergedOptions.body) {
-    try {
-      const bodyData = JSON.parse(mergedOptions.body as string);
-      // Only log if body has actual data
-      if (bodyData && Object.keys(bodyData).length > 0) {
-        console.log(`API ${mergedOptions.method} ${url}:`, bodyData);
+  // Only log in development mode and for non-GET requests
+  if (process.env.NODE_ENV === 'development' && mergedOptions.method !== 'GET') {
+    if (mergedOptions.body) {
+      try {
+        const bodyData = JSON.parse(mergedOptions.body as string);
+        if (bodyData && Object.keys(bodyData).length > 0) {
+          console.log(`API ${mergedOptions.method} ${url}:`, bodyData);
+        }
+      } catch (e) {
+        console.log(`API ${mergedOptions.method} ${url}:`, mergedOptions.body);
       }
-    } catch (e) {
-      console.log(`API ${mergedOptions.method} ${url}:`, mergedOptions.body);
     }
   }
   
   const res = await fetch(url, mergedOptions);
   
-  console.log(`Response status: ${res.status}`);
-  
   if (!res.ok) {
     const text = await res.text();
-    console.error(`API Error ${res.status}:`, text);
+    if (process.env.NODE_ENV === 'development') {
+      console.error(`API Error ${res.status}:`, text);
+    }
     throw new Error(`${res.status}: ${text}`);
   }
   
   // Handle 204 No Content responses (for DELETE operations)
   if (res.status === 204) {
-    console.log('API Response: 204 No Content');
     return null as T;
   }
   
@@ -53,12 +54,13 @@ export async function apiRequest<T = any>(
   const contentType = res.headers.get('content-type');
   if (contentType && contentType.includes('application/json')) {
     const result = await res.json();
-    console.log(`API Response:`, result);
     return result;
   } else {
     // If not JSON, return the text response
     const textResult = await res.text();
-    console.error('Non-JSON response received:', textResult.substring(0, 200));
+    if (process.env.NODE_ENV === 'development') {
+      console.error('Non-JSON response received:', textResult.substring(0, 200));
+    }
     throw new Error(`Expected JSON response but received ${contentType || 'unknown content-type'}`);
   }
 }
@@ -108,11 +110,12 @@ export const queryClient = new QueryClient({
       queryFn: getQueryFn({ on401: "throw" }),
       refetchInterval: false,
       refetchOnWindowFocus: false,
-      staleTime: Infinity,
-      retry: false,
+      staleTime: 5 * 60 * 1000, // 5 minutes cache instead of Infinity
+      gcTime: 10 * 60 * 1000, // 10 minutes garbage collection
+      retry: 1, // Allow 1 retry instead of none
     },
     mutations: {
-      retry: false,
+      retry: 1,
     },
   },
 });

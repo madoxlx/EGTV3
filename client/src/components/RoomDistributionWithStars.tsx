@@ -282,11 +282,11 @@ export default function RoomDistributionWithStars({
                       </div>
                       <div className="text-right">
                         <div className="font-semibold text-gray-900">
-                          {displayPrice ? (displayPrice / 100).toLocaleString('en-US') : '0'} EGP
+                          {displayPrice ? (displayPrice).toLocaleString('en-US') : '0'} EGP
                         </div>
                         {room.customPrice && room.originalPrice && room.customPrice !== room.originalPrice && (
                           <div className="text-sm text-gray-500 line-through">
-                            {(room.originalPrice / 100).toLocaleString('en-US')} EGP
+                            {(room.originalPrice).toLocaleString('en-US')} EGP
                           </div>
                         )}
                       </div>

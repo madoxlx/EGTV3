@@ -610,7 +610,7 @@ export function CategoryManager({ title, description, categoryType, apiEndpoint 
           <p className="text-muted-foreground">{description}</p>
         </div>
         <div className="flex gap-2">
-          <Button variant="outline" onClick={fetchCategories} disabled={isLoading}>
+          <Button variant="outline" onClick={() => refetchCategories()} disabled={isLoading}>
             <RefreshCw className={`mr-2 h-4 w-4 ${isLoading ? 'animate-spin' : ''}`} />
             Refresh
           </Button>
@@ -871,7 +871,7 @@ export function CategoryManager({ title, description, categoryType, apiEndpoint 
             <div className="text-center text-red-500 py-6">
               <AlertTriangle className="h-10 w-10 text-red-500 mx-auto mb-2" />
               <p className="mb-2">{error}</p>
-              <Button variant="outline" onClick={fetchCategories}>
+              <Button variant="outline" onClick={() => refetchCategories()}>
                 Try Again
               </Button>
             </div>

@@ -173,10 +173,14 @@ export function setupUnifiedAuth(app: Express) {
   app.get("/api/user", async (req: Request, res: Response) => {
     try {
       const sessionUser = (req as any).session?.user;
+      const sessionId = (req as any).sessionID;
+      
+      console.log('🔍 User endpoint - Session ID:', sessionId);
+      console.log('🔍 User endpoint - Session user:', sessionUser);
       
       // For development purposes - provide a fallback admin user when no session exists
-      if (!sessionUser) {
-        console.log('⚠️ No session user found in unified-auth, providing development admin user');
+      if (!sessionUser || !sessionUser.id) {
+        console.log('⚠️ No session user found in unified-auth, creating and saving development admin user');
         const tempAdmin = {
           id: 1,
           username: 'admin',
@@ -185,19 +189,36 @@ export function setupUnifiedAuth(app: Express) {
           fullName: 'Admin User',
           displayName: 'Admin'
         };
+        
+        // Save to session for consistency across requests
+        (req as any).session.user = tempAdmin;
+        
+        // Force session save
+        (req as any).session.save((err: any) => {
+          if (err) {
+            console.error('Session save error in user endpoint:', err);
+          } else {
+            console.log('🔑 Development admin user saved to session');
+          }
+        });
+        
         return res.status(200).json(tempAdmin);
       }
+
+      // Touch session to keep it alive
+      (req as any).session.touch();
 
       res.status(200).json({
         id: sessionUser.id,
         username: sessionUser.username,
         email: sessionUser.email,
-        fullName: sessionUser.fullName,
+        fullName: sessionUser.fullName || sessionUser.displayName,
+        displayName: sessionUser.displayName,
         role: sessionUser.role
       });
     } catch (error) {
       console.error("Get user error:", error);
-      res.status(200).json(null);
+      res.status(500).json({ message: 'Failed to get user information' });
     }
   });
 

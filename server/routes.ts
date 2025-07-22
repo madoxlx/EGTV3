@@ -56,15 +56,23 @@ import * as schema from "@shared/schema";
 const isAdmin = (req: Request, res: Response, next: NextFunction) => {
   // Check if user is authenticated (session-based)
   const sessionUser = (req as any).session?.user;
+  const sessionId = (req as any).sessionID;
   
+  console.log('🔍 Admin check - Session ID:', sessionId);
   console.log('🔍 Admin check - Session user:', sessionUser);
   console.log('🔍 Admin check - Request path:', req.path);
   
   // If we have a session user, check their role
-  if (sessionUser) {
+  if (sessionUser && sessionUser.id) {
     if (sessionUser.role === 'admin') {
       console.log(`✅ Admin check passed for user: ${sessionUser.username} (ID: ${sessionUser.id})`);
+      
+      // Ensure session is properly saved and user is set
       (req as any).user = sessionUser;
+      
+      // Touch the session to ensure it stays active
+      (req as any).session.touch();
+      
       return next();
     } else {
       console.log(`❌ Admin check failed: User role is '${sessionUser.role}', not 'admin'`);
@@ -81,16 +89,28 @@ const isAdmin = (req: Request, res: Response, next: NextFunction) => {
   
   // No session user found - only for development/testing purposes
   if (!sessionUser && (req.path.startsWith('/api/admin/') || req.path.startsWith('/api-admin/'))) {
-    console.log('⚠️ No session user found, using temporary admin access for development');
+    console.log('⚠️ No session user found, creating temp admin and saving to session');
     const tempAdmin = {
       id: 1,
       username: 'admin',
       role: 'admin',
-      email: 'admin@example.com'
+      email: 'admin@example.com',
+      displayName: 'Admin User'
     };
     
+    // Save temp admin to session for consistency
+    (req as any).session.user = tempAdmin;
     (req as any).user = tempAdmin;
-    console.log('🔑 Temporary admin panel access granted');
+    
+    // Force session save
+    (req as any).session.save((err: any) => {
+      if (err) {
+        console.error('Session save error:', err);
+      } else {
+        console.log('🔑 Temporary admin session created and saved');
+      }
+    });
+    
     return next();
   }
   
@@ -2059,6 +2079,60 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
+  // Batch create destinations (admin only)
+  app.post('/api/admin/destinations/batch', isAdmin, async (req, res) => {
+    try {
+      const { countryId, cityId, destinationNames } = req.body;
+      
+      // Validate required fields
+      if (!countryId || !cityId || !destinationNames) {
+        return res.status(400).json({ message: 'countryId, cityId, and destinationNames are required' });
+      }
+
+      // Parse destination names
+      const names = destinationNames.trim().split('\n').filter((name: string) => name.trim());
+      if (names.length === 0) {
+        return res.status(400).json({ message: 'At least one destination name is required' });
+      }
+
+      // Get country and city information for default values
+      const country = await storage.getCountry(countryId);
+      const city = await storage.getCity(cityId);
+      
+      if (!country || !city) {
+        return res.status(400).json({ message: 'Invalid country or city' });
+      }
+
+      // Create destinations
+      const createdDestinations = [];
+      for (const name of names) {
+        const destinationName = name.trim();
+        if (destinationName) {
+          const destinationData = {
+            name: destinationName,
+            countryId: countryId,
+            cityId: cityId,
+            description: `Best Destination in ${country.name}`,
+            imageUrl: `https://upload.wikimedia.org/wikipedia/commons/thumb/6/6b/Flag_of_${country.name.replace(' ', '_')}.svg/320px-Flag_of_${country.name.replace(' ', '_')}.svg.png`,
+            featured: false
+          };
+
+          const destination = await storage.createDestination(destinationData);
+          createdDestinations.push(destination);
+        }
+      }
+
+      res.status(201).json({ 
+        message: `${createdDestinations.length} destinations created successfully`,
+        count: createdDestinations.length,
+        destinations: createdDestinations 
+      });
+    } catch (error) {
+      console.error('Error creating batch destinations:', error);
+      res.status(500).json({ message: 'Failed to create destinations' });
+    }
+  });
+
   // Update a destination (admin only)
   app.put('/api/admin/destinations/:id', isAdmin, async (req, res) => {
     try {
@@ -2516,8 +2590,12 @@ export async function registerRoutes(app: Express): Promise<Server> {
       const jsonFields = [
         'galleryUrls', 'inclusions', 'idealFor', 'tourSelection', 
         'includedFeatures', 'optionalExcursions', 'excludedFeatures', 
-        'itinerary', 'whatToPack', 'travelRoute', 'accommodationHighlights',
-        'transportationDetails'
+        'excludedItems', 'itinerary', 'whatToPack', 'travelRoute', 
+        'accommodationHighlights', 'transportationDetails', 'selectedHotels',
+        'rooms', 'selectedTourIds',
+        // Arabic translation JSON fields
+        'includedFeaturesAr', 'excludedFeaturesAr', 'idealForAr',
+        'itineraryAr', 'whatToPackAr', 'travelRouteAr', 'optionalExcursionsAr'
       ];
       
       for (const field of jsonFields) {
@@ -2640,11 +2718,16 @@ export async function registerRoutes(app: Express): Promise<Server> {
         }
       }
 
-      // Handle date fields - temporarily remove to prevent database schema errors
-      // TODO: Re-enable after database schema migration includes timestamp columns
-      delete processedData.startDate;
-      delete processedData.endDate;
-      delete processedData.validUntil;
+      // Handle date fields - convert string dates to proper Date objects
+      if (processedData.startDate && typeof processedData.startDate === 'string') {
+        processedData.startDate = new Date(processedData.startDate);
+      }
+      if (processedData.endDate && typeof processedData.endDate === 'string') {
+        processedData.endDate = new Date(processedData.endDate);
+      }
+      if (processedData.validUntil && typeof processedData.validUntil === 'string') {
+        processedData.validUntil = new Date(processedData.validUntil);
+      }
 
       // Map form field names to database field names and handle type conversions
       if (processedData.name) {
@@ -2679,6 +2762,16 @@ export async function registerRoutes(app: Express): Promise<Server> {
       }
       if (processedData.duration) {
         processedData.duration = parseInt(processedData.duration) || 7;
+      }
+
+      // Handle new package fields that we added to the form
+      if (processedData.transportationPrice) {
+        processedData.transportationPrice = parseFloat(processedData.transportationPrice) || 0;
+      }
+
+      // Handle idealFor array field - convert to JSON string for storage
+      if (processedData.idealFor && Array.isArray(processedData.idealFor)) {
+        processedData.idealFor = JSON.stringify(processedData.idealFor);
       }
 
       // Remove validation-only fields that shouldn't be stored
@@ -2732,8 +2825,12 @@ export async function registerRoutes(app: Express): Promise<Server> {
       const jsonFields = [
         'galleryUrls', 'inclusions', 'idealFor', 'tourSelection', 
         'includedFeatures', 'optionalExcursions', 'excludedFeatures', 
-        'itinerary', 'whatToPack', 'travelRoute', 'accommodationHighlights',
-        'transportationDetails'
+        'excludedItems', 'itinerary', 'whatToPack', 'travelRoute', 
+        'accommodationHighlights', 'transportationDetails', 'selectedHotels',
+        'rooms', 'selectedTourIds',
+        // Arabic translation JSON fields
+        'includedFeaturesAr', 'excludedFeaturesAr', 'idealForAr',
+        'itineraryAr', 'whatToPackAr', 'travelRouteAr', 'optionalExcursionsAr'
       ];
       
       for (const field of jsonFields) {
@@ -2742,11 +2839,16 @@ export async function registerRoutes(app: Express): Promise<Server> {
         }
       }
 
-      // Handle date fields - temporarily remove to prevent database schema errors
-      // TODO: Re-enable after database schema migration includes timestamp columns
-      delete processedData.startDate;
-      delete processedData.endDate;
-      delete processedData.validUntil;
+      // Handle date fields - convert string dates to proper Date objects
+      if (processedData.startDate && typeof processedData.startDate === 'string') {
+        processedData.startDate = new Date(processedData.startDate);
+      }
+      if (processedData.endDate && typeof processedData.endDate === 'string') {
+        processedData.endDate = new Date(processedData.endDate);
+      }
+      if (processedData.validUntil && typeof processedData.validUntil === 'string') {
+        processedData.validUntil = new Date(processedData.validUntil);
+      }
 
       // Convert string numeric fields to numbers
       if (processedData.price) {
@@ -2763,6 +2865,9 @@ export async function registerRoutes(app: Express): Promise<Server> {
       }
       if (processedData.duration) {
         processedData.duration = parseInt(processedData.duration) || 7;
+      }
+      if (processedData.transportationPrice) {
+        processedData.transportationPrice = parseFloat(processedData.transportationPrice) || 0;
       }
 
       // Remove validation-only fields that shouldn't be stored
@@ -6371,6 +6476,65 @@ export async function registerRoutes(app: Express): Promise<Server> {
     } catch (error) {
       console.error('Error fetching package categories:', error);
       res.status(500).json({ message: 'Failed to fetch package categories' });
+    }
+  });
+
+  // Create a new package category (admin only)
+  app.post('/api/package-categories', isAdmin, async (req, res) => {
+    try {
+      const categoryData = req.body;
+      console.log('Creating package category with data:', categoryData);
+      
+      const newCategory = await storage.createPackageCategory(categoryData);
+      res.status(201).json(newCategory);
+    } catch (error) {
+      console.error('Error creating package category:', error);
+      res.status(500).json({ message: 'Failed to create package category' });
+    }
+  });
+
+  // Update a package category (admin only)
+  app.put('/api/package-categories/:id', isAdmin, async (req, res) => {
+    try {
+      const id = parseInt(req.params.id);
+      if (isNaN(id)) {
+        return res.status(400).json({ message: 'Invalid category ID' });
+      }
+
+      const categoryData = req.body;
+      console.log('Updating package category', id, 'with data:', categoryData);
+      
+      const updatedCategory = await storage.updatePackageCategory(id, categoryData);
+      if (!updatedCategory) {
+        return res.status(404).json({ message: 'Package category not found' });
+      }
+
+      res.json(updatedCategory);
+    } catch (error) {
+      console.error('Error updating package category:', error);
+      res.status(500).json({ message: 'Failed to update package category' });
+    }
+  });
+
+  // Delete a package category (admin only)
+  app.delete('/api/package-categories/:id', isAdmin, async (req, res) => {
+    try {
+      const id = parseInt(req.params.id);
+      if (isNaN(id)) {
+        return res.status(400).json({ message: 'Invalid category ID' });
+      }
+
+      console.log('Deleting package category with ID:', id);
+      
+      const success = await storage.deletePackageCategory(id);
+      if (!success) {
+        return res.status(404).json({ message: 'Package category not found or could not be deleted' });
+      }
+
+      res.status(204).end();
+    } catch (error) {
+      console.error('Error deleting package category:', error);
+      res.status(500).json({ message: 'Failed to delete package category' });
     }
   });
 

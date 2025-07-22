@@ -109,11 +109,16 @@ const manualPackageFormSchema = z.object({
   transportationDetails: z.string().min(3, {
     message: "Transportation details must be at least 3 characters",
   }),
+  transportation: z.string().optional(),
+  transportationPrice: z.coerce.number().optional(),
   tourDetails: z.string().optional(),
   selectedTourIds: z.array(z.number()).optional(),
   duration: z.coerce
     .number()
     .positive({ message: "Duration must be a positive number" }),
+  startDate: z.date().optional(),
+  endDate: z.date().optional(),
+  validUntil: z.date().optional(),
   destinationId: z.coerce.number({
     required_error: "Please select a destination",
   }),
@@ -122,6 +127,9 @@ const manualPackageFormSchema = z.object({
   categoryId: z.coerce.number({ required_error: "Please select a category" }),
   type: z.string().min(2, { message: "Type must be at least 2 characters" }),
   featured: z.boolean().default(false),
+  bestTimeToVisit: z.string().optional(),
+  route: z.string().optional(),
+  idealFor: z.array(z.string()).optional(),
   inclusions: z
     .array(z.string())
     .min(1, { message: "At least one inclusion is required" }),
@@ -176,6 +184,7 @@ export function MultiHotelManualPackageForm({
   const [isDraft, setIsDraft] = useState(false);
   const [selectedCountry, setSelectedCountry] = useState<number | null>(null);
   const [selectedCity, setSelectedCity] = useState<number | null>(null);
+  const [newIdealForItem, setNewIdealForItem] = useState("");
 
   // Used for autocomplete suggestion functionality
   const [hotelSuggestions, setHotelSuggestions] = useState<string[]>([]);
@@ -458,6 +467,9 @@ export function MultiHotelManualPackageForm({
       tourDetails: "", // Not specified, default empty
       selectedTourIds: [], // Initialize empty, to be populated via tour selection
       duration: 7, // 7 days from earlier example
+      startDate: undefined, // Optional start date
+      endDate: undefined, // Optional end date  
+      validUntil: undefined, // Optional valid until date
       destinationId: undefined, // Requires selection from destinations API
       countryId: undefined, // Auto-populated from destination
       cityId: undefined, // Auto-populated from destination
@@ -702,6 +714,8 @@ export function MultiHotelManualPackageForm({
         markup: packageData?.markup || 0,
         hotels: hotelsData,
         transportationDetails: transportationDetails,
+        transportation: packageData?.transportation || "",
+        transportationPrice: packageData?.transportationPrice || 0,
         tourDetails: packageData?.tourDetails || "",
         selectedTourIds: selectedTourIds,
         duration: packageData?.duration || 1,
@@ -711,6 +725,9 @@ export function MultiHotelManualPackageForm({
         categoryId: packageData?.categoryId || undefined,
         type: "manual",
         featured: Boolean(packageData?.featured),
+        bestTimeToVisit: packageData?.bestTimeToVisit || "",
+        route: packageData?.route || "",
+        idealFor: parseJSONField(packageData?.idealFor, []),
         inclusions: parseJSONField(packageData?.inclusions, []),
         excludedItems: parseJSONField(packageData?.excludedItems, []),
         cancellationPolicy: packageData?.cancellationPolicy || "",
@@ -721,6 +738,13 @@ export function MultiHotelManualPackageForm({
 
       console.log("Form data to populate:", formData);
       form.reset(formData);
+
+      // Set the custom ideal for state from parsed package data
+      const idealForData = parseJSONField(packageData?.idealFor, []);
+      if (idealForData.length > 0) {
+        setCustomIdealFor(idealForData);
+        console.log("Set custom ideal for data:", idealForData);
+      }
 
       // Set selected tours with prices from description data
       if (toursFromDescription.length > 0 && tours.length > 0) {
@@ -799,9 +823,10 @@ export function MultiHotelManualPackageForm({
         console.log("Loaded existing images:", imageArray);
       }
 
-      // Set location states
+      // Set location states and form values explicitly
       if (packageData?.countryId) {
         setSelectedCountry(packageData.countryId);
+        form.setValue("countryId", packageData.countryId);
         console.log(
           "Updated selectedCountryId state to:",
           packageData.countryId,
@@ -809,7 +834,22 @@ export function MultiHotelManualPackageForm({
       }
       if (packageData?.cityId) {
         setSelectedCity(packageData.cityId);
+        form.setValue("cityId", packageData.cityId);
         console.log("Updated selectedCityId state to:", packageData.cityId);
+        
+        // Also update the country id from the selected city to ensure proper filtering
+        const selectedCityData = cities.find(city => city.id === packageData.cityId);
+        if (selectedCityData && selectedCityData.countryId) {
+          setSelectedCountry(selectedCityData.countryId);
+          form.setValue("countryId", selectedCityData.countryId);
+          console.log("Updated country from selected city:", selectedCityData.countryId);
+        }
+        
+        // Force update the form to refresh dropdowns
+        setTimeout(() => {
+          form.setValue("cityId", packageData.cityId);
+          console.log("Force updated cityId after timeout:", packageData.cityId);
+        }, 100);
       }
 
       // Set selected tours with prices when tours are loaded
@@ -992,9 +1032,15 @@ export function MultiHotelManualPackageForm({
         imageUrl: mainImage.preview, // Use uploaded main image
         galleryUrls: galleryUrls, // Use uploaded gallery images
         duration: formData.duration,
+        startDate: formData.startDate,
+        endDate: formData.endDate,
+        validUntil: formData.validUntil,
         rating: 45, // Default 4.5 stars (stored as 45 in DB)
         destinationId: formData.destinationId,
         featured: formData.featured,
+        bestTimeToVisit: formData.bestTimeToVisit,
+        route: formData.route,
+        idealFor: formData.idealFor,
         inclusions: formData.inclusions,
         excludedItems: formData.excludedItems,
         cancellationPolicy: formData.cancellationPolicy,
@@ -1010,6 +1056,8 @@ export function MultiHotelManualPackageForm({
         selectedHotels: formData.hotels,
         rooms: formData.hotels.flatMap((hotel) => hotel.rooms),
         transportationDetails: formData.transportationDetails,
+        transportation: formData.transportation,
+        transportationPrice: formData.transportationPrice,
         tourPriceData: tourPriceData,
         type: formData.type,
         customText: formData.customText,
@@ -1183,11 +1231,17 @@ export function MultiHotelManualPackageForm({
         imageUrl: mainImageUrl,
         galleryUrls,
         duration: formData.duration,
+        startDate: formData.startDate,
+        endDate: formData.endDate,
+        validUntil: formData.validUntil,
         destinationId: formData.destinationId,
         countryId: formData.countryId,
         cityId: formData.cityId,
         categoryId: formData.categoryId,
         featured: formData.featured,
+        bestTimeToVisit: formData.bestTimeToVisit,
+        route: formData.route,
+        idealFor: formData.idealFor,
         inclusions: formData.inclusions,
         excludedItems: formData.excludedItems,
         cancellationPolicy: formData.cancellationPolicy,
@@ -1200,6 +1254,8 @@ export function MultiHotelManualPackageForm({
         selectedHotels: formData.hotels, // Store hotels in proper field
         rooms: formData.hotels.flatMap((hotel) => hotel.rooms), // Store all rooms
         transportationDetails: formData.transportationDetails, // Store in proper field
+        transportation: formData.transportation,
+        transportationPrice: formData.transportationPrice,
         tourPriceData: tourPriceData, // Custom tour prices
         type: "manual",
         customText: formData.customText,
@@ -2114,6 +2170,75 @@ export function MultiHotelManualPackageForm({
                   />
                 </div>
 
+                {/* Date Fields */}
+                <div className="grid grid-cols-3 gap-4">
+                  <FormField
+                    control={form.control}
+                    name="startDate"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel>Start Date</FormLabel>
+                        <FormControl>
+                          <Input
+                            type="date"
+                            {...field}
+                            value={field.value ? new Date(field.value).toISOString().split('T')[0] : ''}
+                            onChange={(e) => field.onChange(e.target.value ? new Date(e.target.value) : undefined)}
+                          />
+                        </FormControl>
+                        <FormDescription>
+                          Optional package start date
+                        </FormDescription>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+
+                  <FormField
+                    control={form.control}
+                    name="endDate"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel>End Date</FormLabel>
+                        <FormControl>
+                          <Input
+                            type="date"
+                            {...field}
+                            value={field.value ? new Date(field.value).toISOString().split('T')[0] : ''}
+                            onChange={(e) => field.onChange(e.target.value ? new Date(e.target.value) : undefined)}
+                          />
+                        </FormControl>
+                        <FormDescription>
+                          Optional package end date
+                        </FormDescription>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+
+                  <FormField
+                    control={form.control}
+                    name="validUntil"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel>Valid Until</FormLabel>
+                        <FormControl>
+                          <Input
+                            type="date"
+                            {...field}
+                            value={field.value ? new Date(field.value).toISOString().split('T')[0] : ''}
+                            onChange={(e) => field.onChange(e.target.value ? new Date(e.target.value) : undefined)}
+                          />
+                        </FormControl>
+                        <FormDescription>
+                          Optional validity deadline
+                        </FormDescription>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+                </div>
+
                 <FormField
                   control={form.control}
                   name="categoryId"
@@ -2320,6 +2445,152 @@ export function MultiHotelManualPackageForm({
                     </FormItem>
                   )}
                 />
+
+                {/* Additional Transportation Fields */}
+                <div className="grid grid-cols-2 gap-4">
+                  <FormField
+                    control={form.control}
+                    name="transportation"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel>Transportation Option</FormLabel>
+                        <FormControl>
+                          <Input
+                            placeholder="e.g., Bus, Car, Flight"
+                            {...field}
+                          />
+                        </FormControl>
+                        <FormDescription>
+                          Specify the main transportation type
+                        </FormDescription>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+
+                  <FormField
+                    control={form.control}
+                    name="transportationPrice"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel>Transportation Price Adjustment (EGP)</FormLabel>
+                        <FormControl>
+                          <Input
+                            type="number"
+                            placeholder="0"
+                            {...field}
+                          />
+                        </FormControl>
+                        <FormDescription>
+                          Additional cost for transportation upgrades
+                        </FormDescription>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+                </div>
+
+                {/* Best Time to Visit */}
+                <FormField
+                  control={form.control}
+                  name="bestTimeToVisit"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>Best Time to Visit</FormLabel>
+                      <FormControl>
+                        <Textarea
+                          placeholder="e.g., October to April for pleasant weather..."
+                          rows={3}
+                          {...field}
+                        />
+                      </FormControl>
+                      <FormDescription>
+                        Describe the ideal time periods for this package
+                      </FormDescription>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+
+                {/* Route/Location */}
+                <FormField
+                  control={form.control}
+                  name="route"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>Route/Location Description</FormLabel>
+                      <FormControl>
+                        <Textarea
+                          placeholder="e.g., Cairo → Luxor → Aswan route with Nile cruise..."
+                          rows={3}
+                          {...field}
+                        />
+                      </FormControl>
+                      <FormDescription>
+                        Describe the route or location details for this package
+                      </FormDescription>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+
+                {/* Ideal For Choices */}
+                <div className="space-y-3">
+                  <FormLabel>Ideal For</FormLabel>
+                  <div className="flex gap-2">
+                    <Input
+                      placeholder="e.g., Families, Couples, Adventure seekers..."
+                      value={newIdealForItem}
+                      onChange={(e) => setNewIdealForItem(e.target.value)}
+                      onKeyDown={(e) => {
+                        if (e.key === "Enter") {
+                          e.preventDefault();
+                          if (newIdealForItem.trim()) {
+                            const currentIdealFor = form.getValues("idealFor") || [];
+                            form.setValue("idealFor", [...currentIdealFor, newIdealForItem.trim()]);
+                            setNewIdealForItem("");
+                          }
+                        }
+                      }}
+                    />
+                    <Button
+                      type="button"
+                      onClick={() => {
+                        if (newIdealForItem.trim()) {
+                          const currentIdealFor = form.getValues("idealFor") || [];
+                          form.setValue("idealFor", [...currentIdealFor, newIdealForItem.trim()]);
+                          setNewIdealForItem("");
+                        }
+                      }}
+                      disabled={!newIdealForItem.trim()}
+                    >
+                      <Plus className="h-4 w-4 mr-2" />
+                      Add
+                    </Button>
+                  </div>
+
+                  <div className="flex flex-wrap gap-2">
+                    {(form.watch("idealFor") || []).map((item, index) => (
+                      <Badge
+                        key={index}
+                        variant="secondary"
+                        className="flex items-center gap-1 px-3 py-1.5"
+                      >
+                        {item}
+                        <X
+                          className="h-3 w-3 cursor-pointer"
+                          onClick={() => {
+                            const currentIdealFor = form.getValues("idealFor") || [];
+                            form.setValue("idealFor", currentIdealFor.filter((_, i) => i !== index));
+                          }}
+                        />
+                      </Badge>
+                    ))}
+                  </div>
+                  <FormDescription>
+                    Specify the target audience for this package (e.g., families, couples, solo travelers)
+                  </FormDescription>
+                </div>
 
                 {/* Tour Selection Section */}
                 <div className="space-y-3">

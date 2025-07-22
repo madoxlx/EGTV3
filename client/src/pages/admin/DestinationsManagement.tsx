@@ -52,7 +52,7 @@ import { useToast } from "@/hooks/use-toast";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
 import { z } from "zod";
-import { Plus, Search, Edit, Trash2, Loader2, MapPin, GlobeIcon, AlertCircle, Camera, ImageIcon, Upload } from "lucide-react";
+import { Plus, Search, Edit, Trash2, Loader2, MapPin, GlobeIcon, AlertCircle, Camera, ImageIcon, Upload, FileText } from "lucide-react";
 import { queryClient, apiRequest } from "@/lib/queryClient";
 import { validateForm, validateRequiredFields } from "@/lib/validateForm";
 import { FormRequiredFieldsNote, FormValidationAlert } from "@/components/dashboard/FormValidationAlert";
@@ -94,7 +94,15 @@ const destinationSchema = z.object({
   featured: z.boolean().default(false),
 });
 
+// Zod schema for batch destinations form
+const batchDestinationsSchema = z.object({
+  countryId: z.number().min(1, "Country is required"),
+  cityId: z.number().min(1, "City is required"),
+  destinationNames: z.string().min(1, "At least one destination name is required"),
+});
+
 type DestinationFormValues = z.infer<typeof destinationSchema>;
+type BatchDestinationsFormValues = z.infer<typeof batchDestinationsSchema>;
 
 export default function DestinationsManagement() {
   const { toast } = useToast();
@@ -106,6 +114,10 @@ export default function DestinationsManagement() {
   const [selectedCountryId, setSelectedCountryId] = useState<number | null>(null);
   const [imageUploadMode, setImageUploadMode] = useState<'url' | 'upload'>('url');
   const [isUploadingImage, setIsUploadingImage] = useState(false);
+  
+  // Batch destinations state
+  const [isBatchDialogOpen, setIsBatchDialogOpen] = useState(false);
+  const [batchCountryId, setBatchCountryId] = useState<number | null>(null);
 
   // Query destinations
   const { data: destinations = [], isLoading: isLoadingDestinations } = useQuery<Destination[]>({
@@ -134,6 +146,11 @@ export default function DestinationsManagement() {
     city => selectedCountryId ? city.countryId === selectedCountryId : true
   );
 
+  // Get filtered cities for batch form based on batch country selection
+  const batchFilteredCities = cities.filter(
+    city => batchCountryId ? city.countryId === batchCountryId : true
+  );
+
   // Destination form
   const destinationForm = useForm<DestinationFormValues>({
     resolver: zodResolver(destinationSchema),
@@ -145,6 +162,16 @@ export default function DestinationsManagement() {
       description: "",
       imageUrl: "",
       featured: false,
+    },
+  });
+
+  // Batch destinations form
+  const batchForm = useForm<BatchDestinationsFormValues>({
+    resolver: zodResolver(batchDestinationsSchema),
+    defaultValues: {
+      countryId: 0,
+      cityId: 0,
+      destinationNames: "",
     },
   });
 
@@ -227,6 +254,41 @@ export default function DestinationsManagement() {
       toast({
         title: "Success",
         description: "Destination created successfully",
+      });
+    },
+    onError: (error: Error) => {
+      toast({
+        title: "Error",
+        description: error.message,
+        variant: "destructive",
+      });
+    },
+  });
+
+  // Batch Create Destinations Mutation
+  const batchCreateDestinationsMutation = useMutation({
+    mutationFn: async (batchData: BatchDestinationsFormValues) => {
+      const response = await fetch('/api/admin/destinations/batch', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(batchData),
+      });
+      
+      if (!response.ok) {
+        const errorData = await response.json();
+        throw new Error(errorData.message || 'Failed to create destinations');
+      }
+      
+      return response.json();
+    },
+    onSuccess: (data) => {
+      queryClient.invalidateQueries({ queryKey: ['/api/destinations'] });
+      setIsBatchDialogOpen(false);
+      batchForm.reset();
+      setBatchCountryId(null);
+      toast({
+        title: "Success",
+        description: `${data.count || 0} destinations created successfully`,
       });
     },
     onError: (error: Error) => {
@@ -337,6 +399,37 @@ export default function DestinationsManagement() {
       id: selectedDestination.id, 
       data: values 
     });
+  };
+
+  // Batch form submission handler
+  const onBatchSubmit = (values: BatchDestinationsFormValues) => {
+    // Validate required fields
+    const requiredFieldsValid = validateRequiredFields(
+      values,
+      ['countryId', 'cityId', 'destinationNames'],
+      {
+        countryId: "Country",
+        cityId: "City",
+        destinationNames: "Destination names"
+      }
+    );
+
+    if (!requiredFieldsValid) {
+      return;
+    }
+
+    // Check if destination names are provided
+    const names = values.destinationNames.trim().split('\n').filter(name => name.trim());
+    if (names.length === 0) {
+      toast({
+        title: "Error",
+        description: "Please enter at least one destination name",
+        variant: "destructive",
+      });
+      return;
+    }
+
+    batchCreateDestinationsMutation.mutate(values);
   };
 
   const handleEditClick = (destination: Destination) => {
@@ -488,14 +581,25 @@ export default function DestinationsManagement() {
               Manage travel destinations including creation, editing, and organization.
             </p>
           </div>
-          <Dialog open={isCreateDialogOpen} onOpenChange={setIsCreateDialogOpen}>
-            <DialogTrigger asChild>
-              <Button>
-                <Plus className="mr-2 h-4 w-4" />
-                Add Destination
-              </Button>
-            </DialogTrigger>
-          </Dialog>
+          <div className="flex gap-2">
+            <Dialog open={isCreateDialogOpen} onOpenChange={setIsCreateDialogOpen}>
+              <DialogTrigger asChild>
+                <Button>
+                  <Plus className="mr-2 h-4 w-4" />
+                  Add Destination
+                </Button>
+              </DialogTrigger>
+            </Dialog>
+            
+            <Dialog open={isBatchDialogOpen} onOpenChange={setIsBatchDialogOpen}>
+              <DialogTrigger asChild>
+                <Button variant="outline">
+                  <FileText className="mr-2 h-4 w-4" />
+                  Batch Add
+                </Button>
+              </DialogTrigger>
+            </Dialog>
+          </div>
         </div>
 
         {/* Search and Filter Section */}
@@ -1007,6 +1111,137 @@ export default function DestinationsManagement() {
             </AlertDialogFooter>
           </AlertDialogContent>
         </AlertDialog>
+
+        {/* Batch Add Destinations Dialog */}
+        <Dialog open={isBatchDialogOpen} onOpenChange={setIsBatchDialogOpen}>
+          <DialogContent className="sm:max-w-[600px]">
+            <DialogHeader>
+              <DialogTitle className="flex items-center gap-2">
+                <FileText className="h-5 w-5" />
+                Batch Add Destinations
+              </DialogTitle>
+              <DialogDescription>
+                Add multiple destinations at once by entering their names in the text area below. Select a country and city that applies to all destinations.
+              </DialogDescription>
+            </DialogHeader>
+
+            <Form {...batchForm}>
+              <form onSubmit={batchForm.handleSubmit(onBatchSubmit)} className="space-y-6">
+                <FormRequiredFieldsNote />
+
+                {/* Country Selection */}
+                <FormField
+                  control={batchForm.control}
+                  name="countryId"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel className="text-black font-medium">Country *</FormLabel>
+                      <Select
+                        value={field.value?.toString() || ""}
+                        onValueChange={(value) => {
+                          const countryId = parseInt(value);
+                          field.onChange(countryId);
+                          setBatchCountryId(countryId);
+                          // Reset city when country changes
+                          batchForm.setValue("cityId", 0);
+                        }}
+                      >
+                        <FormControl>
+                          <SelectTrigger>
+                            <SelectValue placeholder="Select a country" />
+                          </SelectTrigger>
+                        </FormControl>
+                        <SelectContent>
+                          {countries.map((country) => (
+                            <SelectItem key={country.id} value={country.id.toString()}>
+                              {country.name}
+                            </SelectItem>
+                          ))}
+                        </SelectContent>
+                      </Select>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+
+                {/* City Selection */}
+                <FormField
+                  control={batchForm.control}
+                  name="cityId"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel className="text-black font-medium">City *</FormLabel>
+                      <Select
+                        value={field.value?.toString() || ""}
+                        onValueChange={(value) => field.onChange(parseInt(value))}
+                        disabled={!batchCountryId}
+                      >
+                        <FormControl>
+                          <SelectTrigger>
+                            <SelectValue placeholder={batchCountryId ? "Select a city" : "Select a country first"} />
+                          </SelectTrigger>
+                        </FormControl>
+                        <SelectContent>
+                          {batchFilteredCities.map((city) => (
+                            <SelectItem key={city.id} value={city.id.toString()}>
+                              {city.name}
+                            </SelectItem>
+                          ))}
+                        </SelectContent>
+                      </Select>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+
+                {/* Destination Names */}
+                <FormField
+                  control={batchForm.control}
+                  name="destinationNames"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel className="text-black font-medium">Destination Names *</FormLabel>
+                      <FormControl>
+                        <Textarea
+                          placeholder="Enter destination names, one per line&#10;Example:&#10;Pyramids of Giza&#10;Egyptian Museum&#10;Khan el-Khalili Bazaar&#10;Cairo Citadel"
+                          className="min-h-[120px]"
+                          {...field}
+                        />
+                      </FormControl>
+                      <FormDescription>
+                        Enter each destination name on a new line. Default description and image will be automatically generated.
+                      </FormDescription>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+
+                <DialogFooter>
+                  <Button
+                    type="button"
+                    variant="outline"
+                    onClick={() => {
+                      setIsBatchDialogOpen(false);
+                      batchForm.reset();
+                      setBatchCountryId(null);
+                    }}
+                  >
+                    Cancel
+                  </Button>
+                  <Button
+                    type="submit"
+                    disabled={batchCreateDestinationsMutation.isPending}
+                  >
+                    {batchCreateDestinationsMutation.isPending && (
+                      <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                    )}
+                    Create Destinations
+                  </Button>
+                </DialogFooter>
+              </form>
+            </Form>
+          </DialogContent>
+        </Dialog>
       </div>
     </DashboardLayout>
   );

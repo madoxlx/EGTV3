@@ -12,10 +12,10 @@ console.log(
 );
 export const pool = new Pool({
   connectionString: databaseUrl,
-  connectionTimeoutMillis: 30000,
-  idleTimeoutMillis: 60000,
-  max: 20,
-  min: 1,
+  connectionTimeoutMillis: 10000, // Reduce timeout for faster feedback
+  idleTimeoutMillis: 30000, // Reduce idle timeout
+  max: 10, // Reduce max connections to save memory
+  min: 2, // Keep minimum connections ready
   ssl: databaseUrl?.includes("sslmode=require")
     ? { rejectUnauthorized: false }
     : databaseUrl?.includes("sslmode=disable")
@@ -23,7 +23,7 @@ export const pool = new Pool({
       : { rejectUnauthorized: false },
   allowExitOnIdle: false,
   keepAlive: true,
-  keepAliveInitialDelayMillis: 0,
+  keepAliveInitialDelayMillis: 1000,
 });
 export const db = drizzle(pool, { schema });
 

@@ -12,6 +12,7 @@ import { Badge } from "@/components/ui/badge";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { useToast } from "@/hooks/use-toast";
 import { Card, CardContent } from "@/components/ui/card";
+import { Dialog, DialogContent, DialogTitle } from "@/components/ui/dialog";
 import {
   Calendar,
   Clock,
@@ -115,7 +116,6 @@ export default function PackageDetail() {
   const [endDate, setEndDate] = useState("");
   const [dateMode, setDateMode] = useState<"single" | "range">("single");
   const [selectedRooms, setSelectedRooms] = useState<string[]>([]);
-  const [hotelPackage, setHotelPackage] = useState("standard");
   const [validationErrors, setValidationErrors] = useState<{
     date?: string;
     startDate?: string;
@@ -123,6 +123,50 @@ export default function PackageDetail() {
     adults?: string;
     room?: string;
   }>({});
+
+  // Gallery lightbox state
+  const [isGalleryOpen, setIsGalleryOpen] = useState(false);
+  const [currentImageIndex, setCurrentImageIndex] = useState(0);
+
+  // Gallery helper functions
+  const openGallery = (index: number) => {
+    setCurrentImageIndex(index);
+    setIsGalleryOpen(true);
+  };
+
+  const closeGallery = () => {
+    setIsGalleryOpen(false);
+  };
+
+  const nextImage = () => {
+    if (packageData?.galleryUrls && currentImageIndex < packageData.galleryUrls.length - 1) {
+      setCurrentImageIndex(currentImageIndex + 1);
+    }
+  };
+
+  const prevImage = () => {
+    if (currentImageIndex > 0) {
+      setCurrentImageIndex(currentImageIndex - 1);
+    }
+  };
+
+  // Keyboard navigation for gallery
+  useEffect(() => {
+    const handleKeyPress = (e: KeyboardEvent) => {
+      if (!isGalleryOpen) return;
+      
+      if (e.key === 'ArrowLeft') {
+        prevImage();
+      } else if (e.key === 'ArrowRight') {
+        nextImage();
+      } else if (e.key === 'Escape') {
+        closeGallery();
+      }
+    };
+
+    window.addEventListener('keydown', handleKeyPress);
+    return () => window.removeEventListener('keydown', handleKeyPress);
+  }, [isGalleryOpen, currentImageIndex]);
 
   // Check if user is authenticated and is an admin
   const { data: userData } = useQuery<User | null>({
@@ -515,6 +559,47 @@ export default function PackageDetail() {
             <div className="grid grid-cols-1 lg:grid-cols-3 gap-4 sm:gap-6 lg:gap-8">
               {/* Main Content */}
               <div className="lg:col-span-2 space-y-4 sm:space-y-6 lg:space-y-8">
+                {/* Package Photos */}
+                <section
+                  className="bg-white rounded-xl shadow-md overflow-hidden"
+                  id="package-gallary"
+                >
+                  <div className="p-6">
+                    <h2 className="text-2xl font-bold mb-4">Package Photos</h2>
+                    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3">
+                      {packageData.galleryUrls &&
+                      packageData.galleryUrls.length > 0 ? (
+                        packageData.galleryUrls.map((url, index) => (
+                          <div
+                            key={index}
+                            className="aspect-square rounded-lg overflow-hidden cursor-pointer group relative"
+                            onClick={() => openGallery(index)}
+                          >
+                            <img
+                              src={url}
+                              alt={`${packageData.title} - ${index + 1}`}
+                              className="w-full h-full object-cover hover:scale-110 transition-transform duration-300"
+                            />
+                            <div className="absolute inset-0 bg-black bg-opacity-0 group-hover:bg-opacity-20 transition-all duration-300 flex items-center justify-center">
+                              <div className="opacity-0 group-hover:opacity-100 transition-opacity duration-300 text-white bg-black bg-opacity-50 rounded-full p-2">
+                                <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0zM10 7v3m0 0v3m0-3h3m-3 0H7" />
+                                </svg>
+                              </div>
+                            </div>
+                          </div>
+                        ))
+                      ) : (
+                        <div className="col-span-full bg-gray-100 rounded-lg p-8 text-center">
+                          <p className="text-muted-foreground">
+                            Gallery images coming soon
+                          </p>
+                        </div>
+                      )}
+                    </div>
+                  </div>
+                </section>
+
                 {/* Package Overview */}
                 <section className="bg-white rounded-xl shadow-md overflow-hidden">
                   <div className="p-6">
@@ -751,38 +836,7 @@ export default function PackageDetail() {
                   </div>
                 </section>
 
-                {/* Photos placeholder - would be replaced with actual gallery */}
-                <section
-                  className="bg-white rounded-xl shadow-md overflow-hidden"
-                  id="package-gallary"
-                >
-                  <div className="p-6">
-                    <h2 className="text-2xl font-bold mb-4">Package Photos</h2>
-                    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3">
-                      {packageData.galleryUrls &&
-                      packageData.galleryUrls.length > 0 ? (
-                        packageData.galleryUrls.map((url, index) => (
-                          <div
-                            key={index}
-                            className="aspect-square rounded-lg overflow-hidden"
-                          >
-                            <img
-                              src={url}
-                              alt={`${packageData.title} - ${index + 1}`}
-                              className="w-full h-full object-cover hover:scale-110 transition-transform duration-300"
-                            />
-                          </div>
-                        ))
-                      ) : (
-                        <div className="col-span-full bg-gray-100 rounded-lg p-8 text-center">
-                          <p className="text-muted-foreground">
-                            Gallery images coming soon
-                          </p>
-                        </div>
-                      )}
-                    </div>
-                  </div>
-                </section>
+
               </div>
 
               {/* Booking Sidebar */}
@@ -872,7 +926,11 @@ export default function PackageDetail() {
                                     ? "border-red-500"
                                     : "border-input"
                                 }`}
-                                min={new Date().toISOString().split("T")[0]}
+                                min={(() => {
+                                  const minDate = new Date();
+                                  minDate.setDate(minDate.getDate() + 4);
+                                  return minDate.toISOString().split("T")[0];
+                                })()}
                                 placeholder="Select travel date"
                               />
                               {validationErrors.date && (
@@ -905,7 +963,11 @@ export default function PackageDetail() {
                                         ? "border-red-500"
                                         : "border-input"
                                     }`}
-                                    min={new Date().toISOString().split("T")[0]}
+                                    min={(() => {
+                                      const minDate = new Date();
+                                      minDate.setDate(minDate.getDate() + 4);
+                                      return minDate.toISOString().split("T")[0];
+                                    })()}
                                     placeholder="Start date"
                                   />
                                   {validationErrors.startDate && (
@@ -930,7 +992,11 @@ export default function PackageDetail() {
                                         ? "border-red-500"
                                         : "border-input"
                                     }`}
-                                    min={startDate || new Date().toISOString().split("T")[0]}
+                                    min={startDate || (() => {
+                                      const minDate = new Date();
+                                      minDate.setDate(minDate.getDate() + 4);
+                                      return minDate.toISOString().split("T")[0];
+                                    })()}
                                     placeholder="End date"
                                   />
                                   {validationErrors.endDate && (
@@ -1081,56 +1147,7 @@ export default function PackageDetail() {
                           />
                         </div>
 
-                        {/* Hotel Package */}
-                        <div>
-                          <label className="text-sm font-medium mb-1 block">
-                            Hotel Package
-                          </label>
-                          <div className="space-y-2">
-                            <div
-                              className={`border rounded-md p-2 cursor-pointer transition-colors ${
-                                hotelPackage === "standard"
-                                  ? "border-primary bg-primary/10"
-                                  : "hover:bg-muted"
-                              }`}
-                              onClick={() => setHotelPackage("standard")}
-                            >
-                              <div className="flex justify-between">
-                                <p className="text-sm font-medium">Standard</p>
-                                <p className="text-sm font-medium">
-                                  {(packageData.price / 100).toLocaleString("en-US")}{" "}
-                                  EGP
-                                </p>
-                              </div>
-                              <p className="text-xs text-muted-foreground">
-                                4-star accommodation
-                              </p>
-                            </div>
-                            <div
-                              className={`border rounded-md p-2 cursor-pointer transition-colors ${
-                                hotelPackage === "deluxe"
-                                  ? "border-primary bg-primary/10"
-                                  : "hover:bg-muted"
-                              }`}
-                              onClick={() => setHotelPackage("deluxe")}
-                            >
-                              <div className="flex justify-between">
-                                <p className="text-sm font-medium">Deluxe</p>
-                                <p className="text-sm font-medium">
-                                  {Math.round(
-                                    (packageData.price / 100) * 1.3,
-                                  ).toLocaleString("en-US")}{" "}
-                                  EGP
-                                </p>
-                              </div>
-                              <p className="text-xs text-muted-foreground">
-                                5-star accommodation
-                              </p>
-                            </div>
-                          </div>
-                        </div>
 
-                        <Separator />
 
                         {/* Enhanced Price Calculation */}
                         <EnhancedPriceCalculation 
@@ -1138,7 +1155,7 @@ export default function PackageDetail() {
                           adults={adults}
                           children={children}
                           infants={infants}
-                          hotelPackage={hotelPackage}
+                          hotelPackage=""
                           selectedRooms={selectedRooms}
                           dateMode={dateMode}
                           selectedDate={selectedDate}
@@ -1162,7 +1179,7 @@ export default function PackageDetail() {
                             children,
                             infants,
                             selectedRooms,
-                            hotelPackage,
+                            hotelPackage: "",
                           }}
                         />
 
@@ -1328,6 +1345,83 @@ export default function PackageDetail() {
           </div>
         </div>
       ) : null}
+
+      {/* Photo Gallery Lightbox Modal */}
+      <Dialog open={isGalleryOpen} onOpenChange={setIsGalleryOpen}>
+        <DialogContent className="max-w-4xl w-full p-0 bg-black/90 border-0">
+          <DialogTitle className="sr-only">
+            {packageData?.title} Gallery - Image {currentImageIndex + 1}
+          </DialogTitle>
+          <div className="relative w-full h-[80vh] flex items-center justify-center">
+            {/* Close button */}
+            <button
+              onClick={closeGallery}
+              className="absolute top-4 right-4 z-50 text-white hover:text-gray-300 transition-colors"
+            >
+              <X className="w-8 h-8" />
+            </button>
+
+            {/* Previous button */}
+            {packageData?.galleryUrls && currentImageIndex > 0 && (
+              <button
+                onClick={prevImage}
+                className="absolute left-4 top-1/2 transform -translate-y-1/2 z-40 text-white hover:text-gray-300 transition-colors"
+              >
+                <ChevronLeft className="w-12 h-12" />
+              </button>
+            )}
+
+            {/* Next button */}
+            {packageData?.galleryUrls && currentImageIndex < packageData.galleryUrls.length - 1 && (
+              <button
+                onClick={nextImage}
+                className="absolute right-4 top-1/2 transform -translate-y-1/2 z-40 text-white hover:text-gray-300 transition-colors"
+              >
+                <ChevronRight className="w-12 h-12" />
+              </button>
+            )}
+
+            {/* Current image */}
+            {packageData?.galleryUrls && packageData.galleryUrls[currentImageIndex] && (
+              <img
+                src={packageData.galleryUrls[currentImageIndex]}
+                alt={`${packageData.title} - Image ${currentImageIndex + 1}`}
+                className="max-w-full max-h-full object-contain"
+              />
+            )}
+
+            {/* Image counter */}
+            {packageData?.galleryUrls && (
+              <div className="absolute bottom-4 left-1/2 transform -translate-x-1/2 z-40 bg-black/50 text-white px-4 py-2 rounded-lg">
+                {currentImageIndex + 1} of {packageData.galleryUrls.length}
+              </div>
+            )}
+
+            {/* Thumbnail navigation */}
+            {packageData?.galleryUrls && packageData.galleryUrls.length > 1 && (
+              <div className="absolute bottom-16 left-1/2 transform -translate-x-1/2 z-40 flex gap-2 max-w-md overflow-x-auto py-2">
+                {packageData.galleryUrls.map((url, index) => (
+                  <button
+                    key={index}
+                    onClick={() => setCurrentImageIndex(index)}
+                    className={`flex-shrink-0 w-16 h-12 rounded-md overflow-hidden border-2 transition-all ${
+                      index === currentImageIndex 
+                        ? 'border-white' 
+                        : 'border-gray-500 hover:border-gray-300'
+                    }`}
+                  >
+                    <img
+                      src={url}
+                      alt={`Thumbnail ${index + 1}`}
+                      className="w-full h-full object-cover"
+                    />
+                  </button>
+                ))}
+              </div>
+            )}
+          </div>
+        </DialogContent>
+      </Dialog>
     </PackageLayout>
   );
 }

@@ -24,9 +24,11 @@ interface Package {
 }
 
 const PopularPackages: React.FC = () => {
-  // Fetch packages from API
+  // Fetch packages from API with optimized settings
   const { data: packages = [], isLoading } = useQuery<Package[]>({
     queryKey: ['/api/packages'],
+    staleTime: 5 * 60 * 1000, // Cache for 5 minutes
+    retry: 1,
   });
 
   // Filter for featured/popular packages

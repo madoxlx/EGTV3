@@ -128,6 +128,7 @@ const packageFormSchema = z.object({
   duration: z.coerce
     .number()
     .min(1, { message: "Duration must be at least 1 day" }),
+  durationType: z.string().default("days"),
   rating: z.coerce.number().min(0).max(5).optional().nullable(),
   reviewCount: z.coerce.number().min(0).optional().nullable(),
 
@@ -237,6 +238,12 @@ const packageFormSchema = z.object({
   // Status
   featured: z.boolean().default(false),
   slug: z.string().optional(),
+  
+  // Policy fields - These were missing from the schema
+  cancellationPolicy: z.string().optional(),
+  childrenPolicy: z.string().optional(),
+  termsAndConditions: z.string().optional(),
+  customText: z.string().optional(),
 
   // Arabic translation fields
   hasArabicVersion: z.boolean().default(false),
@@ -917,12 +924,18 @@ export function PackageCreatorForm({
         language: formData.language || "english",
         bestTimeToVisit: formData.bestTimeToVisit || "",
 
+        // Policy fields - IMPORTANT: These were missing before
+        cancellationPolicy: formData.cancellationPolicy || "",
+        childrenPolicy: formData.childrenPolicy || "",
+        termsAndConditions: formData.termsAndConditions || "",
+        customText: formData.customText || "",
+
         // Additional metadata
         rating: 45,
         featured: true,
         type: "dynamic", // Always set as dynamic for packages created via /admin/packages/create
 
-        // Arabic translation fields
+        // Arabic translation fields - IMPROVED: More comprehensive Arabic support
         hasArabicVersion: formData.hasArabicVersion || false,
         titleAr: formData.titleAr || "",
         descriptionAr: formData.descriptionAr || "",
@@ -931,10 +944,15 @@ export function PackageCreatorForm({
         bestTimeToVisitAr: formData.bestTimeToVisitAr || "",
         includedFeaturesAr: formData.includedFeaturesAr || [],
         excludedFeaturesAr: formData.excludedFeaturesAr || [],
+        idealForAr: formData.idealForAr || [],
         cancellationPolicyAr: formData.cancellationPolicyAr || "",
         childrenPolicyAr: formData.childrenPolicyAr || "",
         termsAndConditionsAr: formData.termsAndConditionsAr || "",
         customTextAr: formData.customTextAr || "",
+        itineraryAr: formData.itineraryAr || [],
+        whatToPackAr: formData.whatToPackAr || [],
+        travelRouteAr: formData.travelRouteAr || [],
+        optionalExcursionsAr: formData.optionalExcursionsAr || [],
       };
 
       // Log final payload for debugging
@@ -1459,6 +1477,18 @@ export function PackageCreatorForm({
           );
           setAvailableRooms(hotelRooms);
           console.log("Available rooms for selected hotels:", hotelRooms);
+          
+          // Trigger room filtering with current guest counts
+          const adultCount = form.getValues("adultCount") || 2;
+          const childrenCount = form.getValues("childrenCount") || 0;
+          const infantCount = form.getValues("infantCount") || 0;
+          filterRoomsByCapacity(hotelRooms, adultCount, childrenCount, infantCount);
+          
+          // Force form to re-render the hotels and rooms sections
+          setTimeout(() => {
+            form.trigger("selectedHotels");
+            form.trigger("rooms");
+          }, 100);
         }
 
         if (Array.isArray(parsedRooms) && parsedRooms.length > 0) {
@@ -2276,11 +2306,14 @@ export function PackageCreatorForm({
               {/* Destination Selection */}
               <FormField
                 control={form.control}
-                name="category"
+                name="destinationId"
                 render={({ field }) => (
                   <FormItem>
                     <FormLabel>Destination</FormLabel>
-                    <Select onValueChange={field.onChange} value={field.value}>
+                    <Select 
+                      onValueChange={(value) => field.onChange(parseInt(value))} 
+                      value={field.value?.toString()}
+                    >
                       <FormControl>
                         <SelectTrigger
                           id="package-destination"
@@ -2509,6 +2542,106 @@ export function PackageCreatorForm({
               )}
             />
 
+            {/* Package Type */}
+            <FormField
+              control={form.control}
+              name="type"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Package Type</FormLabel>
+                  <Select onValueChange={field.onChange} value={field.value}>
+                    <FormControl>
+                      <SelectTrigger>
+                        <SelectValue placeholder="Select package type" />
+                      </SelectTrigger>
+                    </FormControl>
+                    <SelectContent>
+                      <SelectItem value="cultural">Cultural Tour</SelectItem>
+                      <SelectItem value="adventure">Adventure</SelectItem>
+                      <SelectItem value="leisure">Leisure</SelectItem>
+                      <SelectItem value="business">Business</SelectItem>
+                      <SelectItem value="honeymoon">Honeymoon</SelectItem>
+                      <SelectItem value="family">Family</SelectItem>
+                      <SelectItem value="luxury">Luxury</SelectItem>
+                      <SelectItem value="budget">Budget</SelectItem>
+                    </SelectContent>
+                  </Select>
+                  <FormDescription>
+                    The type of package experience offered.
+                  </FormDescription>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+
+            {/* Featured Toggle */}
+            <FormField
+              control={form.control}
+              name="featured"
+              render={({ field }) => (
+                <FormItem className="flex flex-row items-center justify-between rounded-lg border p-4">
+                  <div className="space-y-0.5">
+                    <FormLabel className="text-base">Featured Package</FormLabel>
+                    <FormDescription>
+                      Mark this package as featured to display it prominently on the website.
+                    </FormDescription>
+                  </div>
+                  <FormControl>
+                    <Switch
+                      checked={field.value}
+                      onCheckedChange={field.onChange}
+                    />
+                  </FormControl>
+                </FormItem>
+              )}
+            />
+
+            {/* Valid Until Date */}
+            <FormField
+              control={form.control}
+              name="validUntil"
+              render={({ field }) => (
+                <FormItem className="flex flex-col">
+                  <FormLabel>Valid Until Date</FormLabel>
+                  <Popover>
+                    <PopoverTrigger asChild>
+                      <FormControl>
+                        <Button
+                          variant={"outline"}
+                          className={cn(
+                            "w-full pl-3 text-left font-normal",
+                            !field.value && "text-muted-foreground"
+                          )}
+                        >
+                          {field.value && field.value instanceof Date && !isNaN(field.value.getTime()) ? (
+                            format(field.value, "PPP")
+                          ) : (
+                            <span>Pick a date</span>
+                          )}
+                          <CalendarIcon className="ml-auto h-4 w-4 opacity-50" />
+                        </Button>
+                      </FormControl>
+                    </PopoverTrigger>
+                    <PopoverContent className="w-auto p-0" align="start">
+                      <Calendar
+                        mode="single"
+                        selected={field.value instanceof Date && !isNaN(field.value.getTime()) ? field.value : undefined}
+                        onSelect={field.onChange}
+                        disabled={(date) =>
+                          date < new Date()
+                        }
+                        initialFocus
+                      />
+                    </PopoverContent>
+                  </Popover>
+                  <FormDescription>
+                    Set the expiration date for this package offer.
+                  </FormDescription>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+
             {/* Max Group Size */}
             <FormField
               control={form.control}
@@ -2564,55 +2697,7 @@ export function PackageCreatorForm({
             />
 
             {/* Ideal For */}
-            <FormField
-              control={form.control}
-              name="idealFor"
-              render={() => (
-                <FormItem>
-                  <FormLabel>Ideal For</FormLabel>
-                  <div className="space-y-2">
-                    {travellerTypes.map((type) => (
-                      <div
-                        className="flex items-center space-x-2"
-                        key={type.id}
-                      >
-                        <Checkbox
-                          id={`ideal-for-${type.id}`}
-                          checked={selectedTravellerTypes.includes(type.id)}
-                          onCheckedChange={(checked) => {
-                            if (checked) {
-                              setSelectedTravellerTypes([
-                                ...selectedTravellerTypes,
-                                type.id,
-                              ]);
-                              form.setValue("idealFor", [
-                                ...selectedTravellerTypes,
-                                type.id,
-                              ]);
-                            } else {
-                              const filtered = selectedTravellerTypes.filter(
-                                (id) => id !== type.id,
-                              );
-                              setSelectedTravellerTypes(filtered);
-                              form.setValue("idealFor", filtered);
-                            }
-                          }}
-                        />
-                        <label
-                          htmlFor={`ideal-for-${type.id}`}
-                          className="text-sm leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70"
-                        >
-                          {type.label}
-                        </label>
-                      </div>
-                    ))}
-                  </div>
-                  <FormDescription>
-                    Select all traveler types this package is suitable for.
-                  </FormDescription>
-                </FormItem>
-              )}
-            />
+          
 
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
               <FormField
@@ -2729,6 +2814,60 @@ export function PackageCreatorForm({
                         />
                       </PopoverContent>
                     </Popover>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+            </div>
+
+            {/* Duration and Duration Type */}
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+              <FormField
+                control={form.control}
+                name="duration"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Duration</FormLabel>
+                    <FormControl>
+                      <Input
+                        type="number"
+                        min="1"
+                        placeholder="Enter duration"
+                        {...field}
+                        value={field.value || ""}
+                        onChange={(e) => field.onChange(e.target.value ? Number(e.target.value) : "")}
+                      />
+                    </FormControl>
+                    <FormDescription>
+                      The length of this package
+                    </FormDescription>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+
+              <FormField
+                control={form.control}
+                name="durationType"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Duration Type</FormLabel>
+                    <Select onValueChange={field.onChange} value={field.value}>
+                      <FormControl>
+                        <SelectTrigger>
+                          <SelectValue placeholder="Select duration type" />
+                        </SelectTrigger>
+                      </FormControl>
+                      <SelectContent>
+                        <SelectItem value="days">Days</SelectItem>
+                        <SelectItem value="nights">Nights</SelectItem>
+                        <SelectItem value="hours">Hours</SelectItem>
+                        <SelectItem value="weeks">Weeks</SelectItem>
+                      </SelectContent>
+                    </Select>
+                    <FormDescription>
+                      How the duration is measured
+                    </FormDescription>
                     <FormMessage />
                   </FormItem>
                 )}
@@ -2907,6 +3046,104 @@ export function PackageCreatorForm({
                     )}
                   </Button>
                 </div>
+              </div>
+            </div>
+
+            {/* English Policies Section */}
+            <div className="space-y-6">
+              <div className="flex items-center gap-2 mb-4">
+                <AlertCircle className="h-5 w-5 text-primary" />
+                <h3 className="text-lg font-semibold">Policies</h3>
+              </div>
+              
+              <div className="grid grid-cols-1 gap-6">
+                {/* Cancellation Policy (English) */}
+                <FormField
+                  control={form.control}
+                  name="cancellationPolicy"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>Cancellation Policy</FormLabel>
+                      <FormControl>
+                        <Textarea
+                          placeholder="Enter cancellation policy details..."
+                          className="min-h-[100px]"
+                          {...field}
+                        />
+                      </FormControl>
+                      <FormDescription>
+                        Enter the cancellation policy in English
+                      </FormDescription>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+
+                {/* Children Policy (English) */}
+                <FormField
+                  control={form.control}
+                  name="childrenPolicy"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>Children Policy</FormLabel>
+                      <FormControl>
+                        <Textarea
+                          placeholder="Enter children policy details..."
+                          className="min-h-[100px]"
+                          {...field}
+                        />
+                      </FormControl>
+                      <FormDescription>
+                        Enter the children policy in English
+                      </FormDescription>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+
+                {/* Terms & Conditions (English) */}
+                <FormField
+                  control={form.control}
+                  name="termsAndConditions"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>Terms & Conditions</FormLabel>
+                      <FormControl>
+                        <Textarea
+                          placeholder="Enter terms and conditions..."
+                          className="min-h-[100px]"
+                          {...field}
+                        />
+                      </FormControl>
+                      <FormDescription>
+                        Enter the terms and conditions in English
+                      </FormDescription>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+
+                {/* Custom Text (English) */}
+                <FormField
+                  control={form.control}
+                  name="customText"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>Custom Text</FormLabel>
+                      <FormControl>
+                        <Textarea
+                          placeholder="Enter any additional custom text..."
+                          className="min-h-[100px]"
+                          {...field}
+                        />
+                      </FormControl>
+                      <FormDescription>
+                        Enter any additional custom text in English
+                      </FormDescription>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
               </div>
             </div>
           </TabsContent>
@@ -3345,9 +3582,23 @@ export function PackageCreatorForm({
             </div>
 
             {/* Available Rooms */}
-            {Array.isArray(form.watch("selectedHotels")) &&
-              (form.watch("selectedHotels")?.length || 0) > 0 &&
-              filteredRooms.length > 0 && (
+            {(() => {
+              const selectedHotels = form.watch("selectedHotels");
+              const isHotelsArray = Array.isArray(selectedHotels);
+              const hotelsLength = selectedHotels?.length || 0;
+              const roomsLength = filteredRooms.length;
+              const shouldShow = isHotelsArray && hotelsLength > 0 && roomsLength > 0;
+              
+              console.log("🔍 Room section visibility check:", {
+                selectedHotels,
+                isHotelsArray,
+                hotelsLength,
+                roomsLength,
+                shouldShow
+              });
+              
+              return shouldShow;
+            })() && (
                 <FormField
                   control={form.control}
                   name="rooms"
@@ -3544,9 +3795,17 @@ export function PackageCreatorForm({
                             )
                             .map((hotel) => {
                               const hotelRooms = filteredRooms.filter(
-                                (room) =>
-                                  String(room.hotelId || room.hotel_id) === String(hotel.id),
+                                (room) => {
+                                  const roomHotelId = String(room.hotelId || room.hotel_id);
+                                  const hotelId = String(hotel.id);
+                                  const matches = roomHotelId === hotelId;
+                                  console.log(
+                                    `🏨 Hotel ${hotel.name} (ID: ${hotelId}): Room "${room.name}" has hotel_id=${roomHotelId}, matches=${matches ? "✅" : "❌"}`
+                                  );
+                                  return matches;
+                                }
                               );
+                              console.log(`🏨 Hotel ${hotel.name}: Found ${hotelRooms.length} rooms`);
                               
                               return (
                                 <div
@@ -5123,6 +5382,331 @@ export function PackageCreatorForm({
                               className="text-right min-h-[80px]"
                             />
                           </FormControl>
+                          <FormMessage />
+                        </FormItem>
+                      )}
+                    />
+                  </div>
+
+                  {/* Arabic Itinerary */}
+                  <div className="border rounded-lg p-4 space-y-4">
+                    <h3 className="text-lg font-semibold">Itinerary (Arabic)</h3>
+                    <p className="text-sm text-muted-foreground">
+                      Add Arabic translations for the daily itinerary
+                    </p>
+
+                    <FormField
+                      control={form.control}
+                      name="itineraryAr"
+                      render={({ field }) => (
+                        <FormItem>
+                          <div className="space-y-4">
+                            {(field.value || []).map((day: any, dayIndex: number) => (
+                              <div key={dayIndex} className="border rounded-lg p-4 bg-gray-50">
+                                <div className="flex items-center justify-between mb-3">
+                                  <h4 className="font-medium">Day {day.day} (Arabic)</h4>
+                                  <Button
+                                    type="button"
+                                    variant="ghost"
+                                    size="sm"
+                                    onClick={() => {
+                                      const currentItinerary = field.value || [];
+                                      field.onChange(currentItinerary.filter((_: any, i: number) => i !== dayIndex));
+                                    }}
+                                    className="text-red-600 hover:text-red-800"
+                                  >
+                                    <Trash className="h-4 w-4" />
+                                  </Button>
+                                </div>
+                                
+                                <div className="grid grid-cols-1 gap-4">
+                                  <div>
+                                    <Label className="text-sm font-medium">Day Title (Arabic)</Label>
+                                    <Input
+                                      value={day.title || ''}
+                                      onChange={(e) => {
+                                        const currentItinerary = field.value || [];
+                                        const updatedItinerary = currentItinerary.map((item: any, i: number) =>
+                                          i === dayIndex ? { ...item, title: e.target.value } : item
+                                        );
+                                        field.onChange(updatedItinerary);
+                                      }}
+                                      placeholder="عنوان اليوم بالعربية"
+                                      dir="rtl"
+                                      className="text-right"
+                                    />
+                                  </div>
+
+                                  <div>
+                                    <Label className="text-sm font-medium">Description (Arabic)</Label>
+                                    <Textarea
+                                      value={day.description || ''}
+                                      onChange={(e) => {
+                                        const currentItinerary = field.value || [];
+                                        const updatedItinerary = currentItinerary.map((item: any, i: number) =>
+                                          i === dayIndex ? { ...item, description: e.target.value } : item
+                                        );
+                                        field.onChange(updatedItinerary);
+                                      }}
+                                      placeholder="وصف الأنشطة بالعربية"
+                                      dir="rtl"
+                                      className="text-right min-h-[80px]"
+                                    />
+                                  </div>
+
+                                  <div>
+                                    <Label className="text-sm font-medium">Activities (Arabic)</Label>
+                                    <p className="text-xs text-muted-foreground mb-2">
+                                      Add activities in Arabic (press Enter to add each activity)
+                                    </p>
+                                    <div className="space-y-2">
+                                      <Input
+                                        placeholder="نشاط بالعربية - اضغط Enter للإضافة"
+                                        dir="rtl"
+                                        className="text-right"
+                                        onKeyPress={(e) => {
+                                          if (e.key === 'Enter') {
+                                            e.preventDefault();
+                                            const input = e.target as HTMLInputElement;
+                                            if (input.value.trim()) {
+                                              const currentItinerary = field.value || [];
+                                              const updatedItinerary = currentItinerary.map((item: any, i: number) =>
+                                                i === dayIndex ? { 
+                                                  ...item, 
+                                                  activities: [...(item.activities || []), input.value.trim()]
+                                                } : item
+                                              );
+                                              field.onChange(updatedItinerary);
+                                              input.value = '';
+                                            }
+                                          }
+                                        }}
+                                      />
+                                      <div className="flex flex-wrap gap-1 max-h-24 overflow-y-auto">
+                                        {(day.activities || []).map((activity: string, actIndex: number) => (
+                                          <Badge 
+                                            key={actIndex} 
+                                            variant="secondary"
+                                            className="flex items-center gap-1"
+                                          >
+                                            <span dir="rtl">{activity}</span>
+                                            <Button
+                                              type="button"
+                                              variant="ghost"
+                                              size="sm"
+                                              onClick={() => {
+                                                const currentItinerary = field.value || [];
+                                                const updatedItinerary = currentItinerary.map((item: any, i: number) =>
+                                                  i === dayIndex ? {
+                                                    ...item,
+                                                    activities: item.activities.filter((_: any, ai: number) => ai !== actIndex)
+                                                  } : item
+                                                );
+                                                field.onChange(updatedItinerary);
+                                              }}
+                                              className="h-4 w-4 p-0 hover:bg-red-100"
+                                            >
+                                              <X className="h-3 w-3" />
+                                            </Button>
+                                          </Badge>
+                                        ))}
+                                      </div>
+                                    </div>
+                                  </div>
+                                </div>
+                              </div>
+                            ))}
+
+                            <Button
+                              type="button"
+                              variant="outline"
+                              onClick={() => {
+                                const currentItinerary = field.value || [];
+                                const newDay = {
+                                  day: currentItinerary.length + 1,
+                                  title: '',
+                                  description: '',
+                                  activities: [],
+                                  meals: []
+                                };
+                                field.onChange([...currentItinerary, newDay]);
+                              }}
+                              className="w-full"
+                            >
+                              <Plus className="h-4 w-4 mr-2" />
+                              Add Day (Arabic)
+                            </Button>
+                          </div>
+                          <FormMessage />
+                        </FormItem>
+                      )}
+                    />
+                  </div>
+
+                  {/* Arabic Ideal For */}
+                  <div className="border rounded-lg p-4 space-y-4">
+                    <h3 className="text-lg font-semibold">Ideal For (Arabic)</h3>
+                    <p className="text-sm text-muted-foreground">
+                      Add Arabic translations for ideal traveler types
+                    </p>
+
+                    <div className="space-y-2">
+                      <div className="flex gap-2">
+                        <Input
+                          placeholder="مناسب للمسافرين - اضغط Enter للإضافة"
+                          dir="rtl"
+                          className="text-right"
+                          onKeyPress={(e) => {
+                            if (e.key === 'Enter') {
+                              e.preventDefault();
+                              const input = e.target as HTMLInputElement;
+                              if (input.value.trim()) {
+                                const currentIdealFor = form.getValues("idealForAr") || [];
+                                form.setValue("idealForAr", [...currentIdealFor, input.value.trim()]);
+                                input.value = '';
+                              }
+                            }
+                          }}
+                        />
+                        <Button
+                          type="button"
+                          size="sm"
+                          onClick={(e) => {
+                            const input = (e.target as HTMLElement).previousElementSibling as HTMLInputElement;
+                            if (input?.value.trim()) {
+                              const currentIdealFor = form.getValues("idealForAr") || [];
+                              form.setValue("idealForAr", [...currentIdealFor, input.value.trim()]);
+                              input.value = '';
+                            }
+                          }}
+                        >
+                          <Plus className="h-4 w-4" />
+                        </Button>
+                      </div>
+                      <div className="flex flex-wrap gap-2 max-h-24 overflow-y-auto">
+                        {(form.watch("idealForAr") || []).map((item: string, index: number) => (
+                          <Badge key={index} variant="outline" className="flex items-center gap-1">
+                            <span dir="rtl">{item}</span>
+                            <Button
+                              type="button"
+                              variant="ghost"
+                              size="sm"
+                              onClick={() => {
+                                const currentIdealFor = form.getValues("idealForAr") || [];
+                                form.setValue("idealForAr", currentIdealFor.filter((_, i) => i !== index));
+                              }}
+                              className="h-4 w-4 p-0 hover:bg-red-100"
+                            >
+                              <X className="h-3 w-3" />
+                            </Button>
+                          </Badge>
+                        ))}
+                      </div>
+                    </div>
+                  </div>
+
+                  {/* Arabic What to Pack */}
+                  <div className="border rounded-lg p-4 space-y-4">
+                    <h3 className="text-lg font-semibold">What to Pack (Arabic)</h3>
+                    <p className="text-sm text-muted-foreground">
+                      Add Arabic translations for packing recommendations
+                    </p>
+
+                    <FormField
+                      control={form.control}
+                      name="whatToPackAr"
+                      render={({ field }) => (
+                        <FormItem>
+                          <div className="space-y-4">
+                            {(field.value || []).map((item: any, itemIndex: number) => (
+                              <div key={itemIndex} className="border rounded-lg p-4 bg-gray-50">
+                                <div className="flex items-center justify-between mb-3">
+                                  <h4 className="font-medium">Item {itemIndex + 1} (Arabic)</h4>
+                                  <Button
+                                    type="button"
+                                    variant="ghost"
+                                    size="sm"
+                                    onClick={() => {
+                                      const currentItems = field.value || [];
+                                      field.onChange(currentItems.filter((_: any, i: number) => i !== itemIndex));
+                                    }}
+                                    className="text-red-600 hover:text-red-800"
+                                  >
+                                    <Trash className="h-4 w-4" />
+                                  </Button>
+                                </div>
+                                
+                                <div className="grid grid-cols-1 gap-4">
+                                  <div>
+                                    <Label className="text-sm font-medium">Item Name (Arabic)</Label>
+                                    <Input
+                                      value={item.item || ''}
+                                      onChange={(e) => {
+                                        const currentItems = field.value || [];
+                                        const updatedItems = currentItems.map((it: any, i: number) =>
+                                          i === itemIndex ? { ...it, item: e.target.value } : it
+                                        );
+                                        field.onChange(updatedItems);
+                                      }}
+                                      placeholder="اسم العنصر بالعربية"
+                                      dir="rtl"
+                                      className="text-right"
+                                    />
+                                  </div>
+
+                                  <div>
+                                    <Label className="text-sm font-medium">Icon Name</Label>
+                                    <Input
+                                      value={item.icon || ''}
+                                      onChange={(e) => {
+                                        const currentItems = field.value || [];
+                                        const updatedItems = currentItems.map((it: any, i: number) =>
+                                          i === itemIndex ? { ...it, icon: e.target.value } : it
+                                        );
+                                        field.onChange(updatedItems);
+                                      }}
+                                      placeholder="e.g., suitcase, camera, sunglasses"
+                                    />
+                                  </div>
+
+                                  <div>
+                                    <Label className="text-sm font-medium">Tooltip (Arabic)</Label>
+                                    <Input
+                                      value={item.tooltip || ''}
+                                      onChange={(e) => {
+                                        const currentItems = field.value || [];
+                                        const updatedItems = currentItems.map((it: any, i: number) =>
+                                          i === itemIndex ? { ...it, tooltip: e.target.value } : it
+                                        );
+                                        field.onChange(updatedItems);
+                                      }}
+                                      placeholder="معلومات إضافية بالعربية"
+                                      dir="rtl"
+                                      className="text-right"
+                                    />
+                                  </div>
+                                </div>
+                              </div>
+                            ))}
+
+                            <Button
+                              type="button"
+                              variant="outline"
+                              onClick={() => {
+                                const currentItems = field.value || [];
+                                const newItem = {
+                                  item: '',
+                                  icon: '',
+                                  tooltip: ''
+                                };
+                                field.onChange([...currentItems, newItem]);
+                              }}
+                              className="w-full"
+                            >
+                              <Plus className="h-4 w-4 mr-2" />
+                              Add Item (Arabic)
+                            </Button>
+                          </div>
                           <FormMessage />
                         </FormItem>
                       )}

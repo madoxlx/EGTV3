@@ -40,12 +40,15 @@ app.use(
     store: new MemoryStore({
       checkPeriod: 86400000, // prune expired entries every 24h
     }),
-    resave: false,
+    resave: true, // Force session to save even if unmodified
     saveUninitialized: false,
+    rolling: true, // Reset session expiration on each request
+    name: 'sahara.sid', // Custom session name
     cookie: {
       secure: false, // Set to true in production with HTTPS
       httpOnly: true,
       maxAge: 24 * 60 * 60 * 1000, // 24 hours
+      sameSite: 'lax', // Prevent CSRF while allowing cross-origin requests
     },
   }),
 );
@@ -54,41 +57,44 @@ app.use(
 app.use(passport.initialize());
 app.use(passport.session());
 
+// Session debugging middleware - only in development
+if (process.env.NODE_ENV === 'development') {
+  app.use((req, res, next) => {
+    const sessionId = (req as any).sessionID;
+    const sessionUser = (req as any).session?.user;
+    
+    // Only log for admin-related requests to reduce noise
+    if (req.path.includes('/admin') || req.path.includes('/api/user') || req.path.includes('/api/admin')) {
+      console.log(`🔧 Session Debug - ${req.method} ${req.path}`);
+      console.log(`   Session ID: ${sessionId}`);
+      console.log(`   Session User: ${sessionUser ? `${sessionUser.username} (${sessionUser.role})` : 'None'}`);
+    }
+    
+    next();
+  });
+}
+
 // Serve static files from the public directory
 app.use("/uploads", express.static(path.join(process.cwd(), "public/uploads")));
 
-app.use((req, res, next) => {
-  const start = Date.now();
-  const path = req.path;
-  let capturedJsonResponse: Record<string, any> | undefined = undefined;
+// Optimized request logging - only in development mode and for slow requests
+if (process.env.NODE_ENV === 'development') {
+  app.use((req, res, next) => {
+    const start = Date.now();
+    const path = req.path;
 
-  const originalResJson = res.json;
-  res.json = function (bodyJson, ...args) {
-    capturedJsonResponse = bodyJson;
-    return originalResJson.apply(res, [bodyJson, ...args]);
-  };
-
-  res.on("finish", () => {
-    const duration = Date.now() - start;
-    if (path.startsWith("/api")) {
-      let logLine = `${req.method} ${path} ${res.statusCode} in ${duration}ms`;
-      if (capturedJsonResponse) {
-        // Limit the size of the logged JSON response
-        const jsonString = JSON.stringify(capturedJsonResponse);
-        logLine += ` :: ${jsonString.length > 200 ? jsonString.substring(0, 197) + "..." : jsonString}`;
+    res.on("finish", () => {
+      const duration = Date.now() - start;
+      // Only log API requests that take longer than 100ms or have error status
+      if (path.startsWith("/api") && (duration > 100 || res.statusCode >= 400)) {
+        const logLine = `${req.method} ${path} ${res.statusCode} in ${duration}ms`;
+        log(logLine);
       }
+    });
 
-      if (logLine.length > 150) {
-        // Increase limit to accommodate JSON
-        logLine = logLine.slice(0, 147) + "…";
-      }
-
-      log(logLine);
-    }
+    next();
   });
-
-  next();
-});
+}
 
 (async () => {
   try {

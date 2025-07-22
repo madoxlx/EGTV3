@@ -1,4 +1,4 @@
-import React from "react";
+import React, { Suspense, lazy } from "react";
 import { Switch, Route, useLocation } from "wouter";
 import { queryClient } from "./lib/queryClient";
 import { QueryClientProvider } from "@tanstack/react-query";
@@ -15,95 +15,98 @@ import {
   useNavigation,
 } from "@/contexts/NavigationContext";
 import Preloader from "@/components/Preloader";
+
+// Immediate load essential pages
 import NotFound from "@/pages/not-found";
 import Home from "@/pages/Home";
 import AuthPage from "@/pages/auth-page";
-import DestinationsPage from "@/pages/destinations-page";
-import Tours from "@/pages/Tours";
-import ToursPackageStyle from "@/pages/ToursPackageStyle";
-import TourDetail from "@/pages/TourDetail";
-import PackagesPage from "@/pages/packages";
-import AboutPage from "@/pages/about-page";
-import ContactPage from "@/pages/contact-page";
-import AllServices from "@/pages/all-services";
-import ProfilePage from "@/pages/profile-page";
-import SocialMediaBoxDemo from "@/pages/SocialMediaBoxDemo";
-import SailingCruise from "@/pages/sailing-cruise";
-import ZigzagDemo from "@/pages/ZigzagDemo";
-import PackageDetail from "@/pages/package-detail";
-import ManualPackageDetail from "@/pages/manual-package-detail";
-import CartPage from "@/pages/CartPage";
-import CheckoutPage from "@/pages/CheckoutPage";
-import OrderConfirmationPage from "@/pages/OrderConfirmationPage";
 
-// Search Results Pages
-import {
-  FlightsSearchResults,
-  HotelsSearchResults,
-  TransportationSearchResults,
-  VisasSearchResults,
-  ToursSearchResults,
-  PackagesSearchResults,
-} from "@/pages/search-results";
+// Lazy load user-facing pages
+const DestinationsPage = lazy(() => import("@/pages/destinations-page"));
+const Tours = lazy(() => import("@/pages/Tours"));
+const ToursPackageStyle = lazy(() => import("@/pages/ToursPackageStyle"));
+const TourDetail = lazy(() => import("@/pages/TourDetail"));
+const PackagesPage = lazy(() => import("@/pages/packages"));
+const AboutPage = lazy(() => import("@/pages/about-page"));
+const ContactPage = lazy(() => import("@/pages/contact-page"));
+const AllServices = lazy(() => import("@/pages/all-services"));
+const ProfilePage = lazy(() => import("@/pages/profile-page"));
+const SocialMediaBoxDemo = lazy(() => import("@/pages/SocialMediaBoxDemo"));
+const SailingCruise = lazy(() => import("@/pages/sailing-cruise"));
+const ZigzagDemo = lazy(() => import("@/pages/ZigzagDemo"));
+const PackageDetail = lazy(() => import("@/pages/package-detail"));
+const ManualPackageDetail = lazy(() => import("@/pages/manual-package-detail"));
+const CartPage = lazy(() => import("@/pages/CartPage"));
+const CheckoutPage = lazy(() => import("@/pages/CheckoutPage"));
+const OrderConfirmationPage = lazy(() => import("@/pages/OrderConfirmationPage"));
 
-// Admin Pages
-import PackagesManagement from "@/pages/admin/PackagesManagement";
-import ManualPackagesManagement from "@/pages/admin/ManualPackagesManagement";
-import PackageCreatorPage from "@/pages/admin/PackageCreatorPage";
-import CreateManualPackage from "@/pages/admin/CreateManualPackage";
-import EditManualPackage from "@/pages/admin/EditManualPackage";
-import UsersManagement from "@/pages/admin/UsersManagement";
-import ToursManagement from "@/pages/admin/ToursManagement";
-import TourCreatorPage from "@/pages/admin/TourCreatorPage";
-import CreateTour from "@/pages/admin/tours/create";
-import EditTour from "@/pages/admin/tours/edit";
-import HotelsManagement from "@/pages/admin/HotelsManagement";
-import AdvancedHotelsManagement from "@/pages/admin/AdvancedHotelsManagement";
-import HotelCreatePage from "@/pages/admin/HotelCreatePage";
-import HotelEditPage from "@/pages/admin/HotelEditPage";
-import EnhancedHotelCreatePage from "@/pages/admin/EnhancedHotelCreatePage";
-import EnhancedHotelEditPage from "@/pages/admin/EnhancedHotelEditPage";
-import RoomsManagement from "@/pages/admin/RoomsManagement";
-import AdminDashboard from "@/pages/admin/AdminDashboard";
-import AnalyticsDashboard from "@/pages/admin/AnalyticsDashboard";
-import SystemMonitoring from "@/pages/admin/SystemMonitoring";
-import EnhancedDataImportPage from "@/pages/admin/EnhancedDataImportPage";
-import RoomsPage from "@/pages/admin/RoomsPage";
-import RoomCreatePage from "@/pages/admin/RoomCreatePage";
-import TransportationManagement from "@/pages/admin/TransportationManagement";
-import TransportationCreate from "@/pages/admin/TransportationCreate";
-import TransportationEdit from "@/pages/admin/TransportationEdit";
-import TransportTypesManagement from "@/pages/admin/TransportTypesManagement";
-import TransportLocationsManagement from "@/pages/admin/TransportLocationsManagement";
-import TransportDurationsManagement from "@/pages/admin/TransportDurationsManagement";
-import CountryCityManagement from "@/pages/admin/CountryCityManagement";
-import DestinationsManagement from "@/pages/admin/DestinationsManagement";
-import SettingsPage from "@/pages/admin/SettingsPage";
-import SliderManagement from "@/pages/admin/SliderManagement";
-import TranslationManagement from "@/pages/admin/TranslationManagement";
-import NavigationManager from "@/pages/admin/NavigationManager";
-import WhyChooseUsManager from "@/pages/admin/WhyChooseUsManager";
-import Dashboard from "@/pages/admin/Dashboard";
+// Lazy load search results pages
+const FlightsSearchResults = lazy(() => import("@/pages/search-results").then(m => ({default: m.FlightsSearchResults})));
+const HotelsSearchResults = lazy(() => import("@/pages/search-results").then(m => ({default: m.HotelsSearchResults})));
+const TransportationSearchResults = lazy(() => import("@/pages/search-results").then(m => ({default: m.TransportationSearchResults})));
+const VisasSearchResults = lazy(() => import("@/pages/search-results").then(m => ({default: m.VisasSearchResults})));
+const ToursSearchResults = lazy(() => import("@/pages/search-results").then(m => ({default: m.ToursSearchResults})));
+const PackagesSearchResults = lazy(() => import("@/pages/search-results").then(m => ({default: m.PackagesSearchResults})));
+
+// Lazy load all admin pages for better performance
+const PackagesManagement = lazy(() => import("@/pages/admin/PackagesManagement"));
+const ManualPackagesManagement = lazy(() => import("@/pages/admin/ManualPackagesManagement"));
+const PackageCreatorPage = lazy(() => import("@/pages/admin/PackageCreatorPage"));
+const CreateManualPackage = lazy(() => import("@/pages/admin/CreateManualPackage"));
+const EditManualPackage = lazy(() => import("@/pages/admin/EditManualPackage"));
+const UsersManagement = lazy(() => import("@/pages/admin/UsersManagement"));
+const ToursManagement = lazy(() => import("@/pages/admin/ToursManagement"));
+const TourCreatorPage = lazy(() => import("@/pages/admin/TourCreatorPage"));
+const CreateTour = lazy(() => import("@/pages/admin/tours/create"));
+const EditTour = lazy(() => import("@/pages/admin/tours/edit"));
+const HotelsManagement = lazy(() => import("@/pages/admin/HotelsManagement"));
+const AdvancedHotelsManagement = lazy(() => import("@/pages/admin/AdvancedHotelsManagement"));
+const HotelCreatePage = lazy(() => import("@/pages/admin/HotelCreatePage"));
+const HotelEditPage = lazy(() => import("@/pages/admin/HotelEditPage"));
+const EnhancedHotelCreatePage = lazy(() => import("@/pages/admin/EnhancedHotelCreatePage"));
+const EnhancedHotelEditPage = lazy(() => import("@/pages/admin/EnhancedHotelEditPage"));
+const RoomsManagement = lazy(() => import("@/pages/admin/RoomsManagement"));
+const AdminDashboard = lazy(() => import("@/pages/admin/AdminDashboard"));
+const AnalyticsDashboard = lazy(() => import("@/pages/admin/AnalyticsDashboard"));
+const SystemMonitoring = lazy(() => import("@/pages/admin/SystemMonitoring"));
+const EnhancedDataImportPage = lazy(() => import("@/pages/admin/EnhancedDataImportPage"));
+const RoomsPage = lazy(() => import("@/pages/admin/RoomsPage"));
+const RoomCreatePage = lazy(() => import("@/pages/admin/RoomCreatePage"));
+const TransportationManagement = lazy(() => import("@/pages/admin/TransportationManagement"));
+const TransportationCreate = lazy(() => import("@/pages/admin/TransportationCreate"));
+const TransportationEdit = lazy(() => import("@/pages/admin/TransportationEdit"));
+const TransportTypesManagement = lazy(() => import("@/pages/admin/TransportTypesManagement"));
+const TransportLocationsManagement = lazy(() => import("@/pages/admin/TransportLocationsManagement"));
+const TransportDurationsManagement = lazy(() => import("@/pages/admin/TransportDurationsManagement"));
+// Lazy load remaining admin pages
+const CountryCityManagement = lazy(() => import("@/pages/admin/CountryCityManagement"));
+const DestinationsManagement = lazy(() => import("@/pages/admin/DestinationsManagement"));
+const SettingsPage = lazy(() => import("@/pages/admin/SettingsPage"));
+const SliderManagement = lazy(() => import("@/pages/admin/SliderManagement"));
+const TranslationManagement = lazy(() => import("@/pages/admin/TranslationManagement"));
+const NavigationManager = lazy(() => import("@/pages/admin/NavigationManager"));
+const WhyChooseUsManager = lazy(() => import("@/pages/admin/WhyChooseUsManager"));
+const Dashboard = lazy(() => import("@/pages/admin/Dashboard"));
+
+// Immediate load layout components and CSS
 import Layout from "@/components/Layout";
 import { DashboardLayout } from "@/components/dashboard/DashboardLayout";
-
-// Import CSS
 import "./styles/sailing-cruise.css";
 
-// Import Category and Feature Manager Pages
-import TourCategoriesPage from "@/pages/admin/tours/categories";
-import RoomCategoriesPage from "@/pages/admin/rooms/categories";
-import RoomAmenitiesPage from "@/pages/admin/rooms/RoomAmenitiesPage";
-import PackageCategoriesPage from "@/pages/admin/packages/categories";
-import DataExportImportPage from "@/pages/admin/DataExportImportPage";
-import VisasManagement from "@/pages/admin/VisasManagement";
+// Lazy load category and feature manager pages
+const TourCategoriesPage = lazy(() => import("@/pages/admin/tours/categories"));
+const RoomCategoriesPage = lazy(() => import("@/pages/admin/rooms/categories"));
+const RoomAmenitiesPage = lazy(() => import("@/pages/admin/rooms/RoomAmenitiesPage"));
+const PackageCategoriesPage = lazy(() => import("@/pages/admin/packages/categories"));
+const DataExportImportPage = lazy(() => import("@/pages/admin/DataExportImportPage"));
+const VisasManagement = lazy(() => import("@/pages/admin/VisasManagement"));
 
-// Advanced Admin Pages
-import AdvancedDashboard from "@/pages/admin/AdvancedDashboard";
-import AdvancedBookingsManagement from "@/pages/admin/AdvancedBookingsManagement";
-import AdvancedUserManagement from "@/pages/admin/AdvancedUserManagement";
-import AdvancedSystemSettings from "@/pages/admin/AdvancedSystemSettings";
-import HomepageSectionsManagement from "@/pages/admin/HomepageSectionsManagement";
+// Lazy load advanced admin pages
+const AdvancedDashboard = lazy(() => import("@/pages/admin/AdvancedDashboard"));
+const AdvancedBookingsManagement = lazy(() => import("@/pages/admin/AdvancedBookingsManagement"));
+const AdvancedUserManagement = lazy(() => import("@/pages/admin/AdvancedUserManagement"));
+const AdvancedSystemSettings = lazy(() => import("@/pages/admin/AdvancedSystemSettings"));
+const HomepageSectionsManagement = lazy(() => import("@/pages/admin/HomepageSectionsManagement"));
 
 function Router() {
   const [location] = useLocation();
@@ -113,7 +116,8 @@ function Router() {
   if (isAdminRoute) {
     return (
       <DashboardLayout location={location}>
-        <Switch>
+        <Suspense fallback={<div className="flex items-center justify-center min-h-screen"><div className="animate-spin h-8 w-8 border-4 border-primary border-t-transparent rounded-full"></div></div>}>
+          <Switch>
           <AdminRoute
             path="/admin/packages/create"
             component={PackageCreatorPage}
@@ -253,68 +257,71 @@ function Router() {
           <AdminRoute path="/admin" component={AdminDashboard} />
           <AdminRoute path="/admin/visas" component={VisasManagement} />
           <Route component={NotFound} />
-        </Switch>
+          </Switch>
+        </Suspense>
       </DashboardLayout>
     );
   }
 
   return (
     <Layout>
-      <Switch>
-        <Route path="/" component={Home} />
-        <Route path="/auth" component={AuthPage} />
-        <Route path="/destinations" component={DestinationsPage} />
-        {/* <Route path="/tours" component={Tours} /> */}
-        <Route path="/packages" component={PackagesPage} />
-        <Route path="/about" component={AboutPage} />
-        <Route path="/contact" component={ContactPage} />
-        <Route path="/all-services" component={AllServices} />
-        <Route path="/social-demo" component={SocialMediaBoxDemo} />
-        <Route path="/sailing-cruise" component={SailingCruise} />
-        <Route path="/zigzag-demo" component={ZigzagDemo} />
-        <ProtectedRoute path="/profile" component={ProfilePage} />
+      <Suspense fallback={<div className="flex items-center justify-center min-h-screen"><div className="animate-spin h-8 w-8 border-4 border-primary border-t-transparent rounded-full"></div></div>}>
+        <Switch>
+          <Route path="/" component={Home} />
+          <Route path="/auth" component={AuthPage} />
+          <Route path="/destinations" component={DestinationsPage} />
+          {/* <Route path="/tours" component={Tours} /> */}
+          <Route path="/packages" component={PackagesPage} />
+          <Route path="/about" component={AboutPage} />
+          <Route path="/contact" component={ContactPage} />
+          <Route path="/all-services" component={AllServices} />
+          <Route path="/social-demo" component={SocialMediaBoxDemo} />
+          <Route path="/sailing-cruise" component={SailingCruise} />
+          <Route path="/zigzag-demo" component={ZigzagDemo} />
+          <ProtectedRoute path="/profile" component={ProfilePage} />
 
-        {/* Search Results Pages */}
-        <Route path="/search/flights" component={FlightsSearchResults} />
-        <Route path="/search/hotels" component={HotelsSearchResults} />
-        <Route
-          path="/search/transportation"
-          component={TransportationSearchResults}
-        />
-        <Route path="/search/visas" component={VisasSearchResults} />
-        <Route path="/search/tours" component={ToursSearchResults} />
-        <Route path="/search/packages" component={PackagesSearchResults} />
+          {/* Search Results Pages */}
+          <Route path="/search/flights" component={FlightsSearchResults} />
+          <Route path="/search/hotels" component={HotelsSearchResults} />
+          <Route
+            path="/search/transportation"
+            component={TransportationSearchResults}
+          />
+          <Route path="/search/visas" component={VisasSearchResults} />
+          <Route path="/search/tours" component={ToursSearchResults} />
+          <Route path="/search/packages" component={PackagesSearchResults} />
 
-        {/* Package detail pages */}
-        <Route path="/packages/manual/:id" component={ManualPackageDetail} />
-        <Route path="/packages/:id" component={PackageDetail} />
+          {/* Package detail pages */}
+          <Route path="/packages/manual/:id" component={ManualPackageDetail} />
+          <Route path="/packages/:id" component={PackageDetail} />
 
-        {/* Tours pages */}
-        <Route path="/tours/:slug" component={TourDetail} />
-        <Route path="/tours" component={ToursPackageStyle} />
+          {/* Tours pages */}
+          <Route path="/tours/:slug" component={TourDetail} />
+          <Route path="/tours" component={ToursPackageStyle} />
 
-        {/* Hotel detail page */}
-        <Route
-          path="/hotel/:id"
-          component={() => {
-            const HotelDetailsPage = React.lazy(
-              () => import("@/pages/hotel-details/HotelDetailsPage"),
-            );
-            return (
-              <React.Suspense fallback={<div>Loading...</div>}>
-                <HotelDetailsPage />
-              </React.Suspense>
-            );
-          }}
-        />
+          {/* Hotel detail page */}
+          <Route
+            path="/hotel/:id"
+            component={() => {
+              const HotelDetailsPage = React.lazy(
+                () => import("@/pages/hotel-details/HotelDetailsPage"),
+              );
+              return (
+                <React.Suspense fallback={<div>Loading...</div>}>
+                  <HotelDetailsPage />
+                </React.Suspense>
+              );
+            }}
+          />
 
-        {/* Cart and Checkout pages */}
-        <Route path="/cart" component={CartPage} />
-        <Route path="/checkout" component={CheckoutPage} />
-        <Route path="/order-confirmation" component={OrderConfirmationPage} />
+          {/* Cart and Checkout pages */}
+          <Route path="/cart" component={CartPage} />
+          <Route path="/checkout" component={CheckoutPage} />
+          <Route path="/order-confirmation" component={OrderConfirmationPage} />
 
-        <Route component={NotFound} />
-      </Switch>
+          <Route component={NotFound} />
+        </Switch>
+      </Suspense>
       
       {/* Floating Language Switcher - Available site-wide */}
       <FloatingLanguageSwitcher 

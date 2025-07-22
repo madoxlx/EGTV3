@@ -145,6 +145,8 @@ export interface IStorage {
   // Package Categories
   listPackageCategories(active?: boolean): Promise<any[]>;
   createPackageCategory(category: any): Promise<any>;
+  updatePackageCategory(id: number, category: any): Promise<any>;
+  deletePackageCategory(id: number): Promise<boolean>;
 
   // Menu Items
   getMenuItem(id: number): Promise<any | undefined>;
@@ -1202,6 +1204,41 @@ export class DatabaseStorage implements IStorage {
     } catch (error) {
       console.error("Error creating package category:", error);
       throw error;
+    }
+  }
+
+  async updatePackageCategory(id: number, category: any): Promise<any> {
+    try {
+      const client = await pool.connect();
+      const result = await client.query(
+        "UPDATE package_categories SET name = $1, description = $2, active = $3, updated_at = NOW() WHERE id = $4 RETURNING *",
+        [
+          category.name,
+          category.description || null,
+          category.active !== false,
+          id,
+        ],
+      );
+      client.release();
+      return result.rows[0] || null;
+    } catch (error) {
+      console.error("Error updating package category:", error);
+      throw error;
+    }
+  }
+
+  async deletePackageCategory(id: number): Promise<boolean> {
+    try {
+      const client = await pool.connect();
+      const result = await client.query(
+        "DELETE FROM package_categories WHERE id = $1",
+        [id],
+      );
+      client.release();
+      return (result.rowCount || 0) > 0;
+    } catch (error) {
+      console.error("Error deleting package category:", error);
+      return false;
     }
   }
 

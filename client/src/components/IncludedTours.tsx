@@ -178,15 +178,15 @@ export default function IncludedTours({ packageData }: IncludedToursProps) {
                     {tour.discountedPrice ? (
                       <>
                         <span className="line-through text-gray-500 mr-1">
-                          {(tour.price / 100).toLocaleString('en-US')} EGP
+                          {(tour.price).toLocaleString('en-US')} EGP
                         </span>
                         <span className="font-medium">
-                          {(tour.discountedPrice / 100).toLocaleString('en-US')} EGP
+                          {(tour.discountedPrice).toLocaleString('en-US')} EGP
                         </span>
                       </>
                     ) : (
                       <span className="font-medium">
-                        {(tour.price / 100).toLocaleString('en-US')} EGP
+                        {(tour.price).toLocaleString('en-US')} EGP
                       </span>
                     )}
                   </div>

@@ -15,7 +15,7 @@ import { useLanguage } from "@/hooks/use-language";
 const Home: React.FC = () => {
   const { t, isRTL } = useLanguage();
   
-  // Fetch active homepage sections
+  // Fetch active homepage sections with optimized caching
   const { data: homepageSections = [], isLoading: sectionsLoading } = useQuery({
     queryKey: ['/api/homepage-sections'],
     queryFn: async () => {
@@ -23,6 +23,8 @@ const Home: React.FC = () => {
       if (!response.ok) throw new Error('Failed to fetch homepage sections');
       return response.json();
     },
+    staleTime: 10 * 60 * 1000, // Cache for 10 minutes
+    retry: 1,
   });
   
   return (
