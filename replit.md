@@ -73,6 +73,17 @@ The application uses a comprehensive PostgreSQL schema with the following core e
 
 ## Recent Changes
 
+### Room Categories Synchronization Fix Complete (July 22, 2025)
+- **Fixed Room Types Dropdown**: Resolved issue where `/admin/rooms/create` page showed hardcoded room types instead of dynamic database categories
+- **Added Dynamic Room Categories Query**: Implemented `useQuery` to fetch room categories from `/api/admin/room-categories` API endpoint
+- **Database Table Creation**: Created missing `room_categories` table in external PostgreSQL database with proper schema including `created_by` and `updated_by` columns
+- **Storage Layer Implementation**: Added complete CRUD methods to DatabaseStorage class: `listRoomCategories`, `getRoomCategory`, `createRoomCategory`, `updateRoomCategory`, `deleteRoomCategory`
+- **Real-time Synchronization**: Room types dropdown now shows categories created in `/admin/rooms/categories` immediately with loading states and fallback options
+- **Cache Invalidation**: Added proper query cache invalidation to refresh room categories when rooms are created/updated
+- **Database Connection**: Fixed database connection to use external PostgreSQL database (`postgresql://myuser:MyStrongPass123!@20.77.106.39:5432/mydb`)
+- **Resolved Error**: Fixed "storage.createRoomCategory is not a function" error that was preventing room category management functionality
+- **Complete Functionality**: Room Types Manager now fully operational at `/admin/rooms/categories` with live synchronization to room creation forms
+
 ### Dynamic Room Allocation System (July 22, 2025)
 - **Smart Algorithm**: Implemented intelligent room allocation algorithm that automatically distributes passengers across available room types in the package
 - **Real-time Optimization**: System finds the cheapest price combination by optimizing room distribution when passenger count changes

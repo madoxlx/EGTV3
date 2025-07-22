@@ -232,6 +232,12 @@ export default function RoomCreatePage() {
     staleTime: 1000 * 60 * 5, // 5 minutes
   });
 
+  // Query to fetch room categories (dynamic room types)
+  const { data: roomCategories = [], isLoading: isLoadingCategories } = useQuery({
+    queryKey: ["/api/admin/room-categories"],
+    staleTime: 1000 * 60 * 5, // 5 minutes
+  });
+
   // Check for draft on component mount and populate form with room data when in edit mode
   React.useEffect(() => {
     // Check for draft (only in create mode)
@@ -339,6 +345,7 @@ export default function RoomCreatePage() {
       // Invalidate queries to refresh data
       queryClient.invalidateQueries({ queryKey: ["rooms-admin"] });
       queryClient.invalidateQueries({ queryKey: ["hotels-admin"] });
+      queryClient.invalidateQueries({ queryKey: ["/api/admin/room-categories"] });
       
       // Navigate back to rooms list
       navigate("/admin/rooms");
@@ -538,14 +545,23 @@ export default function RoomCreatePage() {
                           <Select
                             onValueChange={field.onChange}
                             value={field.value}
+                            disabled={isLoadingCategories}
                           >
                             <FormControl>
                               <SelectTrigger>
-                                <SelectValue placeholder="Select room type" />
+                                <SelectValue placeholder={isLoadingCategories ? "Loading room types..." : "Select room type"} />
                               </SelectTrigger>
                             </FormControl>
                             <SelectContent>
-                              {roomTypeOptions.map((type) => (
+                              {Array.isArray(roomCategories) && roomCategories
+                                .filter((category: any) => category.active !== false)
+                                .map((category: any) => (
+                                <SelectItem key={category.id} value={category.name}>
+                                  {category.name}
+                                </SelectItem>
+                              ))}
+                              {/* Fallback to hardcoded options if no dynamic categories */}
+                              {(!roomCategories || roomCategories.length === 0) && roomTypeOptions.map((type) => (
                                 <SelectItem key={type.value} value={type.value}>
                                   {type.label}
                                 </SelectItem>
