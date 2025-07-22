@@ -1,0 +1,291 @@
+
+> rest-express@1.0.0 dev
+> cross-env NODE_ENV=development tsx server/index.ts
+
+Database URL: ebn elwes5a postgresql:****@20.77.106.39:5432/mydb
+Attempting to connect to external PostgreSQL database...
+Database URL: postgresql:****@20.77.106.39:5432/mydb
+🔑 Google AI API Key status: Found (AIzaSyBLsu...)
+🔍 Full environment check: {
+  hasGoogleAIKey: false,
+  hasOldGoogleKey: false,
+  hasGeminiKey: false,
+  nodeEnv: 'development',
+  keyLength: 39,
+  usingFallback: true
+}
+⏳ Waiting for database initialization...
+✅ Database connection established successfully
+Connected to database: mydb
+✅ Database initialized.
+🔐 Setting up admin users...
+✅ Main admin user already exists
+✅ Test admin user already exists
+✅ Admin setup completed
+✅ Unified auth setup completed
+✅ Hero slides routes setup completed
+🔧 Setting up upload routes...
+✅ Upload routes and static serving setup completed
+🔧 Setting up upload routes...
+✅ API routes registered successfully
+⚠️  Skipping automatic database initialization to prevent startup delays
+💡 Database is already configured and ready to use
+✅ Vite development setup completed
+8:18:53 AM [express] ✅ Server serving on port 8080
+🌍 Application available at http://localhost:8080
+✅ Database connection verified
+🔧 Session Debug - GET /src/lib/admin-route.tsx
+   Session ID: aqvHtOnukWo38N0CFWUR1WVWENWLibBQ
+   Session User: None
+🔧 Session Debug - GET /src/lib/admin-route.tsx
+   Session ID: QNeG1TNUGkbzQPUbrvh-DTNwzPv2EqE_
+   Session User: None
+🔧 Session Debug - GET /src/components/admin/SessionGuard.tsx
+   Session ID: 7NQTbpt1Ev0CFwgnYsDjdyEhboLPfyqU
+   Session User: None
+🔥 API ROUTE DEBUG: GET /api/menus/location/header
+🔥 Query params: {}
+🔥 STORAGE: getMenuByLocation called with location: header
+🔥 API ROUTE DEBUG: GET /api/cities
+🔥 Query params: {}
+🔥 API ROUTE DEBUG: GET /api/countries
+🔥 Query params: {}
+🔥 API ROUTE: GET /api/countries
+🔥 Query params: {}
+🔥 Active filter: undefined
+🔍 listCountries called with active: undefined
+🔥 API ROUTE DEBUG: GET /api/destinations
+🔥 Query params: {}
+🔥 STORAGE: getMenuByLocation query returned: 1 results
+🔥 STORAGE: Found menu: {"id":1,"name":"Header Menu","location":"header","description":"Main navigation menu","active":true,"createdAt":"2025-07-20T10:21:53.131Z","updatedAt":null}
+8:19:06 AM [express] GET /api/menus/location/header 200 in 194ms
+🔥 API ROUTE DEBUG: GET /api/packages
+🔥 Query params: {}
+🔥 API ROUTE DEBUG: GET /api/homepage-sections?active=true
+🔥 Query params: { active: 'true' }
+8:19:06 AM [express] GET /api/packages 200 in 195ms
+🔥 API ROUTE DEBUG: GET /api/menus/location/footer
+🔥 Query params: {}
+🔥 STORAGE: getMenuByLocation called with location: footer
+🔍 listCountries returning: 6 countries
+🔍 Sample data: {
+  id: 1,
+  name: 'Egypt',
+  code: 'EG',
+  description: 'The land of pharaohs and ancient wonders',
+  imageUrl: null,
+  active: true,
+  createdAt: 2025-07-20T11:02:42.638Z,
+  updatedAt: null
+}
+🔥 Countries returned from storage: 6
+8:19:06 AM [express] GET /api/countries 200 in 753ms
+8:19:06 AM [express] GET /api/cities 200 in 756ms
+8:19:06 AM [express] GET /api/tour-categories 200 in 753ms
+🔥 STORAGE: getMenuByLocation query returned: 1 results
+🔥 STORAGE: Found menu: {"id":2,"name":"Footer Menu","location":"footer","description":"Footer navigation menu","active":true,"createdAt":"2025-07-20T10:21:53.131Z","updatedAt":null}
+8:19:06 AM [express] GET /api/destinations 200 in 762ms
+8:19:07 AM [express] GET /api/menus/location/footer 200 in 190ms
+Error listing homepage sections: error: column "order" does not exist
+    at /home/runner/workspace/node_modules/pg-pool/index.js:45:11
+    at process.processTicksAndRejections (node:internal/process/task_queues:95:5)
+    at async <anonymous> (/home/runner/workspace/node_modules/src/node-postgres/session.ts:104:19)
+    at async DatabaseStorage.listHomepageSections (/home/runner/workspace/server/storage.ts:1015:16)
+    at async <anonymous> (/home/runner/workspace/server/routes.ts:6652:24) {
+  length: 106,
+  severity: 'ERROR',
+  code: '42703',
+  detail: undefined,
+  hint: undefined,
+  position: '559',
+  internalPosition: undefined,
+  internalQuery: undefined,
+  where: undefined,
+  schema: undefined,
+  table: undefined,
+  column: undefined,
+  dataType: undefined,
+  constraint: undefined,
+  file: 'parse_relation.c',
+  line: '3647',
+  routine: 'errorMissingColumn'
+}
+8:19:07 AM [express] GET /api/homepage-sections 200 in 778ms
+🔧 Session Debug - GET /src/lib/admin-route.tsx
+   Session ID: XtSFOtfmaBygkKllzpk_iHX3Q5fPCkNh
+   Session User: None
+🔧 Session Debug - GET /src/components/admin/SessionGuard.tsx
+   Session ID: rBaEf1ePmPp4HA4R28LotSV_0pDUlCCc
+   Session User: None
+🔥 API ROUTE DEBUG: GET /api/menus/location/header
+🔥 Query params: {}
+🔥 STORAGE: getMenuByLocation called with location: header
+🔥 API ROUTE DEBUG: GET /api/destinations
+🔥 Query params: {}
+🔥 API ROUTE DEBUG: GET /api/countries
+🔥 Query params: {}
+🔥 API ROUTE: GET /api/countries
+🔥 Query params: {}
+🔥 Active filter: undefined
+🔍 listCountries called with active: undefined
+🔥 API ROUTE DEBUG: GET /api/cities
+🔥 Query params: {}
+🔥 API ROUTE DEBUG: GET /api/packages
+🔥 Query params: {}
+🔥 STORAGE: getMenuByLocation query returned: 1 results
+🔥 STORAGE: Found menu: {"id":1,"name":"Header Menu","location":"header","description":"Main navigation menu","active":true,"createdAt":"2025-07-20T10:21:53.131Z","updatedAt":null}
+8:40:34 AM [express] GET /api/tour-categories 304 in 753ms
+8:40:34 AM [express] GET /api/destinations 304 in 753ms
+🔍 listCountries returning: 6 countries
+🔍 Sample data: {
+  id: 1,
+  name: 'Egypt',
+  code: 'EG',
+  description: 'The land of pharaohs and ancient wonders',
+  imageUrl: null,
+  active: true,
+  createdAt: 2025-07-20T11:02:42.638Z,
+  updatedAt: null
+}
+🔥 Countries returned from storage: 6
+8:40:34 AM [express] GET /api/countries 304 in 756ms
+8:40:34 AM [express] GET /api/cities 304 in 752ms
+8:40:35 AM [express] GET /api/menus/location/header 304 in 848ms
+🔥 API ROUTE DEBUG: GET /api/homepage-sections?active=true
+🔥 Query params: { active: 'true' }
+🔥 API ROUTE DEBUG: GET /api/menus/location/footer
+🔥 Query params: {}
+🔥 STORAGE: getMenuByLocation called with location: footer
+Error listing homepage sections: error: column "order" does not exist
+    at /home/runner/workspace/node_modules/pg-pool/index.js:45:11
+    at process.processTicksAndRejections (node:internal/process/task_queues:95:5)
+    at async <anonymous> (/home/runner/workspace/node_modules/src/node-postgres/session.ts:104:19)
+    at async DatabaseStorage.listHomepageSections (/home/runner/workspace/server/storage.ts:1015:16)
+    at async <anonymous> (/home/runner/workspace/server/routes.ts:6652:24) {
+  length: 106,
+  severity: 'ERROR',
+  code: '42703',
+  detail: undefined,
+  hint: undefined,
+  position: '559',
+  internalPosition: undefined,
+  internalQuery: undefined,
+  where: undefined,
+  schema: undefined,
+  table: undefined,
+  column: undefined,
+  dataType: undefined,
+  constraint: undefined,
+  file: 'parse_relation.c',
+  line: '3647',
+  routine: 'errorMissingColumn'
+}
+🔥 STORAGE: getMenuByLocation query returned: 1 results
+🔥 STORAGE: Found menu: {"id":2,"name":"Footer Menu","location":"footer","description":"Footer navigation menu","active":true,"createdAt":"2025-07-20T10:21:53.131Z","updatedAt":null}
+8:40:35 AM [express] GET /api/packages 304 in 858ms
+8:40:35 AM [express] GET /api/menus/location/footer 304 in 188ms
+8:44:36 AM [express] POST /api/login 200 in 806ms
+🔥 API ROUTE DEBUG: GET /api/cart
+🔥 Query params: {}
+Cart GET request - userId: 3 sessionId: undefined
+Found cart items: 0
+🔧 Session Debug - GET /src/pages/admin/AdminDashboard.tsx
+   Session ID: LVWcpv7mYgE6eKAvO9bd59fyNNGXGQ3y
+   Session User: EETADMIN (admin)
+🔧 Session Debug - GET /api/user
+   Session ID: LVWcpv7mYgE6eKAvO9bd59fyNNGXGQ3y
+   Session User: EETADMIN (admin)
+🔍 User endpoint - Session ID: LVWcpv7mYgE6eKAvO9bd59fyNNGXGQ3y
+🔍 User endpoint - Session user: {
+  id: 3,
+  username: 'EETADMIN',
+  role: 'admin',
+  displayName: 'Admin User',
+  avatarUrl: null,
+  email: 'admin@egyptexpress.com'
+}
+🔧 Session Debug - GET /api/admin/dashboard-stats
+   Session ID: LVWcpv7mYgE6eKAvO9bd59fyNNGXGQ3y
+   Session User: EETADMIN (admin)
+🔥 API ROUTE DEBUG: GET /api/admin/dashboard-stats
+🔥 Query params: {}
+🔧 Session Debug - GET /api/admin/dashboard-stats
+   Session ID: LVWcpv7mYgE6eKAvO9bd59fyNNGXGQ3y
+   Session User: EETADMIN (admin)
+🔥 API ROUTE DEBUG: GET /api/admin/dashboard-stats
+🔥 Query params: {}
+🔧 Session Debug - GET /src/pages/admin/EnhancedHotelCreatePage.tsx
+   Session ID: LVWcpv7mYgE6eKAvO9bd59fyNNGXGQ3y
+   Session User: EETADMIN (admin)
+8:44:50 AM [vite] Internal server error: /home/runner/workspace/client/src/pages/admin/EnhancedHotelCreatePage.tsx: Expected corresponding JSX closing tag for <Tabs>. (2208:18)
+
+  2206 |                       )}
+  2207 |                     </div>
+> 2208 |                   </TabsContent>
+       |                   ^
+  2209 |                 </Tabs>
+  2210 |
+  2211 |                 {/* Google Map */}
+  Plugin: vite:react-babel
+  File: /home/runner/workspace/client/src/pages/admin/EnhancedHotelCreatePage.tsx:2208:18
+  2206|                        )}
+  2207|                      </div>
+  2208|                    </TabsContent>
+     |                    ^
+  2209|                  </Tabs>
+  2210|  
+      at toParseError (/home/runner/workspace/node_modules/@babel/parser/src/parse-error.ts:95:45)
+      at raise (/home/runner/workspace/node_modules/@babel/parser/src/tokenizer/index.ts:1503:19)
+      at jsxParseElementAt (/home/runner/workspace/node_modules/@babel/parser/src/plugins/jsx/index.ts:527:18)
+      at jsxParseElementAt (/home/runner/workspace/node_modules/@babel/parser/src/plugins/jsx/index.ts:483:34)
+      at jsxParseElementAt (/home/runner/workspace/node_modules/@babel/parser/src/plugins/jsx/index.ts:483:34)
+      at jsxParseElementAt (/home/runner/workspace/node_modules/@babel/parser/src/plugins/jsx/index.ts:483:34)
+      at jsxParseElementAt (/home/runner/workspace/node_modules/@babel/parser/src/plugins/jsx/index.ts:483:34)
+      at jsxParseElementAt (/home/runner/workspace/node_modules/@babel/parser/src/plugins/jsx/index.ts:483:34)
+      at jsxParseElementAt (/home/runner/workspace/node_modules/@babel/parser/src/plugins/jsx/index.ts:483:34)
+      at jsxParseElement (/home/runner/workspace/node_modules/@babel/parser/src/plugins/jsx/index.ts:559:19)
+      at parseExprAtom (/home/runner/workspace/node_modules/@babel/parser/src/plugins/jsx/index.ts:573:21)
+      at parseExprSubscripts (/home/runner/workspace/node_modules/@babel/parser/src/parser/expression.ts:734:23)
+      at parseUpdate (/home/runner/workspace/node_modules/@babel/parser/src/parser/expression.ts:713:21)
+      at parseMaybeUnary (/home/runner/workspace/node_modules/@babel/parser/src/parser/expression.ts:675:23)
+      at parseMaybeUnary (/home/runner/workspace/node_modules/@babel/parser/src/plugins/typescript/index.ts:3853:20)
+      at parseMaybeUnaryOrPrivate (/home/runner/workspace/node_modules/@babel/parser/src/parser/expression.ts:409:14)
+      at parseExprOps (/home/runner/workspace/node_modules/@babel/parser/src/parser/expression.ts:421:23)
+      at parseMaybeConditional (/home/runner/workspace/node_modules/@babel/parser/src/parser/expression.ts:376:23)
+      at parseMaybeAssign (/home/runner/workspace/node_modules/@babel/parser/src/parser/expression.ts:301:21)
+      at fn (/home/runner/workspace/node_modules/@babel/parser/src/plugins/typescript/index.ts:3706:23)
+      at tryParse (/home/runner/workspace/node_modules/@babel/parser/src/parser/util.ts:174:20)
+      at parseMaybeAssign (/home/runner/workspace/node_modules/@babel/parser/src/plugins/typescript/index.ts:3705:20)
+      at callback (/home/runner/workspace/node_modules/@babel/parser/src/parser/expression.ts:257:12)
+      at allowInAnd (/home/runner/workspace/node_modules/@babel/parser/src/parser/expression.ts:3192:12)
+      at parseMaybeAssignAllowIn (/home/runner/workspace/node_modules/@babel/parser/src/parser/expression.ts:256:17)
+      at parseMaybeAssignAllowInOrVoidPattern (/home/runner/workspace/node_modules/@babel/parser/src/parser/expression.ts:3306:17)
+      at parseParenAndDistinguishExpression (/home/runner/workspace/node_modules/@babel/parser/src/parser/expression.ts:1813:16)
+      at parseExprAtom (/home/runner/workspace/node_modules/@babel/parser/src/parser/expression.ts:1162:21)
+      at parseExprAtom (/home/runner/workspace/node_modules/@babel/parser/src/plugins/jsx/index.ts:583:22)
+      at parseExprSubscripts (/home/runner/workspace/node_modules/@babel/parser/src/parser/expression.ts:734:23)
+      at parseUpdate (/home/runner/workspace/node_modules/@babel/parser/src/parser/expression.ts:713:21)
+      at parseMaybeUnary (/home/runner/workspace/node_modules/@babel/parser/src/parser/expression.ts:675:23)
+      at parseMaybeUnary (/home/runner/workspace/node_modules/@babel/parser/src/plugins/typescript/index.ts:3853:20)
+      at parseMaybeUnaryOrPrivate (/home/runner/workspace/node_modules/@babel/parser/src/parser/expression.ts:409:14)
+      at parseExprOps (/home/runner/workspace/node_modules/@babel/parser/src/parser/expression.ts:421:23)
+      at parseMaybeConditional (/home/runner/workspace/node_modules/@babel/parser/src/parser/expression.ts:376:23)
+      at parseMaybeAssign (/home/runner/workspace/node_modules/@babel/parser/src/parser/expression.ts:301:21)
+      at parseMaybeAssign (/home/runner/workspace/node_modules/@babel/parser/src/plugins/typescript/index.ts:3725:22)
+      at parseExpressionBase (/home/runner/workspace/node_modules/@babel/parser/src/parser/expression.ts:226:23)
+      at callback (/home/runner/workspace/node_modules/@babel/parser/src/parser/expression.ts:217:39)
+      at allowInAnd (/home/runner/workspace/node_modules/@babel/parser/src/parser/expression.ts:3187:16)
+      at parseExpression (/home/runner/workspace/node_modules/@babel/parser/src/parser/expression.ts:217:17)
+      at parseReturnStatement (/home/runner/workspace/node_modules/@babel/parser/src/parser/statement.ts:1110:28)
+      at parseStatementContent (/home/runner/workspace/node_modules/@babel/parser/src/parser/statement.ts:538:21)
+      at parseStatementContent (/home/runner/workspace/node_modules/@babel/parser/src/plugins/typescript/index.ts:3183:20)
+      at parseStatementLike (/home/runner/workspace/node_modules/@babel/parser/src/parser/statement.ts:477:17)
+      at parseStatementListItem (/home/runner/workspace/node_modules/@babel/parser/src/parser/statement.ts:426:17)
+      at parseBlockOrModuleBlockBody (/home/runner/workspace/node_modules/@babel/parser/src/parser/statement.ts:1439:16)
+      at parseBlockBody (/home/runner/workspace/node_modules/@babel/parser/src/parser/statement.ts:1412:10)
+      at parseBlock (/home/runner/workspace/node_modules/@babel/parser/src/parser/statement.ts:1380:10)
+npm notice
+npm notice New major version of npm available! 10.8.2 -> 11.4.2
+npm notice Changelog: https://github.com/npm/cli/releases/tag/v11.4.2
+npm notice To update run: npm install -g npm@11.4.2
+npm notice
