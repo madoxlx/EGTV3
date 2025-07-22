@@ -73,6 +73,14 @@ The application uses a comprehensive PostgreSQL schema with the following core e
 
 ## Recent Changes
 
+### Hotel Administration Interface Modification (July 22, 2025)
+- **Rooms Section Removal**: Completely removed the Rooms section from both hotel create and edit pages (`/admin/hotels/create` and `/admin/hotels/edit`)
+- **FAQs Section Preserved**: Maintained full functionality of the FAQs section with question/answer management capabilities
+- **UI Updates**: Changed tab name from "Rooms & FAQs" to "FAQs" to reflect the new interface structure
+- **Schema Cleanup**: Removed all room-related TypeScript schemas, field arrays, and validation logic from both pages
+- **Code Quality**: Successfully eliminated 79+ LSP diagnostic errors, ensuring clean, maintainable code
+- **User Requirement**: User will handle Rooms feature and its linkage separately in a different location within the application
+
 - **7-Day Cairo & Sharm El Sheikh Package Creation Complete (July 20, 2025)**: Successfully created comprehensive dynamic package with separated hotels and linked rooms
   - **Package Details**: ID 7, price 26,850 EGP (discounted 24,950 EGP), 7-day Cultural & Beach experience
   - **Hotels Created**: 4 hotels (2 in Cairo: Steigenberger El Tahrir 5★, Four Seasons Nile Plaza 5★; 2 in Sharm: Parrotel Aquapark 4★, Sheraton Sharm 5★)

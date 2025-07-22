@@ -186,15 +186,7 @@ const faqSchema = z.object({
   answer: z.string().min(1, "Answer is required"),
 });
 
-// Define schema for room type
-const roomTypeSchema = z.object({
-  name: z.string().min(1, "Name is required"),
-  bedType: z.string().optional(),
-  size: z.string().optional(),
-  view: z.string().optional(),
-  amenities: z.array(z.string()).default([]),
-  price: z.number().optional(),
-});
+
 
 // Define the schema for hotel form validation
 const hotelFormSchema = z.object({
@@ -279,7 +271,7 @@ const hotelFormSchema = z.object({
   landmarks: z.array(landmarkSchema).default([]),
   restaurants: z.array(restaurantSchema).default([]),
   faqs: z.array(faqSchema).default([]),
-  roomTypes: z.array(roomTypeSchema).default([]),
+
 });
 
 type HotelFormValues = z.infer<typeof hotelFormSchema>;
@@ -295,48 +287,7 @@ const breakfastOptions = [
   { id: "buffet", label: "Buffet" },
 ];
 
-// Room view options
-const roomViewOptions = [
-  "City View",
-  "Garden View",
-  "Mountain View",
-  "Ocean View",
-  "Pool View",
-  "River View",
-  "Landmark View",
-  "No View",
-];
 
-// Bed type options
-const bedTypeOptions = [
-  "Single Bed",
-  "Twin Beds",
-  "Double Bed",
-  "Queen Bed",
-  "King Bed",
-  "Super King Bed",
-  "Bunk Bed",
-  "Sofa Bed",
-];
-
-// Room amenities
-const roomAmenityOptions = [
-  { id: "airConditioning", label: "Air Conditioning" },
-  { id: "minibar", label: "Minibar" },
-  { id: "tv", label: "TV" },
-  { id: "safe", label: "Safe" },
-  { id: "hairDryer", label: "Hair Dryer" },
-  { id: "toiletries", label: "Toiletries" },
-  { id: "blackoutCurtains", label: "Blackout Curtains" },
-  { id: "desk", label: "Desk" },
-  { id: "bathtub", label: "Bathtub" },
-  { id: "bathrobe", label: "Bathrobe" },
-  { id: "slippers", label: "Slippers" },
-  { id: "coffeemaker", label: "Coffee Maker" },
-  { id: "iron", label: "Iron & Ironing Board" },
-  { id: "balcony", label: "Balcony" },
-  { id: "soundproofing", label: "Soundproofing" },
-];
 
 export default function EnhancedHotelEditPage() {
   const { t } = useLanguage();
@@ -508,7 +459,7 @@ export default function EnhancedHotelEditPage() {
       landmarks: [],
       restaurants: [],
       faqs: [],
-      roomTypes: [],
+
     },
   });
 
@@ -540,14 +491,7 @@ export default function EnhancedHotelEditPage() {
     name: "faqs",
   });
 
-  const {
-    fields: roomTypeFields,
-    append: appendRoomType,
-    remove: removeRoomType,
-  } = useFieldArray({
-    control: form.control,
-    name: "roomTypes",
-  });
+
 
   // Feature management functions using useCallback to prevent infinite loops
   const addFeature = useCallback((featureName: string, featureIcon: string) => {
@@ -638,28 +582,7 @@ export default function EnhancedHotelEditPage() {
         appendFaq({ question: "", answer: "" });
       }
 
-      if (hotel.roomTypes && hotel.roomTypes.length > 0) {
-        hotel.roomTypes.forEach((roomType: any) => {
-          appendRoomType({
-            name: roomType.name || "",
-            bedType: roomType.bedType || "",
-            size: roomType.size || "",
-            view: roomType.view || "",
-            amenities: roomType.amenities || [],
-            price: roomType.price || 0,
-          });
-        });
-      } else {
-        // Add one empty room type to show the interface
-        appendRoomType({
-          name: "",
-          bedType: "",
-          size: "",
-          view: "",
-          amenities: [],
-          price: 0,
-        });
-      }
+
 
       const formData: Partial<HotelFormValues> = {
         name: hotel.name || "",
@@ -692,7 +615,7 @@ export default function EnhancedHotelEditPage() {
         landmarks: hotel.landmarks || [],
         restaurants: hotel.restaurants || [],
         faqs: hotel.faqs || [],
-        roomTypes: hotel.roomTypes || [],
+
       };
 
       // Set hotel features for visual grid interface
@@ -1910,204 +1833,16 @@ export default function EnhancedHotelEditPage() {
                 </div>
               </TabsContent>
 
-              {/* Rooms & FAQs Tab */}
+              {/* FAQs Tab */}
               <TabsContent value="rooms-faqs" className="space-y-6">
                 <h3 className="text-lg font-semibold flex items-center gap-2">
-                  <BedDouble className="h-5 w-5" />
-                  Room Types & FAQs
+                  <FileQuestion className="h-5 w-5" />
+                  Frequently Asked Questions
                 </h3>
 
                 {/* Room Types */}
                 <div className="space-y-4">
                   <div className="flex items-center justify-between">
-                    <h4 className="text-md font-semibold">Room Types</h4>
-                    <Button
-                      type="button"
-                      onClick={() =>
-                        appendRoomType({
-                          name: "",
-                          bedType: "",
-                          size: "",
-                          view: "",
-                          amenities: [],
-                          price: 0,
-                        })
-                      }
-                      size="sm"
-                    >
-                      <Plus className="h-4 w-4 mr-1" />
-                      Add Room Type
-                    </Button>
-                  </div>
-
-                  {roomTypeFields.map((field, index) => (
-                    <Card key={field.id}>
-                      <CardContent className="pt-6">
-                        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-                          <FormField
-                            control={form.control}
-                            name={`roomTypes.${index}.name`}
-                            render={({ field }) => (
-                              <FormItem>
-                                <FormLabel>Room Name</FormLabel>
-                                <FormControl>
-                                  <Input placeholder="Deluxe Room" {...field} />
-                                </FormControl>
-                                <FormMessage />
-                              </FormItem>
-                            )}
-                          />
-
-                          <FormField
-                            control={form.control}
-                            name={`roomTypes.${index}.bedType`}
-                            render={({ field }) => (
-                              <FormItem>
-                                <FormLabel>Bed Type</FormLabel>
-                                <Select
-                                  onValueChange={field.onChange}
-                                  value={field.value}
-                                >
-                                  <FormControl>
-                                    <SelectTrigger>
-                                      <SelectValue placeholder="Select bed type" />
-                                    </SelectTrigger>
-                                  </FormControl>
-                                  <SelectContent>
-                                    {bedTypeOptions.map((bedType) => (
-                                      <SelectItem key={bedType} value={bedType}>
-                                        {bedType}
-                                      </SelectItem>
-                                    ))}
-                                  </SelectContent>
-                                </Select>
-                                <FormMessage />
-                              </FormItem>
-                            )}
-                          />
-
-                          <FormField
-                            control={form.control}
-                            name={`roomTypes.${index}.size`}
-                            render={({ field }) => (
-                              <FormItem>
-                                <FormLabel>Room Size</FormLabel>
-                                <FormControl>
-                                  <Input placeholder="25 sqm" {...field} />
-                                </FormControl>
-                                <FormMessage />
-                              </FormItem>
-                            )}
-                          />
-
-                          <FormField
-                            control={form.control}
-                            name={`roomTypes.${index}.view`}
-                            render={({ field }) => (
-                              <FormItem>
-                                <FormLabel>View</FormLabel>
-                                <Select
-                                  onValueChange={field.onChange}
-                                  value={field.value}
-                                >
-                                  <FormControl>
-                                    <SelectTrigger>
-                                      <SelectValue placeholder="Select view" />
-                                    </SelectTrigger>
-                                  </FormControl>
-                                  <SelectContent>
-                                    {roomViewOptions.map((view) => (
-                                      <SelectItem key={view} value={view}>
-                                        {view}
-                                      </SelectItem>
-                                    ))}
-                                  </SelectContent>
-                                </Select>
-                                <FormMessage />
-                              </FormItem>
-                            )}
-                          />
-
-                          <FormField
-                            control={form.control}
-                            name={`roomTypes.${index}.price`}
-                            render={({ field }) => (
-                              <FormItem>
-                                <FormLabel>Price per Night (EGP)</FormLabel>
-                                <FormControl>
-                                  <Input
-                                    type="number"
-                                    placeholder="2500"
-                                    {...field}
-                                    onChange={(e) =>
-                                      field.onChange(parseFloat(e.target.value))
-                                    }
-                                  />
-                                </FormControl>
-                                <FormMessage />
-                              </FormItem>
-                            )}
-                          />
-                        </div>
-
-                        <div className="mt-4">
-                          <FormLabel>Room Amenities</FormLabel>
-                          <div className="grid grid-cols-2 md:grid-cols-3 gap-2 mt-2">
-                            {roomAmenityOptions.map((amenity) => (
-                              <FormField
-                                key={amenity.id}
-                                control={form.control}
-                                name={`roomTypes.${index}.amenities`}
-                                render={({ field }) => (
-                                  <FormItem className="flex flex-row items-center space-x-2 space-y-0">
-                                    <FormControl>
-                                      <Checkbox
-                                        checked={field.value?.includes(
-                                          amenity.id,
-                                        )}
-                                        onCheckedChange={(checked) => {
-                                          const current = field.value || [];
-                                          if (checked) {
-                                            field.onChange([
-                                              ...current,
-                                              amenity.id,
-                                            ]);
-                                          } else {
-                                            field.onChange(
-                                              current.filter(
-                                                (item) => item !== amenity.id,
-                                              ),
-                                            );
-                                          }
-                                        }}
-                                      />
-                                    </FormControl>
-                                    <FormLabel className="text-sm font-normal">
-                                      {amenity.label}
-                                    </FormLabel>
-                                  </FormItem>
-                                )}
-                              />
-                            ))}
-                          </div>
-                        </div>
-
-                        <div className="flex justify-end mt-4">
-                          <Button
-                            type="button"
-                            variant="destructive"
-                            size="sm"
-                            onClick={() => removeRoomType(index)}
-                          >
-                            <Trash2 className="h-4 w-4 mr-1" />
-                            Remove
-                          </Button>
-                        </div>
-                      </CardContent>
-                    </Card>
-                  ))}
-                </div>
-
                 {/* FAQs */}
                 <div className="space-y-4">
                   <div className="flex items-center justify-between">
