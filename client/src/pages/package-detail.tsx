@@ -7,6 +7,7 @@ import BookPackageButton from "@/components/BookPackageButton";
 import IncludedTours from "@/components/IncludedTours";
 import RoomDistributionWithStars from "@/components/RoomDistributionWithStars";
 import EnhancedPriceCalculation from "@/components/EnhancedPriceCalculation";
+import BookingComparison from "@/components/BookingComparison";
 import { Separator } from "@/components/ui/separator";
 import { Badge } from "@/components/ui/badge";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
@@ -1084,6 +1085,13 @@ export default function PackageDetail() {
                           dateMode="range"
                           startDate={startDate}
                           endDate={endDate}
+                        />
+
+                        {/* Booking Options Comparison */}
+                        <BookingComparison 
+                          adults={adults}
+                          children={children}
+                          infants={infants}
                         />
 
                         <BookPackageButton
