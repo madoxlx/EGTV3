@@ -4,8 +4,8 @@ import { sql } from "drizzle-orm";
 import * as schema from "@shared/schema";
 import "dotenv/config";
 
-// Use the configured PostgreSQL database from environment
-const databaseUrl = process.env.DATABASE_URL || "postgresql://myuser:MyStrongPass123!@20.77.106.39:5432/mydb";
+// Use external PostgreSQL database
+const databaseUrl = "postgresql://myuser:MyStrongPass123!@20.77.106.39:5432/mydb";
 console.log(
   "Database URL:",
   databaseUrl?.replace(/:[^@]+@/, ":****@"),
