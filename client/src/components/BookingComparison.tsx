@@ -1,7 +1,7 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useMemo } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
-import { Calculator, Users, DollarSign, TrendingDown, TrendingUp } from 'lucide-react';
+import { Calculator, Users, DollarSign, TrendingDown, TrendingUp, Calendar, RefreshCw } from 'lucide-react';
 
 // Configuration constants - easy to modify
 const ROOM_RATES = {
@@ -11,7 +11,7 @@ const ROOM_RATES = {
 } as const;
 
 const PACKAGE_CONFIG = {
-  NIGHTS: 3,
+  DEFAULT_NIGHTS: 3,
   TRIPLE_ROOMS: 3,
   DOUBLE_ROOMS: 1,
   MAX_PEOPLE_OPTION_1: 11 // 3 triple rooms (3 people each) + 1 double room (2 people)
@@ -21,48 +21,89 @@ interface BookingComparisonProps {
   adults: number;
   children: number;
   infants: number;
+  startDate?: string;
+  endDate?: string;
 }
 
-export default function BookingComparison({ adults, children, infants }: BookingComparisonProps) {
+export default function BookingComparison({ adults, children, infants, startDate, endDate }: BookingComparisonProps) {
   const [showComparison, setShowComparison] = useState(false);
   
+  // Calculate nights from date range
+  const nights = useMemo(() => {
+    if (startDate && endDate) {
+      const start = new Date(startDate);
+      const end = new Date(endDate);
+      const diffTime = Math.abs(end.getTime() - start.getTime());
+      const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+      return Math.max(1, diffDays); // At least 1 night
+    }
+    return PACKAGE_CONFIG.DEFAULT_NIGHTS;
+  }, [startDate, endDate]);
+
   // Calculate total people (infants don't count for accommodation)
   const totalPeople = adults + children;
   
-  // Option 1: Room-based pricing (3 Triple + 1 Double)
-  const option1Cost = (ROOM_RATES.TRIPLE_ROOM * PACKAGE_CONFIG.TRIPLE_ROOMS + 
-                       ROOM_RATES.DOUBLE_ROOM * PACKAGE_CONFIG.DOUBLE_ROOMS) * 
-                      PACKAGE_CONFIG.NIGHTS;
-  
-  // Option 2: Per person pricing
-  const option2Cost = totalPeople * ROOM_RATES.PER_PERSON_RATE * PACKAGE_CONFIG.NIGHTS;
-  
-  // Calculate cost per person for each option
-  const option1CostPerPerson = totalPeople > 0 ? option1Cost / totalPeople : 0;
-  const option2CostPerPerson = ROOM_RATES.PER_PERSON_RATE * PACKAGE_CONFIG.NIGHTS;
-  
-  // Determine the cheaper option
-  const option1IsCheaper = option1Cost < option2Cost;
-  const savings = Math.abs(option1Cost - option2Cost);
-  const savingsPerPerson = totalPeople > 0 ? savings / totalPeople : 0;
-  
-  // Check if Option 1 is applicable (within capacity)
-  const option1Applicable = totalPeople <= PACKAGE_CONFIG.MAX_PEOPLE_OPTION_1;
+  // Memoize calculations to recalculate when dependencies change
+  const calculations = useMemo(() => {
+    // Option 1: Room-based pricing (3 Triple + 1 Double)
+    const option1Cost = (ROOM_RATES.TRIPLE_ROOM * PACKAGE_CONFIG.TRIPLE_ROOMS + 
+                         ROOM_RATES.DOUBLE_ROOM * PACKAGE_CONFIG.DOUBLE_ROOMS) * nights;
+    
+    // Option 2: Per person pricing
+    const option2Cost = totalPeople * ROOM_RATES.PER_PERSON_RATE * nights;
+    
+    // Calculate cost per person for each option
+    const option1CostPerPerson = totalPeople > 0 ? option1Cost / totalPeople : 0;
+    const option2CostPerPerson = ROOM_RATES.PER_PERSON_RATE * nights;
+    
+    // Determine the cheaper option
+    const option1IsCheaper = option1Cost < option2Cost;
+    const savings = Math.abs(option1Cost - option2Cost);
+    const savingsPerPerson = totalPeople > 0 ? savings / totalPeople : 0;
+    
+    // Check if Option 1 is applicable (within capacity)
+    const option1Applicable = totalPeople <= PACKAGE_CONFIG.MAX_PEOPLE_OPTION_1;
+
+    return {
+      option1Cost,
+      option2Cost,
+      option1CostPerPerson,
+      option2CostPerPerson,
+      option1IsCheaper,
+      savings,
+      savingsPerPerson,
+      option1Applicable
+    };
+  }, [totalPeople, nights]);
+
+  const {
+    option1Cost,
+    option2Cost,
+    option1CostPerPerson,
+    option2CostPerPerson,
+    option1IsCheaper,
+    savings,
+    savingsPerPerson,
+    option1Applicable
+  } = calculations;
 
   useEffect(() => {
-    // Auto-show comparison when there are people selected
+    // Auto-show comparison when there are people selected and dates are set
     if (totalPeople > 0) {
       setShowComparison(true);
+    } else {
+      setShowComparison(false);
     }
-  }, [totalPeople]);
+  }, [totalPeople, nights]);
 
   if (totalPeople === 0) {
     return (
-      <Card className="mb-4">
+      <Card className="mb-4 border-dashed">
         <CardContent className="p-4">
           <div className="text-center text-muted-foreground">
-            <Calculator className="h-8 w-8 mx-auto mb-2" />
-            <p className="text-sm">Select the number of travelers to see booking options and price comparison</p>
+            <Calculator className="h-8 w-8 mx-auto mb-2 animate-pulse" />
+            <p className="text-sm font-medium">Smart Price Comparison Ready</p>
+            <p className="text-xs mt-1">Select travelers and dates to automatically calculate the best booking option</p>
           </div>
         </CardContent>
       </Card>
@@ -74,11 +115,23 @@ export default function BookingComparison({ adults, children, infants }: Booking
       <CardHeader className="pb-3">
         <CardTitle className="text-lg flex items-center gap-2">
           <Calculator className="h-5 w-5" />
-          Booking Options Comparison
+          Smart Booking Comparison
+          <RefreshCw className="h-4 w-4 text-green-500" />
         </CardTitle>
         <p className="text-sm text-muted-foreground">
           Compare pricing options for {totalPeople} people ({adults} adults, {children} children{infants > 0 ? `, ${infants} infants` : ''})
         </p>
+        <div className="flex items-center gap-4 text-xs text-muted-foreground">
+          <div className="flex items-center gap-1">
+            <Calendar className="h-3 w-3" />
+            <span>{nights} night{nights !== 1 ? 's' : ''}</span>
+          </div>
+          {startDate && endDate && (
+            <span>
+              {new Date(startDate).toLocaleDateString()} - {new Date(endDate).toLocaleDateString()}
+            </span>
+          )}
+        </div>
       </CardHeader>
       
       <CardContent className="space-y-4">
@@ -127,11 +180,11 @@ export default function BookingComparison({ adults, children, infants }: Booking
               <div className="text-sm space-y-1">
                 <div className="flex justify-between">
                   <span>• {PACKAGE_CONFIG.TRIPLE_ROOMS} Triple rooms (3 people each)</span>
-                  <span>{ROOM_RATES.TRIPLE_ROOM} EGP/night × {PACKAGE_CONFIG.NIGHTS} nights = {ROOM_RATES.TRIPLE_ROOM * PACKAGE_CONFIG.NIGHTS * PACKAGE_CONFIG.TRIPLE_ROOMS} EGP</span>
+                  <span>{ROOM_RATES.TRIPLE_ROOM} EGP/night × {nights} nights = {ROOM_RATES.TRIPLE_ROOM * nights * PACKAGE_CONFIG.TRIPLE_ROOMS} EGP</span>
                 </div>
                 <div className="flex justify-between">
                   <span>• {PACKAGE_CONFIG.DOUBLE_ROOMS} Double room (2 people)</span>
-                  <span>{ROOM_RATES.DOUBLE_ROOM} EGP/night × {PACKAGE_CONFIG.NIGHTS} nights = {ROOM_RATES.DOUBLE_ROOM * PACKAGE_CONFIG.NIGHTS * PACKAGE_CONFIG.DOUBLE_ROOMS} EGP</span>
+                  <span>{ROOM_RATES.DOUBLE_ROOM} EGP/night × {nights} nights = {ROOM_RATES.DOUBLE_ROOM * nights * PACKAGE_CONFIG.DOUBLE_ROOMS} EGP</span>
                 </div>
                 <div className="pt-2 text-muted-foreground">
                   Accommodates up to {PACKAGE_CONFIG.MAX_PEOPLE_OPTION_1} people
@@ -169,7 +222,7 @@ export default function BookingComparison({ adults, children, infants }: Booking
               <div className="text-sm space-y-1">
                 <div className="flex justify-between">
                   <span>• {totalPeople} people × {ROOM_RATES.PER_PERSON_RATE} EGP/night</span>
-                  <span>{totalPeople} × {ROOM_RATES.PER_PERSON_RATE} × {PACKAGE_CONFIG.NIGHTS} nights</span>
+                  <span>{totalPeople} × {ROOM_RATES.PER_PERSON_RATE} × {nights} nights</span>
                 </div>
                 <div className="pt-2 text-muted-foreground">
                   Flexible accommodation arrangement
@@ -179,10 +232,14 @@ export default function BookingComparison({ adults, children, infants }: Booking
 
             {/* Savings Summary */}
             {option1Applicable && (
-              <div className="bg-blue-50 border border-blue-200 rounded-lg p-4">
+              <div className="bg-blue-50 border border-blue-200 rounded-lg p-4 transition-all duration-300">
                 <div className="flex items-center gap-2 mb-2">
                   <DollarSign className="h-5 w-5 text-blue-600" />
-                  <span className="font-semibold text-blue-800">Price Comparison Summary</span>
+                  <span className="font-semibold text-blue-800">Live Price Analysis</span>
+                  <div className="ml-auto flex items-center gap-1 text-xs text-blue-600">
+                    <RefreshCw className="h-3 w-3 animate-spin" />
+                    <span>Auto-updated</span>
+                  </div>
                 </div>
                 <div className="text-sm space-y-1">
                   {option1IsCheaper ? (
