@@ -24,7 +24,7 @@ interface BookPackageButtonProps {
   size?: 'default' | 'sm' | 'lg' | 'icon';
   onClick?: () => boolean | void;
   formData?: {
-    selectedDate: string;
+    selectedDate?: string;
     startDate?: string;
     endDate?: string;
     dateMode?: "single" | "range";

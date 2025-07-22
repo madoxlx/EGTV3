@@ -114,10 +114,9 @@ export default function PackageDetail() {
   const [selectedDate, setSelectedDate] = useState("");
   const [startDate, setStartDate] = useState("");
   const [endDate, setEndDate] = useState("");
-  const [dateMode, setDateMode] = useState<"single" | "range">("single");
+  const [dateMode, setDateMode] = useState<"single" | "range">("range");
   const [selectedRooms, setSelectedRooms] = useState<string[]>([]);
   const [validationErrors, setValidationErrors] = useState<{
-    date?: string;
     startDate?: string;
     endDate?: string;
     adults?: string;
@@ -218,27 +217,20 @@ export default function PackageDetail() {
   // Validation function
   const validateBookingForm = () => {
     const errors: { 
-      date?: string; 
       startDate?: string; 
       endDate?: string; 
       adults?: string; 
       room?: string; 
     } = {};
 
-    if (dateMode === "single") {
-      if (!selectedDate) {
-        errors.date = "Please select a travel date";
-      }
-    } else {
-      if (!startDate) {
-        errors.startDate = "Please select a start date";
-      }
-      if (!endDate) {
-        errors.endDate = "Please select an end date";
-      }
-      if (startDate && endDate && new Date(startDate) >= new Date(endDate)) {
-        errors.endDate = "End date must be after start date";
-      }
+    if (!startDate) {
+      errors.startDate = "Please select a start date";
+    }
+    if (!endDate) {
+      errors.endDate = "Please select an end date";
+    }
+    if (startDate && endDate && new Date(startDate) >= new Date(endDate)) {
+      errors.endDate = "End date must be after start date";
     }
 
     if (adults === 0) {
@@ -254,7 +246,7 @@ export default function PackageDetail() {
   };
 
   // Clear validation errors when user interacts with form
-  const clearValidationError = (field: "date" | "startDate" | "endDate" | "adults" | "room") => {
+  const clearValidationError = (field: "startDate" | "endDate" | "adults" | "room") => {
     setValidationErrors((prev) => {
       const updated = { ...prev };
       delete updated[field];
@@ -867,81 +859,14 @@ export default function PackageDetail() {
                       </div>
 
                       <div className="space-y-4">
-                        {/* Date Selection Mode */}
+                        {/* Date Range Selection */}
                         <div>
                           <label className="text-sm font-medium mb-2 block">
                             Travel Dates *
                           </label>
                           
-                          {/* Date Mode Toggle */}
-                          <div className="flex gap-2 mb-3">
-                            <button
-                              type="button"
-                              className={`px-3 py-1.5 text-xs rounded-md transition-colors ${
-                                dateMode === "single"
-                                  ? "bg-primary text-primary-foreground"
-                                  : "bg-gray-100 text-gray-600 hover:bg-gray-200"
-                              }`}
-                              onClick={() => {
-                                setDateMode("single");
-                                setStartDate("");
-                                setEndDate("");
-                                clearValidationError("startDate");
-                                clearValidationError("endDate");
-                              }}
-                            >
-                              <Calendar className="w-3 h-3 inline mr-1" />
-                              Single Date
-                            </button>
-                            <button
-                              type="button"
-                              className={`px-3 py-1.5 text-xs rounded-md transition-colors ${
-                                dateMode === "range"
-                                  ? "bg-primary text-primary-foreground"
-                                  : "bg-gray-100 text-gray-600 hover:bg-gray-200"
-                              }`}
-                              onClick={() => {
-                                setDateMode("range");
-                                setSelectedDate("");
-                                clearValidationError("date");
-                              }}
-                            >
-                              <Calendar className="w-3 h-3 inline mr-1" />
-                              Date Range
-                            </button>
-                          </div>
-
-                          {/* Single Date Input */}
-                          {dateMode === "single" ? (
-                            <div className="relative">
-                              <input
-                                type="date"
-                                value={selectedDate}
-                                onChange={(e) => {
-                                  setSelectedDate(e.target.value);
-                                  clearValidationError("date");
-                                }}
-                                className={`w-full rounded-md border px-3 py-2 text-sm ring-offset-background ${
-                                  validationErrors.date
-                                    ? "border-red-500"
-                                    : "border-input"
-                                }`}
-                                min={(() => {
-                                  const minDate = new Date();
-                                  minDate.setDate(minDate.getDate() + 4);
-                                  return minDate.toISOString().split("T")[0];
-                                })()}
-                                placeholder="Select travel date"
-                              />
-                              {validationErrors.date && (
-                                <p className="text-red-500 text-xs mt-1">
-                                  {validationErrors.date}
-                                </p>
-                              )}
-                            </div>
-                          ) : (
-                            /* Date Range Inputs */
-                            <div className="space-y-3">
+                          {/* Date Range Inputs */}
+                          <div className="space-y-3">
                               <div className="grid grid-cols-2 gap-3">
                                 <div>
                                   <label className="text-xs text-gray-600 mb-1 block">
@@ -1024,7 +949,6 @@ export default function PackageDetail() {
                                 </div>
                               )}
                             </div>
-                          )}
                         </div>
 
                         {/* Travelers */}
@@ -1157,8 +1081,7 @@ export default function PackageDetail() {
                           infants={infants}
                           hotelPackage=""
                           selectedRooms={selectedRooms}
-                          dateMode={dateMode}
-                          selectedDate={selectedDate}
+                          dateMode="range"
                           startDate={startDate}
                           endDate={endDate}
                         />
@@ -1171,10 +1094,9 @@ export default function PackageDetail() {
                             return validateBookingForm();
                           }}
                           formData={{
-                            selectedDate: dateMode === "single" ? selectedDate : "",
-                            startDate: dateMode === "range" ? startDate : "",
-                            endDate: dateMode === "range" ? endDate : "",
-                            dateMode,
+                            startDate,
+                            endDate,
+                            dateMode: "range",
                             adults,
                             children,
                             infants,
