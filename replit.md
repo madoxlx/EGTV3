@@ -73,17 +73,17 @@ The application uses a comprehensive PostgreSQL schema with the following core e
 
 ## Recent Changes
 
-### API-Powered Smart Booking Comparison System (July 22, 2025)
-- **Real API Integration**: Replaced fixed pricing with dynamic data from package API, using actual package prices and room rates
-- **Intelligent Price Calculator**: Created dynamic booking comparison that automatically recalculates when passenger count or date range changes
-- **Package Data Integration**: Extracts room rates from package data or intelligently estimates rates from package price and duration
-- **Real-time Updates**: Component uses React useMemo for efficient recalculation when dependencies change
-- **Dual Pricing Options**: Compares room package (3 Triple + 1 Double rooms) vs per-person pricing with live cost analysis
-- **Dynamic Night Calculation**: Automatically calculates nights from selected date range or package duration instead of fixed assumptions
-- **Visual Feedback**: Added API-powered indicators, animated icons, and transition effects showing real data usage
-- **Capacity Management**: Smart warnings when passenger count exceeds room package capacity (11 people maximum)
-- **Cost Breakdown**: Detailed price breakdown showing individual room costs and total savings calculations from authentic package data
-- **Package Discount Display**: Shows real package discounts and savings percentages when available from API
+### Dynamic Room Allocation System (July 22, 2025)
+- **Smart Algorithm**: Implemented intelligent room allocation algorithm that automatically distributes passengers across available room types in the package
+- **Real-time Optimization**: System finds the cheapest price combination by optimizing room distribution when passenger count changes
+- **Package-Specific Rooms**: Uses actual room data from packages or creates intelligent defaults (Triple: 3 capacity, Double: 2 capacity)
+- **Cost-Per-Person Sorting**: Algorithm sorts room types by cost efficiency (price per person) and allocates most economical rooms first
+- **Dynamic Recalculation**: Automatically recalculates optimal allocation when traveler numbers or date ranges change
+- **Capacity Validation**: Ensures total room capacity meets or exceeds passenger requirements before showing as valid option
+- **Visual Room Breakdown**: Shows detailed allocation with room counts, types, capacities, and individual costs
+- **Greedy Optimization**: Uses greedy algorithm approach to minimize total accommodation costs while satisfying capacity constraints
+- **Flexible Availability**: Supports configurable room availability limits with intelligent fallbacks
+- **API Integration**: Extracts room types, capacities, and pricing from package data for authentic calculations
 
 ### Date Range Default Implementation (July 22, 2025)
 - **Package Detail Page Enhancement**: Modified travel booking form to use date range as the primary date selection method

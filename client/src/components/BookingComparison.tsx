@@ -10,12 +10,35 @@ const DEFAULT_ROOM_RATES = {
   PER_PERSON_RATE: 1000
 } as const;
 
-const PACKAGE_CONFIG = {
-  DEFAULT_NIGHTS: 3,
-  TRIPLE_ROOMS: 3,
-  DOUBLE_ROOMS: 1,
-  MAX_PEOPLE_OPTION_1: 11 // 3 triple rooms (3 people each) + 1 double room (2 people)
+const DEFAULT_CONFIG = {
+  DEFAULT_NIGHTS: 3
 } as const;
+
+// Interface for room types with capacity and pricing
+interface RoomType {
+  id?: number;
+  name: string;
+  type: string;
+  capacity: number;
+  pricePerNight: number;
+  available?: number; // Number of rooms available
+}
+
+// Room allocation result
+interface RoomAllocation {
+  roomType: RoomType;
+  roomsNeeded: number;
+  totalCapacity: number;
+  totalCost: number;
+}
+
+interface OptimalAllocation {
+  allocations: RoomAllocation[];
+  totalCost: number;
+  totalCapacity: number;
+  isValid: boolean;
+  costPerPerson: number;
+}
 
 interface PackageData {
   id: number;
@@ -38,6 +61,68 @@ interface BookingComparisonProps {
   packageData?: PackageData | null;
 }
 
+// Dynamic room allocation algorithm
+function findOptimalRoomAllocation(totalPeople: number, availableRooms: RoomType[], nights: number): OptimalAllocation {
+  if (totalPeople === 0 || availableRooms.length === 0) {
+    return {
+      allocations: [],
+      totalCost: 0,
+      totalCapacity: 0,
+      isValid: false,
+      costPerPerson: 0
+    };
+  }
+
+  // Sort rooms by cost per person (most economical first)
+  const sortedRooms = [...availableRooms].sort((a, b) => {
+    const costPerPersonA = a.pricePerNight / a.capacity;
+    const costPerPersonB = b.pricePerNight / b.capacity;
+    return costPerPersonA - costPerPersonB;
+  });
+
+  let remainingPeople = totalPeople;
+  const allocations: RoomAllocation[] = [];
+  let totalCost = 0;
+
+  // Greedy allocation - start with most economical rooms
+  for (const roomType of sortedRooms) {
+    if (remainingPeople <= 0) break;
+
+    const maxRoomsAvailable = roomType.available || 10; // Default max if not specified
+    const roomsNeeded = Math.min(
+      Math.ceil(remainingPeople / roomType.capacity),
+      maxRoomsAvailable
+    );
+
+    if (roomsNeeded > 0) {
+      const totalCapacity = roomsNeeded * roomType.capacity;
+      const roomCost = roomsNeeded * roomType.pricePerNight * nights;
+      
+      allocations.push({
+        roomType,
+        roomsNeeded,
+        totalCapacity,
+        totalCost: roomCost
+      });
+
+      totalCost += roomCost;
+      remainingPeople -= totalCapacity;
+    }
+  }
+
+  const totalCapacity = allocations.reduce((sum, alloc) => sum + alloc.totalCapacity, 0);
+  const isValid = totalCapacity >= totalPeople;
+  const costPerPerson = totalPeople > 0 ? totalCost / totalPeople : 0;
+
+  return {
+    allocations,
+    totalCost,
+    totalCapacity,
+    isValid,
+    costPerPerson
+  };
+}
+
 export default function BookingComparison({ adults, children, infants, startDate, endDate, packageData }: BookingComparisonProps) {
   const [showComparison, setShowComparison] = useState(false);
   
@@ -54,91 +139,86 @@ export default function BookingComparison({ adults, children, infants, startDate
     if (packageData?.duration && packageData?.durationType === 'days') {
       return Math.max(1, packageData.duration - 1); // Convert days to nights
     }
-    return PACKAGE_CONFIG.DEFAULT_NIGHTS;
+    return DEFAULT_CONFIG.DEFAULT_NIGHTS;
   }, [startDate, endDate, packageData?.duration, packageData?.durationType]);
 
   // Calculate total people (infants don't count for accommodation)
   const totalPeople = adults + children;
   
-  // Extract room rates from package data or use defaults
-  const roomRates = useMemo(() => {
+  // Extract room types from package data or create defaults
+  const availableRooms = useMemo((): RoomType[] => {
     if (packageData?.rooms && packageData.rooms.length > 0) {
-      // Extract room rates from package rooms data
-      const tripleRoom = packageData.rooms.find(room => 
-        room.type?.toLowerCase().includes('triple') || 
-        room.name?.toLowerCase().includes('triple')
-      );
-      const doubleRoom = packageData.rooms.find(room => 
-        room.type?.toLowerCase().includes('double') || 
-        room.name?.toLowerCase().includes('double')
-      );
-      
-      return {
-        TRIPLE_ROOM: tripleRoom?.pricePerNight || tripleRoom?.price || DEFAULT_ROOM_RATES.TRIPLE_ROOM,
-        DOUBLE_ROOM: doubleRoom?.pricePerNight || doubleRoom?.price || DEFAULT_ROOM_RATES.DOUBLE_ROOM,
-        PER_PERSON_RATE: packageData.price && packageData.duration 
-          ? Math.round(packageData.price / packageData.duration / 2) // Estimate per person per night
-          : DEFAULT_ROOM_RATES.PER_PERSON_RATE
-      };
+      return packageData.rooms.map(room => ({
+        id: room.id,
+        name: room.name || room.type || 'Room',
+        type: room.type || 'standard',
+        capacity: room.capacity || 
+                 (room.type?.toLowerCase().includes('triple') ? 3 : 
+                  room.type?.toLowerCase().includes('double') ? 2 : 
+                  room.type?.toLowerCase().includes('single') ? 1 : 2),
+        pricePerNight: room.pricePerNight || room.price || DEFAULT_ROOM_RATES.DOUBLE_ROOM,
+        available: room.available || 5
+      }));
     }
     
-    // Use package price to estimate per-person rate if available
-    if (packageData?.price) {
-      const estimatedPerPersonRate = packageData.discountedPrice || packageData.price;
-      const perNightEstimate = Math.round(estimatedPerPersonRate / (nights * 2)); // Estimate for 2 people
-      
-      return {
-        TRIPLE_ROOM: DEFAULT_ROOM_RATES.TRIPLE_ROOM,
-        DOUBLE_ROOM: DEFAULT_ROOM_RATES.DOUBLE_ROOM,
-        PER_PERSON_RATE: Math.max(perNightEstimate, DEFAULT_ROOM_RATES.PER_PERSON_RATE)
-      };
+    // Create default room types if no package room data
+    return [
+      {
+        name: 'Triple Room',
+        type: 'triple',
+        capacity: 3,
+        pricePerNight: DEFAULT_ROOM_RATES.TRIPLE_ROOM,
+        available: 3
+      },
+      {
+        name: 'Double Room', 
+        type: 'double',
+        capacity: 2,
+        pricePerNight: DEFAULT_ROOM_RATES.DOUBLE_ROOM,
+        available: 2
+      }
+    ];
+  }, [packageData?.rooms]);
+
+  // Calculate per-person rate for comparison
+  const perPersonRate = useMemo(() => {
+    if (packageData?.price && packageData?.duration) {
+      const basePrice = packageData.discountedPrice || packageData.price;
+      return Math.round(basePrice / packageData.duration / 2); // Estimate per person per night
     }
-    
-    return DEFAULT_ROOM_RATES;
-  }, [packageData, nights]);
+    return DEFAULT_ROOM_RATES.PER_PERSON_RATE;
+  }, [packageData]);
   
-  // Memoize calculations to recalculate when dependencies change
+  // Calculate optimal room allocation and comparison
   const calculations = useMemo(() => {
-    // Option 1: Room-based pricing (3 Triple + 1 Double)
-    const option1Cost = (roomRates.TRIPLE_ROOM * PACKAGE_CONFIG.TRIPLE_ROOMS + 
-                         roomRates.DOUBLE_ROOM * PACKAGE_CONFIG.DOUBLE_ROOMS) * nights;
+    // Option 1: Optimal room allocation using dynamic algorithm
+    const optimalAllocation = findOptimalRoomAllocation(totalPeople, availableRooms, nights);
     
     // Option 2: Per person pricing
-    const option2Cost = totalPeople * roomRates.PER_PERSON_RATE * nights;
+    const option2Cost = totalPeople * perPersonRate * nights;
     
-    // Calculate cost per person for each option
-    const option1CostPerPerson = totalPeople > 0 ? option1Cost / totalPeople : 0;
-    const option2CostPerPerson = roomRates.PER_PERSON_RATE * nights;
-    
-    // Determine the cheaper option
-    const option1IsCheaper = option1Cost < option2Cost;
-    const savings = Math.abs(option1Cost - option2Cost);
+    // Calculate savings between options
+    const option1IsCheaper = optimalAllocation.totalCost < option2Cost;
+    const savings = Math.abs(optimalAllocation.totalCost - option2Cost);
     const savingsPerPerson = totalPeople > 0 ? savings / totalPeople : 0;
-    
-    // Check if Option 1 is applicable (within capacity)
-    const option1Applicable = totalPeople <= PACKAGE_CONFIG.MAX_PEOPLE_OPTION_1;
 
     return {
-      option1Cost,
+      optimalAllocation,
       option2Cost,
-      option1CostPerPerson,
-      option2CostPerPerson,
+      option2CostPerPerson: perPersonRate * nights,
       option1IsCheaper,
       savings,
-      savingsPerPerson,
-      option1Applicable
+      savingsPerPerson
     };
-  }, [totalPeople, nights, roomRates]);
+  }, [totalPeople, nights, availableRooms, perPersonRate]);
 
   const {
-    option1Cost,
+    optimalAllocation,
     option2Cost,
-    option1CostPerPerson,
     option2CostPerPerson,
     option1IsCheaper,
     savings,
-    savingsPerPerson,
-    option1Applicable
+    savingsPerPerson
   } = calculations;
 
   useEffect(() => {
@@ -169,11 +249,11 @@ export default function BookingComparison({ adults, children, infants, startDate
       <CardHeader className="pb-3">
         <CardTitle className="text-lg flex items-center gap-2">
           <Calculator className="h-5 w-5" />
-          Smart Booking Comparison
+          Dynamic Room Allocation
           <RefreshCw className="h-4 w-4 text-green-500" />
         </CardTitle>
         <p className="text-sm text-muted-foreground">
-          Compare pricing options for {totalPeople} people ({adults} adults, {children} children{infants > 0 ? `, ${infants} infants` : ''})
+          Smart pricing for {totalPeople} people ({adults} adults, {children} children{infants > 0 ? `, ${infants} infants` : ''})
         </p>
         <div className="flex items-center gap-4 text-xs text-muted-foreground">
           <div className="flex items-center gap-1">
@@ -200,50 +280,52 @@ export default function BookingComparison({ adults, children, infants, startDate
           </Button>
         ) : (
           <div className="space-y-4">
-            {/* Option 1: Room-based */}
+            {/* Option 1: Dynamic Room Allocation */}
             <div className={`p-4 rounded-lg border-2 ${
-              option1IsCheaper && option1Applicable 
+              option1IsCheaper && optimalAllocation.isValid 
                 ? 'border-green-500 bg-green-50' 
-                : option1Applicable 
+                : optimalAllocation.isValid 
                   ? 'border-gray-200 bg-gray-50' 
                   : 'border-red-200 bg-red-50'
             }`}>
               <div className="flex items-start justify-between mb-2">
                 <div className="flex items-center gap-2">
-                  <span className="font-semibold text-lg">Option 1: Room Package</span>
-                  {option1IsCheaper && option1Applicable && (
+                  <span className="font-semibold text-lg">Option 1: Smart Room Allocation</span>
+                  {option1IsCheaper && optimalAllocation.isValid && (
                     <span className="bg-green-500 text-white px-2 py-1 rounded-full text-xs flex items-center gap-1">
                       <TrendingDown className="h-3 w-3" />
                       BEST DEAL
                     </span>
                   )}
-                  {!option1Applicable && (
+                  {!optimalAllocation.isValid && (
                     <span className="bg-red-500 text-white px-2 py-1 rounded-full text-xs">
-                      OVER CAPACITY
+                      NOT AVAILABLE
                     </span>
                   )}
                 </div>
                 <div className="text-right">
-                  <div className="text-2xl font-bold">{option1Cost.toLocaleString()} EGP</div>
+                  <div className="text-2xl font-bold">{optimalAllocation.totalCost.toLocaleString()} EGP</div>
                   <div className="text-sm text-muted-foreground">
-                    {option1CostPerPerson.toFixed(0)} EGP per person
+                    {optimalAllocation.costPerPerson.toFixed(0)} EGP per person
                   </div>
                 </div>
               </div>
               
-              <div className="text-sm space-y-1">
-                <div className="flex justify-between">
-                  <span>• {PACKAGE_CONFIG.TRIPLE_ROOMS} Triple rooms (3 people each)</span>
-                  <span>{roomRates.TRIPLE_ROOM} EGP/night × {nights} nights = {roomRates.TRIPLE_ROOM * nights * PACKAGE_CONFIG.TRIPLE_ROOMS} EGP</span>
-                </div>
-                <div className="flex justify-between">
-                  <span>• {PACKAGE_CONFIG.DOUBLE_ROOMS} Double room (2 people)</span>
-                  <span>{roomRates.DOUBLE_ROOM} EGP/night × {nights} nights = {roomRates.DOUBLE_ROOM * nights * PACKAGE_CONFIG.DOUBLE_ROOMS} EGP</span>
-                </div>
+              <div className="text-sm space-y-2">
+                {optimalAllocation.allocations.map((allocation, index) => (
+                  <div key={index} className="flex justify-between items-center bg-white p-2 rounded border">
+                    <span>
+                      • {allocation.roomsNeeded} × {allocation.roomType.name} ({allocation.roomType.capacity} people each)
+                    </span>
+                    <span className="font-medium">
+                      {allocation.totalCost.toLocaleString()} EGP
+                    </span>
+                  </div>
+                ))}
                 <div className="pt-2 text-muted-foreground">
-                  Accommodates up to {PACKAGE_CONFIG.MAX_PEOPLE_OPTION_1} people
-                  {!option1Applicable && (
-                    <span className="text-red-600 font-medium"> (You have {totalPeople} people)</span>
+                  Total capacity: {optimalAllocation.totalCapacity} people
+                  {!optimalAllocation.isValid && (
+                    <span className="text-red-600 font-medium"> (Need {totalPeople} people)</span>
                   )}
                 </div>
               </div>
@@ -251,17 +333,17 @@ export default function BookingComparison({ adults, children, infants, startDate
 
             {/* Option 2: Per person */}
             <div className={`p-4 rounded-lg border-2 ${
-              !option1IsCheaper || !option1Applicable 
+              !option1IsCheaper || !optimalAllocation.isValid 
                 ? 'border-green-500 bg-green-50' 
                 : 'border-gray-200 bg-gray-50'
             }`}>
               <div className="flex items-start justify-between mb-2">
                 <div className="flex items-center gap-2">
                   <span className="font-semibold text-lg">Option 2: Per Person</span>
-                  {(!option1IsCheaper || !option1Applicable) && (
+                  {(!option1IsCheaper || !optimalAllocation.isValid) && (
                     <span className="bg-green-500 text-white px-2 py-1 rounded-full text-xs flex items-center gap-1">
                       <TrendingDown className="h-3 w-3" />
-                      {!option1Applicable ? 'ONLY OPTION' : 'BEST DEAL'}
+                      {!optimalAllocation.isValid ? 'ONLY OPTION' : 'BEST DEAL'}
                     </span>
                   )}
                 </div>
@@ -275,8 +357,8 @@ export default function BookingComparison({ adults, children, infants, startDate
               
               <div className="text-sm space-y-1">
                 <div className="flex justify-between">
-                  <span>• {totalPeople} people × {roomRates.PER_PERSON_RATE} EGP/night</span>
-                  <span>{totalPeople} × {roomRates.PER_PERSON_RATE} × {nights} nights</span>
+                  <span>• {totalPeople} people × {perPersonRate} EGP/night</span>
+                  <span>{totalPeople} × {perPersonRate} × {nights} nights</span>
                 </div>
                 <div className="pt-2 text-muted-foreground">
                   Flexible accommodation arrangement
@@ -285,19 +367,19 @@ export default function BookingComparison({ adults, children, infants, startDate
             </div>
 
             {/* Savings Summary */}
-            {option1Applicable && (
+            {optimalAllocation.isValid && (
               <div className="bg-blue-50 border border-blue-200 rounded-lg p-4 transition-all duration-300">
                 <div className="flex items-center gap-2 mb-2">
                   <DollarSign className="h-5 w-5 text-blue-600" />
-                  <span className="font-semibold text-blue-800">Live Price Analysis</span>
+                  <span className="font-semibold text-blue-800">Dynamic Price Analysis</span>
                   <div className="ml-auto flex items-center gap-1 text-xs text-blue-600">
                     <RefreshCw className="h-3 w-3 animate-spin" />
-                    <span>API-powered</span>
+                    <span>Auto-optimized</span>
                   </div>
                 </div>
                 {packageData && (
                   <div className="text-xs text-blue-600 mb-2 flex items-center gap-1">
-                    <span>✓ Using real package data: {packageData.title}</span>
+                    <span>✓ Using package room data: {packageData.title}</span>
                     {packageData.discountedPrice && (
                       <span className="ml-2 text-green-600">
                         (Save {((packageData.price - packageData.discountedPrice) / packageData.price * 100).toFixed(0)}%)
@@ -305,49 +387,19 @@ export default function BookingComparison({ adults, children, infants, startDate
                     )}
                   </div>
                 )}
-                <div className="text-sm space-y-1">
+                <div className="text-sm">
                   {option1IsCheaper ? (
-                    <>
-                      <div className="text-green-700">
-                        ✅ <strong>Room Package saves you {savings.toLocaleString()} EGP</strong> ({savingsPerPerson.toFixed(0)} EGP per person)
-                      </div>
-                      <div className="text-muted-foreground">
-                        That's {((savings / option2Cost) * 100).toFixed(1)}% less than the per-person rate
-                      </div>
-                    </>
+                    <div className="text-green-700">
+                      ✅ <strong>Smart allocation saves you {savings.toLocaleString()} EGP total</strong> ({savingsPerPerson.toFixed(0)} EGP per person)
+                    </div>
                   ) : (
-                    <>
-                      <div className="text-blue-700">
-                        💡 <strong>Per-person rate saves you {savings.toLocaleString()} EGP</strong> ({savingsPerPerson.toFixed(0)} EGP per person)
-                      </div>
-                      <div className="text-muted-foreground">
-                        That's {((savings / option1Cost) * 100).toFixed(1)}% less than the room package
-                      </div>
-                    </>
+                    <div className="text-blue-700">
+                      💡 Per-person pricing saves you {savings.toLocaleString()} EGP total ({savingsPerPerson.toFixed(0)} EGP per person)
+                    </div>
                   )}
                 </div>
               </div>
             )}
-
-            {/* Action Buttons */}
-            <div className="flex gap-2 pt-2">
-              <Button 
-                onClick={() => setShowComparison(false)}
-                variant="outline"
-                size="sm"
-                className="flex-1"
-              >
-                Hide Comparison
-              </Button>
-              <Button 
-                size="sm"
-                className="flex-1"
-                variant={option1IsCheaper && option1Applicable ? "default" : "secondary"}
-              >
-                <Users className="h-4 w-4 mr-2" />
-                Book {option1IsCheaper && option1Applicable ? 'Room Package' : 'Per Person'}
-              </Button>
-            </div>
           </div>
         )}
       </CardContent>
