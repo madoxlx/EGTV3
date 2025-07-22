@@ -44,7 +44,9 @@ type Package = {
   description: string;
   price: number;
   discountedPrice?: number;
+  currency: string;
   duration: number;
+  durationType?: string;
   destinationId?: number;
   imageUrl?: string;
   galleryUrls?: string[] | null;
@@ -1094,6 +1096,7 @@ export default function PackageDetail() {
                           infants={infants}
                           startDate={startDate}
                           endDate={endDate}
+                          packageData={packageData}
                         />
 
                         <BookPackageButton

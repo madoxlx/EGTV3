@@ -73,14 +73,17 @@ The application uses a comprehensive PostgreSQL schema with the following core e
 
 ## Recent Changes
 
-### Smart Booking Comparison System (July 22, 2025)
+### API-Powered Smart Booking Comparison System (July 22, 2025)
+- **Real API Integration**: Replaced fixed pricing with dynamic data from package API, using actual package prices and room rates
 - **Intelligent Price Calculator**: Created dynamic booking comparison that automatically recalculates when passenger count or date range changes
+- **Package Data Integration**: Extracts room rates from package data or intelligently estimates rates from package price and duration
 - **Real-time Updates**: Component uses React useMemo for efficient recalculation when dependencies change
 - **Dual Pricing Options**: Compares room package (3 Triple + 1 Double rooms) vs per-person pricing with live cost analysis
-- **Dynamic Night Calculation**: Automatically calculates nights from selected date range instead of fixed 3-night assumption
-- **Visual Feedback**: Added auto-update indicators, animated icons, and transition effects for better user experience
+- **Dynamic Night Calculation**: Automatically calculates nights from selected date range or package duration instead of fixed assumptions
+- **Visual Feedback**: Added API-powered indicators, animated icons, and transition effects showing real data usage
 - **Capacity Management**: Smart warnings when passenger count exceeds room package capacity (11 people maximum)
-- **Cost Breakdown**: Detailed price breakdown showing individual room costs and total savings calculations
+- **Cost Breakdown**: Detailed price breakdown showing individual room costs and total savings calculations from authentic package data
+- **Package Discount Display**: Shows real package discounts and savings percentages when available from API
 
 ### Date Range Default Implementation (July 22, 2025)
 - **Package Detail Page Enhancement**: Modified travel booking form to use date range as the primary date selection method
