@@ -368,8 +368,8 @@ const Header: React.FC = () => {
                         : ""
                     }`}
                     onClick={() => setIsMenuOpen(false)}
-                    target={child.target === '_blank' ? '_blank' : undefined}
-                    rel={child.target === '_blank' ? 'noopener noreferrer' : undefined}
+                    target={item.target === '_blank' ? '_blank' : undefined}
+                    rel={item.target === '_blank' ? 'noopener noreferrer' : undefined}
                   >
                     {item.title}
                   </Link>
