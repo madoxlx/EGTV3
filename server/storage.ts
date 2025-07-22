@@ -26,6 +26,9 @@ import {
   rooms,
   Room,
   InsertRoom,
+  roomCategories,
+  RoomCategory,
+  InsertRoomCategory,
   heroSlides,
   HeroSlide,
   InsertHeroSlide,
@@ -205,6 +208,13 @@ export interface IStorage {
   createWhyChooseUsSection(section: InsertWhyChooseUsSection): Promise<WhyChooseUsSection>;
   updateWhyChooseUsSection(id: number, section: Partial<InsertWhyChooseUsSection>): Promise<WhyChooseUsSection | undefined>;
   deleteWhyChooseUsSection(id: number): Promise<boolean>;
+
+  // Room Categories
+  listRoomCategories(active?: boolean): Promise<RoomCategory[]>;
+  getRoomCategory(id: number): Promise<RoomCategory | undefined>;
+  createRoomCategory(category: InsertRoomCategory): Promise<RoomCategory>;
+  updateRoomCategory(id: number, category: Partial<InsertRoomCategory>): Promise<RoomCategory | undefined>;
+  deleteRoomCategory(id: number): Promise<boolean>;
 }
 
 export class DatabaseStorage implements IStorage {
@@ -2045,6 +2055,87 @@ export class DatabaseStorage implements IStorage {
       return true;
     } catch (error) {
       console.error(`Error deleting why choose us section with ID ${id}:`, error);
+      return false;
+    }
+  }
+
+  // Room Categories
+  async listRoomCategories(active?: boolean): Promise<RoomCategory[]> {
+    try {
+      if (active !== undefined) {
+        return await db
+          .select()
+          .from(roomCategories)
+          .where(eq(roomCategories.active, active))
+          .orderBy(asc(roomCategories.name));
+      }
+      
+      return await db
+        .select()
+        .from(roomCategories)
+        .orderBy(asc(roomCategories.name));
+    } catch (error) {
+      console.error("Error listing room categories:", error);
+      return [];
+    }
+  }
+
+  async getRoomCategory(id: number): Promise<RoomCategory | undefined> {
+    try {
+      const [category] = await db
+        .select()
+        .from(roomCategories)
+        .where(eq(roomCategories.id, id));
+      return category || undefined;
+    } catch (error) {
+      console.error("Error getting room category:", error);
+      return undefined;
+    }
+  }
+
+  async createRoomCategory(category: InsertRoomCategory): Promise<RoomCategory> {
+    try {
+      const [newCategory] = await db
+        .insert(roomCategories)
+        .values({
+          ...category,
+          createdAt: new Date(),
+          updatedAt: new Date(),
+        })
+        .returning();
+      return newCategory;
+    } catch (error) {
+      console.error("Error creating room category:", error);
+      throw error;
+    }
+  }
+
+  async updateRoomCategory(
+    id: number,
+    category: Partial<InsertRoomCategory>
+  ): Promise<RoomCategory | undefined> {
+    try {
+      const [updatedCategory] = await db
+        .update(roomCategories)
+        .set({
+          ...category,
+          updatedAt: new Date(),
+        })
+        .where(eq(roomCategories.id, id))
+        .returning();
+      return updatedCategory;
+    } catch (error) {
+      console.error("Error updating room category:", error);
+      throw error;
+    }
+  }
+
+  async deleteRoomCategory(id: number): Promise<boolean> {
+    try {
+      await db.delete(roomCategories).where(eq(roomCategories.id, id));
+      return true;
+    } catch (error) {
+      console.error(`Error deleting room category with ID ${id}:`, error);
       return false;
     }
   }

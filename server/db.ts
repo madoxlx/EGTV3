@@ -4,10 +4,13 @@ import { sql } from "drizzle-orm";
 import * as schema from "@shared/schema";
 import "dotenv/config";
 
-// Force use of external database URL
-const databaseUrl = "postgresql://myuser:MyStrongPass123!@20.77.106.39:5432/mydb";
+// Use Replit's provided PostgreSQL database
+const databaseUrl = process.env.DATABASE_URL;
+if (!databaseUrl) {
+  throw new Error("DATABASE_URL environment variable is not set");
+}
 console.log(
-  "Database URL: ebn elwes5a",
+  "Database URL:",
   databaseUrl?.replace(/:[^@]+@/, ":****@"),
 );
 export const pool = new Pool({
