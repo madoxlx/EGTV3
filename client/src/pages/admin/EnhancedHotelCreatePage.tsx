@@ -6,6 +6,7 @@ import { z } from "zod";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { GoogleMap, useLoadScript, Marker } from "@react-google-maps/api";
 import { apiRequest, getQueryFn } from "@/lib/queryClient";
+import type { Country } from "@shared/schema";
 
 import { useToast } from "@/hooks/use-toast";
 import { useLanguage } from "@/hooks/use-language";
@@ -532,12 +533,14 @@ export default function EnhancedHotelCreatePage() {
   // Fetch countries data for the dropdown
   const { data: countries = [] } = useQuery({
     queryKey: ["/api/countries"],
+    queryFn: getQueryFn(),
     staleTime: 1000 * 60 * 5, // 5 minutes
   });
 
   // Fetch cities data for the dropdown
   const { data: cities = [] } = useQuery({
     queryKey: ["/api/cities"],
+    queryFn: getQueryFn(),
     staleTime: 1000 * 60 * 5, // 5 minutes
   });
 
@@ -955,7 +958,7 @@ export default function EnhancedHotelCreatePage() {
                                 </SelectTrigger>
                               </FormControl>
                               <SelectContent>
-                                {countries.map((country: any) => (
+                                {(countries as Country[]).map((country) => (
                                   <SelectItem
                                     key={country.id}
                                     value={country.id.toString()}
@@ -2032,93 +2035,6 @@ export default function EnhancedHotelCreatePage() {
                   <TabsContent value="rooms-faqs" className="space-y-6">
                     {/* FAQs */}
                     <div className="space-y-4">
-                      <h3 className="text-lg font-semibold flex items-center gap-2">
-                        <FileQuestion className="h-5 w-5" />
-                        Frequently Asked Questions
-                      </h3>
-                      <FormDescription>
-                        Add frequently asked questions about this hotel.
-                      </FormDescription>
-
-                      <div className="flex justify-between items-center">
-                        <h4 className="font-medium">FAQ Items</h4>
-                        <Button
-                          type="button"
-                          variant="outline"
-                          size="sm"
-                          onClick={() =>
-                            faqsFieldArray.append({ question: "", answer: "" })
-                          }
-                        >
-                          <Plus className="h-4 w-4 mr-1" /> Add FAQ
-                        </Button>
-                      </div>
-
-                      {faqsFieldArray.fields.length > 0 ? (
-                        <div className="border rounded-md divide-y">
-                          {faqsFieldArray.fields.map((field, index) => (
-                            <div key={field.id} className="p-4">
-                              <div className="flex justify-between items-start mb-4">
-                                <h5 className="font-medium">
-                                  FAQ #{index + 1}
-                                </h5>
-                                <Button
-                                  type="button"
-                                  variant="ghost"
-                                  size="sm"
-                                  onClick={() => faqsFieldArray.remove(index)}
-                                >
-                                  <Trash2 className="h-4 w-4 text-red-500" />
-                                </Button>
-                              </div>
-                              <div className="space-y-4">
-                                <FormField
-                                  control={form.control}
-                                  name={`faqs.${index}.question`}
-                                  render={({ field }) => (
-                                    <FormItem>
-                                      <FormLabel>Question*</FormLabel>
-                                      <FormControl>
-                                        <Input
-                                          placeholder="e.g. What are the check-in and check-out times?"
-                                          {...field}
-                                        />
-                                      </FormControl>
-                                      <FormMessage />
-                                    </FormItem>
-                                  )}
-                                />
-                                <FormField
-                                  control={form.control}
-                                  name={`faqs.${index}.answer`}
-                                  render={({ field }) => (
-                                    <FormItem>
-                                      <FormLabel>Answer*</FormLabel>
-                                      <FormControl>
-                                        <Textarea
-                                          placeholder="Provide an answer to the question"
-                                          className="min-h-[100px]"
-                                          {...field}
-                                        />
-                                      </FormControl>
-                                      <FormMessage />
-                                    </FormItem>
-                                  )}
-                                />
-                              </div>
-                            </div>
-                          ))}
-                        </div>
-                      ) : (
-                        <div className="border rounded-md p-6 text-center">
-                          <FileQuestion className="h-6 w-6 text-muted-foreground mx-auto mb-2" />
-                          <p className="text-muted-foreground">
-                            No FAQs added yet
-                          </p>
-                        </div>
-                      )}
-                    </div>
-                  </TabsContent>                    <div className="space-y-4">
                       <h3 className="text-lg font-semibold flex items-center gap-2">
                         <FileQuestion className="h-5 w-5" />
                         Frequently Asked Questions

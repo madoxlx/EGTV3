@@ -1336,8 +1336,6 @@ export const insertDestinationSchema = createInsertSchema(destinations).omit({
   id: true,
   createdAt: true,
   updatedAt: true,
-  createdBy: true,
-  updatedBy: true,
 });
 
 export const insertPackageSchema = createInsertSchema(packages)
@@ -1636,8 +1634,6 @@ export const insertTranslationSchema = createInsertSchema(translations).omit({
   id: true,
   createdAt: true,
   updatedAt: true,
-  createdBy: true,
-  updatedBy: true,
 });
 
 export const insertSiteLanguageSettingsSchema = createInsertSchema(
