@@ -155,7 +155,8 @@ export default function BookingComparison({ adults, children, infants, startDate
         id: room.id,
         name: room.name || room.type || 'Room',
         type: room.type || 'standard',
-        capacity: room.capacity || 
+        // Use actual database capacity values instead of inferring from type names
+        capacity: room.capacity || room.maxOccupancy || 
                  (room.type?.toLowerCase().includes('triple') ? 3 : 
                   room.type?.toLowerCase().includes('double') ? 2 : 
                   room.type?.toLowerCase().includes('single') ? 1 : 2),

@@ -549,7 +549,42 @@ export class DatabaseStorage implements IStorage {
   async getPackage(id: number): Promise<Package | undefined> {
     try {
       const [pkg] = await db.select().from(packages).where(eq(packages.id, id));
-      return pkg || undefined;
+      if (!pkg) return undefined;
+      
+      // If package has room data stored as JSON, enhance it with actual database room details
+      if (pkg.rooms && Array.isArray(pkg.rooms)) {
+        const enhancedRooms = [];
+        for (const roomRef of pkg.rooms as any[]) {
+          if (roomRef.id) {
+            // Get full room details from database
+            const [fullRoom] = await db.select().from(rooms).where(eq(rooms.id, roomRef.id));
+            if (fullRoom) {
+              enhancedRooms.push({
+                ...roomRef,
+                maxOccupancy: fullRoom.maxOccupancy,
+                maxAdults: fullRoom.maxAdults,
+                maxChildren: fullRoom.maxChildren,
+                maxInfants: fullRoom.maxInfants,
+                capacity: fullRoom.maxOccupancy, // Add capacity field for compatibility
+                price: fullRoom.price,
+                pricePerNight: fullRoom.price,
+                name: fullRoom.name,
+                type: fullRoom.type,
+                description: fullRoom.description,
+                imageUrl: fullRoom.imageUrl
+              });
+            } else {
+              enhancedRooms.push(roomRef);
+            }
+          } else {
+            enhancedRooms.push(roomRef);
+          }
+        }
+        // Return package with enhanced room data
+        return { ...pkg, rooms: enhancedRooms };
+      }
+      
+      return pkg;
     } catch (error) {
       console.error("Error getting package:", error);
       return undefined;
