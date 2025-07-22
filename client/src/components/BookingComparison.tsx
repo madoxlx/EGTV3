@@ -2,6 +2,7 @@ import React, { useState, useEffect, useMemo } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Calculator, Users, DollarSign, TrendingDown, TrendingUp, Calendar, RefreshCw } from 'lucide-react';
+import { useQueryClient } from '@tanstack/react-query';
 
 // Default configuration constants - fallback if package data unavailable
 const DEFAULT_ROOM_RATES = {
@@ -125,6 +126,8 @@ function findOptimalRoomAllocation(totalPeople: number, availableRooms: RoomType
 
 export default function BookingComparison({ adults, children, infants, startDate, endDate, packageData }: BookingComparisonProps) {
   const [showComparison, setShowComparison] = useState(false);
+  const [showAllRooms, setShowAllRooms] = useState(false);
+  const queryClient = useQueryClient();
   
   // Calculate nights from date range or use package duration
   const nights = useMemo(() => {
@@ -247,10 +250,37 @@ export default function BookingComparison({ adults, children, infants, startDate
   return (
     <Card className="mb-4">
       <CardHeader className="pb-3">
-        <CardTitle className="text-lg flex items-center gap-2">
-          <Calculator className="h-5 w-5" />
-          Dynamic Room Allocation
-          <RefreshCw className="h-4 w-4 text-green-500" />
+        <CardTitle className="text-lg flex items-center justify-between">
+          <div className="flex items-center gap-2">
+            <Calculator className="h-5 w-5" />
+            Dynamic Room Allocation
+            <RefreshCw className="h-4 w-4 text-green-500" />
+          </div>
+          <div className="flex items-center gap-2">
+            <Button
+              onClick={() => {
+                // Refresh package data and room allocations
+                queryClient.invalidateQueries({ queryKey: ['/api/packages'] });
+                queryClient.invalidateQueries({ queryKey: ['/api/manual-packages'] });
+                setShowComparison(false);
+                setTimeout(() => setShowComparison(true), 100);
+              }}
+              variant="outline"
+              size="sm"
+              className="h-7 px-2"
+            >
+              <RefreshCw className="h-3 w-3 mr-1" />
+              Refresh
+            </Button>
+            <Button
+              onClick={() => setShowAllRooms(!showAllRooms)}
+              variant="outline"
+              size="sm"
+              className="h-7 px-2"
+            >
+              {showAllRooms ? 'Show Compatible Only' : 'Show All Rooms'}
+            </Button>
+          </div>
         </CardTitle>
         <p className="text-sm text-muted-foreground">
           Smart pricing for {totalPeople} people ({adults} adults, {children} children{infants > 0 ? `, ${infants} infants` : ''})
@@ -312,22 +342,82 @@ export default function BookingComparison({ adults, children, infants, startDate
               </div>
               
               <div className="text-sm space-y-2">
-                {optimalAllocation.allocations.map((allocation, index) => (
-                  <div key={index} className="flex justify-between items-center bg-white p-2 rounded border">
-                    <span>
-                      • {allocation.roomsNeeded} × {allocation.roomType.name} ({allocation.roomType.capacity} people each)
-                    </span>
-                    <span className="font-medium">
-                      {allocation.totalCost.toLocaleString()} EGP
-                    </span>
+                {showAllRooms ? (
+                  // Show ALL available rooms with capacity indicators
+                  <div className="space-y-2">
+                    <div className="text-xs text-muted-foreground mb-3 p-2 bg-blue-50 rounded border">
+                      <p className="font-medium">All Available Rooms</p>
+                      <p>🟢 Compatible with your group size | 🟡 Requires multiple rooms | 🔴 Insufficient capacity</p>
+                    </div>
+                    {availableRooms.map((room, index) => {
+                      const roomsNeeded = Math.ceil(totalPeople / room.capacity);
+                      const isCompatible = room.capacity >= totalPeople;
+                      const requiresMultiple = !isCompatible && roomsNeeded <= (room.available || 5);
+                      const isInsufficient = !requiresMultiple && !isCompatible;
+                      
+                      const indicator = isCompatible ? '🟢' : requiresMultiple ? '🟡' : '🔴';
+                      const statusText = isCompatible ? 'Perfect fit' : 
+                                       requiresMultiple ? `${roomsNeeded} rooms needed` : 
+                                       'Not suitable';
+                      
+                      const totalCost = roomsNeeded * room.pricePerNight * nights;
+                      
+                      return (
+                        <div key={index} className={`flex justify-between items-center p-3 rounded border ${
+                          isCompatible ? 'bg-green-50 border-green-200' : 
+                          requiresMultiple ? 'bg-yellow-50 border-yellow-200' : 
+                          'bg-red-50 border-red-200'
+                        }`}>
+                          <div>
+                            <div className="flex items-center gap-2">
+                              <span>{indicator}</span>
+                              <span className="font-medium">{room.name}</span>
+                            </div>
+                            <div className="text-xs text-muted-foreground mt-1">
+                              Capacity: {room.capacity} people | {statusText}
+                            </div>
+                          </div>
+                          <div className="text-right">
+                            <div className="font-medium">{totalCost.toLocaleString()} EGP</div>
+                            <div className="text-xs text-muted-foreground">
+                              {room.pricePerNight.toLocaleString()} EGP/night × {roomsNeeded} room{roomsNeeded !== 1 ? 's' : ''}
+                            </div>
+                          </div>
+                        </div>
+                      );
+                    })}
                   </div>
-                ))}
-                <div className="pt-2 text-muted-foreground">
-                  Total capacity: {optimalAllocation.totalCapacity} people
-                  {!optimalAllocation.isValid && (
-                    <span className="text-red-600 font-medium"> (Need {totalPeople} people)</span>
-                  )}
-                </div>
+                ) : (
+                  // Show only optimal allocation
+                  <div className="space-y-2">
+                    {optimalAllocation.allocations.map((allocation, index) => (
+                      <div key={index} className="flex justify-between items-center bg-white p-2 rounded border">
+                        <span>
+                          • {allocation.roomsNeeded} × {allocation.roomType.name} ({allocation.roomType.capacity} people each)
+                        </span>
+                        <span className="font-medium">
+                          {allocation.totalCost.toLocaleString()} EGP
+                        </span>
+                      </div>
+                    ))}
+                    <div className="pt-2 text-muted-foreground">
+                      Total capacity: {optimalAllocation.totalCapacity} people
+                      {!optimalAllocation.isValid && (
+                        <div className="mt-2">
+                          <span className="text-red-600 font-medium">Need {totalPeople} people</span>
+                          <Button 
+                            onClick={() => setShowAllRooms(true)}
+                            variant="outline"
+                            size="sm"
+                            className="ml-2"
+                          >
+                            Show All Available Rooms
+                          </Button>
+                        </div>
+                      )}
+                    </div>
+                  </div>
+                )}
               </div>
             </div>
 

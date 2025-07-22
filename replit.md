@@ -73,6 +73,17 @@ The application uses a comprehensive PostgreSQL schema with the following core e
 
 ## Recent Changes
 
+### Room Display and Filtering System Enhancement Complete (July 22, 2025)
+- **Room Filtering Issue Resolution**: Fixed critical issue where rooms with low capacity (e.g., Single Garden view room with capacity 1) were hidden when booking required more people (2+ adults)
+- **Enhanced Room Display Interface**: Added comprehensive room display system showing ALL available rooms with clear visual indicators for compatibility
+- **Visual Capacity Indicators**: Implemented color-coded system: 🟢 Compatible rooms, 🟡 Multiple rooms needed, 🔴 Insufficient capacity
+- **Refresh Button Implementation**: Added Refresh button to BookingComparison component with cache invalidation for real-time data updates
+- **Show All Rooms Toggle**: Added toggle button allowing users to view all available rooms regardless of capacity constraints vs. only showing optimal allocations
+- **Intelligent Room Analysis**: Each room now shows detailed capacity analysis, pricing breakdown, and suitability status for current group size
+- **Enhanced User Experience**: Users can now see all accommodation options and make informed decisions rather than having rooms filtered out automatically
+- **Cache Management**: Implemented proper query cache invalidation when refreshing package and room data
+- **Production Ready**: Complete room display system with transparent capacity requirements and flexible viewing options
+
 ### Room Categories Synchronization Fix Complete (July 22, 2025)
 - **Fixed Room Types Dropdown**: Resolved issue where `/admin/rooms/create` page showed hardcoded room types instead of dynamic database categories
 - **Added Dynamic Room Categories Query**: Implemented `useQuery` to fetch room categories from `/api/admin/room-categories` API endpoint
