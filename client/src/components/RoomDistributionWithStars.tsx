@@ -220,6 +220,36 @@ export default function RoomDistributionWithStars({
 
   const roomDistribution = calculateRoomDistribution();
 
+  // Group room distribution by hotel for better organization
+  const distributionByHotel = roomDistribution.reduce(
+    (acc, dist) => {
+      const hotelId = dist.room.hotel_id;
+      if (!acc[hotelId]) {
+        acc[hotelId] = [];
+      }
+      acc[hotelId].push(dist);
+      return acc;
+    },
+    {} as Record<number, any[]>,
+  );
+
+  // Memoize the used room IDs to prevent infinite re-renders
+  const usedRoomIds = React.useMemo(() => {
+    return roomDistribution
+      .filter(dist => dist.isUsed)
+      .map(dist => dist.room.id.toString());
+  }, [roomDistribution]);
+
+  // Automatically select used rooms for the booking process
+  React.useEffect(() => {
+    const currentRoomIds = [...selectedRooms].sort();
+    const newRoomIds = [...usedRoomIds].sort();
+    
+    if (JSON.stringify(currentRoomIds) !== JSON.stringify(newRoomIds)) {
+      onRoomSelect(usedRoomIds);
+    }
+  }, [usedRoomIds, selectedRooms, onRoomSelect]);
+
   // Get hotel info for a room
   const getHotelInfo = (hotelId: number) => {
     // Handle type mismatch between number and string IDs
@@ -262,30 +292,6 @@ export default function RoomDistributionWithStars({
       </div>
     );
   }
-
-  // Group room distribution by hotel for better organization
-  const distributionByHotel = roomDistribution.reduce(
-    (acc, dist) => {
-      const hotelId = dist.room.hotel_id;
-      if (!acc[hotelId]) {
-        acc[hotelId] = [];
-      }
-      acc[hotelId].push(dist);
-      return acc;
-    },
-    {} as Record<number, any[]>,
-  );
-
-  // Automatically select used rooms for the booking process
-  React.useEffect(() => {
-    const usedRoomIds = roomDistribution
-      .filter(dist => dist.isUsed)
-      .map(dist => dist.room.id.toString());
-    
-    if (JSON.stringify(usedRoomIds.sort()) !== JSON.stringify(selectedRooms.sort())) {
-      onRoomSelect(usedRoomIds);
-    }
-  }, [roomDistribution, selectedRooms, onRoomSelect]);
 
   return (
     <div className="space-y-4">
