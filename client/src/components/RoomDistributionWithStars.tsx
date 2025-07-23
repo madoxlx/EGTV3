@@ -1,3 +1,4 @@
+
 import React from "react";
 import { useQuery } from "@tanstack/react-query";
 import { Card, CardContent } from "@/components/ui/card";
@@ -23,6 +24,8 @@ type Room = {
   maxInfants?: number;
   originalPrice?: number;
   amenities?: string[] | string;
+  currency?: string;
+  imageUrl?: string;
 };
 
 type Hotel = {
@@ -86,7 +89,7 @@ export default function RoomDistributionWithStars({
       : [];
   };
 
-  // Get package included rooms
+  // Get package included rooms with actual database values
   const getIncludedRooms = (): Room[] => {
     if (!packageData.rooms) return [];
 
@@ -113,14 +116,25 @@ export default function RoomDistributionWithStars({
       packageRoomIds.includes(room.id),
     );
 
-    // Merge room data with package customizations
-    return filteredRooms.map((room) => {
-      const packageRoom = packageRooms.find((pr) => pr.id === room.id);
+    // Merge room data with package customizations, prioritizing actual database values
+    return filteredRooms.map((dbRoom) => {
+      const packageRoom = packageRooms.find((pr) => pr.id === dbRoom.id);
       return {
-        ...room,
+        ...dbRoom,
+        // Use actual database values for capacity and occupancy
+        max_occupancy: dbRoom.max_occupancy,
+        max_adults: dbRoom.max_adults,
+        max_children: dbRoom.max_children,
+        max_infants: dbRoom.max_infants,
+        // Price handling - use custom price if available, otherwise database price
         customPrice: packageRoom?.customPrice || packageRoom?.price,
-        originalPrice: room.price,
-        ...(packageRoom && packageRoom),
+        originalPrice: dbRoom.price,
+        price: packageRoom?.customPrice || packageRoom?.price || dbRoom.price,
+        // Keep package customizations if they exist
+        ...(packageRoom && {
+          description: packageRoom.description || dbRoom.description,
+          imageUrl: packageRoom.imageUrl || dbRoom.imageUrl,
+        }),
       };
     });
   };
@@ -246,7 +260,7 @@ export default function RoomDistributionWithStars({
             {hotel && (
               <div className="mb-3">
                 <h4 className="font-medium text-gray-900 mb-1">
-                  Some hotel in {hotel.city || "Unknown City"}
+                  {hotel.name}
                 </h4>
                 <div className="flex items-center gap-2">
                   <div className="flex items-center gap-1">
@@ -298,13 +312,26 @@ export default function RoomDistributionWithStars({
                                 : "(Hotel)"}
                             </span>
                           </div>
-                          <div className="flex items-center gap-2 text-sm text-gray-600">
-                            <span>
-                              {hotel?.stars
-                                ? `${hotel.stars}-star accommodation`
-                                : "Hotel accommodation"}
-                            </span>
+                          {/* Room capacity information from actual database values */}
+                          <div className="flex items-center gap-4 text-sm text-gray-600 mb-2">
+                            <div className="flex items-center gap-1">
+                              <Users className="w-4 h-4" />
+                              <span>Max: {room.max_occupancy} people</span>
+                            </div>
+                            <div className="flex items-center gap-1">
+                              <Bed className="w-4 h-4" />
+                              <span>{room.type}</span>
+                            </div>
                           </div>
+                          {/* Detailed capacity breakdown */}
+                          <div className="text-xs text-gray-500">
+                            Adults: {room.max_adults} | Children: {room.max_children} | Infants: {room.max_infants}
+                          </div>
+                          {room.description && (
+                            <div className="text-sm text-gray-600 mt-1">
+                              {room.description}
+                            </div>
+                          )}
                         </div>
                       </div>
                       <div className="text-right">
@@ -312,16 +339,17 @@ export default function RoomDistributionWithStars({
                           {displayPrice
                             ? displayPrice.toLocaleString("en-US")
                             : "0"}{" "}
-                          {room.currency}
-                          <span className="text-xs text-gray-500 leading-none">
+                          {room.currency || "EGP"}
+                          <div className="text-xs text-gray-500 leading-none">
                             /per person in room
-                          </span>
+                          </div>
                         </div>
                         {room.customPrice &&
                           room.originalPrice &&
                           room.customPrice !== room.originalPrice && (
                             <div className="text-sm text-gray-500 line-through">
                               {room.originalPrice.toLocaleString("en-US")}{" "}
+                              {room.currency || "EGP"}
                             </div>
                           )}
                       </div>
