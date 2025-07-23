@@ -88,6 +88,16 @@ The application uses a comprehensive PostgreSQL schema with the following core e
 
 ## Recent Changes
 
+### Orange Warning System for Capacity Overflow Complete (July 23, 2025)
+- **Capacity Overflow Detection**: Added intelligent system to detect when total travelers exceed total room capacity across all rooms in package
+- **Orange Warning UI**: Created professional orange warning panel with AlertTriangle icon that replaces room display when capacity exceeded
+- **Contact Information Display**: Added Facebook, Instagram, and WhatsApp contact buttons with pre-filled messages encouraging users to describe their travel needs
+- **Enhanced User Experience**: Clear messaging explaining package unsuitability with actionable contact options instead of confusing empty room displays
+- **Traveler Count Analysis**: Shows breakdown of total travelers vs maximum package capacity to help users understand the limitation
+- **Room Display Logic**: Automatically hides normal room allocation interface when capacity exceeded, preventing user confusion
+- **Contact Channel Integration**: Direct links to social media and WhatsApp with custom messages for large group inquiries
+- **Professional Styling**: Orange-themed warning with proper spacing, icons, and hover effects matching overall design system
+
 ### Room Distribution Infinite Loop Fix Complete (July 23, 2025)
 - **Infinite Loop Prevention**: Added safety counter (maxLoops = 50) to prevent infinite loops in room distribution algorithm
 - **Performance Optimization**: Memoized calculateRoomDistribution function using React.useCallback to prevent unnecessary recalculations
