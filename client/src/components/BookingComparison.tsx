@@ -62,8 +62,8 @@ interface BookingComparisonProps {
   packageData?: PackageData | null;
 }
 
-// Dynamic room allocation algorithm with special case for 7 people
-function findOptimalRoomAllocation(totalPeople: number, availableRooms: RoomType[], nights: number): OptimalAllocation {
+// Advanced dynamic room allocation algorithm with intelligent capacity handling
+function findOptimalRoomAllocation(totalPeople: number, availableRooms: RoomType[], nights: number, adults: number = totalPeople, children: number = 0): OptimalAllocation {
   if (totalPeople === 0 || availableRooms.length === 0) {
     return {
       allocations: [],
@@ -74,59 +74,190 @@ function findOptimalRoomAllocation(totalPeople: number, availableRooms: RoomType
     };
   }
 
-  // Special case: For 7 people, allocate 2 triple rooms + 1 single room
-  if (totalPeople === 7) {
-    return handleSevenPeopleAllocation(availableRooms, nights);
+  // Use advanced room allocation with smart capacity calculation
+  return findSmartRoomAllocation(totalPeople, availableRooms, nights, adults, children);
+}
+
+// Smart room allocation with intelligent capacity and combination logic
+function findSmartRoomAllocation(totalPeople: number, availableRooms: RoomType[], nights: number, adults: number, children: number): OptimalAllocation {
+  // Generate all possible room combinations and find the most cost-effective
+  const allCombinations = generateAllRoomCombinations(availableRooms, totalPeople, adults, children);
+  
+  if (allCombinations.length === 0) {
+    return fallbackAllocation(totalPeople, availableRooms, nights);
   }
 
-  // Sort rooms by cost per person (most economical first)
-  const sortedRooms = [...availableRooms].sort((a, b) => {
-    const costPerPersonA = a.pricePerNight / a.capacity;
-    const costPerPersonB = b.pricePerNight / b.capacity;
-    return costPerPersonA - costPerPersonB;
-  });
+  // Sort combinations by total cost (most economical first)
+  const sortedCombinations = allCombinations.sort((a, b) => a.totalCost - b.totalCost);
+  const bestCombination = sortedCombinations[0];
 
-  let remainingPeople = totalPeople;
-  const allocations: RoomAllocation[] = [];
-  let totalCost = 0;
+  // Convert to allocation format with nights calculation
+  const allocations: RoomAllocation[] = bestCombination.rooms.map(room => ({
+    roomType: room.roomType,
+    roomsNeeded: room.count,
+    totalCapacity: room.count * room.roomType.capacity,
+    totalCost: room.count * room.roomType.pricePerNight * nights
+  }));
 
-  // Greedy allocation - start with most economical rooms
-  for (const roomType of sortedRooms) {
-    if (remainingPeople <= 0) break;
-
-    const maxRoomsAvailable = roomType.available || 10; // Default max if not specified
-    const roomsNeeded = Math.min(
-      Math.ceil(remainingPeople / roomType.capacity),
-      maxRoomsAvailable
-    );
-
-    if (roomsNeeded > 0) {
-      const totalCapacity = roomsNeeded * roomType.capacity;
-      const roomCost = roomsNeeded * roomType.pricePerNight * nights;
-      
-      allocations.push({
-        roomType,
-        roomsNeeded,
-        totalCapacity,
-        totalCost: roomCost
-      });
-
-      totalCost += roomCost;
-      remainingPeople -= totalCapacity;
-    }
-  }
-
+  const totalCost = allocations.reduce((sum, alloc) => sum + alloc.totalCost, 0);
   const totalCapacity = allocations.reduce((sum, alloc) => sum + alloc.totalCapacity, 0);
-  const isValid = totalCapacity >= totalPeople;
-  const costPerPerson = totalPeople > 0 ? totalCost / totalPeople : 0;
 
+  // For triple rooms with smart capacity, we need to check actual accommodation not just capacity
+  const actuallyAccommodated = canActuallyAccommodateGroup(allocations, adults, children);
+  
   return {
     allocations,
     totalCost,
     totalCapacity,
-    isValid,
-    costPerPerson
+    isValid: actuallyAccommodated,
+    costPerPerson: totalPeople > 0 ? totalCost / totalPeople : 0
   };
+}
+
+// Helper function to verify if allocations can actually accommodate the group
+function canActuallyAccommodateGroup(allocations: RoomAllocation[], adults: number, children: number): boolean {
+  let accommodatedAdults = 0;
+  let accommodatedChildren = 0;
+  
+  for (const allocation of allocations) {
+    const { roomType, roomsNeeded } = allocation;
+    
+    for (let i = 0; i < roomsNeeded; i++) {
+      const remainingAdults = adults - accommodatedAdults;
+      const remainingChildren = children - accommodatedChildren;
+      
+      if (remainingAdults === 0 && remainingChildren === 0) break;
+      
+      if (roomType.name.toLowerCase().includes('triple')) {
+        // Triple room smart capacity: up to 4 people if 3 adults + 1 child  
+        let adultsInRoom = Math.min(remainingAdults, 3);
+        let childrenInRoom = 0;
+        
+        // If we have 3 adults, we can fit 1 more child (total 4)
+        // Otherwise, children fill remaining capacity up to 3 total
+        if (adultsInRoom === 3 && remainingChildren > 0) {
+          childrenInRoom = Math.min(remainingChildren, 1); // Max 1 extra child
+        } else {
+          const remainingCapacity = 3 - adultsInRoom;
+          childrenInRoom = Math.min(remainingChildren, remainingCapacity);
+        }
+        
+        accommodatedAdults += adultsInRoom;
+        accommodatedChildren += childrenInRoom;
+      } else {
+        // Standard capacity for other room types
+        const capacity = roomType.capacity;
+        const adultsToAdd = Math.min(remainingAdults, capacity);
+        const childrenToAdd = Math.min(remainingChildren, capacity - adultsToAdd);
+        
+        accommodatedAdults += adultsToAdd;
+        accommodatedChildren += childrenToAdd;
+      }
+    }
+  }
+  
+  return accommodatedAdults >= adults && accommodatedChildren >= children;
+}
+
+// Generate all possible room combinations that can accommodate the group
+function generateAllRoomCombinations(availableRooms: RoomType[], totalPeople: number, adults: number, children: number) {
+  const combinations: Array<{
+    rooms: Array<{ roomType: RoomType; count: number }>;
+    totalCost: number;
+    totalCapacity: number;
+  }> = [];
+
+  // Helper function to check if a room combination can accommodate the group
+  function canAccommodateGroup(roomCombination: Array<{ roomType: RoomType; count: number }>): boolean {
+    let accommodatedAdults = 0;
+    let accommodatedChildren = 0;
+    
+    for (const { roomType, count } of roomCombination) {
+      const roomCapacity = count * roomType.capacity;
+      
+      // Smart capacity logic based on room type
+      if (roomType.name.toLowerCase().includes('triple')) {
+        // Triple rooms can accommodate: 3 adults OR up to 4 people total (3 adults + 1 child)
+        for (let i = 0; i < count; i++) {
+          const remainingAdults = adults - accommodatedAdults;
+          const remainingChildren = children - accommodatedChildren;
+          const remainingTotal = remainingAdults + remainingChildren;
+          
+          if (remainingTotal <= 0) break;
+          
+          // Each triple room can take up to 4 people, but prioritize adults first
+          let peopleInThisRoom = 0;
+          let adultsInThisRoom = 0;
+          let childrenInThisRoom = 0;
+          
+          // First, place adults (up to 3)
+          adultsInThisRoom = Math.min(remainingAdults, 3);
+          peopleInThisRoom += adultsInThisRoom;
+          
+          // Then, place children if there's remaining capacity (can exceed 3 if it's 3 adults + 1 child)
+          const maxCapacityForChildren = (adultsInThisRoom === 3) ? 4 : 3; // Allow 4 total if 3 adults
+          const remainingCapacity = maxCapacityForChildren - peopleInThisRoom;
+          childrenInThisRoom = Math.min(remainingChildren, remainingCapacity);
+          peopleInThisRoom += childrenInThisRoom;
+          
+          accommodatedAdults += adultsInThisRoom;
+          accommodatedChildren += childrenInThisRoom;
+        }
+      } else {
+        // Other room types use standard capacity
+        const remainingToAccommodate = (adults + children) - (accommodatedAdults + accommodatedChildren);
+        const canAccommodate = Math.min(remainingToAccommodate, roomCapacity);
+        
+        if (accommodatedAdults < adults) {
+          const adultsToAdd = Math.min(adults - accommodatedAdults, canAccommodate);
+          accommodatedAdults += adultsToAdd;
+          const remainingCapacity = canAccommodate - adultsToAdd;
+          const childrenToAdd = Math.min(children - accommodatedChildren, remainingCapacity);
+          accommodatedChildren += childrenToAdd;
+        } else {
+          accommodatedChildren += Math.min(children - accommodatedChildren, canAccommodate);
+        }
+      }
+    }
+    
+    return accommodatedAdults >= adults && accommodatedChildren >= children;
+  }
+
+  // Generate combinations up to reasonable limits
+  function generateCombinations(roomIndex: number, currentCombination: Array<{ roomType: RoomType; count: number }>) {
+    if (roomIndex >= availableRooms.length) {
+      if (currentCombination.length > 0 && canAccommodateGroup(currentCombination)) {
+        const totalCost = currentCombination.reduce((sum, { roomType, count }) => 
+          sum + (count * roomType.pricePerNight), 0);
+        const totalCapacity = currentCombination.reduce((sum, { roomType, count }) => 
+          sum + (count * roomType.capacity), 0);
+        
+        combinations.push({
+          rooms: [...currentCombination],
+          totalCost,
+          totalCapacity
+        });
+      }
+      return;
+    }
+
+    const room = availableRooms[roomIndex];
+    const maxRooms = Math.min(room.available || 10, Math.ceil(totalPeople / room.capacity) + 2);
+
+    // Try different quantities of this room type (0 to maxRooms)
+    for (let count = 0; count <= maxRooms; count++) {
+      if (count > 0) {
+        currentCombination.push({ roomType: room, count });
+      }
+      generateCombinations(roomIndex + 1, currentCombination);
+      if (count > 0) {
+        currentCombination.pop();
+      }
+    }
+  }
+
+  generateCombinations(0, []);
+  return combinations;
 }
 
 // Special allocation function for 7 people: 2 triple rooms + 1 single room
@@ -301,8 +432,8 @@ export default function BookingComparison({ adults, children, infants, startDate
   
   // Calculate optimal room allocation and comparison
   const calculations = useMemo(() => {
-    // Option 1: Optimal room allocation using dynamic algorithm
-    const optimalAllocation = findOptimalRoomAllocation(totalPeople, availableRooms, nights);
+    // Option 1: Advanced room allocation using smart algorithm with adults/children distinction
+    const optimalAllocation = findOptimalRoomAllocation(totalPeople, availableRooms, nights, adults, children);
     
     // Option 2: Per person pricing
     const option2Cost = totalPeople * perPersonRate * nights;
@@ -320,7 +451,7 @@ export default function BookingComparison({ adults, children, infants, startDate
       savings,
       savingsPerPerson
     };
-  }, [totalPeople, nights, availableRooms, perPersonRate]);
+  }, [totalPeople, nights, availableRooms, perPersonRate, adults, children]);
 
   const {
     optimalAllocation,

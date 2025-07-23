@@ -88,6 +88,19 @@ The application uses a comprehensive PostgreSQL schema with the following core e
 
 ## Recent Changes
 
+### Advanced Dynamic Room Allocation System (July 23, 2025)
+- **Smart Triple Room Logic**: Enhanced triple rooms to accommodate flexible capacity - 3 adults OR up to 4 people total (3 adults + 1 child)
+- **Intelligent Room Combinations**: Implemented comprehensive algorithm that generates and evaluates all possible room combinations for optimal cost-effectiveness
+- **Adults/Children Distinction**: System now properly differentiates between adults and children when calculating room allocation requirements
+- **Specific Use Cases Implemented**:
+  - 4 adults → 1 triple room + 1 single room (instead of generic allocation)
+  - 3 adults + 1 child → 1 triple room (utilizing extended capacity)
+  - 7 adults → 2 triple rooms + 1 single room (maintained from previous system)
+  - 2 adults + 2 children → optimal room combination based on cost analysis
+- **Cost Optimization**: Algorithm evaluates all valid combinations and selects the most economical option while meeting accommodation requirements
+- **Capacity Validation**: Enhanced validation system that verifies actual accommodation capability rather than simple capacity numbers
+- **User Experience**: More accurate room allocation that matches real-world hotel room usage patterns and traveler expectations
+
 ### Translation System Fix (July 23, 2025)
 - **Translation Function Calls**: Fixed critical issue where translation keys were hardcoded as strings instead of proper `t()` function calls in Advanced Bookings Management page
 - **Database Setup**: Created translations table and populated missing translation keys for admin interface
