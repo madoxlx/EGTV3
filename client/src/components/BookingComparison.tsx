@@ -600,25 +600,92 @@ export default function BookingComparison({ adults, children, infants, startDate
                       
                       const totalCost = roomsNeeded * room.pricePerNight * nights;
                       
+                      // Calculate capacity breakdown for this room type
+                      const getCapacityBreakdown = (roomType: any) => {
+                        if (roomType.name.toLowerCase().includes('triple')) {
+                          return {
+                            adultsCapacity: 3,
+                            childrenCapacity: 1, // Can accommodate 1 extra child if 3 adults
+                            infantsCapacity: 2, // Infants typically don't count toward main capacity
+                            maxTotal: 4, // 3 adults + 1 child maximum
+                            description: "3 adults OR 3 adults + 1 child"
+                          };
+                        } else if (roomType.name.toLowerCase().includes('double')) {
+                          return {
+                            adultsCapacity: 2,
+                            childrenCapacity: 0,
+                            infantsCapacity: 2,
+                            maxTotal: 2,
+                            description: "2 adults + infants"
+                          };
+                        } else if (roomType.name.toLowerCase().includes('single')) {
+                          return {
+                            adultsCapacity: 1,
+                            childrenCapacity: 0,
+                            infantsCapacity: 1,
+                            maxTotal: 1,
+                            description: "1 adult + infants"
+                          };
+                        } else {
+                          // Generic room type
+                          return {
+                            adultsCapacity: roomType.capacity,
+                            childrenCapacity: 0,
+                            infantsCapacity: 1,
+                            maxTotal: roomType.capacity,
+                            description: `${roomType.capacity} people maximum`
+                          };
+                        }
+                      };
+
+                      const capacityInfo = getCapacityBreakdown(room);
+                      
                       return (
-                        <div key={index} className={`flex justify-between items-center p-3 rounded border ${
+                        <div key={index} className={`p-3 rounded-lg border ${
                           isCompatible ? 'bg-green-50 border-green-200' : 
                           requiresMultiple ? 'bg-yellow-50 border-yellow-200' : 
                           'bg-red-50 border-red-200'
                         }`}>
-                          <div>
-                            <div className="flex items-center gap-2">
-                              <span>{indicator}</span>
-                              <span className="font-medium">{room.name}</span>
+                          <div className="flex justify-between items-start mb-3">
+                            <div>
+                              <div className="flex items-center gap-2">
+                                <span className="text-lg">{indicator}</span>
+                                <span className="font-medium">{room.name}</span>
+                              </div>
+                              <div className="text-xs text-muted-foreground mt-1">
+                                {statusText} | {roomsNeeded} room{roomsNeeded !== 1 ? 's' : ''} needed
+                              </div>
                             </div>
-                            <div className="text-xs text-muted-foreground mt-1">
-                              Capacity: {room.capacity} people | {statusText}
+                            <div className="text-right">
+                              <div className="font-medium">{totalCost.toLocaleString()} EGP</div>
+                              <div className="text-xs text-muted-foreground">
+                                {room.pricePerNight.toLocaleString()} EGP/night × {roomsNeeded}
+                              </div>
                             </div>
                           </div>
-                          <div className="text-right">
-                            <div className="font-medium">{totalCost.toLocaleString()} EGP</div>
-                            <div className="text-xs text-muted-foreground">
-                              {room.pricePerNight.toLocaleString()} EGP/night × {roomsNeeded} room{roomsNeeded !== 1 ? 's' : ''}
+                          
+                          {/* Detailed Capacity Breakdown */}
+                          <div className="bg-white rounded p-2 border">
+                            <div className="text-xs font-medium text-gray-700 mb-2">Room Capacity Per Room:</div>
+                            <div className="grid grid-cols-3 gap-3 text-xs">
+                              <div className="flex items-center gap-1">
+                                <span className="w-2 h-2 bg-blue-500 rounded-full"></span>
+                                <span className="font-medium">Adults:</span>
+                                <span className="text-blue-600 font-bold">{capacityInfo.adultsCapacity}</span>
+                              </div>
+                              <div className="flex items-center gap-1">
+                                <span className="w-2 h-2 bg-green-500 rounded-full"></span>
+                                <span className="font-medium">Children:</span>
+                                <span className="text-green-600 font-bold">{capacityInfo.childrenCapacity}</span>
+                              </div>
+                              <div className="flex items-center gap-1">
+                                <span className="w-2 h-2 bg-orange-500 rounded-full"></span>
+                                <span className="font-medium">Infants:</span>
+                                <span className="text-orange-600 font-bold">{capacityInfo.infantsCapacity}</span>
+                              </div>
+                            </div>
+                            <div className="text-xs text-gray-600 mt-2 italic border-t pt-2">
+                              💡 {capacityInfo.description}
                             </div>
                           </div>
                         </div>
@@ -627,17 +694,94 @@ export default function BookingComparison({ adults, children, infants, startDate
                   </div>
                 ) : (
                   // Show only optimal allocation
-                  <div className="space-y-2">
-                    {optimalAllocation.allocations.map((allocation, index) => (
-                      <div key={index} className="flex justify-between items-center bg-white p-2 rounded border">
-                        <span>
-                          • {allocation.roomsNeeded} × {allocation.roomType.name} ({allocation.roomType.capacity} people each)
-                        </span>
-                        <span className="font-medium">
-                          {allocation.totalCost.toLocaleString()} EGP
-                        </span>
-                      </div>
-                    ))}
+                  <div className="space-y-3">
+                    {optimalAllocation.allocations.map((allocation, index) => {
+                      // Calculate capacity breakdown for this room type
+                      const getCapacityBreakdown = (roomType: any) => {
+                        if (roomType.name.toLowerCase().includes('triple')) {
+                          return {
+                            adultsCapacity: 3,
+                            childrenCapacity: 1, // Can accommodate 1 extra child if 3 adults
+                            infantsCapacity: 2, // Infants typically don't count toward main capacity
+                            maxTotal: 4, // 3 adults + 1 child maximum
+                            description: "3 adults OR 3 adults + 1 child"
+                          };
+                        } else if (roomType.name.toLowerCase().includes('double')) {
+                          return {
+                            adultsCapacity: 2,
+                            childrenCapacity: 0,
+                            infantsCapacity: 2,
+                            maxTotal: 2,
+                            description: "2 adults + infants"
+                          };
+                        } else if (roomType.name.toLowerCase().includes('single')) {
+                          return {
+                            adultsCapacity: 1,
+                            childrenCapacity: 0,
+                            infantsCapacity: 1,
+                            maxTotal: 1,
+                            description: "1 adult + infants"
+                          };
+                        } else {
+                          // Generic room type
+                          return {
+                            adultsCapacity: roomType.capacity,
+                            childrenCapacity: 0,
+                            infantsCapacity: 1,
+                            maxTotal: roomType.capacity,
+                            description: `${roomType.capacity} people maximum`
+                          };
+                        }
+                      };
+
+                      const capacityInfo = getCapacityBreakdown(allocation.roomType);
+
+                      return (
+                        <div key={index} className="bg-white p-3 rounded-lg border border-green-300">
+                          <div className="flex justify-between items-start mb-3">
+                            <div>
+                              <div className="font-medium">
+                                {allocation.roomsNeeded} × {allocation.roomType.name}
+                              </div>
+                              <div className="text-xs text-muted-foreground">
+                                {allocation.roomType.capacity} people capacity each room
+                              </div>
+                            </div>
+                            <div className="text-right">
+                              <div className="font-medium">{allocation.totalCost.toLocaleString()} EGP</div>
+                              <div className="text-xs text-muted-foreground">
+                                {allocation.roomType.pricePerNight.toLocaleString()} EGP/night × {allocation.roomsNeeded}
+                              </div>
+                            </div>
+                          </div>
+                          
+                          {/* Detailed Capacity Breakdown */}
+                          <div className="bg-green-50 rounded p-2 border border-green-200">
+                            <div className="text-xs font-medium text-gray-700 mb-2">Capacity Per Room:</div>
+                            <div className="grid grid-cols-3 gap-3 text-xs">
+                              <div className="flex items-center gap-1">
+                                <span className="w-2 h-2 bg-blue-500 rounded-full"></span>
+                                <span className="font-medium">Adults:</span>
+                                <span className="text-blue-600 font-bold">{capacityInfo.adultsCapacity}</span>
+                              </div>
+                              <div className="flex items-center gap-1">
+                                <span className="w-2 h-2 bg-green-500 rounded-full"></span>
+                                <span className="font-medium">Children:</span>
+                                <span className="text-green-600 font-bold">{capacityInfo.childrenCapacity}</span>
+                              </div>
+                              <div className="flex items-center gap-1">
+                                <span className="w-2 h-2 bg-orange-500 rounded-full"></span>
+                                <span className="font-medium">Infants:</span>
+                                <span className="text-orange-600 font-bold">{capacityInfo.infantsCapacity}</span>
+                              </div>
+                            </div>
+                            <div className="text-xs text-gray-600 mt-2 italic border-t border-green-300 pt-2">
+                              💡 {capacityInfo.description}
+                            </div>
+                          </div>
+                        </div>
+                      );
+                    })}
                     <div className="pt-2 text-muted-foreground">
                       Total capacity: {optimalAllocation.totalCapacity} people
                       {!optimalAllocation.isValid && (

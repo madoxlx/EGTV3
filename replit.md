@@ -90,6 +90,13 @@ The application uses a comprehensive PostgreSQL schema with the following core e
 
 ### Advanced Dynamic Room Allocation System (July 23, 2025)
 - **Smart Triple Room Logic**: Enhanced triple rooms to accommodate flexible capacity - 3 adults OR up to 4 people total (3 adults + 1 child)
+- **Detailed Capacity Display**: Added comprehensive capacity breakdown showing adults, children, and infant limits for each room type
+- **Visual Capacity Indicators**: Color-coded capacity display with blue dots for adults, green for children, orange for infants
+- **Room Type Intelligence**: 
+  - Triple rooms: 3 adults + 1 child + 2 infants
+  - Double rooms: 2 adults + 2 infants 
+  - Single rooms: 1 adult + 1 infant
+- **Enhanced User Interface**: Professional room cards showing detailed capacity per room with explanatory descriptions
 - **Intelligent Room Combinations**: Implemented comprehensive algorithm that generates and evaluates all possible room combinations for optimal cost-effectiveness
 - **Adults/Children Distinction**: System now properly differentiates between adults and children when calculating room allocation requirements
 - **Specific Use Cases Implemented**:
