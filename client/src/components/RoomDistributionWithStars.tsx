@@ -248,54 +248,69 @@ export default function RoomDistributionWithStars({
       };
     });
 
-    // Second pass: assign remaining children/infants to available rooms (even without adults)
-    // but mark these as requiring additional adults
-    distribution.forEach(roomDist => {
-      const { room } = roomDist;
-      const currentCapacity = roomDist.totalAssigned;
-      const availableCapacity = room.max_occupancy - currentCapacity;
+    // Second pass: assign ALL remaining children/infants to available rooms
+    // and mark these as requiring additional adults
+    while ((remainingChildren > 0 || remainingInfants > 0) && distribution.some(d => d.room.max_occupancy - d.totalAssigned > 0)) {
+      // Find room with most available capacity
+      const availableRooms = distribution.filter(d => d.room.max_occupancy - d.totalAssigned > 0);
+      if (availableRooms.length === 0) break;
       
-      // Assign remaining children to available rooms
-      if (remainingChildren > 0 && availableCapacity > 0 && room.max_children > 0) {
-        const canAssignChildren = Math.min(remainingChildren, Math.min(availableCapacity, room.max_children));
-        if (canAssignChildren > 0) {
-          roomDist.assignedChildren += canAssignChildren;
-          remainingChildren -= canAssignChildren;
+      // Sort by available capacity (highest first)
+      availableRooms.sort((a, b) => (b.room.max_occupancy - b.totalAssigned) - (a.room.max_occupancy - a.totalAssigned));
+      
+      for (const roomDist of availableRooms) {
+        if (remainingChildren === 0 && remainingInfants === 0) break;
+        
+        const { room } = roomDist;
+        const currentCapacity = roomDist.totalAssigned;
+        const availableCapacity = room.max_occupancy - currentCapacity;
+        
+        // Assign remaining children first
+        if (remainingChildren > 0 && availableCapacity > 0 && room.max_children > 0) {
+          const maxChildrenInRoom = Math.min(room.max_children - roomDist.assignedChildren, availableCapacity);
+          const canAssignChildren = Math.min(remainingChildren, maxChildrenInRoom);
           
-          // Update totals
-          roomDist.totalAssigned += canAssignChildren;
-          roomDist.totalCostPerNight = roomDist.totalAssigned * roomDist.pricePerPerson;
-          roomDist.totalCost = roomDist.totalCostPerNight * nights;
-          roomDist.isUsed = true;
+          if (canAssignChildren > 0) {
+            roomDist.assignedChildren += canAssignChildren;
+            remainingChildren -= canAssignChildren;
+            
+            // Update totals
+            roomDist.totalAssigned += canAssignChildren;
+            roomDist.totalCostPerNight = roomDist.totalAssigned * roomDist.pricePerPerson;
+            roomDist.totalCost = roomDist.totalCostPerNight * nights;
+            roomDist.isUsed = true;
+            
+            // Mark as requiring adult if no adults in room
+            if (roomDist.assignedAdults === 0) {
+              roomDist.hasAdultRequirementIssue = true;
+            }
+          }
+        }
+        
+        // Then assign remaining infants
+        const updatedAvailableCapacity = room.max_occupancy - roomDist.totalAssigned;
+        if (remainingInfants > 0 && updatedAvailableCapacity > 0 && room.max_infants > 0) {
+          const maxInfantsInRoom = Math.min(room.max_infants - roomDist.assignedInfants, updatedAvailableCapacity);
+          const canAssignInfants = Math.min(remainingInfants, maxInfantsInRoom);
           
-          // Mark as requiring adult if no adults in room
-          if (roomDist.assignedAdults === 0) {
-            roomDist.hasAdultRequirementIssue = true;
+          if (canAssignInfants > 0) {
+            roomDist.assignedInfants += canAssignInfants;
+            remainingInfants -= canAssignInfants;
+            
+            // Update totals
+            roomDist.totalAssigned += canAssignInfants;
+            roomDist.totalCostPerNight = roomDist.totalAssigned * roomDist.pricePerPerson;
+            roomDist.totalCost = roomDist.totalCostPerNight * nights;
+            roomDist.isUsed = true;
+            
+            // Mark as requiring adult if no adults in room
+            if (roomDist.assignedAdults === 0) {
+              roomDist.hasAdultRequirementIssue = true;
+            }
           }
         }
       }
-      
-      // Assign remaining infants to available rooms
-      if (remainingInfants > 0 && availableCapacity > roomDist.assignedChildren && room.max_infants > 0) {
-        const finalAvailableCapacity = room.max_occupancy - roomDist.totalAssigned;
-        const canAssignInfants = Math.min(remainingInfants, Math.min(finalAvailableCapacity, room.max_infants));
-        if (canAssignInfants > 0) {
-          roomDist.assignedInfants += canAssignInfants;
-          remainingInfants -= canAssignInfants;
-          
-          // Update totals
-          roomDist.totalAssigned += canAssignInfants;
-          roomDist.totalCostPerNight = roomDist.totalAssigned * roomDist.pricePerPerson;
-          roomDist.totalCost = roomDist.totalCostPerNight * nights;
-          roomDist.isUsed = true;
-          
-          // Mark as requiring adult if no adults in room
-          if (roomDist.assignedAdults === 0) {
-            roomDist.hasAdultRequirementIssue = true;
-          }
-        }
-      }
-    });
+    }
     
     return distribution;
   };
@@ -541,6 +556,14 @@ export default function RoomDistributionWithStars({
           .filter((dist: any) => dist.hasAdultRequirementIssue);
         
         if (roomsRequiringAdults.length > 0) {
+          const totalChildrenWithoutAdults = roomsRequiringAdults.reduce((total: number, room: any) => 
+            total + (room.assignedAdults === 0 ? room.assignedChildren : 0), 0
+          );
+          const totalInfantsWithoutAdults = roomsRequiringAdults.reduce((total: number, room: any) => 
+            total + (room.assignedAdults === 0 ? room.assignedInfants : 0), 0
+          );
+          const requiredAdults = roomsRequiringAdults.filter((room: any) => room.assignedAdults === 0).length;
+          
           return (
             <div className="bg-orange-50 border border-orange-200 rounded-lg p-4 mt-4">
               <div className="flex items-center gap-2 mb-2">
@@ -550,10 +573,16 @@ export default function RoomDistributionWithStars({
                 </span>
               </div>
               <p className="text-sm text-orange-800">
-                Some rooms have children or infants without adult supervision. 
-                Please add {roomsRequiringAdults.reduce((total: number, room: any) => 
-                  total + Math.max(0, (room.assignedChildren + room.assignedInfants > 0 && room.assignedAdults === 0) ? 1 : 0), 0
-                )} more adult(s) to proceed with booking, or adjust traveler numbers.
+                {totalChildrenWithoutAdults > 0 && totalInfantsWithoutAdults > 0 ? (
+                  <>We've assigned {totalChildrenWithoutAdults} children and {totalInfantsWithoutAdults} infants to rooms without adult supervision. </>
+                ) : totalChildrenWithoutAdults > 0 ? (
+                  <>We've assigned {totalChildrenWithoutAdults} children to rooms without adult supervision. </>
+                ) : totalInfantsWithoutAdults > 0 ? (
+                  <>We've assigned {totalInfantsWithoutAdults} infants to rooms without adult supervision. </>
+                ) : (
+                  <>Some rooms have children or infants without adult supervision. </>
+                )}
+                Please add {requiredAdults} more adult(s) to proceed with booking, or adjust traveler numbers.
               </p>
             </div>
           );
