@@ -53,6 +53,7 @@ interface RoomDistributionWithStarsProps {
   infants?: number;
   startDate?: string;
   endDate?: string;
+  onBookingStatusChange?: (disabled: boolean, reason?: string) => void;
 }
 
 export default function RoomDistributionWithStars({
@@ -340,6 +341,20 @@ export default function RoomDistributionWithStars({
   const isCapacityExceeded = Array.isArray(roomDistribution) ? false : roomDistribution?.capacityExceeded || false;
   const actualDistribution = Array.isArray(roomDistribution) ? roomDistribution : roomDistribution?.rooms || [];
 
+  // Check for adult supervision requirements
+  const hasAdultSupervisionIssue = actualDistribution.some((dist: any) => dist.hasAdultRequirementIssue);
+  const unassignedChildren = children - actualDistribution.reduce((sum: number, dist: any) => sum + dist.assignedChildren, 0);
+  const unassignedInfants = infants - actualDistribution.reduce((sum: number, dist: any) => sum + dist.assignedInfants, 0);
+  const hasUnassignedMinors = unassignedChildren > 0 || unassignedInfants > 0;
+
+  // Determine if booking should be disabled and why
+  const isBookingDisabled = isCapacityExceeded || hasAdultSupervisionIssue || hasUnassignedMinors;
+  const disabledReason = isCapacityExceeded 
+    ? "Package capacity exceeded. Please contact us for custom arrangements."
+    : hasAdultSupervisionIssue || hasUnassignedMinors
+    ? "Adult supervision required. All children and infants must be accompanied by adults in rooms."
+    : undefined;
+
   // Group room distribution by hotel for better organization
   const distributionByHotel = actualDistribution.reduce(
     (acc: Record<number, any[]>, dist: any) => {
@@ -369,6 +384,13 @@ export default function RoomDistributionWithStars({
       onRoomSelect(usedRoomIds);
     }
   }, [usedRoomIds, selectedRooms, onRoomSelect]);
+
+  // Notify parent about booking status changes
+  React.useEffect(() => {
+    if (onBookingStatusChange) {
+      onBookingStatusChange(isBookingDisabled, disabledReason);
+    }
+  }, [isBookingDisabled, disabledReason, onBookingStatusChange]);
 
   // Get hotel info for a room
   const getHotelInfo = (hotelId: number) => {

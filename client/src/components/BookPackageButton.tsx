@@ -23,6 +23,8 @@ interface BookPackageButtonProps {
   variant?: 'default' | 'outline' | 'secondary' | 'ghost' | 'link' | 'destructive';
   size?: 'default' | 'sm' | 'lg' | 'icon';
   onClick?: () => boolean | void;
+  disabled?: boolean;
+  disabledReason?: string;
   formData?: {
     selectedDate?: string;
     startDate?: string;
@@ -42,6 +44,8 @@ const BookPackageButton: React.FC<BookPackageButtonProps> = ({
   variant = 'default',
   size = 'default',
   onClick,
+  disabled = false,
+  disabledReason,
   formData
 }) => {
   const [isAdding, setIsAdding] = useState(false);
@@ -53,6 +57,18 @@ const BookPackageButton: React.FC<BookPackageButtonProps> = ({
   const handleBookPackage = async () => {
     console.log('Book Package clicked for:', pkg.title);
     console.log('Current user:', user);
+    
+    // Check if button is disabled
+    if (disabled) {
+      if (disabledReason) {
+        toast({
+          title: "Booking Unavailable",
+          description: disabledReason,
+          variant: "destructive",
+        });
+      }
+      return;
+    }
     
     // If there's a custom onClick handler (for validation), call it first
     if (onClick) {
@@ -195,10 +211,11 @@ const BookPackageButton: React.FC<BookPackageButtonProps> = ({
   return (
     <Button
       onClick={handleBookPackage}
-      disabled={isAdding || isAdded}
-      variant={variant}
+      disabled={isAdding || isAdded || disabled}
+      variant={disabled ? 'outline' : variant}
       size={size}
-      className={className}
+      className={`${className} ${disabled ? 'opacity-50 cursor-not-allowed' : ''}`}
+      title={disabled ? disabledReason : undefined}
     >
       {isAdding ? (
         <>
@@ -209,6 +226,11 @@ const BookPackageButton: React.FC<BookPackageButtonProps> = ({
         <>
           <Check className="w-4 h-4 mr-2" />
           Added to Cart
+        </>
+      ) : disabled ? (
+        <>
+          <ShoppingCart className="w-4 h-4 mr-2" />
+          Booking Unavailable
         </>
       ) : (
         <>

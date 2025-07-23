@@ -179,11 +179,10 @@ export default function EnhancedPriceCalculation({
   // Calculate total number of PAX
   const totalPAX = adults + children + infants;
 
-  // Calculate costs for user-selected rooms (exactly one room required per specification)
-  if (selectedRooms.length === 1) {
-    const roomId = selectedRooms[0];
-    // First try to find the room in packageRooms (which contains the room data we need)
-    const packageRoom = packageRooms.find((r) => r.id === parseInt(roomId));
+  // Calculate costs for package rooms automatically (no user selection needed)
+  if (packageRooms.length > 0) {
+    // Use the first available room for cost calculation
+    const packageRoom = packageRooms[0];
     if (packageRoom) {
       // Use the price from packageRooms data
       const roomPricePerNight = packageRoom.customPrice || packageRoom.price;
@@ -197,24 +196,23 @@ export default function EnhancedPriceCalculation({
         cost: roomTotalCost,
       });
     }
-    // Fallback to allRooms if not found in packageRooms
-    else if (allRooms.length > 0) {
-      const room = allRooms.find((r) => r.id === parseInt(roomId));
-      if (room) {
-        const roomPricePerNight = room.price;
-        // SPECIFICATION FORMULA: Room Cost × Nights × PAX
-        const roomTotalCost = roomPricePerNight * actualNights * totalPAX;
+  }
+  // Fallback to allRooms if no package rooms available
+  else if (allRooms.length > 0) {
+    const room = allRooms[0]; // Use first available room
+    if (room) {
+      const roomPricePerNight = room.price;
+      // SPECIFICATION FORMULA: Room Cost × Nights × PAX
+      const roomTotalCost = roomPricePerNight * actualNights * totalPAX;
 
-        roomsCost += roomTotalCost;
-        roomsBreakdown.push({
-          name: room.name,
-          nights: actualNights,
-          cost: roomTotalCost,
-        });
-      }
+      roomsCost += roomTotalCost;
+      roomsBreakdown.push({
+        name: room.name,
+        nights: actualNights,
+        cost: roomTotalCost,
+      });
     }
   }
-  // No fallback calculation - user must select exactly one room
 
   // Calculate tours cost based on package tours
   let toursCost = 0;
@@ -323,7 +321,8 @@ export default function EnhancedPriceCalculation({
   const hasValidDates =
     dateMode === "single" ? !!selectedDate : !!(startDate && endDate);
   const hasValidAdults = adults > 0;
-  const hasSelectedRooms = selectedRooms.length === 1; // Exactly one room required
+  // Room selection is now automatic, no validation needed
+  const hasSelectedRooms = true; // Rooms are automatically selected
 
   // Validation messages
   const validationMessages: string[] = [];
@@ -333,12 +332,9 @@ export default function EnhancedPriceCalculation({
   if (!hasValidDates) {
     validationMessages.push("Please set the start and end date.");
   }
-  if (!hasSelectedRooms) {
-    validationMessages.push("Please select at least one room.");
-  }
 
   // Only show calculation section when all requirements are met
-  if (!hasValidDates || !hasValidAdults || !hasSelectedRooms) {
+  if (!hasValidDates || !hasValidAdults) {
     return (
       <Card id="price-breakdown" className="w-full">
         <CardHeader className="pb-3">

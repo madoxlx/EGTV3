@@ -208,6 +208,16 @@ export default function PackageDetail() {
   const [endDate, setEndDate] = useState("");
   const [dateMode, setDateMode] = useState<"single" | "range">("range");
   const [selectedRooms, setSelectedRooms] = useState<string[]>([]);
+  
+  // For booking status management
+  const [isBookingDisabled, setIsBookingDisabled] = useState(false);
+  const [bookingDisabledReason, setBookingDisabledReason] = useState<string | undefined>(undefined);
+  
+  // Callback to handle booking status changes from RoomDistributionWithStars
+  const handleBookingStatusChange = (disabled: boolean, reason?: string) => {
+    setIsBookingDisabled(disabled);
+    setBookingDisabledReason(reason);
+  };
   const [showAvailability, setShowAvailability] = useState(false);
   const [validationErrors, setValidationErrors] = useState<{
     startDate?: string;
@@ -1285,6 +1295,7 @@ export default function PackageDetail() {
                                 infants={infants}
                                 startDate={startDate}
                                 endDate={endDate}
+                                onBookingStatusChange={handleBookingStatusChange}
                               />
 
                               {/* Enhanced Price Calculation */}
@@ -1312,6 +1323,8 @@ export default function PackageDetail() {
                               <BookPackageButton
                                 package={packageData}
                                 className="w-full bg-primary hover:bg-primary/90 text-white"
+                                disabled={isBookingDisabled}
+                                disabledReason={bookingDisabledReason}
                                 onClick={() => {
                                   // Validate form before booking
                                   return validateBookingForm();
