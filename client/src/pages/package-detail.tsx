@@ -1230,6 +1230,9 @@ export default function PackageDetail() {
                                   clearValidationError("room");
                                 }}
                                 validationError={validationErrors.room}
+                                adults={adults}
+                                children={children}
+                                infants={infants}
                               />
 
                               {/* Enhanced Price Calculation */}

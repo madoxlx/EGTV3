@@ -3,7 +3,6 @@ import React from "react";
 import { useQuery } from "@tanstack/react-query";
 import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import { Checkbox } from "@/components/ui/checkbox";
 import { Star, Users, Bed, CheckCircle2 } from "lucide-react";
 
 type Room = {
@@ -166,6 +165,61 @@ export default function RoomDistributionWithStars({
 
   const rooms = getDisplayRooms();
 
+  // Calculate automatic room distribution
+  const calculateRoomDistribution = () => {
+    if (rooms.length === 0) return [];
+
+    // Sort rooms by capacity (highest to lowest)
+    const sortedRooms = [...rooms].sort((a, b) => b.max_adults - a.max_adults);
+    
+    let remainingAdults = adults;
+    let remainingChildren = children;
+    let remainingInfants = infants;
+    
+    const distribution = sortedRooms.map(room => {
+      let assignedAdults = 0;
+      let assignedChildren = 0;
+      let assignedInfants = 0;
+      
+      // First, try to assign adults up to room capacity
+      if (remainingAdults > 0 && room.max_adults > 0) {
+        assignedAdults = Math.min(remainingAdults, room.max_adults);
+        remainingAdults -= assignedAdults;
+      }
+      
+      // Then assign children if there's space
+      const remainingCapacity = room.max_occupancy - assignedAdults;
+      if (remainingChildren > 0 && remainingCapacity > 0 && room.max_children > 0) {
+        assignedChildren = Math.min(remainingChildren, Math.min(remainingCapacity, room.max_children));
+        remainingChildren -= assignedChildren;
+      }
+      
+      // Finally assign infants if there's space
+      const finalRemainingCapacity = room.max_occupancy - assignedAdults - assignedChildren;
+      if (remainingInfants > 0 && finalRemainingCapacity > 0 && room.max_infants > 0) {
+        assignedInfants = Math.min(remainingInfants, Math.min(finalRemainingCapacity, room.max_infants));
+        remainingInfants -= assignedInfants;
+      }
+      
+      const totalAssigned = assignedAdults + assignedChildren + assignedInfants;
+      const totalCost = totalAssigned * (room.customPrice || room.price);
+      
+      return {
+        room,
+        assignedAdults,
+        assignedChildren,
+        assignedInfants,
+        totalAssigned,
+        totalCost,
+        isUsed: totalAssigned > 0
+      };
+    });
+    
+    return distribution;
+  };
+
+  const roomDistribution = calculateRoomDistribution();
+
   // Get hotel info for a room
   const getHotelInfo = (hotelId: number) => {
     // Handle type mismatch between number and string IDs
@@ -209,30 +263,29 @@ export default function RoomDistributionWithStars({
     );
   }
 
-  // Group rooms by hotel for better organization
-  const roomsByHotel = rooms.reduce(
-    (acc, room) => {
-      const hotelId = room.hotel_id;
+  // Group room distribution by hotel for better organization
+  const distributionByHotel = roomDistribution.reduce(
+    (acc, dist) => {
+      const hotelId = dist.room.hotel_id;
       if (!acc[hotelId]) {
         acc[hotelId] = [];
       }
-      acc[hotelId].push(room);
+      acc[hotelId].push(dist);
       return acc;
     },
-    {} as Record<number, Room[]>,
+    {} as Record<number, any[]>,
   );
 
-  const handleRoomSelection = (room: Room) => {
-    const roomId = room.id.toString();
-
-    if (selectedRooms.includes(roomId)) {
-      // Remove room if already selected
-      onRoomSelect(selectedRooms.filter((r) => r !== roomId));
-    } else {
-      // Add room to selection
-      onRoomSelect([...selectedRooms, roomId]);
+  // Automatically select used rooms for the booking process
+  React.useEffect(() => {
+    const usedRoomIds = roomDistribution
+      .filter(dist => dist.isUsed)
+      .map(dist => dist.room.id.toString());
+    
+    if (JSON.stringify(usedRoomIds.sort()) !== JSON.stringify(selectedRooms.sort())) {
+      onRoomSelect(usedRoomIds);
     }
-  };
+  }, [roomDistribution, selectedRooms, onRoomSelect]);
 
   return (
     <div className="space-y-4">
@@ -249,7 +302,7 @@ export default function RoomDistributionWithStars({
         </div>
       )}
 
-      {Object.entries(roomsByHotel).map(([hotelId, hotelRooms]) => {
+      {Object.entries(distributionByHotel).map(([hotelId, hotelDistributions]) => {
         const hotel = getHotelInfo(Number(hotelId));
 
         // Debug: Log hotel data to verify star ratings
@@ -280,84 +333,100 @@ export default function RoomDistributionWithStars({
             )}
 
             <div className="grid gap-2">
-              {hotelRooms.map((room) => {
-                const roomId = room.id.toString();
-                const isSelected = selectedRooms.includes(roomId);
+              {hotelDistributions.map((distribution: any) => {
+                const { room, assignedAdults, assignedChildren, assignedInfants, totalAssigned, totalCost, isUsed } = distribution;
                 const displayPrice = room.customPrice || room.price;
 
                 return (
                   <div
                     key={room.id}
-                    className={`cursor-pointer transition-all hover:shadow-sm border rounded-lg p-4 ${
-                      isSelected
-                        ? "border-blue-500 bg-blue-50"
-                        : "border-gray-200 bg-white hover:border-gray-300"
+                    className={`border rounded-lg p-4 ${
+                      isUsed
+                        ? "border-green-500 bg-green-50"
+                        : "border-gray-200 bg-gray-50"
                     }`}
-                    onClick={() => handleRoomSelection(room)}
                   >
-                    <div className="flex justify-between items-center">
-                      <div className="flex items-center gap-3">
-                        <Checkbox
-                          id={`room-${room.id}`}
-                          checked={isSelected}
-                          onCheckedChange={() => handleRoomSelection(room)}
-                          className="peer h-4 w-4 shrink-0 rounded-sm border ring-offset-background focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50 data-[state=checked]:text-primary-foreground mt-1 border-green-400 data-[state=checked]:bg-green-600 data-[state=checked]:border-green-600 bg-[#ffffff]"
-                        />
-                        <div>
-                          <div className="font-medium text-gray-900 mb-1">
-                            {room.name}
+                    <div className="flex justify-between items-start">
+                      <div className="flex-1">
+                        <div className="font-medium text-gray-900 mb-1">
+                          {room.name}
+                        </div>
+                        {/* Hotel star rating under room name */}
+                        <div className="flex items-center gap-2 text-sm text-gray-600 mb-2">
+                          <div className="flex items-center gap-1">
+                            {renderStars(hotel?.stars || 0)}
                           </div>
-                          {/* Hotel star rating under room name */}
-                          <div className="flex items-center gap-2 text-sm text-gray-600 mb-1">
-                            <div className="flex items-center gap-1">
-                              {renderStars(hotel?.stars || 0)}
+                          <span>
+                            {hotel?.stars
+                              ? `(${hotel.stars} Star Hotel)`
+                              : "(Hotel)"}
+                          </span>
+                        </div>
+                        
+                        {/* Room capacity information */}
+                        <div className="flex items-center gap-4 text-sm text-gray-600 mb-2">
+                          <div className="flex items-center gap-1">
+                            <Users className="w-4 h-4" />
+                            <span>Max: {room.max_occupancy} people</span>
+                          </div>
+                          <div className="flex items-center gap-1">
+                            <Bed className="w-4 h-4" />
+                            <span>{room.type}</span>
+                          </div>
+                        </div>
+
+                        {/* Distribution Assignment */}
+                        <div className="bg-white border border-gray-200 rounded-md p-3 mb-2">
+                          <div className="text-sm font-medium mb-1">
+                            {isUsed ? "Assigned Travelers:" : "Not Used"}
+                          </div>
+                          {isUsed ? (
+                            <div className="space-y-1 text-sm text-gray-700">
+                              {assignedAdults > 0 && (
+                                <div>• {assignedAdults} adult{assignedAdults !== 1 ? 's' : ''}</div>
+                              )}
+                              {assignedChildren > 0 && (
+                                <div>• {assignedChildren} child{assignedChildren !== 1 ? 'ren' : ''}</div>
+                              )}
+                              {assignedInfants > 0 && (
+                                <div>• {assignedInfants} infant{assignedInfants !== 1 ? 's' : ''}</div>
+                              )}
+                              <div className="text-xs text-gray-500 mt-1">
+                                Total: {totalAssigned} / {room.max_occupancy} capacity
+                              </div>
                             </div>
-                            <span>
-                              {hotel?.stars
-                                ? `(${hotel.stars} Star Hotel)`
-                                : "(Hotel)"}
-                            </span>
-                          </div>
-                          {/* Room capacity information from actual database values */}
-                          <div className="flex items-center gap-4 text-sm text-gray-600 mb-2">
-                            <div className="flex items-center gap-1">
-                              <Users className="w-4 h-4" />
-                              <span>Max: {room.max_occupancy} people</span>
-                            </div>
-                            <div className="flex items-center gap-1">
-                              <Bed className="w-4 h-4" />
-                              <span>{room.type}</span>
-                            </div>
-                          </div>
-                          {/* Detailed capacity breakdown */}
-                          <div className="text-xs text-gray-500">
-                            Adults: {room.max_adults} | Children: {room.max_children} | Infants: {room.max_infants}
-                          </div>
-                          {room.description && (
-                            <div className="text-sm text-gray-600 mt-1">
-                              {room.description}
+                          ) : (
+                            <div className="text-sm text-gray-500">
+                              0 travelers assigned
                             </div>
                           )}
                         </div>
+
+                        {room.description && (
+                          <div className="text-sm text-gray-600 mt-1">
+                            {room.description}
+                          </div>
+                        )}
                       </div>
-                      <div className="text-right">
+                      
+                      <div className="text-right ml-4">
                         <div className="font-semibold text-gray-900">
-                          {displayPrice
-                            ? displayPrice.toLocaleString("en-US")
-                            : "0"}{" "}
+                          {displayPrice ? displayPrice.toLocaleString("en-US") : "0"}{" "}
                           {room.currency || "EGP"}
                           <div className="text-xs text-gray-500 leading-none">
-                            /per person in room
+                            /per person
                           </div>
                         </div>
-                        {room.customPrice &&
-                          room.originalPrice &&
-                          room.customPrice !== room.originalPrice && (
-                            <div className="text-sm text-gray-500 line-through">
-                              {room.originalPrice.toLocaleString("en-US")}{" "}
-                              {room.currency || "EGP"}
+                        {isUsed && (
+                          <div className="mt-2 p-2 bg-blue-50 border border-blue-200 rounded">
+                            <div className="text-sm font-medium text-blue-900">
+                              Total Cost: {totalCost.toLocaleString("en-US")} {room.currency || "EGP"}
                             </div>
-                          )}
+                            <div className="text-xs text-blue-700">
+                              ({totalAssigned} × {displayPrice} {room.currency || "EGP"})
+                            </div>
+                          </div>
+                        )}
                       </div>
                     </div>
                   </div>
@@ -368,7 +437,7 @@ export default function RoomDistributionWithStars({
         );
       })}
 
-      {Object.keys(roomsByHotel).length === 0 && (
+      {Object.keys(distributionByHotel).length === 0 && (
         <div className="bg-gray-50 border border-gray-200 rounded-lg p-4">
           <div className="flex items-center gap-2 mb-2">
             <CheckCircle2 className="w-4 h-4 text-gray-600" />
