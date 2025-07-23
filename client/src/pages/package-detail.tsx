@@ -208,6 +208,7 @@ export default function PackageDetail() {
   const [endDate, setEndDate] = useState("");
   const [dateMode, setDateMode] = useState<"single" | "range">("range");
   const [selectedRooms, setSelectedRooms] = useState<string[]>([]);
+  const [showAvailability, setShowAvailability] = useState(false);
   const [validationErrors, setValidationErrors] = useState<{
     startDate?: string;
     endDate?: string;
@@ -361,6 +362,16 @@ export default function PackageDetail() {
     if (value > 0) {
       setter(value - 1);
     }
+  };
+
+  // Handle "See Availability" button click
+  const handleSeeAvailability = () => {
+    // Validate travelers first
+    if (adults === 0) {
+      setValidationErrors({ adults: t("at_least_one_adult_required", "At least 1 adult is required") });
+      return;
+    }
+    setShowAvailability(true);
   };
 
   // Scroll container for quick info items
@@ -1046,161 +1057,224 @@ export default function PackageDetail() {
                             </div>
                         </div>
 
-                        {/* Travelers */}
-                        <div className="space-y-3">
-                          <label className="text-sm font-medium block">
-{t("travelers", "Travelers")} *
-                          </label>
+                        {/* Step 1: Traveler Selection */}
+                        <div className="space-y-4">
+                          <div className="flex items-center gap-2">
+                            <div className="w-8 h-8 rounded-full bg-primary text-white flex items-center justify-center text-sm font-semibold">
+                              1
+                            </div>
+                            <h3 className="text-lg font-semibold">
+                              {t("select_travelers", "Select Travelers")}
+                            </h3>
+                          </div>
+                          
                           {validationErrors.adults && (
                             <p className="text-red-500 text-xs">
                               {validationErrors.adults}
                             </p>
                           )}
 
-                          {/* Adults */}
-                          <div className="flex items-center justify-between">
-                            <span
-                              className={`text-sm ${adults === 0 && validationErrors.adults ? "text-red-500" : ""}`}
-                            >
-{t("adults_required", "Adults (required)")}
-                            </span>
-                            <div className="flex items-center">
-                              <button
-                                className="w-8 h-8 rounded-full border border-input flex items-center justify-center hover:bg-muted disabled:opacity-50"
-                                onClick={() =>
-                                  handleDecrement(setAdults, adults)
-                                }
-                                disabled={adults <= 0}
-                              >
-                                -
-                              </button>
+                          <div className="space-y-3 pl-10">
+                            {/* Adults */}
+                            <div className="flex items-center justify-between">
                               <span
-                                className={`w-8 text-center ${adults === 0 && validationErrors.adults ? "text-red-500 font-bold" : ""}`}
+                                className={`text-sm ${adults === 0 && validationErrors.adults ? "text-red-500" : ""}`}
                               >
-                                {adults}
+                                {t("adults_required", "Adults (required)")}
                               </span>
-                              <button
-                                className="w-8 h-8 rounded-full border border-input flex items-center justify-center hover:bg-muted"
-                                onClick={() => {
-                                  handleIncrement(setAdults, adults);
-                                  clearValidationError("adults");
+                              <div className="flex items-center">
+                                <button
+                                  className="w-8 h-8 rounded-full border border-input flex items-center justify-center hover:bg-muted disabled:opacity-50"
+                                  onClick={() => {
+                                    handleDecrement(setAdults, adults);
+                                    setShowAvailability(false); // Reset availability when changing travelers
+                                  }}
+                                  disabled={adults <= 0}
+                                >
+                                  -
+                                </button>
+                                <span
+                                  className={`w-8 text-center ${adults === 0 && validationErrors.adults ? "text-red-500 font-bold" : ""}`}
+                                >
+                                  {adults}
+                                </span>
+                                <button
+                                  className="w-8 h-8 rounded-full border border-input flex items-center justify-center hover:bg-muted"
+                                  onClick={() => {
+                                    handleIncrement(setAdults, adults);
+                                    clearValidationError("adults");
+                                    setShowAvailability(false); // Reset availability when changing travelers
+                                  }}
+                                >
+                                  +
+                                </button>
+                              </div>
+                            </div>
+
+                            {/* Children */}
+                            <div className="flex items-center justify-between">
+                              <span className="text-sm">{t("children_2_12_yrs", "Children (2-12 yrs)")}</span>
+                              <div className="flex items-center">
+                                <button
+                                  className="w-8 h-8 rounded-full border border-input flex items-center justify-center hover:bg-muted"
+                                  onClick={() => {
+                                    handleDecrement(setChildren, children);
+                                    setShowAvailability(false); // Reset availability when changing travelers
+                                  }}
+                                >
+                                  -
+                                </button>
+                                <span className="w-8 text-center">
+                                  {children}
+                                </span>
+                                <button
+                                  className="w-8 h-8 rounded-full border border-input flex items-center justify-center hover:bg-muted"
+                                  onClick={() => {
+                                    handleIncrement(setChildren, children);
+                                    setShowAvailability(false); // Reset availability when changing travelers
+                                  }}
+                                >
+                                  +
+                                </button>
+                              </div>
+                            </div>
+
+                            {/* Infants */}
+                            <div className="flex items-center justify-between">
+                              <span className="text-sm">{t("infants_0_2_yrs", "Infants (0-2 yrs)")}</span>
+                              <div className="flex items-center">
+                                <button
+                                  className="w-8 h-8 rounded-full border border-input flex items-center justify-center hover:bg-muted"
+                                  onClick={() => {
+                                    handleDecrement(setInfants, infants);
+                                    setShowAvailability(false); // Reset availability when changing travelers
+                                  }}
+                                >
+                                  -
+                                </button>
+                                <span className="w-8 text-center">{infants}</span>
+                                <button
+                                  className="w-8 h-8 rounded-full border border-input flex items-center justify-center hover:bg-muted"
+                                  onClick={() => {
+                                    handleIncrement(setInfants, infants);
+                                    setShowAvailability(false); // Reset availability when changing travelers
+                                  }}
+                                >
+                                  +
+                                </button>
+                              </div>
+                            </div>
+                          </div>
+
+                          {/* Total travelers summary */}
+                          {(adults > 0 || children > 0 || infants > 0) && (
+                            <div className="pl-10 bg-blue-50 border border-blue-200 rounded-md p-3">
+                              <p className="text-sm text-blue-800">
+                                <Users className="w-4 h-4 inline mr-1" />
+                                {t("total_travelers", "Total travelers")}: {adults + children + infants}
+                                {adults > 0 && ` (${adults} ${t("adults", "adults")}${children > 0 ? `, ${children} ${t("children", "children")}` : ''}${infants > 0 ? `, ${infants} ${t("infants", "infants")}` : ''})`}
+                              </p>
+                            </div>
+                          )}
+                        </div>
+
+                        {/* Step 2: See Availability Button */}
+                        <div className="space-y-4">
+                          <div className="flex items-center gap-2">
+                            <div className={`w-8 h-8 rounded-full flex items-center justify-center text-sm font-semibold ${showAvailability ? 'bg-green-500 text-white' : 'bg-gray-200 text-gray-600'}`}>
+                              2
+                            </div>
+                            <h3 className="text-lg font-semibold">
+                              {t("check_availability", "Check Availability")}
+                            </h3>
+                          </div>
+                          
+                          <div className="pl-10">
+                            {!showAvailability ? (
+                              <Button
+                                onClick={handleSeeAvailability}
+                                className="w-full bg-primary hover:bg-primary/90 text-white"
+                                disabled={adults === 0}
+                              >
+                                {t("see_availability", "See Availability")}
+                              </Button>
+                            ) : (
+                              <div className="bg-green-50 border border-green-200 rounded-md p-3 mb-4">
+                                <p className="text-sm text-green-800">
+                                  ✓ {t("availability_checked", "Availability checked for")} {adults + children + infants} {t("travelers", "travelers")}
+                                </p>
+                              </div>
+                            )}
+                          </div>
+                        </div>
+
+                        {/* Step 3: Room Distribution (shown after clicking See Availability) */}
+                        {showAvailability && (
+                          <div className="space-y-4">
+                            <div className="flex items-center gap-2">
+                              <div className="w-8 h-8 rounded-full bg-primary text-white flex items-center justify-center text-sm font-semibold">
+                                3
+                              </div>
+                              <h3 className="text-lg font-semibold">
+                                {t("room_distribution", "Room Distribution")}
+                              </h3>
+                            </div>
+                            
+                            <div className="pl-10 space-y-4">
+                              {/* Room Distribution Component */}
+                              <RoomDistributionWithStars 
+                                packageData={packageData}
+                                selectedRooms={selectedRooms}
+                                onRoomSelect={(rooms: string[]) => {
+                                  setSelectedRooms(rooms);
+                                  clearValidationError("room");
                                 }}
-                              >
-                                +
-                              </button>
+                                validationError={validationErrors.room}
+                              />
+
+                              {/* Enhanced Price Calculation */}
+                              <EnhancedPriceCalculation 
+                                packageData={packageData}
+                                adults={adults}
+                                children={children}
+                                infants={infants}
+                                hotelPackage=""
+                                selectedRooms={selectedRooms}
+                                dateMode="range"
+                                startDate={startDate}
+                                endDate={endDate}
+                              />
+
+                              {/* Included Tours */}
+                              <div>
+                                <label className="text-sm font-medium mb-2 block">
+                                  {t("tours_included_in_package", "Tours Included in Package")}
+                                </label>
+                                <IncludedTours packageData={packageData} />
+                              </div>
+
+                              {/* Book Package Button */}
+                              <BookPackageButton
+                                package={packageData}
+                                className="w-full bg-primary hover:bg-primary/90 text-white"
+                                onClick={() => {
+                                  // Validate form before booking
+                                  return validateBookingForm();
+                                }}
+                                formData={{
+                                  startDate,
+                                  endDate,
+                                  dateMode: "range",
+                                  adults,
+                                  children,
+                                  infants,
+                                  selectedRooms,
+                                  hotelPackage: "",
+                                }}
+                              />
                             </div>
                           </div>
-
-                          {/* Children */}
-                          <div className="flex items-center justify-between">
-                            <span className="text-sm">{t("children_2_12_yrs", "Children (2-12 yrs)")}</span>
-                            <div className="flex items-center">
-                              <button
-                                className="w-8 h-8 rounded-full border border-input flex items-center justify-center hover:bg-muted"
-                                onClick={() =>
-                                  handleDecrement(setChildren, children)
-                                }
-                              >
-                                -
-                              </button>
-                              <span className="w-8 text-center">
-                                {children}
-                              </span>
-                              <button
-                                className="w-8 h-8 rounded-full border border-input flex items-center justify-center hover:bg-muted"
-                                onClick={() =>
-                                  handleIncrement(setChildren, children)
-                                }
-                              >
-                                +
-                              </button>
-                            </div>
-                          </div>
-
-                          {/* Infants */}
-                          <div className="flex items-center justify-between">
-                            <span className="text-sm">{t("infants_0_2_yrs", "Infants (0-2 yrs)")}</span>
-                            <div className="flex items-center">
-                              <button
-                                className="w-8 h-8 rounded-full border border-input flex items-center justify-center hover:bg-muted"
-                                onClick={() =>
-                                  handleDecrement(setInfants, infants)
-                                }
-                              >
-                                -
-                              </button>
-                              <span className="w-8 text-center">{infants}</span>
-                              <button
-                                className="w-8 h-8 rounded-full border border-input flex items-center justify-center hover:bg-muted"
-                                onClick={() =>
-                                  handleIncrement(setInfants, infants)
-                                }
-                              >
-                                +
-                              </button>
-                            </div>
-                          </div>
-                        </div>
-
-                        {/* Included Tours */}
-                        <div>
-                          <label className="text-sm font-medium mb-1 block">
-{t("tours_included_in_package", "Tours Included in Package")}
-                          </label>
-                          <IncludedTours packageData={packageData} />
-                        </div>
-
-                        {/* Room Distribution with Star Ratings */}
-                        <div>
-                          <label className="text-sm font-medium mb-1 block">
-{t("room_distribution", "Room Distribution")} *
-                          </label>
-                          <RoomDistributionWithStars 
-                            packageData={packageData}
-                            selectedRooms={selectedRooms}
-                            onRoomSelect={(rooms: string[]) => {
-                              setSelectedRooms(rooms);
-                              clearValidationError("room");
-                            }}
-                            validationError={validationErrors.room}
-                          />
-                        </div>
-
-
-
-                        {/* Enhanced Price Calculation */}
-                        <EnhancedPriceCalculation 
-                          packageData={packageData}
-                          adults={adults}
-                          children={children}
-                          infants={infants}
-                          hotelPackage=""
-                          selectedRooms={selectedRooms}
-                          dateMode="range"
-                          startDate={startDate}
-                          endDate={endDate}
-                        />
-
-
-
-                        <BookPackageButton
-                          package={packageData}
-                          className="w-full bg-primary hover:bg-primary/90 text-white"
-                          onClick={() => {
-                            // Validate form before booking
-                            return validateBookingForm();
-                          }}
-                          formData={{
-                            startDate,
-                            endDate,
-                            dateMode: "range",
-                            adults,
-                            children,
-                            infants,
-                            selectedRooms,
-                            hotelPackage: "",
-                          }}
-                        />
+                        )}
 
                         <p className="text-xs text-center text-muted-foreground">
 {t("no_payment_required_to_book", "No payment required to book. You'll only pay when finalizing your reservation.")}
