@@ -39,6 +39,8 @@ type Package = {
   id: number;
   selectedHotels?: number[] | string | null;
   rooms?: Room[] | string | null;
+  duration?: number;
+  durationType?: string;
 };
 
 interface RoomDistributionWithStarsProps {
@@ -49,6 +51,8 @@ interface RoomDistributionWithStarsProps {
   adults?: number;
   children?: number;
   infants?: number;
+  startDate?: string;
+  endDate?: string;
 }
 
 export default function RoomDistributionWithStars({
@@ -59,6 +63,8 @@ export default function RoomDistributionWithStars({
   adults = 4,
   children = 0,
   infants = 0,
+  startDate,
+  endDate,
 }: RoomDistributionWithStarsProps) {
   // Fetch all rooms data
   const { data: allRooms = [], isLoading: isLoadingRooms } = useQuery<Room[]>({
@@ -165,6 +171,22 @@ export default function RoomDistributionWithStars({
 
   const rooms = getDisplayRooms();
 
+  // Calculate nights from date range or use package duration
+  const nights = React.useMemo(() => {
+    if (startDate && endDate) {
+      const start = new Date(startDate);
+      const end = new Date(endDate);
+      const diffTime = Math.abs(end.getTime() - start.getTime());
+      const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+      return Math.max(1, diffDays); // At least 1 night
+    }
+    // Use package duration if available
+    if (packageData?.duration && packageData?.durationType === 'days') {
+      return Math.max(1, packageData.duration - 1); // Convert days to nights
+    }
+    return 3; // Default fallback to 3 nights
+  }, [startDate, endDate, packageData?.duration, packageData?.durationType]);
+
   // Calculate automatic room distribution
   const calculateRoomDistribution = () => {
     if (rooms.length === 0) return [];
@@ -187,22 +209,30 @@ export default function RoomDistributionWithStars({
         remainingAdults -= assignedAdults;
       }
       
-      // Then assign children if there's space
-      const remainingCapacity = room.max_occupancy - assignedAdults;
-      if (remainingChildren > 0 && remainingCapacity > 0 && room.max_children > 0) {
-        assignedChildren = Math.min(remainingChildren, Math.min(remainingCapacity, room.max_children));
-        remainingChildren -= assignedChildren;
-      }
-      
-      // Finally assign infants if there's space
-      const finalRemainingCapacity = room.max_occupancy - assignedAdults - assignedChildren;
-      if (remainingInfants > 0 && finalRemainingCapacity > 0 && room.max_infants > 0) {
-        assignedInfants = Math.min(remainingInfants, Math.min(finalRemainingCapacity, room.max_infants));
-        remainingInfants -= assignedInfants;
+      // Only assign children/infants if there's at least 1 adult in the room
+      if (assignedAdults > 0) {
+        // Then assign children if there's space and adults present
+        const remainingCapacity = room.max_occupancy - assignedAdults;
+        if (remainingChildren > 0 && remainingCapacity > 0 && room.max_children > 0) {
+          assignedChildren = Math.min(remainingChildren, Math.min(remainingCapacity, room.max_children));
+          remainingChildren -= assignedChildren;
+        }
+        
+        // Finally assign infants if there's space and adults present
+        const finalRemainingCapacity = room.max_occupancy - assignedAdults - assignedChildren;
+        if (remainingInfants > 0 && finalRemainingCapacity > 0 && room.max_infants > 0) {
+          assignedInfants = Math.min(remainingInfants, Math.min(finalRemainingCapacity, room.max_infants));
+          remainingInfants -= assignedInfants;
+        }
       }
       
       const totalAssigned = assignedAdults + assignedChildren + assignedInfants;
-      const totalCost = totalAssigned * (room.customPrice || room.price);
+      const pricePerPerson = room.customPrice || room.price;
+      const totalCostPerNight = totalAssigned * pricePerPerson;
+      const totalCost = totalCostPerNight * nights;
+      
+      // Check if room has children/infants without adults (invalid assignment)
+      const hasAdultRequirementIssue = (assignedChildren > 0 || assignedInfants > 0) && assignedAdults === 0;
       
       return {
         room,
@@ -211,6 +241,9 @@ export default function RoomDistributionWithStars({
         assignedInfants,
         totalAssigned,
         totalCost,
+        totalCostPerNight,
+        pricePerPerson,
+        hasAdultRequirementIssue,
         isUsed: totalAssigned > 0
       };
     });
@@ -340,7 +373,7 @@ export default function RoomDistributionWithStars({
 
             <div className="grid gap-2">
               {hotelDistributions.map((distribution: any) => {
-                const { room, assignedAdults, assignedChildren, assignedInfants, totalAssigned, totalCost, isUsed } = distribution;
+                const { room, assignedAdults, assignedChildren, assignedInfants, totalAssigned, totalCost, totalCostPerNight, pricePerPerson, hasAdultRequirementIssue, isUsed } = distribution;
                 const displayPrice = room.customPrice || room.price;
 
                 return (
@@ -400,6 +433,12 @@ export default function RoomDistributionWithStars({
                               <div className="text-xs text-gray-500 mt-1">
                                 Total: {totalAssigned} / {room.max_occupancy} capacity
                               </div>
+                              {/* Adult requirement warning */}
+                              {hasAdultRequirementIssue && (
+                                <div className="text-xs text-red-600 mt-1 bg-red-50 border border-red-200 rounded px-2 py-1">
+                                  ⚠️ This room requires at least 1 adult
+                                </div>
+                              )}
                             </div>
                           ) : (
                             <div className="text-sm text-gray-500">
@@ -429,7 +468,10 @@ export default function RoomDistributionWithStars({
                               Total Cost: {totalCost.toLocaleString("en-US")} {room.currency || "EGP"}
                             </div>
                             <div className="text-xs text-blue-700">
-                              ({totalAssigned} × {displayPrice} {room.currency || "EGP"})
+                              ({totalAssigned} × {displayPrice} {room.currency || "EGP"} × {nights} night{nights !== 1 ? 's' : ''})
+                            </div>
+                            <div className="text-xs text-blue-600 mt-1">
+                              Per night: {totalCostPerNight.toLocaleString("en-US")} {room.currency || "EGP"}
                             </div>
                           </div>
                         )}

@@ -88,17 +88,22 @@ The application uses a comprehensive PostgreSQL schema with the following core e
 
 ## Recent Changes
 
-### Automatic Room Distribution System Implementation Complete (July 23, 2025)
+### Enhanced Automatic Room Distribution System with Adult Requirements and Nights Multiplier Complete (July 23, 2025)
 - **Checkbox Removal**: Removed checkbox-based room selection interface from RoomDistributionWithStars component
 - **Automatic Distribution Algorithm**: Implemented intelligent traveler allocation algorithm that distributes guests across available rooms based on capacity (highest to lowest)
+- **Adult Requirement Validation**: Enhanced algorithm to ensure children and infants are only assigned to rooms with at least 1 adult present
 - **Enhanced Room Display**: Replaced checkboxes with clear text displays showing assigned travelers per room with detailed breakdown
-- **Smart Allocation Logic**: System automatically assigns adults, children, and infants to rooms optimizing for capacity utilization
+- **Smart Allocation Logic**: System automatically assigns adults first, then children/infants only to rooms with adult supervision
+- **Nights Multiplier Integration**: Added dynamic nights calculation from date range or package duration with cost multiplication
+- **Enhanced Cost Calculations**: Updated pricing display to show total cost multiplied by selected nights with detailed breakdown
+- **Adult Requirement Warnings**: Added visual warnings for rooms that would require at least 1 adult when children/infants are present
 - **Visual Feedback**: Added green highlighting for used rooms vs gray for unused rooms with clear assignment status
-- **Cost Calculations**: Enhanced pricing display showing per-person rates and total cost calculations for assigned travelers
 - **Professional Layout**: Implemented clean, readable interface with assignment breakdowns and capacity utilization indicators
+- **Cost Breakdown Display**: Shows per-night costs and total costs with formula (travelers × price × nights)
 - **Integration**: Fully integrated with 3-step booking flow (Traveler Selection → Availability Check → Room Distribution)
-- **Real-time Updates**: Room selection automatically updates when traveler counts change, ensuring consistency
-- **User Experience**: Clear visual distinction between "Assigned Travelers" and "Not Used" rooms with detailed occupancy information
+- **Real-time Updates**: Room selection automatically updates when traveler counts or dates change, ensuring consistency
+- **Date Range Integration**: Passes startDate and endDate from package detail page for accurate nights calculation
+- **User Experience**: Clear visual distinction between "Assigned Travelers" and "Not Used" rooms with detailed occupancy information and cost transparency
 
 ### Advanced Dynamic Room Allocation System with Database Integration (July 23, 2025)
 - **Database-Driven Capacity**: Enhanced system to use actual room database fields (maxAdults, maxChildren, maxInfants) instead of inferring from room names

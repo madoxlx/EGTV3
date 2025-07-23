@@ -1233,6 +1233,8 @@ export default function PackageDetail() {
                                 adults={adults}
                                 children={children}
                                 infants={infants}
+                                startDate={startDate}
+                                endDate={endDate}
                               />
 
                               {/* Enhanced Price Calculation */}
