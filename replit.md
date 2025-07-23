@@ -88,6 +88,16 @@ The application uses a comprehensive PostgreSQL schema with the following core e
 
 ## Recent Changes
 
+### Smart Date Management with Duration-Based Auto-Setting Complete (July 23, 2025)
+- **Automatic Date Initialization**: When package loads, start date automatically sets to 7 days from current date and end date calculates based on package duration
+- **Smart End Date Adjustment**: When user changes start date, end date automatically adjusts to maintain package duration (e.g., 4-day package keeps 4-day span)
+- **User Edit Capability**: Users can manually modify both start and end dates while maintaining automatic adjustment for start date changes
+- **Availability Reset**: Form automatically resets availability state when dates are changed, ensuring accurate room/pricing calculations
+- **Duration Display**: Added blue information panel showing package duration with note that end date adjusts automatically
+- **Enhanced UX**: Visual feedback with Clock icon and explanatory text helps users understand the automatic date behavior
+- **Validation Integration**: Automatic date setting works seamlessly with existing date validation and error handling
+- **Package Compatibility**: Works with packages that have duration field set; graceful fallback to 7-day default when duration missing
+
 ### Enhanced Automatic Room Distribution System with Adult Requirements and Nights Multiplier Complete (July 23, 2025)
 - **Checkbox Removal**: Removed checkbox-based room selection interface from RoomDistributionWithStars component
 - **Automatic Distribution Algorithm**: Implemented intelligent traveler allocation algorithm that distributes guests across available rooms based on capacity (highest to lowest)

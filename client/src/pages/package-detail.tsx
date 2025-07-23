@@ -307,6 +307,22 @@ export default function PackageDetail() {
     }
   }, [packageData, packageSlug, setLocation]);
 
+  // Automatically set start and end dates based on package duration
+  React.useEffect(() => {
+    if (packageData && packageData.duration && !startDate && !endDate) {
+      // Set start date to 7 days from now (default booking lead time)
+      const defaultStartDate = new Date();
+      defaultStartDate.setDate(defaultStartDate.getDate() + 7);
+      
+      // Set end date based on package duration
+      const defaultEndDate = new Date(defaultStartDate);
+      defaultEndDate.setDate(defaultEndDate.getDate() + (packageData.duration || 7));
+      
+      setStartDate(defaultStartDate.toISOString().split("T")[0]);
+      setEndDate(defaultEndDate.toISOString().split("T")[0]);
+    }
+  }, [packageData, startDate, endDate]);
+
   // Validation function
   const validateBookingForm = () => {
     const errors: { 
@@ -345,6 +361,37 @@ export default function PackageDetail() {
       delete updated[field];
       return updated;
     });
+  };
+
+  // Handle start date change with automatic end date adjustment
+  const handleStartDateChange = (newStartDate: string) => {
+    setStartDate(newStartDate);
+    clearValidationError("startDate");
+    
+    // Automatically adjust end date based on package duration
+    if (newStartDate && packageData?.duration) {
+      const startDateObj = new Date(newStartDate);
+      const newEndDate = new Date(startDateObj);
+      newEndDate.setDate(newEndDate.getDate() + packageData.duration);
+      setEndDate(newEndDate.toISOString().split("T")[0]);
+    }
+    
+    // Reset availability when dates change
+    setShowAvailability(false);
+    
+    // Clear end date validation if it was previously invalid
+    if (validationErrors.endDate && endDate) {
+      clearValidationError("endDate");
+    }
+  };
+
+  // Handle end date change
+  const handleEndDateChange = (newEndDate: string) => {
+    setEndDate(newEndDate);
+    clearValidationError("endDate");
+    
+    // Reset availability when dates change
+    setShowAvailability(false);
   };
 
   // Handler functions for traveler counts
@@ -971,6 +1018,19 @@ export default function PackageDetail() {
 {t("travel_dates", "Travel Dates")} *
                           </label>
                           
+                          {/* Duration Information */}
+                          {packageData?.duration && (
+                            <div className="mb-3 p-2 bg-blue-50 border border-blue-200 rounded-md">
+                              <p className="text-xs text-blue-800 flex items-center">
+                                <Clock className="w-3 h-3 mr-1" />
+                                {t("package_duration", "Package Duration")}: {packageData.duration} {packageData.durationType || 'days'}
+                                <span className="text-blue-600 text-xs ml-2">
+                                  ({t("end_date_auto_adjusts", "End date adjusts automatically")})
+                                </span>
+                              </p>
+                            </div>
+                          )}
+                          
                           {/* Date Range Inputs */}
                           <div className="space-y-3">
                               <div className="grid grid-cols-2 gap-3">
@@ -981,14 +1041,7 @@ export default function PackageDetail() {
                                   <input
                                     type="date"
                                     value={startDate}
-                                    onChange={(e) => {
-                                      setStartDate(e.target.value);
-                                      clearValidationError("startDate");
-                                      // Auto-clear end date validation if start date is fixed
-                                      if (validationErrors.endDate && endDate) {
-                                        clearValidationError("endDate");
-                                      }
-                                    }}
+                                    onChange={(e) => handleStartDateChange(e.target.value)}
                                     className={`w-full rounded-md border px-3 py-2 text-sm ring-offset-background ${
                                       validationErrors.startDate
                                         ? "border-red-500"
@@ -1014,10 +1067,7 @@ export default function PackageDetail() {
                                   <input
                                     type="date"
                                     value={endDate}
-                                    onChange={(e) => {
-                                      setEndDate(e.target.value);
-                                      clearValidationError("endDate");
-                                    }}
+                                    onChange={(e) => handleEndDateChange(e.target.value)}
                                     className={`w-full rounded-md border px-3 py-2 text-sm ring-offset-background ${
                                       validationErrors.endDate
                                         ? "border-red-500"
