@@ -66,6 +66,7 @@ export default function RoomDistributionWithStars({
   infants = 0,
   startDate,
   endDate,
+  onBookingStatusChange,
 }: RoomDistributionWithStarsProps) {
   // Fetch all rooms data
   const { data: allRooms = [], isLoading: isLoadingRooms } = useQuery<Room[]>({
@@ -454,10 +455,10 @@ export default function RoomDistributionWithStars({
           <div className="bg-white border border-orange-200 rounded-md p-4 mb-4">
             <div className="text-sm text-orange-800">
               <p className="mb-2">
-                <strong>Total travelers:</strong> {roomDistribution?.totalTravelers || 0}
+                <strong>Total travelers:</strong> {Array.isArray(roomDistribution) ? 0 : roomDistribution?.totalTravelers || 0}
               </p>
               <p className="mb-2">
-                <strong>Maximum package capacity:</strong> {roomDistribution?.totalRoomCapacity || 0}
+                <strong>Maximum package capacity:</strong> {Array.isArray(roomDistribution) ? 0 : roomDistribution?.totalRoomCapacity || 0}
               </p>
               <p className="text-orange-700">
                 This package cannot accommodate your group size. Please contact us to find a suitable alternative.
