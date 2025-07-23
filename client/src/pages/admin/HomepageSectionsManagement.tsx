@@ -522,12 +522,12 @@ const HomepageSectionsManagement: React.FC = () => {
         {/* Header */}
         <div className="flex items-center justify-between">
           <div>
-            <h1 className="text-3xl font-bold">Homepage Sections Management</h1>
-            <p className="text-gray-600 mt-1">Create and manage dynamic homepage content sections</p>
+            <h1 className="text-3xl font-bold">{t('admin.homepage_sections.title', 'Homepage Sections Management')}</h1>
+            <p className="text-gray-600 mt-1">{t('admin.homepage_sections.description', 'Create and manage dynamic homepage content sections')}</p>
           </div>
           <Button onClick={handleCreate} className="flex items-center gap-2">
             <Plus className="w-4 h-4" />
-            Add Section
+            {t('admin.homepage_sections.create', 'Add Section')}
           </Button>
         </div>
 

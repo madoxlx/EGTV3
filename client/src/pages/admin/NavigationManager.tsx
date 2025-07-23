@@ -11,6 +11,7 @@ import { Switch } from '@/components/ui/switch';
 import { Badge } from '@/components/ui/badge';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { useToast } from '@/hooks/use-toast';
+import { useLanguage } from '@/hooks/use-language';
 import { apiRequest } from '@/lib/queryClient';
 import type { Menu, MenuItem } from '@shared/schema';
 import {
@@ -162,6 +163,7 @@ function SortableMenuItem({ item, menuItems, onEdit, onDelete, deleteItemMutatio
 }
 
 export default function NavigationManager() {
+  const { t } = useLanguage();
   const { toast } = useToast();
   const queryClient = useQueryClient();
   const [selectedMenu, setSelectedMenu] = useState<Menu | null>(null);
@@ -565,15 +567,15 @@ export default function NavigationManager() {
         <div>
           <h1 className="text-3xl font-bold flex items-center gap-2">
             <Navigation className="w-8 h-8" />
-            Navigation Manager
+            {t('admin.navigation.title', 'Navigation Manager')}
           </h1>
           <p className="text-muted-foreground">
-            Manage website navigation menus and menu items
+            {t('admin.navigation.description', 'Manage website navigation menus')}
           </p>
         </div>
         <Button onClick={openCreateMenuDialog} className="flex items-center gap-2">
           <Plus className="w-4 h-4" />
-          Create Menu
+          {t('admin.navigation.create_menu', 'Create Menu')}
         </Button>
       </div>
 

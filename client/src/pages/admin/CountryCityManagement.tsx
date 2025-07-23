@@ -1462,9 +1462,9 @@ export default function CountryCityManagement() {
       <div className="space-y-6">
         <div className="flex justify-between items-center">
           <div>
-            <h1 className="text-2xl font-bold">Travel Locations Management</h1>
+            <h1 className="text-2xl font-bold">{t('admin.countries_cities.title', 'Countries & Cities')}</h1>
             <p className="text-gray-600 mt-1">
-              Manage countries, cities, and airports with advanced tools
+              {t('admin.countries_cities.description', 'Manage countries and cities')}
             </p>
           </div>
           <div className="flex space-x-2">

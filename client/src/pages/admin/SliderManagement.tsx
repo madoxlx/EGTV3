@@ -217,8 +217,8 @@ export default function SliderManagement() {
     <div className="space-y-6">
       <div className="flex items-center justify-between">
         <div>
-          <h1 className="text-3xl font-bold">Slider Management</h1>
-          <p className="text-muted-foreground">Manage homepage hero slides and offers</p>
+          <h1 className="text-3xl font-bold">{t('admin.slider.title', 'Slider Management')}</h1>
+          <p className="text-muted-foreground">{t('admin.slider.description', 'Manage homepage slider images and content')}</p>
         </div>
         <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
           <DialogTrigger asChild>
@@ -227,12 +227,12 @@ export default function SliderManagement() {
               form.reset();
             }}>
               <Plus className="mr-2 h-4 w-4" />
-              Add Slide
+              {t('admin.slider.create', 'Add Slide')}
             </Button>
           </DialogTrigger>
           <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto">
             <DialogHeader>
-              <DialogTitle>{editingSlide ? "Edit Slide" : "Create New Slide"}</DialogTitle>
+              <DialogTitle>{editingSlide ? t('admin.slider.edit', 'Edit Slide') : t('admin.slider.create', 'Create New Slide')}</DialogTitle>
             </DialogHeader>
             <Form {...form}>
               <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">

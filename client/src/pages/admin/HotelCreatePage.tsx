@@ -7,6 +7,7 @@ import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { apiRequest } from "@/lib/queryClient";
 import InlineFeatureManager from "@/components/hotel/InlineFeatureManager";
 import { useToast } from "@/hooks/use-toast";
+import { useLanguage } from "@/hooks/use-language";
 import { useUnsavedChanges } from "@/hooks/useUnsavedChanges";
 import {
   Card,
@@ -138,7 +139,7 @@ const hotelAmenitiesOptions = [
 ];
 
 export default function HotelCreatePage() {
-  // const { t } = useLanguage();
+  const { t } = useLanguage();
   const [_, navigate] = useLocation();
   const { toast } = useToast();
   const queryClient = useQueryClient();

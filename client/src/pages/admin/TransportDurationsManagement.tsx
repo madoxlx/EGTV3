@@ -227,12 +227,12 @@ export default function TransportDurationsManagement() {
     <div>
       <div className="mb-8 flex items-center justify-between">
         <div>
-          <h1 className="text-2xl font-bold mb-1">Transport Durations</h1>
-          <p className="text-zinc-500">Manage duration options for transportation services.</p>
+          <h1 className="text-2xl font-bold mb-1">{t('admin.transport_durations.title', 'Transport Durations')}</h1>
+          <p className="text-zinc-500">{t('admin.transport_durations.description', 'Manage transport duration options')}</p>
         </div>
         <Button onClick={() => setIsCreateModalOpen(true)}>
           <Plus className="mr-2 h-4 w-4" />
-          Add Duration
+          {t('admin.transport_durations.create', 'Add Duration')}
         </Button>
       </div>
       

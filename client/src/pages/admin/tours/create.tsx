@@ -29,6 +29,7 @@ import { Badge } from "@/components/ui/badge";
 import { Label } from "@/components/ui/label";
 import { Separator } from "@/components/ui/separator";
 import { useToast } from "@/hooks/use-toast";
+import { useLanguage } from "@/hooks/use-language";
 import { queryClient } from "@/lib/queryClient";
 import { DashboardLayout } from "@/components/dashboard/DashboardLayout";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -107,6 +108,7 @@ const formSchema = z.object({
 type TourFormValues = z.infer<typeof formSchema>;
 
 export default function CreateTour() {
+  const { t } = useLanguage();
   const [, setLocation] = useLocation();
   const { toast } = useToast();
   const [activeTab, setActiveTab] = useState("basic");
@@ -538,7 +540,7 @@ export default function CreateTour() {
 
       <div className="bg-white rounded-lg shadow-sm border p-6">
         <div className="flex justify-between items-center mb-6">
-          <h1 className="text-2xl font-bold text-zinc-800">Create New Tour</h1>
+          <h1 className="text-2xl font-bold text-zinc-800">{t('admin.tours.create_title', 'Create New Tour')}</h1>
           <Button
             variant="outline"
             className="gap-1"

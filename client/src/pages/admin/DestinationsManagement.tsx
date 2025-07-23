@@ -49,6 +49,7 @@ import { Button } from "@/components/ui/button";
 import { Switch } from "@/components/ui/switch";
 import { Textarea } from "@/components/ui/textarea";
 import { useToast } from "@/hooks/use-toast";
+import { useLanguage } from "@/hooks/use-language";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
 import { z } from "zod";
@@ -105,6 +106,7 @@ type DestinationFormValues = z.infer<typeof destinationSchema>;
 type BatchDestinationsFormValues = z.infer<typeof batchDestinationsSchema>;
 
 export default function DestinationsManagement() {
+  const { t } = useLanguage();
   const { toast } = useToast();
   const [searchQuery, setSearchQuery] = useState("");
   const [isCreateDialogOpen, setIsCreateDialogOpen] = useState(false);
@@ -576,9 +578,9 @@ export default function DestinationsManagement() {
       <div className="space-y-6">
         <div className="flex justify-between items-center">
           <div>
-            <h1 className="text-3xl font-bold tracking-tight">Destinations Management</h1>
+            <h1 className="text-3xl font-bold tracking-tight">{t('admin.destinations.title', 'Destinations Management')}</h1>
             <p className="text-muted-foreground">
-              Manage travel destinations including creation, editing, and organization.
+              {t('admin.destinations.description', 'Manage travel destinations and locations')}
             </p>
           </div>
           <div className="flex gap-2">
@@ -586,7 +588,7 @@ export default function DestinationsManagement() {
               <DialogTrigger asChild>
                 <Button>
                   <Plus className="mr-2 h-4 w-4" />
-                  Add Destination
+                  {t('admin.destinations.create', 'Create Destination')}
                 </Button>
               </DialogTrigger>
             </Dialog>
@@ -595,7 +597,7 @@ export default function DestinationsManagement() {
               <DialogTrigger asChild>
                 <Button variant="outline">
                   <FileText className="mr-2 h-4 w-4" />
-                  Batch Add
+                  {t('admin.common.batch_add', 'Batch Add')}
                 </Button>
               </DialogTrigger>
             </Dialog>
@@ -607,7 +609,7 @@ export default function DestinationsManagement() {
           <CardHeader>
             <CardTitle className="flex items-center gap-2">
               <Search className="h-5 w-5" />
-              Search & Filter
+{t('admin.common.search_filter', 'Search & Filter')}
             </CardTitle>
           </CardHeader>
           <CardContent>

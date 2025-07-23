@@ -290,21 +290,21 @@ export default function ToursManagement() {
     <div className="space-y-6">
       <div className="flex justify-between items-center">
         <div>
-          <h1 className="text-2xl font-bold">Tours Management</h1>
+          <h1 className="text-2xl font-bold">{t('admin.tours.title', 'Tours Management')}</h1>
           <p className="text-muted-foreground">
-            Manage your tour offerings with complete CRUD operations
+            {t('admin.tours.description', 'Manage tour packages and experiences')}
           </p>
         </div>
         <Button onClick={() => setLocation("/admin/tours/create")}>
           <Plus className="mr-2 h-4 w-4" />
-          Add Tour
+          {t('admin.tours.create', 'Create Tour')}
         </Button>
       </div>
 
       {/* Tours Table */}
       <Card>
         <CardHeader>
-          <CardTitle>Tours ({tours.length})</CardTitle>
+          <CardTitle>{t('admin.tours.title', 'Tours')} ({tours.length})</CardTitle>
         </CardHeader>
         <CardContent className="p-6 pt-0 text-center">
           {isLoading ? (
@@ -313,7 +313,7 @@ export default function ToursManagement() {
             </div>
           ) : tours.length === 0 ? (
             <div className="text-center py-8">
-              <p className="text-muted-foreground">No tours found</p>
+              <p className="text-muted-foreground">{t('admin.common.no_data', 'No data available')}</p>
             </div>
           ) : (
             <div className="overflow-x-auto">
