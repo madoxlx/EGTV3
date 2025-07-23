@@ -552,18 +552,14 @@ export default function RoomDistributionWithStars({
             )}
 
             <div className="grid gap-2">
-              {hotelDistributions.map((distribution: any) => {
+              {hotelDistributions.filter((distribution: any) => distribution.isUsed).map((distribution: any) => {
                 const { room, assignedAdults, assignedChildren, assignedInfants, totalAssigned, totalCost, totalCostPerNight, pricePerPerson, hasAdultRequirementIssue, isUsed } = distribution;
                 const displayPrice = room.customPrice || room.price;
 
                 return (
                   <div
                     key={room.id}
-                    className={`border rounded-lg p-4 ${
-                      isUsed
-                        ? "border-green-500 bg-green-50"
-                        : "border-gray-200 bg-gray-50"
-                    }`}
+                    className="border border-green-500 bg-green-50 rounded-lg p-4"
                   >
                     <div className="flex justify-between items-start">
                       <div className="flex-1">
@@ -597,34 +593,28 @@ export default function RoomDistributionWithStars({
                         {/* Distribution Assignment */}
                         <div className="bg-white border border-gray-200 rounded-md p-3 mb-2">
                           <div className="text-sm font-medium mb-1">
-                            {isUsed ? "Assigned Travelers:" : "Not Used"}
+                            Assigned Travelers:
                           </div>
-                          {isUsed ? (
-                            <div className="space-y-1 text-sm text-gray-700">
-                              {assignedAdults > 0 && (
-                                <div>• {assignedAdults} adult{assignedAdults !== 1 ? 's' : ''}</div>
-                              )}
-                              {assignedChildren > 0 && (
-                                <div>• {assignedChildren} child{assignedChildren !== 1 ? 'ren' : ''}</div>
-                              )}
-                              {assignedInfants > 0 && (
-                                <div>• {assignedInfants} infant{assignedInfants !== 1 ? 's' : ''}</div>
-                              )}
-                              <div className="text-xs text-gray-500 mt-1">
-                                Total: {totalAssigned} / {room.max_occupancy} capacity
+                          <div className="space-y-1 text-sm text-gray-700">
+                            {assignedAdults > 0 && (
+                              <div>• {assignedAdults} adult{assignedAdults !== 1 ? 's' : ''}</div>
+                            )}
+                            {assignedChildren > 0 && (
+                              <div>• {assignedChildren} child{assignedChildren !== 1 ? 'ren' : ''}</div>
+                            )}
+                            {assignedInfants > 0 && (
+                              <div>• {assignedInfants} infant{assignedInfants !== 1 ? 's' : ''}</div>
+                            )}
+                            <div className="text-xs text-gray-500 mt-1">
+                              Total: {totalAssigned} / {room.max_occupancy} capacity
+                            </div>
+                            {/* Adult requirement warning */}
+                            {hasAdultRequirementIssue && (
+                              <div className="text-xs text-orange-600 mt-1 bg-orange-50 border border-orange-200 rounded px-2 py-1">
+                                ⚠️ Requires additional adult - booking cannot proceed without adult supervision
                               </div>
-                              {/* Adult requirement warning */}
-                              {hasAdultRequirementIssue && (
-                                <div className="text-xs text-orange-600 mt-1 bg-orange-50 border border-orange-200 rounded px-2 py-1">
-                                  ⚠️ Requires additional adult - booking cannot proceed without adult supervision
-                                </div>
-                              )}
-                            </div>
-                          ) : (
-                            <div className="text-sm text-gray-500">
-                              0 travelers assigned
-                            </div>
-                          )}
+                            )}
+                          </div>
                         </div>
 
                         {room.description && (
