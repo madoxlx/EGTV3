@@ -12,6 +12,7 @@ import { Separator } from "@/components/ui/separator";
 import { Badge } from "@/components/ui/badge";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { useToast } from "@/hooks/use-toast";
+import { useLanguage } from "@/hooks/use-language";
 import { Card, CardContent } from "@/components/ui/card";
 import { Dialog, DialogContent, DialogTitle } from "@/components/ui/dialog";
 import {
@@ -78,6 +79,29 @@ type Package = {
   // Additional package creation form fields
   selectedHotels?: any[] | null;
   rooms?: any[] | null;
+  // Arabic translation fields
+  hasArabicVersion?: boolean;
+  titleAr?: string | null;
+  descriptionAr?: string | null;
+  shortDescription?: string | null;
+  shortDescriptionAr?: string | null;
+  overview?: string | null;
+  overviewAr?: string | null;
+  bestTimeToVisitAr?: string | null;
+  includedFeaturesAr?: string[] | null;
+  excludedFeaturesAr?: string[] | null;
+  idealForAr?: string[] | null;
+  itineraryAr?: Array<{
+    day: number;
+    title: string;
+    description: string;
+    image?: string;
+  }> | null;
+  whatToPackAr?: Array<{
+    item: string;
+    icon?: string;
+    tooltip?: string;
+  }> | null;
 };
 
 type Destination = {
@@ -104,6 +128,71 @@ export default function PackageDetail() {
   const packageSlug = params?.id; // This is actually the slug, not an ID
   const [location, setLocation] = useLocation();
   const { toast } = useToast();
+  const { currentLanguage, isRTL, t } = useLanguage();
+
+  // Helper functions to get localized content
+  const getLocalizedTitle = (pkg: Package) => {
+    if (currentLanguage === 'ar' && pkg.titleAr) {
+      return pkg.titleAr;
+    }
+    return pkg.title;
+  };
+
+  const getLocalizedDescription = (pkg: Package) => {
+    if (currentLanguage === 'ar' && pkg.descriptionAr) {
+      return pkg.descriptionAr;
+    }
+    return pkg.description;
+  };
+
+  const getLocalizedShortDescription = (pkg: Package) => {
+    if (currentLanguage === 'ar' && pkg.shortDescriptionAr) {
+      return pkg.shortDescriptionAr;
+    }
+    return pkg.shortDescription;
+  };
+
+  const getLocalizedOverview = (pkg: Package) => {
+    if (currentLanguage === 'ar' && pkg.overviewAr) {
+      return pkg.overviewAr;
+    }
+    return pkg.overview;
+  };
+
+  const getLocalizedIncludedFeatures = (pkg: Package) => {
+    if (currentLanguage === 'ar' && pkg.includedFeaturesAr) {
+      return pkg.includedFeaturesAr;
+    }
+    return pkg.includedFeatures;
+  };
+
+  const getLocalizedExcludedFeatures = (pkg: Package) => {
+    if (currentLanguage === 'ar' && pkg.excludedFeaturesAr) {
+      return pkg.excludedFeaturesAr;
+    }
+    return pkg.excludedFeatures;
+  };
+
+  const getLocalizedItinerary = (pkg: Package) => {
+    if (currentLanguage === 'ar' && pkg.itineraryAr) {
+      return pkg.itineraryAr;
+    }
+    return pkg.itinerary;
+  };
+
+  const getLocalizedIdealFor = (pkg: Package) => {
+    if (currentLanguage === 'ar' && pkg.idealForAr) {
+      return pkg.idealForAr;
+    }
+    return pkg.idealFor;
+  };
+
+  const getLocalizedWhatToPack = (pkg: Package) => {
+    if (currentLanguage === 'ar' && pkg.whatToPackAr) {
+      return pkg.whatToPackAr;
+    }
+    return pkg.whatToPack;
+  };
 
   // For quick info scroll functionality
   const scrollRef = useRef<HTMLDivElement>(null);
@@ -388,7 +477,7 @@ export default function PackageDetail() {
           </div>
         </div>
       ) : packageData ? (
-        <div>
+        <div className={isRTL ? "rtl" : ""}>
           {/* Hero Section */}
           <section className="relative h-[50vh] md:h-[60vh] flex items-center">
             <div className="absolute inset-0 bg-black/40 z-10"></div>
@@ -421,7 +510,7 @@ export default function PackageDetail() {
                         Packages
                       </a>
                       <span className="mx-2">/</span>
-                      <span className="font-medium">{packageData.title}</span>
+                      <span className="font-medium">{getLocalizedTitle(packageData)}</span>
                     </div>
                     {userData?.role === "admin" && (
                       <div className="flex items-center gap-2">
@@ -488,7 +577,7 @@ export default function PackageDetail() {
                 <div>
                   <div className="flex items-center gap-2 mb-2">
                     <h1 className="text-2xl sm:text-3xl md:text-4xl lg:text-5xl font-bold mb-0 sm:mb-2">
-                      {packageData.title}
+                      {getLocalizedTitle(packageData)}
                     </h1>
                     {userData?.role === "admin" && (
                       <Badge
@@ -602,7 +691,7 @@ export default function PackageDetail() {
                       {(packageData.selectedTourId || packageData.tourSelection) ? "Tour Overview" : "Package Overview"}
                     </h2>
                     <p className="text-neutral-700 mb-4">
-                      {packageData.description}
+                      {getLocalizedDescription(packageData)}
                     </p>
                     {destination && destination.description && (
                       <p className="text-neutral-700 mb-4">
@@ -624,10 +713,12 @@ export default function PackageDetail() {
                         <Users className="h-6 w-6 text-primary mb-2" />
                         <h3 className="font-medium text-sm mb-1">Ideal For</h3>
                         <p className="text-xs text-neutral-600">
-                          {packageData.idealFor &&
-                          packageData.idealFor.length > 0
-                            ? packageData.idealFor.join(", ")
-                            : "All traveler types"}
+                          {(() => {
+                            const idealFor = getLocalizedIdealFor(packageData);
+                            return idealFor && idealFor.length > 0
+                              ? idealFor.join(", ")
+                              : t("all_traveler_types", "All traveler types");
+                          })()}
                         </p>
                       </div>
                       <div className="bg-white border border-[#F1F1F1] p-4 rounded-lg flex flex-col items-center text-center shadow-inner shadow-[inset_0_0_20px_rgba(0,0,0,0.1)] hover:shadow-[inset_0_0_30px_rgba(0,0,0,0.15)] transition-all duration-200">
@@ -636,12 +727,12 @@ export default function PackageDetail() {
                           What to Pack
                         </h3>
                         <p className="text-xs text-neutral-600">
-                          {packageData.whatToPack &&
-                          packageData.whatToPack.length > 0
-                            ? packageData.whatToPack
-                                .map((item) => item.item)
-                                .join(", ")
-                            : "Standard travel essentials"}
+                          {(() => {
+                            const whatToPack = getLocalizedWhatToPack(packageData);
+                            return whatToPack && whatToPack.length > 0
+                              ? whatToPack.map((item) => item.item).join(", ")
+                              : t("standard_travel_essentials", "Standard travel essentials");
+                          })()}
                         </p>
                       </div>
                     </div>
@@ -654,56 +745,56 @@ export default function PackageDetail() {
                     <h2 className="text-xl sm:text-2xl font-bold mb-4 sm:mb-6">
                       Package Itinerary
                     </h2>
-                    {packageData.itinerary &&
-                    packageData.itinerary.length > 0 ? (
-                      <Tabs
-                        defaultValue={`day${packageData.itinerary[0]?.day || 1}`}
-                      >
-                        <TabsList className={`grid w-full text-xs sm:text-sm`} style={{gridTemplateColumns: `repeat(${packageData.itinerary.length}, minmax(0, 1fr))`}}>
-                          {packageData.itinerary.map((day, index) => (
-                            <TabsTrigger key={index} value={`day${day.day}`}>
-                              Day {day.day}
-                            </TabsTrigger>
-                          ))}
-                        </TabsList>
+                    {(() => {
+                      const localizedItinerary = getLocalizedItinerary(packageData);
+                      return localizedItinerary && localizedItinerary.length > 0 ? (
+                        <Tabs
+                          defaultValue={`day${localizedItinerary[0]?.day || 1}`}
+                        >
+                          <TabsList className={`grid w-full text-xs sm:text-sm`} style={{gridTemplateColumns: `repeat(${localizedItinerary.length}, minmax(0, 1fr))`}}>
+                            {localizedItinerary.map((day, index) => (
+                              <TabsTrigger key={index} value={`day${day.day}`}>
+                                {t("day", "Day")} {day.day}
+                              </TabsTrigger>
+                            ))}
+                          </TabsList>
 
-                        {packageData.itinerary.map((day, index) => (
-                          <TabsContent
-                            key={index}
-                            value={`day${day.day}`}
-                            className="p-3 sm:p-4"
-                          >
-                            <h3 className="text-lg sm:text-xl font-semibold mb-2 sm:mb-3">
-                              Day {day.day}: {day.title}
-                            </h3>
-                            <p className="text-sm sm:text-base mb-3 sm:mb-4 text-neutral-700 leading-relaxed">
-                              {day.description}
-                            </p>
-                            {day.image && (
-                              <div className="mt-3 sm:mt-4">
-                                <img
-                                  src={day.image}
-                                  alt={day.title}
-                                  className="rounded-lg h-36 sm:h-48 w-full max-w-md object-cover"
-                                />
-                              </div>
-                            )}
-                          </TabsContent>
-                        ))}
-                      </Tabs>
-                    ) : (
-                      <div className="bg-gray-50 rounded-lg p-8 text-center">
-                        <Calendar className="h-12 w-12 text-gray-400 mx-auto mb-4" />
-                        <h3 className="text-lg font-medium text-gray-900 mb-2">
-                          Detailed Itinerary Coming Soon
-                        </h3>
-                        <p className="text-gray-600">
-                          Our team is preparing a comprehensive day-by-day
-                          itinerary for this package. Please contact us for more
-                          details about the planned activities.
-                        </p>
-                      </div>
-                    )}
+                          {localizedItinerary.map((day, index) => (
+                            <TabsContent
+                              key={index}
+                              value={`day${day.day}`}
+                              className="p-3 sm:p-4"
+                            >
+                              <h3 className="text-lg sm:text-xl font-semibold mb-2 sm:mb-3">
+                                {t("day", "Day")} {day.day}: {day.title}
+                              </h3>
+                              <p className="text-sm sm:text-base mb-3 sm:mb-4 text-neutral-700 leading-relaxed">
+                                {day.description}
+                              </p>
+                              {day.image && (
+                                <div className="mt-3 sm:mt-4">
+                                  <img
+                                    src={day.image}
+                                    alt={day.title}
+                                    className="rounded-lg h-36 sm:h-48 w-full max-w-md object-cover"
+                                  />
+                                </div>
+                              )}
+                            </TabsContent>
+                          ))}
+                        </Tabs>
+                      ) : (
+                        <div className="bg-gray-50 rounded-lg p-8 text-center">
+                          <Calendar className="h-12 w-12 text-gray-400 mx-auto mb-4" />
+                          <h3 className="text-lg font-medium text-gray-900 mb-2">
+                            {t("detailed_itinerary_coming_soon", "Detailed Itinerary Coming Soon")}
+                          </h3>
+                          <p className="text-gray-600">
+                            {t("itinerary_preparation_message", "Our team is preparing a comprehensive day-by-day itinerary for this package. Please contact us for more details about the planned activities.")}
+                          </p>
+                        </div>
+                      );
+                    })()}
                   </div>
                 </section>
 
@@ -720,9 +811,10 @@ export default function PackageDetail() {
                             // Get included features from multiple possible data sources
                             let includedItems: string[] = [];
                             
-                            // Priority 1: includedFeatures array
-                            if (packageData.includedFeatures && packageData.includedFeatures.length > 0) {
-                              includedItems = packageData.includedFeatures;
+                            // Priority 1: includedFeatures array (localized)
+                            const localizedIncluded = getLocalizedIncludedFeatures(packageData);
+                            if (localizedIncluded && localizedIncluded.length > 0) {
+                              includedItems = localizedIncluded;
                             }
                             // Priority 2: inclusions array
                             else if (packageData.inclusions && packageData.inclusions.length > 0) {
@@ -780,9 +872,10 @@ export default function PackageDetail() {
                             // Get excluded features from multiple possible data sources
                             let excludedItems: string[] = [];
                             
-                            // Priority 1: excludedFeatures array
-                            if (packageData.excludedFeatures && packageData.excludedFeatures.length > 0) {
-                              excludedItems = packageData.excludedFeatures;
+                            // Priority 1: excludedFeatures array (localized)
+                            const localizedExcluded = getLocalizedExcludedFeatures(packageData);
+                            if (localizedExcluded && localizedExcluded.length > 0) {
+                              excludedItems = localizedExcluded;
                             }
                             // Priority 2: excludedItems array
                             else if (packageData.excludedItems && packageData.excludedItems.length > 0) {
