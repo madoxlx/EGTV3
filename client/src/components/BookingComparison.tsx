@@ -62,7 +62,7 @@ interface BookingComparisonProps {
   packageData?: PackageData | null;
 }
 
-// Dynamic room allocation algorithm
+// Dynamic room allocation algorithm with special case for 7 people
 function findOptimalRoomAllocation(totalPeople: number, availableRooms: RoomType[], nights: number): OptimalAllocation {
   if (totalPeople === 0 || availableRooms.length === 0) {
     return {
@@ -72,6 +72,11 @@ function findOptimalRoomAllocation(totalPeople: number, availableRooms: RoomType
       isValid: false,
       costPerPerson: 0
     };
+  }
+
+  // Special case: For 7 people, allocate 2 triple rooms + 1 single room
+  if (totalPeople === 7) {
+    return handleSevenPeopleAllocation(availableRooms, nights);
   }
 
   // Sort rooms by cost per person (most economical first)
@@ -90,6 +95,107 @@ function findOptimalRoomAllocation(totalPeople: number, availableRooms: RoomType
     if (remainingPeople <= 0) break;
 
     const maxRoomsAvailable = roomType.available || 10; // Default max if not specified
+    const roomsNeeded = Math.min(
+      Math.ceil(remainingPeople / roomType.capacity),
+      maxRoomsAvailable
+    );
+
+    if (roomsNeeded > 0) {
+      const totalCapacity = roomsNeeded * roomType.capacity;
+      const roomCost = roomsNeeded * roomType.pricePerNight * nights;
+      
+      allocations.push({
+        roomType,
+        roomsNeeded,
+        totalCapacity,
+        totalCost: roomCost
+      });
+
+      totalCost += roomCost;
+      remainingPeople -= totalCapacity;
+    }
+  }
+
+  const totalCapacity = allocations.reduce((sum, alloc) => sum + alloc.totalCapacity, 0);
+  const isValid = totalCapacity >= totalPeople;
+  const costPerPerson = totalPeople > 0 ? totalCost / totalPeople : 0;
+
+  return {
+    allocations,
+    totalCost,
+    totalCapacity,
+    isValid,
+    costPerPerson
+  };
+}
+
+// Special allocation function for 7 people: 2 triple rooms + 1 single room
+function handleSevenPeopleAllocation(availableRooms: RoomType[], nights: number): OptimalAllocation {
+  const allocations: RoomAllocation[] = [];
+  let totalCost = 0;
+
+  // Find triple rooms (capacity 3)
+  const tripleRooms = availableRooms.filter(room => room.capacity === 3);
+  // Find single rooms (capacity 1)
+  const singleRooms = availableRooms.filter(room => room.capacity === 1);
+
+  // If we have both triple and single rooms available
+  if (tripleRooms.length > 0 && singleRooms.length > 0) {
+    // Sort by cost per person
+    const sortedTriples = tripleRooms.sort((a, b) => (a.pricePerNight / a.capacity) - (b.pricePerNight / b.capacity));
+    const sortedSingles = singleRooms.sort((a, b) => (a.pricePerNight / a.capacity) - (b.pricePerNight / b.capacity));
+
+    // Allocate 2 triple rooms (6 people)
+    const tripleRoom = sortedTriples[0];
+    const tripleAllocation: RoomAllocation = {
+      roomType: tripleRoom,
+      roomsNeeded: 2,
+      totalCapacity: 6,
+      totalCost: 2 * tripleRoom.pricePerNight * nights
+    };
+    allocations.push(tripleAllocation);
+    totalCost += tripleAllocation.totalCost;
+
+    // Allocate 1 single room (1 person)
+    const singleRoom = sortedSingles[0];
+    const singleAllocation: RoomAllocation = {
+      roomType: singleRoom,
+      roomsNeeded: 1,
+      totalCapacity: 1,
+      totalCost: singleRoom.pricePerNight * nights
+    };
+    allocations.push(singleAllocation);
+    totalCost += singleAllocation.totalCost;
+
+    return {
+      allocations,
+      totalCost,
+      totalCapacity: 7,
+      isValid: true,
+      costPerPerson: totalCost / 7
+    };
+  }
+
+  // Fallback: If specific room types aren't available, use the general algorithm
+  return fallbackAllocation(7, availableRooms, nights);
+}
+
+// Fallback allocation when preferred room types aren't available
+function fallbackAllocation(totalPeople: number, availableRooms: RoomType[], nights: number): OptimalAllocation {
+  const sortedRooms = [...availableRooms].sort((a, b) => {
+    const costPerPersonA = a.pricePerNight / a.capacity;
+    const costPerPersonB = b.pricePerNight / b.capacity;
+    return costPerPersonA - costPerPersonB;
+  });
+
+  let remainingPeople = totalPeople;
+  const allocations: RoomAllocation[] = [];
+  let totalCost = 0;
+
+  for (const roomType of sortedRooms) {
+    if (remainingPeople <= 0) break;
+
+    const maxRoomsAvailable = roomType.available || 10;
     const roomsNeeded = Math.min(
       Math.ceil(remainingPeople / roomType.capacity),
       maxRoomsAvailable
