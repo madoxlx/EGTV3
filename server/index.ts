@@ -173,8 +173,7 @@ if (process.env.NODE_ENV === 'development') {
     // Translations API
     app.get("/api/translations", async (req, res) => {
       try {
-        const language = req.query.language as string;
-        const translations = await storage.listTranslations(language);
+        const translations = await storage.listTranslations();
         res.json(translations);
       } catch (error) {
         console.error("Error fetching translations:", error);
@@ -288,7 +287,7 @@ if (process.env.NODE_ENV === 'development') {
         await db.execute(sql`SELECT 1 as test`);
         console.log("✅ Database connection verified");
       } catch (error) {
-        console.log("⚠️  Database connection check failed:", error.message);
+        console.log("⚠️  Database connection check failed:", (error as Error).message);
       }
     })();
 
@@ -318,7 +317,7 @@ if (process.env.NODE_ENV === 'development') {
     // ALWAYS serve the app on port 8080
     // this serves both the API and the client.
     // Using port 8080 as discussed previously
-    const port = parseInt(process.env.PORT || "8080"); // Use PORT environment variable, fallback to 8080
+    const port = parseInt(process.env.PORT || "3000"); // Use PORT environment variable, fallback to 3000
 
     await new Promise<void>((resolve, reject) => {
       server.listen(port, "0.0.0.0", (err?: Error) => {
