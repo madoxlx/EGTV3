@@ -498,6 +498,12 @@ export const rooms = pgTable("rooms", {
   maxInfants: integer("max_infants").notNull().default(0),
   price: integer("price").notNull(),
   discountedPrice: integer("discounted_price"),
+  // Pricing rules for different age groups
+  adultPrice: integer("adult_price"), // Price per adult
+  childPrice: integer("child_price"), // Price per child
+  infantPrice: integer("infant_price"), // Price per infant (usually 0 or minimal)
+  // Pricing rule type - determines how pricing is applied
+  pricingRule: text("pricing_rule").default("per_room"), // per_room, per_person
   currency: text("currency").default("EGP").notNull(),
   imageUrl: text("image_url"),
   size: text("size"),
@@ -1585,6 +1591,10 @@ export const insertRoomSchema = createInsertSchema(rooms).pick({
   maxInfants: true,
   price: true,
   discountedPrice: true,
+  adultPrice: true,
+  childPrice: true,
+  infantPrice: true,
+  pricingRule: true,
   imageUrl: true,
   size: true,
   bedType: true,
