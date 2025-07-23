@@ -191,8 +191,8 @@ export default function AdvancedBookingsManagement() {
       {/* Header */}
       <div className="flex flex-col lg:flex-row justify-between items-start lg:items-center gap-4">
         <div>
-          <h1 className="text-3xl font-bold text-gray-900">t("admin.advanced_bookings", "Advanced Bookings Management")</h1>
-          <p className="text-gray-600 mt-1">إدارة شاملة لجميع الحجوزات والمدفوعات</p>
+          <h1 className="text-3xl font-bold text-gray-900">{t("admin.advanced_bookings", "Advanced Bookings Management")}</h1>
+          <p className="text-gray-600 mt-1">{t("admin.comprehensive_bookings_description", "إدارة شاملة لجميع الحجوزات والمدفوعات")}</p>
         </div>
         <div className="flex gap-3">
           <Button
@@ -201,7 +201,7 @@ export default function AdvancedBookingsManagement() {
             disabled={exportBookingsMutation.isPending}
           >
             <Download className="w-4 h-4 mr-2" />
-            t("admin.export_data", "Export Data")
+            {t("admin.export_data", "Export Data")}
           </Button>
         </div>
       </div>

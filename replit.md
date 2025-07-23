@@ -71,7 +71,30 @@ The application uses a comprehensive PostgreSQL schema with the following core e
 5. **Content Management**: Admins manage all travel content through admin interface
 6. **Data Analytics**: Dashboard provides insights on bookings, revenue, and user activity
 
+## Translation System
+
+### Internationalization Support
+- **Languages**: Full bilingual support for English and Arabic
+- **Translation Engine**: Google Gemini AI for automated Arabic translations
+- **Database Schema**: Dedicated translations table with key-value pairs
+- **UI Components**: Translation management interface for admins
+- **RTL Support**: Right-to-left text rendering for Arabic content
+
+### Translation Keys Structure
+- Category-based organization (admin, common, error, etc.)
+- Hierarchical key naming convention (e.g., `admin.advanced_bookings`)
+- Default English fallback for missing translations
+- Real-time translation updates through admin interface
+
 ## Recent Changes
+
+### Translation System Fix (July 23, 2025)
+- **Translation Function Calls**: Fixed critical issue where translation keys were hardcoded as strings instead of proper `t()` function calls in Advanced Bookings Management page
+- **Database Setup**: Created translations table and populated missing translation keys for admin interface
+- **SSL Configuration**: Updated database connection configuration to support secure SSL connections
+- **Admin Interface Translations**: Added proper Arabic translations for "Advanced Bookings Management", "Export Data", and comprehensive descriptions
+- **Key Additions**: Added translations for admin.advanced_bookings, admin.export_data, admin.comprehensive_bookings_description, admin.total_bookings, admin.export_success
+- **Function Implementation**: Fixed translation calls from literal strings to proper React function calls with curly braces
 
 ### Room Display and Filtering System Enhancement Complete (July 22, 2025)
 - **Room Filtering Issue Resolution**: Fixed critical issue where rooms with low capacity (e.g., Single Garden view room with capacity 1) were hidden when booking required more people (2+ adults)
