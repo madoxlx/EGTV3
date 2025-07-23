@@ -4,6 +4,38 @@ import { Button } from '@/components/ui/button';
 import { Calculator, Users, DollarSign, TrendingDown, TrendingUp, Calendar, RefreshCw } from 'lucide-react';
 import { useQueryClient } from '@tanstack/react-query';
 
+// Helper function to calculate room capacity breakdown using actual database values
+function getCapacityBreakdown(roomType: any) {
+  // Use actual database fields if available, fallback to name-based inference
+  const adultsCapacity = roomType.maxAdults || roomType.max_adults || 
+    (roomType.name.toLowerCase().includes('triple') ? 3 : 
+     roomType.name.toLowerCase().includes('double') ? 2 : 
+     roomType.name.toLowerCase().includes('single') ? 1 : roomType.capacity);
+  
+  const childrenCapacity = roomType.maxChildren || roomType.max_children || 0;
+  const infantsCapacity = roomType.maxInfants || roomType.max_infants || 
+    (adultsCapacity > 1 ? 2 : 1);
+  
+  const maxTotal = adultsCapacity + childrenCapacity;
+  
+  // Generate description based on actual capacity
+  let description = `${adultsCapacity} adults`;
+  if (childrenCapacity > 0) {
+    description += ` + ${childrenCapacity} children`;
+  }
+  if (infantsCapacity > 0) {
+    description += ` + ${infantsCapacity} infants`;
+  }
+  
+  return {
+    adultsCapacity,
+    childrenCapacity,
+    infantsCapacity,
+    maxTotal,
+    description
+  };
+}
+
 // Default configuration constants - fallback if package data unavailable
 const DEFAULT_ROOM_RATES = {
   TRIPLE_ROOM: 800,
@@ -73,6 +105,20 @@ function findOptimalRoomAllocation(totalPeople: number, availableRooms: RoomType
       costPerPerson: 0
     };
   }
+
+  // Enhanced room sorting using actual capacity data
+  const enhancedRooms = availableRooms.map(room => {
+    const capacityInfo = getCapacityBreakdown(room);
+    const effectiveCapacity = Math.min(capacityInfo.maxTotal, room.capacity);
+    return {
+      ...room,
+      effectiveCapacity,
+      adultsCapacity: capacityInfo.adultsCapacity,
+      childrenCapacity: capacityInfo.childrenCapacity,
+      infantsCapacity: capacityInfo.infantsCapacity,
+      costPerPerson: room.pricePerNight / effectiveCapacity
+    };
+  });
 
   // Use advanced room allocation with smart capacity calculation
   return findSmartRoomAllocation(totalPeople, availableRooms, nights, adults, children);
@@ -600,44 +646,6 @@ export default function BookingComparison({ adults, children, infants, startDate
                       
                       const totalCost = roomsNeeded * room.pricePerNight * nights;
                       
-                      // Calculate capacity breakdown for this room type
-                      const getCapacityBreakdown = (roomType: any) => {
-                        if (roomType.name.toLowerCase().includes('triple')) {
-                          return {
-                            adultsCapacity: 3,
-                            childrenCapacity: 1, // Can accommodate 1 extra child if 3 adults
-                            infantsCapacity: 2, // Infants typically don't count toward main capacity
-                            maxTotal: 4, // 3 adults + 1 child maximum
-                            description: "3 adults OR 3 adults + 1 child"
-                          };
-                        } else if (roomType.name.toLowerCase().includes('double')) {
-                          return {
-                            adultsCapacity: 2,
-                            childrenCapacity: 0,
-                            infantsCapacity: 2,
-                            maxTotal: 2,
-                            description: "2 adults + infants"
-                          };
-                        } else if (roomType.name.toLowerCase().includes('single')) {
-                          return {
-                            adultsCapacity: 1,
-                            childrenCapacity: 0,
-                            infantsCapacity: 1,
-                            maxTotal: 1,
-                            description: "1 adult + infants"
-                          };
-                        } else {
-                          // Generic room type
-                          return {
-                            adultsCapacity: roomType.capacity,
-                            childrenCapacity: 0,
-                            infantsCapacity: 1,
-                            maxTotal: roomType.capacity,
-                            description: `${roomType.capacity} people maximum`
-                          };
-                        }
-                      };
-
                       const capacityInfo = getCapacityBreakdown(room);
                       
                       return (
@@ -696,44 +704,6 @@ export default function BookingComparison({ adults, children, infants, startDate
                   // Show only optimal allocation
                   <div className="space-y-3">
                     {optimalAllocation.allocations.map((allocation, index) => {
-                      // Calculate capacity breakdown for this room type
-                      const getCapacityBreakdown = (roomType: any) => {
-                        if (roomType.name.toLowerCase().includes('triple')) {
-                          return {
-                            adultsCapacity: 3,
-                            childrenCapacity: 1, // Can accommodate 1 extra child if 3 adults
-                            infantsCapacity: 2, // Infants typically don't count toward main capacity
-                            maxTotal: 4, // 3 adults + 1 child maximum
-                            description: "3 adults OR 3 adults + 1 child"
-                          };
-                        } else if (roomType.name.toLowerCase().includes('double')) {
-                          return {
-                            adultsCapacity: 2,
-                            childrenCapacity: 0,
-                            infantsCapacity: 2,
-                            maxTotal: 2,
-                            description: "2 adults + infants"
-                          };
-                        } else if (roomType.name.toLowerCase().includes('single')) {
-                          return {
-                            adultsCapacity: 1,
-                            childrenCapacity: 0,
-                            infantsCapacity: 1,
-                            maxTotal: 1,
-                            description: "1 adult + infants"
-                          };
-                        } else {
-                          // Generic room type
-                          return {
-                            adultsCapacity: roomType.capacity,
-                            childrenCapacity: 0,
-                            infantsCapacity: 1,
-                            maxTotal: roomType.capacity,
-                            description: `${roomType.capacity} people maximum`
-                          };
-                        }
-                      };
-
                       const capacityInfo = getCapacityBreakdown(allocation.roomType);
 
                       return (

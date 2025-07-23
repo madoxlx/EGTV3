@@ -88,25 +88,27 @@ The application uses a comprehensive PostgreSQL schema with the following core e
 
 ## Recent Changes
 
-### Advanced Dynamic Room Allocation System (July 23, 2025)
+### Advanced Dynamic Room Allocation System with Database Integration (July 23, 2025)
+- **Database-Driven Capacity**: Enhanced system to use actual room database fields (maxAdults, maxChildren, maxInfants) instead of inferring from room names
 - **Smart Triple Room Logic**: Enhanced triple rooms to accommodate flexible capacity - 3 adults OR up to 4 people total (3 adults + 1 child)
-- **Detailed Capacity Display**: Added comprehensive capacity breakdown showing adults, children, and infant limits for each room type
+- **Detailed Capacity Display**: Added comprehensive capacity breakdown showing adults, children, and infant limits for each room type using real database values
 - **Visual Capacity Indicators**: Color-coded capacity display with blue dots for adults, green for children, orange for infants
-- **Room Type Intelligence**: 
-  - Triple rooms: 3 adults + 1 child + 2 infants
-  - Double rooms: 2 adults + 2 infants 
-  - Single rooms: 1 adult + 1 infant
-- **Enhanced User Interface**: Professional room cards showing detailed capacity per room with explanatory descriptions
+- **Database Schema Integration**: 
+  - Uses actual `max_adults`, `max_children`, `max_infants` fields from rooms table
+  - Fallback to name-based inference only when database fields unavailable
+  - Dynamic description generation based on actual capacity values
+- **Enhanced User Interface**: Professional room cards showing detailed capacity per room with explanatory descriptions based on real data
 - **Intelligent Room Combinations**: Implemented comprehensive algorithm that generates and evaluates all possible room combinations for optimal cost-effectiveness
 - **Adults/Children Distinction**: System now properly differentiates between adults and children when calculating room allocation requirements
-- **Specific Use Cases Implemented**:
-  - 4 adults → 1 triple room + 1 single room (instead of generic allocation)
-  - 3 adults + 1 child → 1 triple room (utilizing extended capacity)
+- **Specific Use Cases with Real Data**:
+  - Standard Garden Triple: 3 adults + 1 children + 2 infants (from database)
+  - 4 adults → 1 triple room + 1 single room (using actual capacity data)
+  - 3 adults + 1 child → 1 triple room (utilizing extended capacity from database)
   - 7 adults → 2 triple rooms + 1 single room (maintained from previous system)
   - 2 adults + 2 children → optimal room combination based on cost analysis
 - **Cost Optimization**: Algorithm evaluates all valid combinations and selects the most economical option while meeting accommodation requirements
-- **Capacity Validation**: Enhanced validation system that verifies actual accommodation capability rather than simple capacity numbers
-- **User Experience**: More accurate room allocation that matches real-world hotel room usage patterns and traveler expectations
+- **Capacity Validation**: Enhanced validation system that verifies actual accommodation capability using database capacity values rather than simple capacity numbers
+- **User Experience**: More accurate room allocation that matches real-world hotel room usage patterns and traveler expectations using authentic data
 
 ### Translation System Fix (July 23, 2025)
 - **Translation Function Calls**: Fixed critical issue where translation keys were hardcoded as strings instead of proper `t()` function calls in Advanced Bookings Management page
