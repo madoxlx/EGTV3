@@ -3,7 +3,7 @@ import React from "react";
 import { useQuery } from "@tanstack/react-query";
 import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import { Star, Users, Bed, CheckCircle2 } from "lucide-react";
+import { Star, Users, Bed, CheckCircle2, AlertTriangle } from "lucide-react";
 
 type Room = {
   id: number;
@@ -209,7 +209,7 @@ export default function RoomDistributionWithStars({
         remainingAdults -= assignedAdults;
       }
       
-      // Only assign children/infants if there's at least 1 adult in the room
+      // Assign children/infants with adults first (preferred arrangement)
       if (assignedAdults > 0) {
         // Then assign children if there's space and adults present
         const remainingCapacity = room.max_occupancy - assignedAdults;
@@ -246,6 +246,55 @@ export default function RoomDistributionWithStars({
         hasAdultRequirementIssue,
         isUsed: totalAssigned > 0
       };
+    });
+
+    // Second pass: assign remaining children/infants to available rooms (even without adults)
+    // but mark these as requiring additional adults
+    distribution.forEach(roomDist => {
+      const { room } = roomDist;
+      const currentCapacity = roomDist.totalAssigned;
+      const availableCapacity = room.max_occupancy - currentCapacity;
+      
+      // Assign remaining children to available rooms
+      if (remainingChildren > 0 && availableCapacity > 0 && room.max_children > 0) {
+        const canAssignChildren = Math.min(remainingChildren, Math.min(availableCapacity, room.max_children));
+        if (canAssignChildren > 0) {
+          roomDist.assignedChildren += canAssignChildren;
+          remainingChildren -= canAssignChildren;
+          
+          // Update totals
+          roomDist.totalAssigned += canAssignChildren;
+          roomDist.totalCostPerNight = roomDist.totalAssigned * roomDist.pricePerPerson;
+          roomDist.totalCost = roomDist.totalCostPerNight * nights;
+          roomDist.isUsed = true;
+          
+          // Mark as requiring adult if no adults in room
+          if (roomDist.assignedAdults === 0) {
+            roomDist.hasAdultRequirementIssue = true;
+          }
+        }
+      }
+      
+      // Assign remaining infants to available rooms
+      if (remainingInfants > 0 && availableCapacity > roomDist.assignedChildren && room.max_infants > 0) {
+        const finalAvailableCapacity = room.max_occupancy - roomDist.totalAssigned;
+        const canAssignInfants = Math.min(remainingInfants, Math.min(finalAvailableCapacity, room.max_infants));
+        if (canAssignInfants > 0) {
+          roomDist.assignedInfants += canAssignInfants;
+          remainingInfants -= canAssignInfants;
+          
+          // Update totals
+          roomDist.totalAssigned += canAssignInfants;
+          roomDist.totalCostPerNight = roomDist.totalAssigned * roomDist.pricePerPerson;
+          roomDist.totalCost = roomDist.totalCostPerNight * nights;
+          roomDist.isUsed = true;
+          
+          // Mark as requiring adult if no adults in room
+          if (roomDist.assignedAdults === 0) {
+            roomDist.hasAdultRequirementIssue = true;
+          }
+        }
+      }
     });
     
     return distribution;
@@ -435,8 +484,8 @@ export default function RoomDistributionWithStars({
                               </div>
                               {/* Adult requirement warning */}
                               {hasAdultRequirementIssue && (
-                                <div className="text-xs text-red-600 mt-1 bg-red-50 border border-red-200 rounded px-2 py-1">
-                                  ⚠️ This room requires at least 1 adult
+                                <div className="text-xs text-orange-600 mt-1 bg-orange-50 border border-orange-200 rounded px-2 py-1">
+                                  ⚠️ Requires additional adult - booking cannot proceed without adult supervision
                                 </div>
                               )}
                             </div>
@@ -484,6 +533,33 @@ export default function RoomDistributionWithStars({
           </div>
         );
       })}
+
+      {/* Check if any rooms require additional adults */}
+      {(() => {
+        const roomsRequiringAdults = Object.values(distributionByHotel)
+          .flat()
+          .filter((dist: any) => dist.hasAdultRequirementIssue);
+        
+        if (roomsRequiringAdults.length > 0) {
+          return (
+            <div className="bg-orange-50 border border-orange-200 rounded-lg p-4 mt-4">
+              <div className="flex items-center gap-2 mb-2">
+                <AlertTriangle className="w-5 h-5 text-orange-600" />
+                <span className="text-sm font-medium text-orange-900">
+                  Adult Supervision Required
+                </span>
+              </div>
+              <p className="text-sm text-orange-800">
+                Some rooms have children or infants without adult supervision. 
+                Please add {roomsRequiringAdults.reduce((total: number, room: any) => 
+                  total + Math.max(0, (room.assignedChildren + room.assignedInfants > 0 && room.assignedAdults === 0) ? 1 : 0), 0
+                )} more adult(s) to proceed with booking, or adjust traveler numbers.
+              </p>
+            </div>
+          );
+        }
+        return null;
+      })()}
 
       {Object.keys(distributionByHotel).length === 0 && (
         <div className="bg-gray-50 border border-gray-200 rounded-lg p-4">
