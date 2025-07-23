@@ -188,7 +188,7 @@ export default function RoomDistributionWithStars({
   }, [startDate, endDate, packageData?.duration, packageData?.durationType]);
 
   // Calculate automatic room distribution
-  const calculateRoomDistribution = () => {
+  const calculateRoomDistribution = React.useCallback(() => {
     if (rooms.length === 0) return [];
 
     // Sort rooms by capacity (highest to lowest)
@@ -250,7 +250,13 @@ export default function RoomDistributionWithStars({
 
     // Second pass: assign ALL remaining children/infants to available rooms
     // and mark these as requiring additional adults
-    while ((remainingChildren > 0 || remainingInfants > 0) && distribution.some(d => d.room.max_occupancy - d.totalAssigned > 0)) {
+    let loopCounter = 0;
+    const maxLoops = 50; // Safety counter to prevent infinite loops
+    
+    while ((remainingChildren > 0 || remainingInfants > 0) && 
+           distribution.some(d => d.room.max_occupancy - d.totalAssigned > 0) && 
+           loopCounter < maxLoops) {
+      loopCounter++;
       // Find room with most available capacity
       const availableRooms = distribution.filter(d => d.room.max_occupancy - d.totalAssigned > 0);
       if (availableRooms.length === 0) break;
@@ -313,9 +319,9 @@ export default function RoomDistributionWithStars({
     }
     
     return distribution;
-  };
+  }, [rooms, adults, children, infants, nights]);
 
-  const roomDistribution = calculateRoomDistribution();
+  const roomDistribution = React.useMemo(() => calculateRoomDistribution(), [calculateRoomDistribution]);
 
   // Group room distribution by hotel for better organization
   const distributionByHotel = roomDistribution.reduce(
