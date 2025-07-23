@@ -260,7 +260,7 @@ export default function RoomDistributionWithStars({
             {hotel && (
               <div className="mb-3">
                 <h4 className="font-medium text-gray-900 mb-1">
-                  {hotel.name}
+                  some hotel in {hotel.city}
                 </h4>
                 <div className="flex items-center gap-2">
                   <div className="flex items-center gap-1">
