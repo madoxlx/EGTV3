@@ -47,6 +47,9 @@ interface RoomDistributionWithStarsProps {
   selectedRooms: string[];
   onRoomSelect: (rooms: string[]) => void;
   validationError?: string;
+  adults?: number;
+  children?: number;
+  infants?: number;
 }
 
 export default function RoomDistributionWithStars({
@@ -54,6 +57,9 @@ export default function RoomDistributionWithStars({
   selectedRooms,
   onRoomSelect,
   validationError,
+  adults = 4,
+  children = 0,
+  infants = 0,
 }: RoomDistributionWithStarsProps) {
   // Fetch all rooms data
   const { data: allRooms = [], isLoading: isLoadingRooms } = useQuery<Room[]>({
