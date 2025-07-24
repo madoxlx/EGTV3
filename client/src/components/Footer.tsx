@@ -13,6 +13,7 @@ import { useLanguage } from "../hooks/use-language";
 interface MenuItem {
   id: number;
   title: string;
+  titleAr?: string | null; // Arabic title
   url: string;
   icon: string | null;
   itemType?: string;
@@ -118,7 +119,7 @@ const Footer: React.FC = () => {
               {heading && (
                 <h3 className="text-lg font-bold mb-4">
                   <ZigzagText
-                    text={heading.title}
+                    text={isRTL && heading.titleAr ? heading.titleAr : heading.title}
                     underlineColor="#2f638f"
                     underlineWidth={2}
                     highlightChars={6}
@@ -135,7 +136,7 @@ const Footer: React.FC = () => {
                       target={item.target || undefined}
                     >
                       <FontAwesomeIcon icon={faAngleRight} className={`text-[#2f638f] text-xs ${isRTL ? 'order-2' : ''}`} />
-                      {item.title}
+                      {isRTL && item.titleAr ? item.titleAr : item.title}
                     </Link>
                   </li>
                 ))}
@@ -166,7 +167,7 @@ const Footer: React.FC = () => {
                     target={item.target || undefined}
                   >
                     <FontAwesomeIcon icon={faAngleRight} className={`text-[#2f638f] text-xs ${isRTL ? 'order-2' : ''}`} />
-                    {item.title}
+                    {isRTL && item.titleAr ? item.titleAr : item.title}
                   </Link>
                 </li>
               ))}

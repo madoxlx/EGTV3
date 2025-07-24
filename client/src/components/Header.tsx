@@ -134,7 +134,7 @@ const Header: React.FC = () => {
                           }}
                         >
                           <span className="absolute bottom-0 left-0 h-0.5 w-0 bg-red-500 transition-all duration-300 ease-out group-hover/trigger:w-full"></span>
-                          {item.title}
+                          {isRTL && item.titleAr ? item.titleAr : item.title}
                         </NavigationMenuTrigger>
                         <NavigationMenuContent>
                           <div className="w-[200px] p-2">
@@ -154,7 +154,7 @@ const Header: React.FC = () => {
                                     rel={child.target === '_blank' ? 'noopener noreferrer' : undefined}
                                   >
                                     <span className="absolute bottom-0 left-0 h-0.5 w-0 bg-red-500 transition-all duration-300 ease-out group-hover/child:w-full"></span>
-                                    {child.title}
+                                    {isRTL && child.titleAr ? child.titleAr : child.title}
                                   </Link>
                                 </NavigationMenuLink>
                               ))}
@@ -177,7 +177,7 @@ const Header: React.FC = () => {
                           rel={item.target === '_blank' ? 'noopener noreferrer' : undefined}
                         >
                           <span className="absolute bottom-0 left-0 h-0.5 w-0 bg-red-500 transition-all duration-300 ease-out group-hover/link:w-full"></span>
-                          {item.title}
+                          {isRTL && item.titleAr ? item.titleAr : item.title}
                         </Link>
                       </NavigationMenuLink>
                     )}
