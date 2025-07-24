@@ -361,9 +361,6 @@ export default function EnhancedPriceCalculation({
   }
 
   return (
-    <div className="text-center text-gray-500 p-8">
-      <Calculator className="w-12 h-12 mx-auto mb-3 text-gray-400" />
-      <p className="text-sm font-medium">Price calculation content removed</p>
-    </div>
+    
   );
 }
