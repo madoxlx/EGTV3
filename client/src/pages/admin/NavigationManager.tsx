@@ -43,7 +43,7 @@ interface MenuWithItems extends Menu {
 }
 
 // Sortable Menu Item Component
-function SortableMenuItem({ item, menuItems, onEdit, onDelete, deleteItemMutation, isOverlay = false, isDragOver = false }: {
+function SortableMenuItem({ item, menuItems, onEdit, onDelete, deleteItemMutation, isOverlay = false, isDragOver = false, t }: {
   item: MenuItem;
   menuItems: MenuItem[];
   onEdit: (item: MenuItem) => void;
@@ -51,6 +51,7 @@ function SortableMenuItem({ item, menuItems, onEdit, onDelete, deleteItemMutatio
   deleteItemMutation: any;
   isOverlay?: boolean;
   isDragOver?: boolean;
+  t: (key: string, fallback?: string) => string;
 }) {
   const {
     attributes,
@@ -94,14 +95,16 @@ function SortableMenuItem({ item, menuItems, onEdit, onDelete, deleteItemMutatio
             <h3 className="font-semibold flex items-center gap-2">
               {isChild && <span className="text-blue-600">↳</span>}
               {item.title}
-              {hasChildren && <Badge variant="outline" className="text-xs">Parent</Badge>}
+              {item.titleAr && (
+                <span className="text-sm text-muted-foreground">({item.titleAr})</span>
+              )}
+              {hasChildren && <Badge variant="outline" className="text-xs">{t('admin.navigation.status.hasChildren', 'Has children')}</Badge>}
             </h3>
             <p className="text-sm text-muted-foreground">
               {item.url} • Order: {item.orderPosition}
               {item.parentId && (
                 <span className="text-blue-600">
-                  {' • Child of: '}
-                  {menuItems.find(parent => parent.id === item.parentId)?.title}
+                  {' • '}{t('admin.navigation.status.childOf', 'Child of:')} {menuItems.find(parent => parent.id === item.parentId)?.title}
                 </span>
               )}
             </p>
@@ -118,7 +121,7 @@ function SortableMenuItem({ item, menuItems, onEdit, onDelete, deleteItemMutatio
             )}
           </div>
           <Badge variant={item.active ? "default" : "secondary"}>
-            {item.active ? "Active" : "Inactive"}
+            {item.active ? t('admin.navigation.menus.active', 'Active') : 'Inactive'}
           </Badge>
         </div>
         
@@ -143,7 +146,7 @@ function SortableMenuItem({ item, menuItems, onEdit, onDelete, deleteItemMutatio
             onClick={(e) => {
               e.stopPropagation();
               e.preventDefault();
-              if (window.confirm('Are you sure you want to delete this menu item?')) {
+              if (window.confirm(t('admin.navigation.actions.delete', 'Are you sure you want to delete this menu item?'))) {
                 onDelete(item.id);
               }
             }}
@@ -225,14 +228,14 @@ export default function NavigationManager() {
       setIsMenuDialogOpen(false);
       setMenuForm({ name: '', location: 'header', active: true, description: '' });
       toast({
-        title: "Success",
-        description: "Menu created successfully",
+        title: t('admin.navigation.success.menuCreated', 'Success'),
+        description: t('admin.navigation.success.menuCreated', 'Menu created successfully'),
       });
     },
     onError: (error) => {
       toast({
-        title: "Error",
-        description: error.message || "Failed to create menu",
+        title: t('admin.navigation.error.createMenu', 'Error'),
+        description: error.message || t('admin.navigation.error.createMenu', 'Failed to create menu'),
         variant: "destructive",
       });
     }
@@ -250,14 +253,14 @@ export default function NavigationManager() {
       setIsMenuDialogOpen(false);
       setMenuForm({ name: '', location: 'header', active: true, description: '' });
       toast({
-        title: "Success",
-        description: "Menu updated successfully",
+        title: t('admin.navigation.success.menuUpdated', 'Success'),
+        description: t('admin.navigation.success.menuUpdated', 'Menu updated successfully'),
       });
     },
     onError: (error) => {
       toast({
-        title: "Error",
-        description: error.message || "Failed to update menu",
+        title: t('admin.navigation.error.updateMenu', 'Error'),
+        description: error.message || t('admin.navigation.error.updateMenu', 'Failed to update menu'),
         variant: "destructive",
       });
     }
@@ -272,14 +275,14 @@ export default function NavigationManager() {
         setSelectedMenu(null);
       }
       toast({
-        title: "Success",
-        description: "Menu deleted successfully",
+        title: t('admin.navigation.success.menuDeleted', 'Success'),
+        description: t('admin.navigation.success.menuDeleted', 'Menu deleted successfully'),
       });
     },
     onError: (error) => {
       toast({
-        title: "Error",
-        description: error.message || "Failed to delete menu",
+        title: t('admin.navigation.error.deleteMenu', 'Error'),
+        description: error.message || t('admin.navigation.error.deleteMenu', 'Failed to delete menu'),
         variant: "destructive",
       });
     }
@@ -308,14 +311,14 @@ export default function NavigationManager() {
       setItemForm({ title: '', titleAr: '', url: '', icon: '', type: 'link', target: '_self', orderPosition: 1, active: true, parentId: null });
       setEditingItem(null);
       toast({
-        title: "Success",
-        description: "Menu item created successfully",
+        title: t('admin.navigation.success.itemCreated', 'Success'),
+        description: t('admin.navigation.success.itemCreated', 'Menu item created successfully'),
       });
     },
     onError: (error) => {
       toast({
-        title: "Error",
-        description: error.message || "Failed to create menu item",
+        title: t('admin.navigation.error.createItem', 'Error'),
+        description: error.message || t('admin.navigation.error.createItem', 'Failed to create menu item'),
         variant: "destructive",
       });
     }
@@ -344,16 +347,16 @@ export default function NavigationManager() {
       setItemForm({ title: '', titleAr: '', url: '', icon: '', type: 'link', target: '_self', orderPosition: 1, active: true, parentId: null });
       setEditingItem(null);
       toast({
-        title: "Success",
-        description: "Menu item updated successfully",
+        title: t('admin.navigation.success.itemUpdated', 'Success'),
+        description: t('admin.navigation.success.itemUpdated', 'Menu item updated successfully'),
       });
     },
     onError: (error) => {
       // Only show error if it's not a 404 (item already deleted)
       if (!error.message?.includes('Menu item not found')) {
         toast({
-          title: "Error",
-          description: error.message || "Failed to update menu item",
+          title: t('admin.navigation.error.updateItem', 'Error'),
+          description: error.message || t('admin.navigation.error.updateItem', 'Failed to update menu item'),
           variant: "destructive",
         });
       }
@@ -376,16 +379,16 @@ export default function NavigationManager() {
       }
       
       toast({
-        title: "Success",
-        description: "Menu item deleted successfully",
+        title: t('admin.navigation.success.itemDeleted', 'Success'),
+        description: t('admin.navigation.success.itemDeleted', 'Menu item deleted successfully'),
       });
     },
     onError: (error) => {
       // Only show error if it's not a 404 (item already deleted)
       if (!error.message?.includes('Menu item not found')) {
         toast({
-          title: "Error",
-          description: error.message || "Failed to delete menu item",
+          title: t('admin.navigation.error.deleteItem', 'Error'),
+          description: error.message || t('admin.navigation.error.deleteItem', 'Failed to delete menu item'),
           variant: "destructive",
         });
       }
@@ -420,14 +423,14 @@ export default function NavigationManager() {
         refetchMenuItems();
       }
       toast({
-        title: "Success",
-        description: "Menu items reordered successfully",
+        title: t('admin.navigation.success.itemsReordered', 'Success'),
+        description: t('admin.navigation.success.itemsReordered', 'Menu items reordered successfully'),
       });
     },
     onError: (error) => {
       toast({
-        title: "Error",
-        description: error.message || "Failed to reorder menu items",
+        title: t('admin.navigation.error.reorderItems', 'Error'),
+        description: error.message || t('admin.navigation.error.reorderItems', 'Failed to reorder menu items'),
         variant: "destructive",
       });
     }
@@ -583,22 +586,22 @@ export default function NavigationManager() {
         </div>
         <Button onClick={openCreateMenuDialog} className="flex items-center gap-2">
           <Plus className="w-4 h-4" />
-          {t('admin.navigation.create_menu', 'Create Menu')}
+          {t('admin.navigation.menus.create', 'Create Menu')}
         </Button>
       </div>
 
       <Tabs defaultValue="menus" className="w-full">
         <TabsList className="grid w-full grid-cols-2">
-          <TabsTrigger value="menus">Menus</TabsTrigger>
-          <TabsTrigger value="items">Menu Items</TabsTrigger>
+          <TabsTrigger value="menus">{t('admin.navigation.menus.title', 'Menus')}</TabsTrigger>
+          <TabsTrigger value="items">{t('admin.navigation.items.title', 'Menu Items')}</TabsTrigger>
         </TabsList>
 
         <TabsContent value="menus">
           <Card>
             <CardHeader>
-              <CardTitle>Menus</CardTitle>
+              <CardTitle>{t('admin.navigation.menus.title', 'Menus')}</CardTitle>
               <CardDescription>
-                Manage website navigation menus
+                {t('admin.navigation.description', 'Manage website navigation menus')}
               </CardDescription>
             </CardHeader>
             <CardContent>
@@ -616,7 +619,7 @@ export default function NavigationManager() {
                         <div>
                           <h3 className="font-semibold">{menu.name}</h3>
                           <p className="text-sm text-muted-foreground">
-                            Location: {menu.location}
+                            {t('admin.navigation.menus.location', 'Location')}: {menu.location}
                           </p>
                           {menu.description && (
                             <p className="text-sm text-muted-foreground">
@@ -625,7 +628,7 @@ export default function NavigationManager() {
                           )}
                         </div>
                         <Badge variant={menu.active ? "default" : "secondary"}>
-                          {menu.active ? "Active" : "Inactive"}
+                          {menu.active ? t('admin.navigation.menus.active', 'Active') : 'Inactive'}
                         </Badge>
                       </div>
                       <div className="flex items-center gap-2">
@@ -634,7 +637,7 @@ export default function NavigationManager() {
                           size="sm"
                           onClick={() => setSelectedMenu(menu)}
                         >
-                          Select
+                          {t('admin.navigation.menus.select', 'Select')}
                         </Button>
                         <Button
                           variant="outline"
@@ -664,7 +667,7 @@ export default function NavigationManager() {
           <Card>
             <CardHeader>
               <CardTitle className="flex items-center justify-between">
-                <span>Menu Items</span>
+                <span>{t('admin.navigation.items.title', 'Menu Items')}</span>
                 {selectedMenu && (
                   <div className="flex items-center gap-2">
                     <Button
@@ -674,19 +677,19 @@ export default function NavigationManager() {
                       disabled={itemsLoading}
                     >
                       <RefreshCw className="w-4 h-4 mr-2" />
-                      Refresh
+                      {t('admin.navigation.items.refresh', 'Refresh')}
                     </Button>
                     <Button onClick={openCreateItemDialog} size="sm">
                       <Plus className="w-4 h-4 mr-2" />
-                      Add Item
+                      {t('admin.navigation.items.addItem', 'Add Item')}
                     </Button>
                   </div>
                 )}
               </CardTitle>
               <CardDescription>
                 {selectedMenu 
-                  ? `Managing items for "${selectedMenu.name}" menu`
-                  : "Select a menu to manage its items"
+                  ? `${t('admin.navigation.items.managingFor', 'Managing items for')} "${selectedMenu.name}" ${t('admin.navigation.items.menu', 'menu')}`
+                  : t('admin.navigation.items.selectMenu', 'Select a menu to manage its items')
                 }
               </CardDescription>
             </CardHeader>
@@ -695,7 +698,7 @@ export default function NavigationManager() {
                 <div className="text-center py-8">
                   <Navigation className="w-12 h-12 mx-auto text-gray-400 mb-4" />
                   <p className="text-muted-foreground">
-                    Select a menu from the Menus tab to manage its items
+                    {t('admin.navigation.items.selectMenuPrompt', 'Select a menu from the Menus tab to manage its items')}
                   </p>
                 </div>
               ) : itemsLoading ? (
@@ -728,13 +731,14 @@ export default function NavigationManager() {
                             onDelete={(id) => deleteItemMutation.mutate(id)}
                             deleteItemMutation={deleteItemMutation}
                             isDragOver={overId === item.id && draggedItem?.id !== item.id}
+                            t={t}
                           />
                         ))}
                       {menuItems.length === 0 && (
                         <div className="text-center py-8">
                           <LinkIcon className="w-12 h-12 mx-auto text-gray-400 mb-4" />
                           <p className="text-muted-foreground">
-                            No menu items found. Create your first menu item!
+                            {t('admin.navigation.items.emptyState', 'No menu items found. Create your first menu item!')}
                           </p>
                         </div>
                       )}
@@ -749,6 +753,7 @@ export default function NavigationManager() {
                         onDelete={() => {}}
                         deleteItemMutation={deleteItemMutation}
                         isOverlay={true}
+                        t={t}
                       />
                     )}
                   </DragOverlay>
@@ -764,42 +769,42 @@ export default function NavigationManager() {
         <DialogContent>
           <DialogHeader>
             <DialogTitle>
-              {selectedMenu ? 'Edit Menu' : 'Create Menu'}
+              {selectedMenu ? t('admin.navigation.menus.editMenu', 'Edit Menu') : t('admin.navigation.menus.createMenu', 'Create Menu')}
             </DialogTitle>
           </DialogHeader>
           <div className="space-y-4">
             <div>
-              <Label htmlFor="name">Menu Name</Label>
+              <Label htmlFor="name">{t('admin.navigation.menus.menuName', 'Menu Name')}</Label>
               <Input
                 id="name"
                 value={menuForm.name}
                 onChange={(e) => setMenuForm({ ...menuForm, name: e.target.value })}
-                placeholder="Enter menu name"
+                placeholder={t('admin.navigation.menus.menuNamePlaceholder', 'Enter menu name')}
               />
             </div>
             <div>
-              <Label htmlFor="location">Location</Label>
+              <Label htmlFor="location">{t('admin.navigation.menus.location', 'Location')}</Label>
               <Select 
                 value={menuForm.location} 
                 onValueChange={(value) => setMenuForm({ ...menuForm, location: value })}
               >
                 <SelectTrigger>
-                  <SelectValue placeholder="Select location" />
+                  <SelectValue placeholder={t('admin.navigation.menus.selectLocation', 'Select location')} />
                 </SelectTrigger>
                 <SelectContent>
-                  <SelectItem value="header">Header</SelectItem>
-                  <SelectItem value="footer">Footer</SelectItem>
-                  <SelectItem value="sidebar">Sidebar</SelectItem>
+                  <SelectItem value="header">{t('admin.navigation.menus.header', 'Header')}</SelectItem>
+                  <SelectItem value="footer">{t('admin.navigation.menus.footer', 'Footer')}</SelectItem>
+                  <SelectItem value="sidebar">{t('admin.navigation.menus.sidebar', 'Sidebar')}</SelectItem>
                 </SelectContent>
               </Select>
             </div>
             <div>
-              <Label htmlFor="description">Description</Label>
+              <Label htmlFor="description">{t('admin.navigation.menus.description', 'Description')}</Label>
               <Input
                 id="description"
                 value={menuForm.description}
                 onChange={(e) => setMenuForm({ ...menuForm, description: e.target.value })}
-                placeholder="Enter menu description"
+                placeholder={t('admin.navigation.menus.descriptionPlaceholder', 'Enter menu description')}
               />
             </div>
             <div className="flex items-center space-x-2">
@@ -808,19 +813,19 @@ export default function NavigationManager() {
                 checked={menuForm.active}
                 onCheckedChange={(checked) => setMenuForm({ ...menuForm, active: checked })}
               />
-              <Label htmlFor="active">Active</Label>
+              <Label htmlFor="active">{t('admin.navigation.menus.active', 'Active')}</Label>
             </div>
             <div className="flex justify-end space-x-2">
               <Button variant="outline" onClick={() => setIsMenuDialogOpen(false)}>
                 <X className="w-4 h-4 mr-2" />
-                Cancel
+                {t('admin.navigation.dialog.cancel', 'Cancel')}
               </Button>
               <Button 
                 onClick={selectedMenu ? handleUpdateMenu : handleCreateMenu}
                 disabled={createMenuMutation.isPending || updateMenuMutation.isPending}
               >
                 <Save className="w-4 h-4 mr-2" />
-                {selectedMenu ? 'Update' : 'Create'}
+                {selectedMenu ? t('admin.navigation.dialog.update', 'Update') : t('admin.navigation.dialog.create', 'Create')}
               </Button>
             </div>
           </div>
@@ -832,89 +837,89 @@ export default function NavigationManager() {
         <DialogContent>
           <DialogHeader>
             <DialogTitle>
-              {editingItem ? 'Edit Menu Item' : 'Create Menu Item'}
+              {editingItem ? t('admin.navigation.items.editItem', 'Edit Menu Item') : t('admin.navigation.items.createItem', 'Create Menu Item')}
             </DialogTitle>
           </DialogHeader>
           <div className="space-y-4">
             <div>
-              <Label htmlFor="title">Title (English)</Label>
+              <Label htmlFor="title">{t('admin.navigation.items.titleEnglish', 'Title (English)')}</Label>
               <Input
                 id="title"
                 value={itemForm.title}
                 onChange={(e) => setItemForm({ ...itemForm, title: e.target.value })}
-                placeholder="Enter menu item title in English"
+                placeholder={t('admin.navigation.items.titleEnglishPlaceholder', 'Enter menu item title in English')}
               />
             </div>
             <div>
-              <Label htmlFor="titleAr">Title (Arabic)</Label>
+              <Label htmlFor="titleAr">{t('admin.navigation.items.titleArabic', 'Title (Arabic)')}</Label>
               <Input
                 id="titleAr"
                 value={itemForm.titleAr}
                 onChange={(e) => setItemForm({ ...itemForm, titleAr: e.target.value })}
-                placeholder="أدخل عنوان عنصر القائمة بالعربية"
+                placeholder={t('admin.navigation.items.titleArabicPlaceholder', 'أدخل عنوان عنصر القائمة بالعربية')}
                 style={{ direction: 'rtl' }}
               />
             </div>
             <div>
-              <Label htmlFor="url">URL</Label>
+              <Label htmlFor="url">{t('admin.navigation.items.url', 'URL')}</Label>
               <Input
                 id="url"
                 value={itemForm.url}
                 onChange={(e) => setItemForm({ ...itemForm, url: e.target.value })}
-                placeholder="Enter URL (e.g., /packages)"
+                placeholder={t('admin.navigation.items.urlPlaceholder', 'Enter URL (e.g., /packages)')}
               />
             </div>
             <div>
-              <Label htmlFor="icon">Icon</Label>
+              <Label htmlFor="icon">{t('admin.navigation.items.icon', 'Icon')}</Label>
               <Input
                 id="icon"
                 value={itemForm.icon}
                 onChange={(e) => setItemForm({ ...itemForm, icon: e.target.value })}
-                placeholder="Enter icon name (e.g., home, package, map)"
+                placeholder={t('admin.navigation.items.iconPlaceholder', 'Enter icon name (e.g., home, package, map)')}
               />
             </div>
             <div>
-              <Label htmlFor="type">Type</Label>
+              <Label htmlFor="type">{t('admin.navigation.items.type', 'Type')}</Label>
               <Select 
                 value={itemForm.type} 
                 onValueChange={(value) => setItemForm({ ...itemForm, type: value })}
               >
                 <SelectTrigger>
-                  <SelectValue placeholder="Select type" />
+                  <SelectValue placeholder={t('admin.navigation.items.selectType', 'Select type')} />
                 </SelectTrigger>
                 <SelectContent>
-                  <SelectItem value="link">Link</SelectItem>
-                  <SelectItem value="button">Button</SelectItem>
-                  <SelectItem value="dropdown">Dropdown</SelectItem>
+                  <SelectItem value="link">{t('admin.navigation.items.typeLink', 'Link')}</SelectItem>
+                  <SelectItem value="button">{t('admin.navigation.items.typeButton', 'Button')}</SelectItem>
+                  <SelectItem value="dropdown">{t('admin.navigation.items.typeDropdown', 'Dropdown')}</SelectItem>
                 </SelectContent>
               </Select>
             </div>
             <div>
-              <Label htmlFor="target">Target</Label>
+              <Label htmlFor="target">{t('admin.navigation.items.target', 'Target')}</Label>
               <Select 
                 value={itemForm.target} 
                 onValueChange={(value) => setItemForm({ ...itemForm, target: value })}
               >
                 <SelectTrigger>
-                  <SelectValue placeholder="Select target" />
+                  <SelectValue placeholder={t('admin.navigation.items.selectTarget', 'Select target')} />
                 </SelectTrigger>
                 <SelectContent>
-                  <SelectItem value="_self">Same Window</SelectItem>
-                  <SelectItem value="_blank">New Window</SelectItem>
+                  <SelectItem value="_self">{t('admin.navigation.items.targetSame', 'Same Window')}</SelectItem>
+                  <SelectItem value="_blank">{t('admin.navigation.items.targetNew', 'New Window')}</SelectItem>
                 </SelectContent>
               </Select>
             </div>
             <div>
-              <Label htmlFor="parent">Parent Item</Label>
+              <Label htmlFor="parent">{t('admin.navigation.items.parentItem', 'Parent Item')}</Label>
               <Select 
                 value={itemForm.parentId?.toString() || 'none'} 
                 onValueChange={(value) => setItemForm({ ...itemForm, parentId: value === 'none' ? null : parseInt(value) })}
               >
                 <SelectTrigger>
-                  <SelectValue placeholder="Select parent item (optional)" />
+                  <SelectValue placeholder={t('admin.navigation.items.selectParent', 'Select parent item (optional)')} />
                 </SelectTrigger>
                 <SelectContent>
-                  <SelectItem value="none">None (Top Level)</SelectItem>
+                  <SelectItem value="none">{t('admin.navigation.items.noParent', 'None (Top Level)')}</SelectItem>
                   {menuItems
                     .filter(item => !editingItem || item.id !== editingItem.id) // Don't show self as parent
                     .map(item => (
@@ -926,13 +931,13 @@ export default function NavigationManager() {
               </Select>
             </div>
             <div>
-              <Label htmlFor="order">Order Position</Label>
+              <Label htmlFor="order">{t('admin.navigation.items.orderPosition', 'Order Position')}</Label>
               <Input
                 id="order"
                 type="number"
                 value={itemForm.orderPosition}
                 onChange={(e) => setItemForm({ ...itemForm, orderPosition: parseInt(e.target.value) || 1 })}
-                placeholder="Enter order position"
+                placeholder={t('admin.navigation.items.orderPositionPlaceholder', 'Enter order position')}
               />
             </div>
             <div className="flex items-center space-x-2">
@@ -941,19 +946,19 @@ export default function NavigationManager() {
                 checked={itemForm.active}
                 onCheckedChange={(checked) => setItemForm({ ...itemForm, active: checked })}
               />
-              <Label htmlFor="item-active">Active</Label>
+              <Label htmlFor="item-active">{t('admin.navigation.items.active', 'Active')}</Label>
             </div>
             <div className="flex justify-end space-x-2">
               <Button variant="outline" onClick={() => setIsItemDialogOpen(false)}>
                 <X className="w-4 h-4 mr-2" />
-                Cancel
+                {t('admin.navigation.dialog.cancel', 'Cancel')}
               </Button>
               <Button 
                 onClick={editingItem ? handleUpdateItem : handleCreateItem}
                 disabled={createItemMutation.isPending || updateItemMutation.isPending}
               >
                 <Save className="w-4 h-4 mr-2" />
-                {editingItem ? 'Update' : 'Create'}
+                {editingItem ? t('admin.navigation.dialog.update', 'Update') : t('admin.navigation.dialog.create', 'Create')}
               </Button>
             </div>
           </div>

@@ -1474,7 +1474,7 @@ export default function CountryCityManagement() {
               className="gap-2"
             >
               <BarChart3 className="w-4 h-4" />
-              Analytics
+              {t('admin.countries_cities.analytics', 'Analytics')}
             </Button>
             <Button
               onClick={() => setIsAiDialogOpen(true)}
