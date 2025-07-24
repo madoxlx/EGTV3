@@ -361,15 +361,7 @@ export default function EnhancedPriceCalculation({
   }
 
   return (
-    <Card className="w-full">
-      <CardHeader className="pb-3">
-        <CardTitle className="flex items-center gap-2 text-lg">
-          <Calculator className="w-5 h-5 text-primary" />
-          Price Breakdown
-        </CardTitle>
-      </CardHeader>
-
-      <CardContent className="space-y-4">
+    <div className="space-y-4">
         {/* Pricing Mode Indicator */}
         <div className="flex items-center justify-between p-3 bg-gradient-to-r from-blue-50 to-indigo-50 rounded-lg border border-blue-200">
           <div className="flex items-center gap-2">
@@ -651,7 +643,6 @@ export default function EnhancedPriceCalculation({
             </div>
           </div>
         </div>
-      </CardContent>
-    </Card>
+    </div>
   );
 }
