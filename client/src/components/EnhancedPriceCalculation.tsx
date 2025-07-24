@@ -361,6 +361,198 @@ export default function EnhancedPriceCalculation({
   }
 
   return (
-    
+    <Card id="price-breakdown" className="w-full">
+      <CardHeader className="pb-3">
+        <CardTitle className="flex items-center gap-2 text-lg">
+          <Calculator className="w-5 h-5 text-primary" />
+          Price Breakdown
+        </CardTitle>
+      </CardHeader>
+      <CardContent className="space-y-6">
+        {/* Package Information */}
+        <div className="bg-blue-50 p-4 rounded-lg">
+          <div className="flex items-center justify-between mb-2">
+            <h4 className="font-semibold text-blue-900 flex items-center gap-2">
+              <MapPin className="w-4 h-4" />
+              {packageData.title}
+            </h4>
+            <Badge variant="secondary" className="bg-blue-100 text-blue-800">
+              {actualNights} {actualNights === 1 ? "Night" : "Nights"}
+            </Badge>
+          </div>
+          <div className="flex items-center gap-4 text-sm text-blue-700">
+            <div className="flex items-center gap-1">
+              <Users className="w-4 h-4" />
+              {adults} Adults
+            </div>
+            {children > 0 && (
+              <div className="flex items-center gap-1">
+                <Users className="w-4 h-4" />
+                {children} Children
+              </div>
+            )}
+            {infants > 0 && (
+              <div className="flex items-center gap-1">
+                <Users className="w-4 h-4" />
+                {infants} Infants
+              </div>
+            )}
+          </div>
+        </div>
+
+        {/* Package Base Cost */}
+        <div className="space-y-3">
+          <div className="flex justify-between items-center">
+            <span className="font-medium">Package Base Cost</span>
+            <span className="font-semibold">
+              {formatPrice(packageBaseCost)} {packageData.currency || "EGP"}
+            </span>
+          </div>
+          {isPricingPerPerson && (
+            <div className="text-sm text-gray-600 ml-4">
+              Base price per person: {formatPrice(basePrice)} {packageData.currency || "EGP"} × {totalPAX} travelers
+            </div>
+          )}
+        </div>
+
+        <Separator />
+
+        {/* Accommodation Breakdown */}
+        {roomsBreakdown.length > 0 && (
+          <div className="space-y-3">
+            <h4 className="font-semibold text-gray-900 flex items-center gap-2">
+              <Home className="w-4 h-4 text-blue-600" />
+              Accommodation
+            </h4>
+            {roomsBreakdown.map((room, index) => (
+              <div key={index} className="ml-6 space-y-1">
+                <div className="flex justify-between items-center">
+                  <span className="text-sm">{room.name}</span>
+                  <span className="text-sm font-medium">
+                    {formatPrice(room.cost)} {packageData.currency || "EGP"}
+                  </span>
+                </div>
+                <div className="text-xs text-gray-500">
+                  {room.nights} {room.nights === 1 ? "night" : "nights"} × {totalPAX} travelers
+                </div>
+              </div>
+            ))}
+            <div className="ml-6 pt-2 border-t border-gray-200 flex justify-between items-center font-medium">
+              <span>Total Accommodation:</span>
+              <span>{formatPrice(roomsCost)} {packageData.currency || "EGP"}</span>
+            </div>
+          </div>
+        )}
+
+        {/* Tours Breakdown */}
+        {toursBreakdown.length > 0 && (
+          <div className="space-y-3">
+            <h4 className="font-semibold text-gray-900 flex items-center gap-2">
+              <MapPin className="w-4 h-4 text-green-600" />
+              Tours & Activities
+            </h4>
+            {toursBreakdown.map((tour, index) => (
+              <div key={index} className="ml-6 flex justify-between items-center">
+                <span className="text-sm">{tour.name}</span>
+                <span className="text-sm font-medium">
+                  {formatPrice(tour.price)} {packageData.currency || "EGP"}
+                </span>
+              </div>
+            ))}
+            <div className="ml-6 pt-2 border-t border-gray-200 flex justify-between items-center font-medium">
+              <span>Total Tours:</span>
+              <span>{formatPrice(toursCost)} {packageData.currency || "EGP"}</span>
+            </div>
+          </div>
+        )}
+
+        {/* Optional Excursions */}
+        {excursionsBreakdown.length > 0 && (
+          <div className="space-y-3">
+            <h4 className="font-semibold text-gray-900 flex items-center gap-2">
+              <Star className="w-4 h-4 text-purple-600" />
+              Optional Excursions
+            </h4>
+            {excursionsBreakdown.map((excursion, index) => (
+              <div key={index} className="ml-6 flex justify-between items-center">
+                <span className="text-sm">{excursion.name}</span>
+                <span className="text-sm font-medium">
+                  {formatPrice(excursion.price)} {packageData.currency || "EGP"}
+                </span>
+              </div>
+            ))}
+            <div className="ml-6 pt-2 border-t border-gray-200 flex justify-between items-center font-medium">
+              <span>Total Excursions:</span>
+              <span>{formatPrice(excursionsCost)} {packageData.currency || "EGP"}</span>
+            </div>
+          </div>
+        )}
+
+        {/* Upgrade Charges */}
+        {upgradePrice > 0 && (
+          <div className="space-y-3">
+            <h4 className="font-semibold text-gray-900 flex items-center gap-2">
+              <Star className="w-4 h-4 text-yellow-600" />
+              Hotel Upgrades
+            </h4>
+            <div className="ml-6 flex justify-between items-center">
+              <span className="text-sm">Upgrade Charges</span>
+              <span className="text-sm font-medium">
+                {formatPrice(upgradePrice)} {packageData.currency || "EGP"}
+              </span>
+            </div>
+          </div>
+        )}
+
+        <Separator />
+
+        {/* Subtotal */}
+        <div className="flex justify-between items-center text-lg font-semibold">
+          <span>Subtotal:</span>
+          <span>{formatPrice(subtotal)} {packageData.currency || "EGP"}</span>
+        </div>
+
+        {/* VAT and Service Fees */}
+        {vatEnabled && vatAmount > 0 && (
+          <div className="flex justify-between items-center text-sm">
+            <span className="flex items-center gap-1">
+              <Percent className="w-4 h-4" />
+              VAT ({Math.round(vatRate * 100)}%):
+            </span>
+            <span>{formatPrice(vatAmount)} {packageData.currency || "EGP"}</span>
+          </div>
+        )}
+
+        {serviceFeeEnabled && serviceFee > 0 && (
+          <div className="flex justify-between items-center text-sm">
+            <span>Service Fee:</span>
+            <span>{formatPrice(serviceFee)} {packageData.currency || "EGP"}</span>
+          </div>
+        )}
+
+        {/* Total */}
+        <div className="bg-primary/10 p-4 rounded-lg">
+          <div className="flex justify-between items-center text-xl font-bold text-primary">
+            <span>Total Price:</span>
+            <span>{formatPrice(totalPrice)} {packageData.currency || "EGP"}</span>
+          </div>
+          {hasDiscount && savings > 0 && (
+            <div className="mt-2 text-sm text-green-600 font-medium">
+              You save: {formatPrice(savings)} {packageData.currency || "EGP"}
+            </div>
+          )}
+        </div>
+
+        {/* Price Per Person Info */}
+        <div className="bg-gray-50 p-3 rounded-lg">
+          <div className="flex items-center gap-2 text-sm text-gray-600">
+            <Info className="w-4 h-4" />
+            <span>
+              Price per person: {formatPrice(totalPrice / totalPAX)} {packageData.currency || "EGP"}
+            </span>
+          </div>
+        </div>
+      </CardContent>
+    </Card>
   );
 }
