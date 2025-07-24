@@ -972,10 +972,44 @@ export class DatabaseStorage implements IStorage {
     try {
       console.log('Creating tour with data:', JSON.stringify(tour, null, 2));
       
-      // Create a safe copy with proper type assertions
+      // Create a safe copy with proper processing for database insertion
       const processedTour: any = { ...tour };
       
-      // Clean up the data for insert
+      // Ensure title is set if missing (copy from name)
+      if (!processedTour.title && processedTour.name) {
+        processedTour.title = processedTour.name;
+      }
+      
+      // Handle JSON fields - ensure they're properly serialized for PostgreSQL JSONB
+      const jsonFields = ['galleryUrls', 'included', 'excluded', 'includedAr', 'excludedAr'];
+      for (const field of jsonFields) {
+        if (processedTour[field] !== undefined && processedTour[field] !== null) {
+          // If it's already an array or object, stringify it for PostgreSQL JSONB
+          if (Array.isArray(processedTour[field]) || typeof processedTour[field] === 'object') {
+            // PostgreSQL JSONB can handle arrays/objects directly in Drizzle
+            // Keep as is - Drizzle will handle the serialization
+          } else if (typeof processedTour[field] === 'string') {
+            try {
+              // If it's a string that looks like JSON, parse it first
+              processedTour[field] = JSON.parse(processedTour[field]);
+            } catch (e) {
+              // If parsing fails, wrap string in array
+              processedTour[field] = [processedTour[field]];
+            }
+          }
+        } else {
+          // Set null values to empty arrays for consistency
+          processedTour[field] = [];
+        }
+      }
+      
+      // Clean up any undefined values that could cause issues
+      Object.keys(processedTour).forEach(key => {
+        if (processedTour[key] === undefined) {
+          delete processedTour[key];
+        }
+      });
+      
       console.log('Processed tour data before insert:', JSON.stringify(processedTour, null, 2));
       
       const [created] = await db.insert(tours).values(processedTour).returning();

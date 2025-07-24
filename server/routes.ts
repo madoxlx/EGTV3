@@ -2983,22 +2983,38 @@ export async function registerRoutes(app: Express): Promise<Server> {
             url.trim() !== '' && 
             !url.includes('blob:')
           );
+          // If no valid URLs remain, set to empty array
+          if (processedData.galleryUrls.length === 0) {
+            processedData.galleryUrls = [];
+          }
         }
+      } else {
+        processedData.galleryUrls = [];
       }
       
-      // Handle other JSON fields that might need processing
+      // Handle JSON fields that need to be arrays for database storage
       const jsonFields = ['included', 'excluded', 'includedAr', 'excludedAr'];
       for (const field of jsonFields) {
-        if (processedData[field] && Array.isArray(processedData[field])) {
-          // Keep as array - database schema expects JSON arrays
-          continue;
-        } else if (processedData[field] && typeof processedData[field] === 'string') {
-          try {
-            processedData[field] = JSON.parse(processedData[field]);
-          } catch (e) {
-            // If parsing fails, convert string to array
+        if (processedData[field]) {
+          if (Array.isArray(processedData[field])) {
+            // Already an array, keep as is
+            continue;
+          } else if (typeof processedData[field] === 'string') {
+            try {
+              // Try to parse as JSON first
+              const parsed = JSON.parse(processedData[field]);
+              processedData[field] = Array.isArray(parsed) ? parsed : [parsed];
+            } catch (e) {
+              // If parsing fails, convert string to array
+              processedData[field] = [processedData[field]];
+            }
+          } else {
+            // For any other type, convert to array
             processedData[field] = [processedData[field]];
           }
+        } else {
+          // If field is null/undefined, set to empty array
+          processedData[field] = [];
         }
       }
       
@@ -3018,6 +3034,23 @@ export async function registerRoutes(app: Express): Promise<Server> {
         processedData.galleryUrls = processedData.gallery;
         delete processedData.gallery;
       }
+      
+      // Ensure title is set (required by database schema)
+      if (!processedData.title && processedData.name) {
+        processedData.title = processedData.name;
+      }
+      
+      // Convert numeric fields to proper types
+      if (processedData.price) processedData.price = parseInt(processedData.price);
+      if (processedData.adultPrice) processedData.adultPrice = parseInt(processedData.adultPrice);
+      if (processedData.childPrice) processedData.childPrice = parseInt(processedData.childPrice);
+      if (processedData.infantPrice) processedData.infantPrice = parseInt(processedData.infantPrice);
+      if (processedData.duration) processedData.duration = parseInt(processedData.duration);
+      if (processedData.maxCapacity) processedData.maxCapacity = parseInt(processedData.maxCapacity);
+      if (processedData.maxGroupSize) processedData.maxGroupSize = parseInt(processedData.maxGroupSize);
+      if (processedData.numPassengers) processedData.numPassengers = parseInt(processedData.numPassengers);
+      if (processedData.rating) processedData.rating = parseFloat(processedData.rating);
+      if (processedData.reviewCount) processedData.reviewCount = parseInt(processedData.reviewCount);
       
       console.log('Processed tour data:', JSON.stringify(processedData, null, 2));
       
