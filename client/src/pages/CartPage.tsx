@@ -8,6 +8,7 @@ import { Badge } from "@/components/ui/badge";
 import { Separator } from "@/components/ui/separator";
 import { toast } from "@/hooks/use-toast";
 import { ShoppingCart, Plus, Minus, Trash2, ArrowRight, LogIn, UserPlus } from "lucide-react";
+import CartRoomDistribution from '@/components/cart/CartRoomDistribution';
 
 export default function CartPage() {
   const { user, isLoading: authLoading } = useAuth();
@@ -168,6 +169,16 @@ export default function CartPage() {
                                 day: 'numeric' 
                               })}
                             </div>
+                          )}
+                          
+                          {/* Room Distribution Display */}
+                          {item.configuration && (item.configuration.selectedRooms || item.configuration.roomDistribution) && (
+                            <CartRoomDistribution
+                              configuration={item.configuration}
+                              adults={item.adults}
+                              children={item.children}
+                              infants={item.infants}
+                            />
                           )}
                         </div>
                         <div className="flex items-center justify-between">
