@@ -50,11 +50,6 @@ const roomFormSchema = z.object({
   maxInfants: z.number().min(0, "Must be a positive number"),
   price: z.number().min(0, "Price must be a positive number"),
   discountedPrice: z.number().min(0, "Discounted price must be positive").nullable().optional(),
-  // New pricing rules fields
-  adultPrice: z.number().min(0, "Adult price must be positive").nullable().optional(),
-  childPrice: z.number().min(0, "Child price must be positive").nullable().optional(),
-  infantPrice: z.number().min(0, "Infant price must be positive").nullable().optional(),
-  pricingRule: z.enum(["per_room", "per_person"]).default("per_room"),
   size: z.string().optional(),
   bedType: z.string().optional(),
   view: z.string().optional(),
@@ -209,10 +204,6 @@ export default function RoomCreatePage() {
       maxInfants: 0,
       price: 0,
       discountedPrice: 0,
-      adultPrice: null,
-      childPrice: null,
-      infantPrice: null,
-      pricingRule: "per_room",
       size: "",
       bedType: "",
       view: "",
@@ -260,40 +251,36 @@ export default function RoomCreatePage() {
     // Populate form with room data when in edit mode and data is loaded
     if (isEditMode && roomData) {
       console.log("Loading room data for editing:", roomData);
-      const amenitiesArray = (roomData as any).amenities ? 
-        (typeof (roomData as any).amenities === 'string' ? 
-          (roomData as any).amenities.split(',').map((a: any) => a.trim()) : 
-          Array.isArray((roomData as any).amenities) ? (roomData as any).amenities : []
+      const amenitiesArray = roomData.amenities ? 
+        (typeof roomData.amenities === 'string' ? 
+          roomData.amenities.split(',').map((a: any) => a.trim()) : 
+          Array.isArray(roomData.amenities) ? roomData.amenities : []
         ) : [];
       
       // Set images if available
-      if ((roomData as any).images && Array.isArray((roomData as any).images)) {
-        setImages((roomData as any).images);
-      } else if ((roomData as any).imageUrl) {
-        setImages([(roomData as any).imageUrl]);
+      if (roomData.images && Array.isArray(roomData.images)) {
+        setImages(roomData.images);
+      } else if (roomData.imageUrl) {
+        setImages([roomData.imageUrl]);
       }
       
       // Reset form with room data matching new schema
       form.reset({
-        name: (roomData as any).name || "",
-        description: (roomData as any).description || "",
-        hotelId: (roomData as any).hotelId ? (roomData as any).hotelId.toString() : "",
-        type: (roomData as any).type || "",
-        maxOccupancy: (roomData as any).maxOccupancy || 2,
-        maxAdults: (roomData as any).maxAdults || 2,
-        maxChildren: (roomData as any).maxChildren || 0,
-        maxInfants: (roomData as any).maxInfants || 0,
-        price: (roomData as any).price ? (roomData as any).price / 100 : 0, // Convert from cents
-        discountedPrice: (roomData as any).discountedPrice ? (roomData as any).discountedPrice / 100 : undefined,
-        adultPrice: (roomData as any).adultPrice ? (roomData as any).adultPrice / 100 : null,
-        childPrice: (roomData as any).childPrice ? (roomData as any).childPrice / 100 : null,
-        infantPrice: (roomData as any).infantPrice ? (roomData as any).infantPrice / 100 : null,
-        pricingRule: (roomData as any).pricingRule || "per_room",
-        size: (roomData as any).size || "",
-        bedType: (roomData as any).bedType || "",
-        view: (roomData as any).view || "",
+        name: roomData.name || "",
+        description: roomData.description || "",
+        hotelId: roomData.hotelId ? roomData.hotelId.toString() : "",
+        type: roomData.type || "",
+        maxOccupancy: roomData.maxOccupancy || 2,
+        maxAdults: roomData.maxAdults || 2,
+        maxChildren: roomData.maxChildren || 0,
+        maxInfants: roomData.maxInfants || 0,
+        price: roomData.price ? roomData.price / 100 : 0, // Convert from cents
+        discountedPrice: roomData.discountedPrice ? roomData.discountedPrice / 100 : undefined,
+        size: roomData.size || "",
+        bedType: roomData.bedType || "",
+        view: roomData.view || "",
         amenities: amenitiesArray,
-        available: (roomData as any).available !== false,
+        available: roomData.available !== false,
       });
     }
   }, [isEditMode, roomData, form]);
@@ -324,16 +311,11 @@ export default function RoomCreatePage() {
         maxInfants: Number(data.maxInfants),
         price: Math.round(Number(data.price) * 100), // Convert to cents
         discountedPrice: data.discountedPrice && data.discountedPrice > 0 ? Math.round(Number(data.discountedPrice) * 100) : undefined,
-        // Add new pricing fields
-        adultPrice: data.adultPrice && data.adultPrice > 0 ? Math.round(Number(data.adultPrice) * 100) : undefined,
-        childPrice: data.childPrice && data.childPrice > 0 ? Math.round(Number(data.childPrice) * 100) : undefined,
-        infantPrice: data.infantPrice && data.infantPrice > 0 ? Math.round(Number(data.infantPrice) * 100) : undefined,
-        pricingRule: data.pricingRule,
         currency: "EGP",
         imageUrl: images.length > 0 ? images[0] : undefined,
         size: data.size?.trim(),
         bedType: data.bedType,
-        amenities: data.amenities && data.amenities.length > 0 ? data.amenities : undefined,
+        amenities: data.amenities?.length > 0 ? data.amenities : undefined,
         view: data.view,
         available: Boolean(data.available),
         status: data.available ? "active" : "inactive",
@@ -850,117 +832,6 @@ export default function RoomCreatePage() {
                       )}
                     />
                   </div>
-
-                  {/* Pricing Rule Selection */}
-                  <div className="grid grid-cols-1 gap-4">
-                    <FormField
-                      control={form.control}
-                      name="pricingRule"
-                      render={({ field }) => (
-                        <FormItem>
-                          <FormLabel>Pricing Rule*</FormLabel>
-                          <Select
-                            onValueChange={field.onChange}
-                            value={field.value}
-                          >
-                            <FormControl>
-                              <SelectTrigger>
-                                <SelectValue placeholder="Select pricing rule" />
-                              </SelectTrigger>
-                            </FormControl>
-                            <SelectContent>
-                              <SelectItem value="per_room">Per Room</SelectItem>
-                              <SelectItem value="per_person">Per Person</SelectItem>
-                            </SelectContent>
-                          </Select>
-                          <FormDescription>
-                            Choose whether pricing is calculated per room or per person
-                          </FormDescription>
-                          <FormMessage />
-                        </FormItem>
-                      )}
-                    />
-                  </div>
-
-                  {/* Age-Specific Pricing (shown when per_person is selected) */}
-                  {form.watch("pricingRule") === "per_person" && (
-                    <div className="space-y-4 border-t pt-4">
-                      <h4 className="text-md font-medium text-blue-800">Age-Specific Pricing (Per Person Per Night)</h4>
-                      <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-                        {/* Adult Price */}
-                        <FormField
-                          control={form.control}
-                          name="adultPrice"
-                          render={({ field }) => (
-                            <FormItem>
-                              <FormLabel>Adult Price (EGP)</FormLabel>
-                              <FormControl>
-                                <Input 
-                                  type="number" 
-                                  min="0" 
-                                  step="0.01"
-                                  placeholder="500.00" 
-                                  {...field}
-                                  onChange={e => field.onChange(e.target.value ? parseFloat(e.target.value) : null)}
-                                  value={field.value || ""}
-                                />
-                              </FormControl>
-                              <FormDescription>Price per adult per night</FormDescription>
-                              <FormMessage />
-                            </FormItem>
-                          )}
-                        />
-
-                        {/* Child Price */}
-                        <FormField
-                          control={form.control}
-                          name="childPrice"
-                          render={({ field }) => (
-                            <FormItem>
-                              <FormLabel>Child Price (EGP)</FormLabel>
-                              <FormControl>
-                                <Input 
-                                  type="number" 
-                                  min="0" 
-                                  step="0.01"
-                                  placeholder="300.00" 
-                                  {...field}
-                                  onChange={e => field.onChange(e.target.value ? parseFloat(e.target.value) : null)}
-                                  value={field.value || ""}
-                                />
-                              </FormControl>
-                              <FormDescription>Price per child per night</FormDescription>
-                              <FormMessage />
-                            </FormItem>
-                          )}
-                        />
-
-                        {/* Infant Price */}
-                        <FormField
-                          control={form.control}
-                          name="infantPrice"
-                          render={({ field }) => (
-                            <FormItem>
-                              <FormLabel>Infant Price (EGP)</FormLabel>
-                              <FormControl>
-                                <Input 
-                                  type="number" 
-                                  min="0" 
-                                  step="0.01"
-                                  placeholder="0.00" 
-                                  {...field}
-                                  onChange={e => field.onChange(e.target.value ? parseFloat(e.target.value) : null)}
-                                  value={field.value || ""}
-                                />
-                              </FormControl>
-                              <FormDescription>Price per infant per night (often free)</FormDescription>
-                              <FormMessage />
-                            </FormItem>
-                          )}
-                        />
-                      </div>
-                    </div>
-                  )}
                 </div>
 
                 {/* Amenities */}
