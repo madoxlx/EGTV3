@@ -88,6 +88,15 @@ The application uses a comprehensive PostgreSQL schema with the following core e
 
 ## Recent Changes
 
+### Cart Pricing Calculation Fix for Multi-Traveler Packages (July 24, 2025)
+- **Price Calculation Accuracy**: Fixed critical cart pricing mismatch where booking page showed correct total (144,000 EGP for 6 travelers) but cart only showed base price (4,950 EGP)
+- **Total Traveler Calculation**: Enhanced BookPackageButton to calculate total price as base price × (adults + children + infants) instead of saving only base price per person
+- **Booking Data Transfer**: Improved cart item data structure to include detailed configuration (nights, total travelers, base price breakdown)
+- **Price Consistency**: Cart totals now match booking page calculations, ensuring accurate pricing throughout booking flow
+- **Enhanced Logging**: Added comprehensive console logging for price calculation debugging including traveler counts, nights, and total calculations
+- **Configuration Storage**: Cart items now store complete booking configuration including date ranges, room selections, and traveler breakdown
+- **User Experience**: Eliminated confusion between booking page and cart page pricing with consistent total calculations
+
 ### Database Schema Fix - Missing Order Column (July 24, 2025)
 - **Database Error Resolution**: Fixed critical "column 'order' does not exist" error in homepage_sections table that was preventing homepage sections API from working
 - **Schema Synchronization**: Added missing 'order' INTEGER column to homepage_sections table in external PostgreSQL database

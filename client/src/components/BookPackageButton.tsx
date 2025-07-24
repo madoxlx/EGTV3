@@ -157,6 +157,38 @@ const BookPackageButton: React.FC<BookPackageButtonProps> = ({
         return new Date(Date.now() + 30 * 24 * 60 * 60 * 1000).toISOString().split('T')[0];
       };
 
+      // Calculate actual nights based on date range or package duration
+      const calculateNights = () => {
+        if (formData?.dateMode === "range" && formData?.startDate && formData?.endDate) {
+          const start = new Date(formData.startDate);
+          const end = new Date(formData.endDate);
+          const diffTime = Math.abs(end.getTime() - start.getTime());
+          return Math.max(1, Math.ceil(diffTime / (1000 * 60 * 60 * 24)));
+        }
+        // Use package duration as nights (convert days to nights)
+        return Math.max(1, (pkg.duration || 3) - 1);
+      };
+
+      // Calculate total travelers
+      const totalTravelers = (formData?.adults || 2) + (formData?.children || 0) + (formData?.infants || 0);
+      const nights = calculateNights();
+      
+      // Calculate actual total price for all travelers and nights
+      // This matches the pricing calculation from EnhancedPriceCalculation.tsx
+      const basePricePerPerson = pkg.discountedPrice || pkg.price;
+      
+      // For packages, multiply by total travelers (adults + children + infants)
+      // This ensures cart shows the same total as the booking page
+      const totalPrice = basePricePerPerson * totalTravelers;
+
+      console.log('Package Slug:', pkg.id);
+      console.log('All Packages:', [pkg]);
+      console.log('Package Data:', pkg);
+      console.log('Total travelers:', totalTravelers);
+      console.log('Nights:', nights);
+      console.log('Base price per person:', basePricePerPerson);
+      console.log('Calculated total price:', totalPrice);
+
       const cartItem = {
         itemType: 'package',
         itemId: parseInt(pkg.id.toString(), 10),
@@ -211,8 +243,8 @@ const BookPackageButton: React.FC<BookPackageButtonProps> = ({
           itineraryAr: pkg.itineraryAr,
           whatToPackAr: pkg.whatToPackAr,
         },
-        priceAtAdd: pkg.discountedPrice || pkg.price,
-        discountedPriceAtAdd: pkg.discountedPrice || pkg.price,
+        priceAtAdd: totalPrice, // Use calculated total price instead of base price
+        discountedPriceAtAdd: totalPrice, // Use calculated total price
         quantity: 1,
         adults: formData?.adults || 2,
         children: formData?.children || 0,
@@ -225,7 +257,10 @@ const BookPackageButton: React.FC<BookPackageButtonProps> = ({
           hotelPackage: formData?.hotelPackage,
           dateMode: formData?.dateMode || "single",
           startDate: formData?.startDate || "",
-          endDate: formData?.endDate || ""
+          endDate: formData?.endDate || "",
+          nights: nights,
+          totalTravelers: totalTravelers,
+          basePricePerPerson: basePricePerPerson
         }
       };
 

@@ -129,22 +129,46 @@ export default function CartPage() {
                         <h3 className="font-semibold text-lg text-gray-900 mb-2">
                           {item.itemName || `${item.itemType} #${item.itemId}`}
                         </h3>
-                        <div className="flex items-center gap-4 text-sm text-gray-600 mb-4">
-                          <span className="flex items-center">
-                            <Badge variant="secondary" className="mr-1">
-                              {item.adults} Adults
-                            </Badge>
-                            {item.children > 0 && (
-                              <Badge variant="outline" className="mr-1">
-                                {item.children} Children
+                        <div className="space-y-2 text-sm text-gray-600 mb-4">
+                          <div className="flex items-center gap-2">
+                            <span className="flex items-center gap-1">
+                              <Badge variant="secondary" className="text-xs">
+                                {item.adults} Adults
                               </Badge>
-                            )}
-                            {item.infants > 0 && (
-                              <Badge variant="outline">
-                                {item.infants} Infants
-                              </Badge>
-                            )}
-                          </span>
+                              {item.children > 0 && (
+                                <Badge variant="outline" className="text-xs">
+                                  {item.children} Children
+                                </Badge>
+                              )}
+                              {item.infants > 0 && (
+                                <Badge variant="outline" className="text-xs">
+                                  {item.infants} Infants
+                                </Badge>
+                              )}
+                            </span>
+                          </div>
+                          {item.configuration && (
+                            <div className="flex items-center gap-4 text-xs">
+                              {item.configuration.nights && (
+                                <span>📅 {item.configuration.nights} nights</span>
+                              )}
+                              {item.configuration.basePricePerPerson && (
+                                <span>💰 {item.configuration.basePricePerPerson.toLocaleString('ar-EG')} EGP per person</span>
+                              )}
+                              {item.configuration.totalTravelers && (
+                                <span>👥 {item.configuration.totalTravelers} travelers total</span>
+                              )}
+                            </div>
+                          )}
+                          {item.travelDate && (
+                            <div className="text-xs text-indigo-600">
+                              📆 Travel Date: {new Date(item.travelDate).toLocaleDateString('en-US', { 
+                                year: 'numeric', 
+                                month: 'long', 
+                                day: 'numeric' 
+                              })}
+                            </div>
+                          )}
                         </div>
                         <div className="flex items-center justify-between">
                           <div className="flex items-center gap-3">
@@ -180,6 +204,12 @@ export default function CartPage() {
                         <div className="text-2xl font-bold text-gray-900">
                           {((item.discountedPriceAtAdd || item.priceAtAdd) * item.quantity).toLocaleString('ar-EG')} EGP
                         </div>
+                        {item.configuration?.basePricePerPerson && item.configuration?.totalTravelers && (
+                          <div className="text-xs text-gray-500 mt-1">
+                            {item.configuration.basePricePerPerson.toLocaleString('ar-EG')} × {item.configuration.totalTravelers} travelers
+                            {item.quantity > 1 && ` × ${item.quantity} booking${item.quantity > 1 ? 's' : ''}`}
+                          </div>
+                        )}
                         {item.discountedPriceAtAdd && item.discountedPriceAtAdd < item.priceAtAdd && (
                           <div className="text-sm text-gray-500 line-through">
                             {(item.priceAtAdd * item.quantity).toLocaleString('ar-EG')} EGP
