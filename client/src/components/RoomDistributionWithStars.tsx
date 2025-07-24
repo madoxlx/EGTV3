@@ -711,6 +711,91 @@ export default function RoomDistributionWithStars({
           </p>
         </div>
       )}
+
+      {/* Total Summary - Rooms + Tours */}
+      {actualDistribution.length > 0 && (() => {
+        // Calculate total rooms cost
+        const totalRoomsCost = actualDistribution
+          .filter((dist: any) => dist.isUsed)
+          .reduce((sum: number, dist: any) => sum + dist.totalCost, 0);
+
+        // Calculate tours cost from package data
+        const packageTours = (packageData as any)?.tours || [];
+        const toursCost = Array.isArray(packageTours) 
+          ? packageTours.reduce((sum: number, tour: any) => {
+              const tourPrice = tour.price || 0;
+              // Calculate per person pricing for tours (adults + 70% children + 10% infants)
+              const totalTourCost = tourPrice * (adults + children * 0.7 + infants * 0.1);
+              return sum + totalTourCost;
+            }, 0)
+          : 0;
+        
+        // Total package cost
+        const totalPackageCost = totalRoomsCost + toursCost;
+
+        return (
+          <div className="bg-blue-50 border-2 border-blue-200 rounded-lg p-4 mt-6">
+            <h4 className="font-semibold text-blue-900 mb-3">Price Breakdown</h4>
+            
+            {/* Accommodation breakdown */}
+            <div className="space-y-2 mb-4">
+              <div className="flex justify-between text-sm">
+                <span className="text-blue-800">🏨 Accommodation ({nights} nights)</span>
+                <span className="font-medium text-blue-900">
+                  {totalRoomsCost.toLocaleString("en-US")} EGP
+                </span>
+              </div>
+              <div className="ml-4 space-y-1 text-xs text-blue-700">
+                {actualDistribution
+                  .filter((dist: any) => dist.isUsed)
+                  .map((dist: any, index: number) => (
+                    <div key={index} className="flex justify-between">
+                      <span>• {dist.room.name} × {dist.totalAssigned} pax × {nights} nights</span>
+                      <span>{dist.totalCost.toLocaleString("en-US")} EGP</span>
+                    </div>
+                  ))}
+              </div>
+            </div>
+
+            {/* Tours cost (when available) */}
+            {toursCost > 0 && (
+              <div className="space-y-2 mb-4">
+                <div className="flex justify-between text-sm">
+                  <span className="text-blue-800">🚌 Tours & Activities</span>
+                  <span className="font-medium text-blue-900">
+                    {toursCost.toLocaleString("en-US")} EGP
+                  </span>
+                </div>
+                <div className="ml-4 space-y-1 text-xs text-blue-700">
+                  {Array.isArray(packageTours) && packageTours.map((tour: any, index: number) => {
+                    const tourPrice = tour.price || 0;
+                    const totalTourCost = tourPrice * (adults + children * 0.7 + infants * 0.1);
+                    return (
+                      <div key={index} className="flex justify-between">
+                        <span>• {tour.name || `Tour ${index + 1}`}</span>
+                        <span>{totalTourCost.toLocaleString("en-US")} EGP</span>
+                      </div>
+                    );
+                  })}
+                </div>
+              </div>
+            )}
+
+            {/* Total */}
+            <div className="border-t border-blue-300 pt-3">
+              <div className="flex justify-between items-center">
+                <span className="font-semibold text-blue-900">Total Package Cost</span>
+                <span className="text-xl font-bold text-blue-900">
+                  {totalPackageCost.toLocaleString("en-US")} EGP
+                </span>
+              </div>
+              <div className="text-xs text-blue-700 mt-1">
+                For {actualDistribution.reduce((sum: number, dist: any) => sum + dist.totalAssigned, 0)} travelers • {nights} nights
+              </div>
+            </div>
+          </div>
+        );
+      })()}
     </div>
   );
 }

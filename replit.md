@@ -1407,6 +1407,23 @@ The application uses a comprehensive PostgreSQL schema with the following core e
 
 ## Recent Changes
 
+### Cart Room Distribution Display Complete (July 24, 2025)
+- **CartRoomDistribution Component**: Created specialized component for displaying room distribution in cart items
+- **Hotel Information Display**: Shows hotel name, star ratings, and location in cart
+- **Room Type Details**: Displays room names, maximum occupancy, and pricing per person  
+- **Traveler Assignment Breakdown**: Shows assigned adults, children, and infants per room with color-coded badges
+- **Cost Calculations**: Displays per-person pricing and total room costs
+- **Cart Integration**: Seamlessly integrated component into cart page with proper data handling
+- **Professional Styling**: Matches design requirements with green borders for active rooms and detailed breakdown
+
+### Total Calculation Enhancement Complete (July 24, 2025)
+- **Room Distribution Total**: Added comprehensive price breakdown section to RoomDistributionWithStars component
+- **Rooms Cost Calculation**: Sums individual room totals from room distribution system
+- **Tours Cost Integration**: Calculates tours cost from package data with per-person pricing (adults + 70% children + 10% infants)
+- **Detailed Breakdown**: Shows individual room costs and tour costs with itemized breakdown
+- **Total Package Cost**: Displays final total as sum of room costs + tour costs as requested
+- **Visual Enhancement**: Professional blue-themed summary card with clear cost hierarchy
+
 - **Hotel Features Database Storage Fix Complete (July 1, 2025)**: Successfully resolved critical issue where hotel features weren't being saved to database
   - Fixed missing 'features' field in insertHotelSchema .pick() selection that was stripping features during validation
   - Added features field with proper Zod validation for feature objects containing name and icon properties
