@@ -5,6 +5,7 @@ import { StarIcon, StarHalfIcon, MapPinIcon, UsersIcon, UtensilsIcon, Loader2 } 
 import { handleImageError } from '@/lib/image-utils';
 import { useQuery } from "@tanstack/react-query";
 import BookPackageButton from '@/components/BookPackageButton';
+import { useLanguage } from '@/hooks/use-language';
 
 // Package interface matching the database schema
 interface Package {
@@ -24,6 +25,8 @@ interface Package {
 }
 
 const PopularPackages: React.FC = () => {
+  const { t } = useLanguage();
+  
   // Fetch packages from API with optimized settings
   const { data: packages = [], isLoading } = useQuery<Package[]>({
     queryKey: ['/api/packages'],
@@ -41,9 +44,9 @@ const PopularPackages: React.FC = () => {
     <section className="py-12 bg-white">
       <div className="container mx-auto px-4">
         <div className="flex justify-between items-center mb-8">
-          <h2 className="text-2xl md:text-3xl font-bold">Popular Travel Packages</h2>
+          <h2 className="text-2xl md:text-3xl font-bold">{t('packages.popular_title', 'Popular Travel Packages')}</h2>
           <a href="#" className="text-primary hover:text-primary/90 font-medium flex items-center">
-            View All Packages <i className="fas fa-arrow-right ml-2"></i>
+            {t('packages.view_all', 'View All Packages')} <i className="fas fa-arrow-right ml-2"></i>
           </a>
         </div>
 
@@ -57,7 +60,7 @@ const PopularPackages: React.FC = () => {
         {/* No packages found */}
         {!isLoading && popularPackages.length === 0 && (
           <div className="text-center py-10 text-gray-500">
-            No popular packages found. Add featured packages in the admin panel to display them here.
+            {t('packages.no_packages', 'No popular packages found. Add featured packages in the admin panel to display them here.')}
           </div>
         )}
 
@@ -74,7 +77,7 @@ const PopularPackages: React.FC = () => {
                     onError={handleImageError}
                   />
                   <div className="absolute top-3 left-3 bg-white/90 backdrop-blur-sm text-primary px-3 py-1 rounded-full text-sm font-medium">
-                    {pkg.duration || "Multi-day"}
+                    {pkg.duration || t('packages.multi_day', 'Multi-day')}
                   </div>
                 </div>
 
@@ -90,7 +93,7 @@ const PopularPackages: React.FC = () => {
                         <StarIcon key={i} fill="currentColor" size={16} />
                       ))}
                     </div>
-                    <span className="ml-2 text-neutral-600 text-sm">5.0 (New package)</span>
+                    <span className="ml-2 text-neutral-600 text-sm">{t('packages.rating_new', '5.0 (New package)')}</span>
                   </div>
 
                   <p className="text-neutral-600 mb-4">{pkg.description}</p>
@@ -98,22 +101,22 @@ const PopularPackages: React.FC = () => {
                   <div className="flex flex-wrap gap-2 mb-4">
                     <span className="flex items-center text-xs text-neutral-700">
                       <MapPinIcon className="text-primary mr-1" size={12} />
-                      {pkg.type || "Multiple destinations"}
+                      {pkg.type || t('packages.multiple_destinations', 'Multiple destinations')}
                     </span>
                     <span className="flex items-center text-xs text-neutral-700">
                       <UsersIcon className="text-primary mr-1" size={12} />
-                      {pkg.duration || 5} days
+                      {pkg.duration || 5} {t('packages.days', 'days')}
                     </span>
                     <span className="flex items-center text-xs text-neutral-700">
                       <UtensilsIcon className="text-primary mr-1" size={12} />
-                      {pkg.inclusions?.join(", ") || "Inclusions available"}
+                      {pkg.inclusions?.join(", ") || t('packages.inclusions_available', 'Inclusions available')}
                     </span>
                   </div>
 
                   <div className="pt-3 border-t border-neutral-200 flex justify-between items-center">
-                    <a href={`/packages/${pkg.slug || pkg.id}`} className="text-primary hover:text-primary/90 font-medium text-sm">View Details</a>
+                    <a href={`/packages/${pkg.slug || pkg.id}`} className="text-primary hover:text-primary/90 font-medium text-sm">{t('packages.view_details', 'View Details')}</a>
                     <BookPackageButton 
-                      package={pkg}
+                      package={{...pkg, currency: 'EGP'}}
                       className="bg-primary hover:bg-primary/90 text-white px-4 py-2 rounded-lg text-sm font-medium transition-colors"
                     />
                   </div>

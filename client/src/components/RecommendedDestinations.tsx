@@ -4,6 +4,7 @@ import { FaStar, FaMapMarkerAlt } from "react-icons/fa";
 import { useQuery } from "@tanstack/react-query";
 import { Loader2 } from "lucide-react";
 import { handleImageError } from "@/lib/image-utils";
+import { useLanguage } from "@/hooks/use-language";
 
 // Destination types with categories for filtering
 type Category = "Popular" | "Adventure" | "Honeymoon" | "Cultural" | "Relaxation" | "Nature";
@@ -92,6 +93,7 @@ const DestinationCard = ({
 };
 
 const RecommendedDestinations: React.FC = () => {
+  const { t } = useLanguage();
   const [activeFilter, setActiveFilter] = useState<Category>("Adventure");
   const scrollContainerRef = useRef<HTMLDivElement>(null);
   const [canScrollLeft, setCanScrollLeft] = useState(false);
@@ -201,7 +203,7 @@ const RecommendedDestinations: React.FC = () => {
     <section className="py-12 bg-neutral-100">
       <div className="container mx-auto px-4">
         <h2 className="text-3xl font-bold text-center mb-4">
-          Recommended Destination
+          {t('destinations.recommended', 'Recommended Destination')}
         </h2>
 
         {/* Filter tags/buttons */}
@@ -218,7 +220,7 @@ const RecommendedDestinations: React.FC = () => {
                 }
                 onClick={() => setActiveFilter(category)}
               >
-                {category}
+                {t(`destinations.category.${category.toLowerCase()}`, category)}
               </Button>
             ),
           )}
@@ -234,7 +236,7 @@ const RecommendedDestinations: React.FC = () => {
         {/* No destinations found */}
         {!isLoading && filteredDestinations.length === 0 && (
           <div className="text-center py-10 text-gray-500">
-            No destinations found for this category. Try another filter or add destinations in the admin panel.
+            {t('destinations.no_destinations', 'No destinations found for this category. Try another filter or add destinations in the admin panel.')}
           </div>
         )}
 
@@ -262,7 +264,7 @@ const RecommendedDestinations: React.FC = () => {
               >
                 <path d="m15 18-6-6 6-6" />
               </svg>
-              <span className="sr-only">Scroll left</span>
+              <span className="sr-only">{t('common.scroll_left', 'Scroll left')}</span>
             </Button>
 
             {/* Right scroll button */}
@@ -286,7 +288,7 @@ const RecommendedDestinations: React.FC = () => {
               >
                 <path d="m9 18 6-6-6-6" />
               </svg>
-              <span className="sr-only">Scroll right</span>
+              <span className="sr-only">{t('common.scroll_right', 'Scroll right')}</span>
             </Button>
 
             <div

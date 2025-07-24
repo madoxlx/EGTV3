@@ -11,8 +11,10 @@ import { useCart } from '@/hooks/useCart';
 import { useToast } from '@/hooks/use-toast';
 import { apiRequest } from '@/lib/queryClient';
 import { Link, useLocation } from 'wouter';
+import { useLanguage } from '@/hooks/use-language';
 
 const CheckoutForm = () => {
+  const { t, isRTL } = useLanguage();
   const { toast } = useToast();
   const { cartItems, calculateTotals, clearCart } = useCart();
   const [, setLocation] = useLocation();
@@ -32,8 +34,8 @@ const CheckoutForm = () => {
 
     if (!customerInfo.name || !customerInfo.email) {
       toast({
-        title: "Missing Information",
-        description: "Please provide your name and email address",
+        title: t('checkout.missingInfo', 'Missing Information'),
+        description: t('checkout.missingInfoDesc', 'Please provide your name and email address'),
         variant: "destructive",
       });
       return;
@@ -76,8 +78,8 @@ const CheckoutForm = () => {
       clearCart();
       
       toast({
-        title: "Order Created Successfully",
-        description: "Your booking request has been submitted!",
+        title: t('checkout.orderSuccess', 'Order Created Successfully'),
+        description: t('checkout.orderSuccessDesc', 'Your booking request has been submitted!'),
       });
 
       // Redirect to order confirmation page
@@ -85,8 +87,8 @@ const CheckoutForm = () => {
       
     } catch (error: any) {
       toast({
-        title: "Error",
-        description: error.message || "Something went wrong. Please try again.",
+        title: t('common.error', 'Error'),
+        description: error.message || t('common.errorMessage', 'Something went wrong. Please try again.'),
         variant: "destructive",
       });
     } finally {
@@ -99,29 +101,29 @@ const CheckoutForm = () => {
       {/* Customer Information */}
       <Card>
         <CardHeader>
-          <CardTitle>Contact Information</CardTitle>
+          <CardTitle>{t('checkout.contactInfo', 'Contact Information')}</CardTitle>
         </CardHeader>
         <CardContent className="space-y-4">
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             <div>
-              <Label htmlFor="name">Full Name *</Label>
+              <Label htmlFor="name">{t('checkout.fullName', 'Full Name')} *</Label>
               <Input
                 id="name"
                 type="text"
                 value={customerInfo.name}
                 onChange={(e) => setCustomerInfo(prev => ({ ...prev, name: e.target.value }))}
-                placeholder="Enter your full name"
+                placeholder={t('checkout.fullNamePlaceholder', 'Enter your full name')}
                 required
               />
             </div>
             <div>
-              <Label htmlFor="email">Email Address *</Label>
+              <Label htmlFor="email">{t('checkout.email', 'Email Address')} *</Label>
               <Input
                 id="email"
                 type="email"
                 value={customerInfo.email}
                 onChange={(e) => setCustomerInfo(prev => ({ ...prev, email: e.target.value }))}
-                placeholder="Enter your email"
+                placeholder={t('checkout.emailPlaceholder', 'Enter your email')}
                 required
               />
             </div>

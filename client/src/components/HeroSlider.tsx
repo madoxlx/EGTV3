@@ -4,8 +4,10 @@ import { Button } from "@/components/ui/button";
 import { ChevronLeft, ChevronRight } from "lucide-react";
 import { Link } from "wouter";
 import { HeroSlide } from "@shared/schema";
+import { useLanguage } from "@/hooks/use-language";
 
 export function HeroSlider() {
+  const { t } = useLanguage();
   const [currentSlide, setCurrentSlide] = useState(0);
 
   // Fetch active slides with error handling and fallback
@@ -19,13 +21,13 @@ export function HeroSlider() {
   const fallbackSlides = [
     {
       id: 1,
-      title: "Discover the Magic of the Middle East",
-      subtitle: "Premium Travel Experiences",
-      description: "Explore ancient civilizations, breathtaking landscapes, and rich culture with our curated travel experiences.",
+      title: t('hero.fallback.title', 'Discover the Magic of the Middle East'),
+      subtitle: t('hero.fallback.subtitle', 'Premium Travel Experiences'),
+      description: t('hero.fallback.description', 'Explore ancient civilizations, breathtaking landscapes, and rich culture with our curated travel experiences.'),
       imageUrl: "https://images.unsplash.com/photo-1539650116574-75c0c6d73d0e?ixlib=rb-4.0.3&auto=format&fit=crop&w=2070&q=80",
-      buttonText: "Explore Destinations",
+      buttonText: t('hero.fallback.explore_btn', 'Explore Destinations'),
       buttonLink: "/destinations",
-      secondaryButtonText: "View Special Offers",
+      secondaryButtonText: t('hero.fallback.offers_btn', 'View Special Offers'),
       secondaryButtonLink: "/packages",
       order: 1,
       active: true,
@@ -64,7 +66,7 @@ export function HeroSlider() {
       <div className="relative h-[600px] bg-gradient-to-r from-blue-900 to-purple-900 flex items-center justify-center">
         <div className="flex flex-col items-center space-y-4">
           <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-white"></div>
-          <p className="text-white text-lg">Loading...</p>
+          <p className="text-white text-lg">{t('common.loading', 'Loading...')}</p>
         </div>
       </div>
     );
@@ -75,20 +77,20 @@ export function HeroSlider() {
       <div className="relative h-[600px] bg-gradient-to-r from-amber-50 to-orange-50 flex items-center justify-center">
         <div className="container mx-auto px-4 text-center">
           <h1 className="text-4xl md:text-6xl font-bold text-gray-800 mb-4">
-            Discover the Magic of the Middle East
+            {t('hero.fallback.title', 'Discover the Magic of the Middle East')}
           </h1>
           <p className="text-xl text-gray-600 mb-8 max-w-3xl mx-auto">
-            Explore ancient civilizations, breathtaking landscapes, and rich culture with our curated travel experiences.
+            {t('hero.fallback.description', 'Explore ancient civilizations, breathtaking landscapes, and rich culture with our curated travel experiences.')}
           </p>
           <div className="flex flex-wrap gap-4 justify-center">
             <Link href="/destinations">
               <Button size="lg" className="bg-blue-600 hover:bg-blue-700">
-                Explore Destinations
+                {t('hero.fallback.explore_btn', 'Explore Destinations')}
               </Button>
             </Link>
             <Link href="/packages">
               <Button size="lg" variant="outline">
-                View Special Offers
+                {t('hero.fallback.offers_btn', 'View Special Offers')}
               </Button>
             </Link>
           </div>
@@ -124,7 +126,7 @@ export function HeroSlider() {
             className="absolute left-4 top-1/2 -translate-y-1/2 z-50 w-12 h-12 rounded-full bg-white/20 hover:bg-white/30 text-white border border-white/30 flex items-center justify-center transition-all duration-300 hover:scale-110 backdrop-blur-sm opacity-0 group-hover:opacity-100 translate-x-[-10px] group-hover:translate-x-0"
             onClick={prevSlide}
             type="button"
-            aria-label="Previous slide"
+            aria-label={t('hero.previous_slide', 'Previous slide')}
           >
             <ChevronLeft className="h-6 w-6" />
           </button>
@@ -132,7 +134,7 @@ export function HeroSlider() {
             className="absolute right-4 top-1/2 -translate-y-1/2 z-50 w-12 h-12 rounded-full bg-white/20 hover:bg-white/30 text-white border border-white/30 flex items-center justify-center transition-all duration-300 hover:scale-110 backdrop-blur-sm opacity-0 group-hover:opacity-100 translate-x-[10px] group-hover:translate-x-0"
             onClick={nextSlide}
             type="button"
-            aria-label="Next slide"
+            aria-label={t('hero.next_slide', 'Next slide')}
           >
             <ChevronRight className="h-6 w-6" />
           </button>

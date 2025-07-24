@@ -9,8 +9,10 @@ import { Separator } from "@/components/ui/separator";
 import { toast } from "@/hooks/use-toast";
 import { ShoppingCart, Plus, Minus, Trash2, ArrowRight, LogIn, UserPlus } from "lucide-react";
 import CartRoomDistribution from '@/components/cart/CartRoomDistribution';
+import { useLanguage } from '@/hooks/use-language';
 
 export default function CartPage() {
+  const { t, isRTL } = useLanguage();
   const { user, isLoading: authLoading } = useAuth();
   const { cartItems, isLoading: cartLoading, updateCartItem, removeFromCart, calculateTotals } = useCart();
   const [, setLocation] = useLocation();
@@ -19,8 +21,8 @@ export default function CartPage() {
   useEffect(() => {
     if (!authLoading && !user) {
       toast({
-        title: "Sign In Required",
-        description: "Please sign in to view your cart",
+        title: t('cart.signInRequired', 'Sign In Required'),
+        description: t('cart.signInDescription', 'Please sign in to view your cart'),
         variant: "destructive",
       });
       // Small delay to show the toast before redirect
@@ -42,10 +44,10 @@ export default function CartPage() {
   // Show loading state
   if (authLoading || cartLoading) {
     return (
-      <div className="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100 flex items-center justify-center">
+      <div className={`min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100 flex items-center justify-center ${isRTL ? 'font-arabic' : ''}`} dir={isRTL ? 'rtl' : 'ltr'}>
         <div className="text-center">
           <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-indigo-600 mx-auto mb-4"></div>
-          <p className="text-gray-600">Loading your cart...</p>
+          <p className="text-gray-600">{t('cart.loading', 'Loading your cart...')}</p>
         </div>
       </div>
     );
@@ -54,28 +56,28 @@ export default function CartPage() {
   // Show authentication required message
   if (!user) {
     return (
-      <div className="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100 flex items-center justify-center px-4">
+      <div className={`min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100 flex items-center justify-center px-4 ${isRTL ? 'font-arabic' : ''}`} dir={isRTL ? 'rtl' : 'ltr'}>
         <Card className="w-full max-w-md">
           <CardHeader className="text-center">
             <div className="mx-auto w-16 h-16 bg-indigo-100 rounded-full flex items-center justify-center mb-4">
               <ShoppingCart className="w-8 h-8 text-indigo-600" />
             </div>
-            <CardTitle className="text-2xl">Sign In Required</CardTitle>
+            <CardTitle className="text-2xl">{t('cart.signInRequired', 'Sign In Required')}</CardTitle>
             <CardDescription>
-              You need to be signed in to view your cart and make purchases
+              {t('cart.signInMessage', 'You need to be signed in to view your cart and make purchases')}
             </CardDescription>
           </CardHeader>
           <CardContent className="space-y-4">
             <Link href="/auth">
               <Button className="w-full" size="lg">
-                <LogIn className="w-4 h-4 mr-2" />
-                Sign In
+                <LogIn className={`w-4 h-4 ${isRTL ? 'ml-2' : 'mr-2'}`} />
+                {t('auth.signIn', 'Sign In')}
               </Button>
             </Link>
             <div className="text-center text-sm text-gray-600">
-              Don't have an account?{" "}
+              {t('cart.noAccount', "Don't have an account?")}{" "}
               <Link href="/auth" className="text-indigo-600 hover:underline">
-                Sign up for free
+                {t('auth.signUpFree', 'Sign up for free')}
               </Link>
             </div>
           </CardContent>
@@ -87,17 +89,17 @@ export default function CartPage() {
   const { subtotal, tax, total } = calculateTotals();
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100 py-8">
+    <div className={`min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100 py-8 ${isRTL ? 'font-arabic' : ''}`} dir={isRTL ? 'rtl' : 'ltr'}>
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="mb-8">
-          <h1 className="text-3xl font-bold text-gray-900 flex items-center gap-3">
+          <h1 className={`text-3xl font-bold text-gray-900 flex items-center gap-3 ${isRTL ? 'flex-row-reverse' : ''}`}>
             <ShoppingCart className="w-8 h-8 text-indigo-600" />
-            Your Cart
+            {t('cart.title', 'Your Cart')}
           </h1>
           <p className="text-gray-600 mt-2">
             {cartItems.length === 0 
-              ? "Your cart is empty" 
-              : `${cartItems.length} item${cartItems.length !== 1 ? 's' : ''} in your cart`
+              ? t('cart.empty', 'Your cart is empty')
+              : t('cart.itemCount', `${cartItems.length} item${cartItems.length !== 1 ? 's' : ''} in your cart`)
             }
           </p>
         </div>
@@ -108,12 +110,12 @@ export default function CartPage() {
               <div className="mx-auto w-24 h-24 bg-gray-100 rounded-full flex items-center justify-center mb-6">
                 <ShoppingCart className="w-12 h-12 text-gray-400" />
               </div>
-              <h3 className="text-lg font-semibold text-gray-900 mb-2">Your cart is empty</h3>
-              <p className="text-gray-600 mb-6">Looks like you haven't added any items to your cart yet.</p>
+              <h3 className="text-lg font-semibold text-gray-900 mb-2">{t('cart.empty', 'Your cart is empty')}</h3>
+              <p className="text-gray-600 mb-6">{t('cart.emptyMessage', "Looks like you haven't added any items to your cart yet.")}</p>
               <Link href="/tours">
-                <Button size="lg">
-                  Browse Tours
-                  <ArrowRight className="w-4 h-4 ml-2" />
+                <Button size="lg" className={`flex items-center ${isRTL ? 'flex-row-reverse' : ''}`}>
+                  {t('cart.browseTours', 'Browse Tours')}
+                  <ArrowRight className={`w-4 h-4 ${isRTL ? 'mr-2' : 'ml-2'}`} />
                 </Button>
               </Link>
             </CardContent>
@@ -134,16 +136,16 @@ export default function CartPage() {
                           <div className="flex items-center gap-2">
                             <span className="flex items-center gap-1">
                               <Badge variant="secondary" className="text-xs">
-                                {item.adults} Adults
+                                {item.adults} {t('cart.adults', 'Adults')}
                               </Badge>
                               {item.children > 0 && (
                                 <Badge variant="outline" className="text-xs">
-                                  {item.children} Children
+                                  {item.children} {t('cart.children', 'Children')}
                                 </Badge>
                               )}
                               {item.infants > 0 && (
                                 <Badge variant="outline" className="text-xs">
-                                  {item.infants} Infants
+                                  {item.infants} {t('cart.infants', 'Infants')}
                                 </Badge>
                               )}
                             </span>
@@ -151,19 +153,19 @@ export default function CartPage() {
                           {item.configuration && (
                             <div className="flex items-center gap-4 text-xs">
                               {item.configuration.nights && (
-                                <span>📅 {item.configuration.nights} nights</span>
+                                <span>📅 {item.configuration.nights} {t('cart.nights', 'nights')}</span>
                               )}
                               {item.configuration.basePricePerPerson && (
-                                <span>💰 {item.configuration.basePricePerPerson.toLocaleString('en-US')} EGP per person</span>
+                                <span>💰 {item.configuration.basePricePerPerson.toLocaleString('en-US')} EGP {t('cart.perPerson', 'per person')}</span>
                               )}
                               {item.configuration.totalTravelers && (
-                                <span>👥 {item.configuration.totalTravelers} travelers total</span>
+                                <span>👥 {item.configuration.totalTravelers} {t('cart.travelersTotal', 'travelers total')}</span>
                               )}
                             </div>
                           )}
                           {item.travelDate && (
                             <div className="text-xs text-indigo-600">
-                              📆 Travel Date: {new Date(item.travelDate).toLocaleDateString('en-US', { 
+                              📆 {t('cart.travelDate', 'Travel Date')}: {new Date(item.travelDate).toLocaleDateString('en-US', { 
                                 year: 'numeric', 
                                 month: 'long', 
                                 day: 'numeric' 
@@ -246,31 +248,31 @@ export default function CartPage() {
             <div>
               <Card className="sticky top-8">
                 <CardHeader>
-                  <CardTitle>Order Summary</CardTitle>
+                  <CardTitle>{t('cart.orderSummary', 'Order Summary')}</CardTitle>
                 </CardHeader>
                 <CardContent className="space-y-4">
                   <div className="flex justify-between text-base">
-                    <span>Subtotal</span>
+                    <span>{t('cart.subtotal', 'Subtotal')}</span>
                     <span>{subtotal.toLocaleString('en-US')} EGP</span>
                   </div>
                   <div className="flex justify-between text-base">
-                    <span>Tax (10%)</span>
+                    <span>{t('cart.tax', 'Tax (10%)')}</span>
                     <span>{tax.toLocaleString('en-US')} EGP</span>
                   </div>
                   <Separator />
                   <div className="flex justify-between text-lg font-semibold">
-                    <span>Total</span>
+                    <span>{t('cart.total', 'Total')}</span>
                     <span>{total.toLocaleString('en-US')} EGP</span>
                   </div>
                   <Link href="/checkout">
-                    <Button className="w-full" size="lg">
-                      Proceed to Checkout
-                      <ArrowRight className="w-4 h-4 ml-2" />
+                    <Button className={`w-full flex items-center ${isRTL ? 'flex-row-reverse' : ''}`} size="lg">
+                      {t('cart.proceedCheckout', 'Proceed to Checkout')}
+                      <ArrowRight className={`w-4 h-4 ${isRTL ? 'mr-2' : 'ml-2'}`} />
                     </Button>
                   </Link>
                   <Link href="/tours">
                     <Button variant="outline" className="w-full">
-                      Continue Shopping
+                      {t('cart.continueShopping', 'Continue Shopping')}
                     </Button>
                   </Link>
                 </CardContent>

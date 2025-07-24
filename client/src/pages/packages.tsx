@@ -300,15 +300,15 @@ const PackagesPage: React.FC = () => {
             <div className="mx-auto h-24 w-24 text-gray-400 mb-4">
               <Search className="h-full w-full" />
             </div>
-            <h3 className="text-xl font-semibold text-gray-900 mb-2">No packages found</h3>
-            <p className="text-gray-600 mb-4">Try adjusting your search criteria or filters.</p>
+            <h3 className="text-xl font-semibold text-gray-900 mb-2">{t('packages.noPackagesFound', 'No packages found')}</h3>
+            <p className="text-gray-600 mb-4">{t('packages.adjustCriteria', 'Try adjusting your search criteria or filters.')}</p>
             <Button onClick={() => {
               setSearchTerm("");
               setFilterCategory("all");
               setFilterDuration("all");
               setFilterPrice("all");
             }}>
-              Clear All Filters
+              {t('packages.clearAllFilters', 'Clear All Filters')}
             </Button>
           </div>
         ) : (
@@ -324,7 +324,7 @@ const PackagesPage: React.FC = () => {
                     />
                   ) : (
                     <div className="h-48 w-full bg-gray-200 flex items-center justify-center">
-                      <span className="text-black font-medium">No Image</span>
+                      <span className="text-black font-medium">{t('packages.noImage', 'No Image')}</span>
                     </div>
                   )}
                   
@@ -338,7 +338,7 @@ const PackagesPage: React.FC = () => {
                   {/* Discount Badge */}
                   {pkg.discountedPrice && (
                     <Badge className="absolute top-3 right-12 bg-red-500 text-white">
-                      {Math.round((1 - pkg.discountedPrice / pkg.price) * 100)}% OFF
+                      {Math.round((1 - pkg.discountedPrice / pkg.price) * 100)}% {t('packages.off', 'OFF')}
                     </Badge>
                   )}
                   
@@ -431,7 +431,7 @@ const PackagesPage: React.FC = () => {
                           {pkg.price.toLocaleString('en-US')} {pkg.currency}
                         </span>
                       )}
-                      <p className="text-sm text-gray-600">per person</p>
+                      <p className="text-sm text-gray-600">{t('packages.perPerson', 'per person')}</p>
                     </div>
                   </div>
 
