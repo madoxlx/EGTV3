@@ -7,6 +7,7 @@ import { Badge } from '@/components/ui/badge';
 import { Checkbox } from '@/components/ui/checkbox';
 import { Label } from '@/components/ui/label';
 import { useQuery } from '@tanstack/react-query';
+import BookTourButton from '@/components/BookTourButton';
 import { 
   Route as RouteIcon,
   MapPin as MapPinIcon, 
