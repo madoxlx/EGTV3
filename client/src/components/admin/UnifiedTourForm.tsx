@@ -44,6 +44,9 @@ const tourFormSchema = z.object({
   durationType: z.string().default("days"),
   price: z.number().min(0, "Price must be positive"),
   discountedPrice: z.number().min(0).optional(),
+  adultPrice: z.number().min(0).optional(),
+  childPrice: z.number().min(0).optional(),
+  infantPrice: z.number().min(0).optional(),
   maxCapacity: z.number().min(1).optional(),
   maxGroupSize: z.number().min(1).optional(),
   numPassengers: z.number().min(1).optional(),
@@ -126,6 +129,9 @@ export function UnifiedTourForm({ mode, tourId, onSuccess, onCancel }: UnifiedTo
       durationType: "days",
       price: 0,
       discountedPrice: 0,
+      adultPrice: 0,
+      childPrice: 0,
+      infantPrice: 0,
       maxCapacity: 10,
       maxGroupSize: 10,
       numPassengers: 1,
@@ -201,6 +207,9 @@ export function UnifiedTourForm({ mode, tourId, onSuccess, onCancel }: UnifiedTo
         durationType: tour.durationType || "days",
         price: priceInEGP,
         discountedPrice: discountedPriceInEGP,
+        adultPrice: tour.adultPrice ? Number(tour.adultPrice) / 100 : 0,
+        childPrice: tour.childPrice ? Number(tour.childPrice) / 100 : 0,
+        infantPrice: tour.infantPrice ? Number(tour.infantPrice) / 100 : 0,
         maxCapacity: tour.maxCapacity || 10,
         maxGroupSize: tour.maxGroupSize || 10,
         numPassengers: tour.numPassengers || 1,
@@ -240,6 +249,9 @@ export function UnifiedTourForm({ mode, tourId, onSuccess, onCancel }: UnifiedTo
       ...data,
       price: Math.round(data.price * 100), // Convert EGP to cents
       discountedPrice: data.discountedPrice ? Math.round(data.discountedPrice * 100) : null,
+      adultPrice: data.adultPrice ? Math.round(data.adultPrice * 100) : null,
+      childPrice: data.childPrice ? Math.round(data.childPrice * 100) : null,
+      infantPrice: data.infantPrice ? Math.round(data.infantPrice * 100) : null,
     };
     
     // Ensure arrays are properly formatted (normally they should already be arrays from the form)
@@ -607,6 +619,75 @@ export function UnifiedTourForm({ mode, tourId, onSuccess, onCancel }: UnifiedTo
                         </FormItem>
                       )}
                     />
+                  </div>
+
+                  {/* Separate Pricing for Adults/Children/Infants */}
+                  <div className="space-y-4">
+                    <div className="border-t pt-4">
+                      <h3 className="text-lg font-medium mb-4">Age-Specific Pricing (Optional)</h3>
+                      <p className="text-sm text-muted-foreground mb-4">
+                        Set different prices for adults, children, and infants. Leave blank to use the main price for all ages.
+                      </p>
+                      
+                      <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                        <FormField
+                          control={form.control}
+                          name="adultPrice"
+                          render={({ field }) => (
+                            <FormItem>
+                              <FormLabel>Adult Price (EGP)</FormLabel>
+                              <FormControl>
+                                <Input 
+                                  type="number" 
+                                  placeholder="0" 
+                                  {...field} 
+                                  onChange={(e) => field.onChange(parseFloat(e.target.value) || 0)}
+                                />
+                              </FormControl>
+                              <FormMessage />
+                            </FormItem>
+                          )}
+                        />
+
+                        <FormField
+                          control={form.control}
+                          name="childPrice"
+                          render={({ field }) => (
+                            <FormItem>
+                              <FormLabel>Child Price (EGP)</FormLabel>
+                              <FormControl>
+                                <Input 
+                                  type="number" 
+                                  placeholder="0" 
+                                  {...field} 
+                                  onChange={(e) => field.onChange(parseFloat(e.target.value) || 0)}
+                                />
+                              </FormControl>
+                              <FormMessage />
+                            </FormItem>
+                          )}
+                        />
+
+                        <FormField
+                          control={form.control}
+                          name="infantPrice"
+                          render={({ field }) => (
+                            <FormItem>
+                              <FormLabel>Infant Price (EGP)</FormLabel>
+                              <FormControl>
+                                <Input 
+                                  type="number" 
+                                  placeholder="0" 
+                                  {...field} 
+                                  onChange={(e) => field.onChange(parseFloat(e.target.value) || 0)}
+                                />
+                              </FormControl>
+                              <FormMessage />
+                            </FormItem>
+                          )}
+                        />
+                      </div>
+                    </div>
                   </div>
 
                   <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
