@@ -425,15 +425,15 @@ const ToursPackageStyle: React.FC = () => {
                       {tour.discountedPrice ? (
                         <div className="flex items-baseline space-x-2">
                           <span className="text-2xl font-bold text-primary">
-                            {tour.discountedPrice.toLocaleString('en-US')} EGP
+                            {(tour.discountedPrice / 100).toLocaleString('en-US')} EGP
                           </span>
                           <span className="text-lg text-gray-500 line-through">
-                            {tour.price.toLocaleString('en-US')} EGP
+                            {(tour.price / 100).toLocaleString('en-US')} EGP
                           </span>
                         </div>
                       ) : (
                         <span className="text-2xl font-bold text-primary">
-                          {tour.price.toLocaleString('en-US')} EGP
+                          {(tour.price / 100).toLocaleString('en-US')} EGP
                         </span>
                       )}
                       <p className="text-sm text-gray-600">per person</p>

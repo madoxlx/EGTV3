@@ -4112,7 +4112,7 @@ export function PackageCreatorForm({
                               </div>
                               <span className="text-sm font-semibold text-green-700">
                                 {tour.price
-                                  ? `${tour.price.toLocaleString("ar-EG")} EGP`
+                                  ? `${(tour.price / 100).toLocaleString("ar-EG")} EGP`
                                   : "Price TBD"}
                               </span>
                             </div>
@@ -4148,7 +4148,7 @@ export function PackageCreatorForm({
                       Selected Tours ({selectedTours.length})
                     </h4>
                     <Badge variant="outline" className="bg-green-50 text-green-700 border-green-200">
-                      Total: {selectedTours.reduce((sum, tour) => sum + (tour.price || 0), 0).toLocaleString("ar-EG")} EGP
+                      Total: {(selectedTours.reduce((sum, tour) => sum + (tour.price || 0), 0) / 100).toLocaleString("ar-EG")} EGP
                     </Badge>
                   </div>
                   
@@ -4181,7 +4181,7 @@ export function PackageCreatorForm({
                             <h6 className="text-xs font-medium text-green-700 mb-1">Base Price</h6>
                             <p className="text-sm font-semibold text-green-800">
                               {tour.price
-                                ? `${tour.price.toLocaleString("ar-EG")} EGP`
+                                ? `${(tour.price / 100).toLocaleString("ar-EG")} EGP`
                                 : "Price TBD"}
                             </p>
                           </div>
