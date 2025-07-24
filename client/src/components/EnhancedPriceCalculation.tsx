@@ -375,29 +375,6 @@ export default function EnhancedPriceCalculation({
           </Badge>
         </div>
 
-        {/* Traveler Count Summary */}
-        <div className="flex items-center justify-between p-3 bg-gray-50 rounded-lg">
-          <div className="flex items-center gap-2">
-            <Users className="w-4 h-4 text-gray-600" />
-            <span className="text-sm font-medium">PAX</span>
-          </div>
-          <div className="text-sm">
-            {adults > 0 && <span>{adults} Adults</span>}
-            {children > 0 && (
-              <span>
-                {adults > 0 ? ", " : ""}
-                {children} Children
-              </span>
-            )}
-            {infants > 0 && (
-              <span>
-                {adults > 0 || children > 0 ? ", " : ""}
-                {infants} Infants
-              </span>
-            )}
-          </div>
-        </div>
-
         {/* Base Package Pricing */}
         <div className="space-y-2">
           <h4 className="font-medium text-sm flex items-center gap-2">
