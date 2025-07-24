@@ -88,6 +88,13 @@ The application uses a comprehensive PostgreSQL schema with the following core e
 
 ## Recent Changes
 
+### Database Schema Fix - Missing Order Column (July 24, 2025)
+- **Database Error Resolution**: Fixed critical "column 'order' does not exist" error in homepage_sections table that was preventing homepage sections API from working
+- **Schema Synchronization**: Added missing 'order' INTEGER column to homepage_sections table in external PostgreSQL database
+- **Data Migration**: Updated existing homepage section records with proper order values based on their ID sequence
+- **Server Stability**: Eliminated database query errors that were causing 500 status responses on homepage sections endpoint
+- **Package Detail Enhancement**: Updated package detail breadcrumb to display destination name instead of package title with fallback support
+
 ### Automatic Room Selection with Disabled Booking Protection Complete (July 23, 2025)
 - **Removed Room Selection Requirement**: Eliminated manual room selection - system now automatically selects optimal rooms for travelers
 - **Enhanced Price Calculation**: Updated EnhancedPriceCalculation.tsx to calculate costs without user room selection, using first available room automatically
