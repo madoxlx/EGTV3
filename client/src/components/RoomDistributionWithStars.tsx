@@ -712,7 +712,7 @@ export default function RoomDistributionWithStars({
         </div>
       )}
 
-      {/* Total Summary - Rooms + Tours */}
+      {/* Price Breakdown - Enhanced format like EnhancedPriceCalculation */}
       {actualDistribution.length > 0 && (() => {
         // Calculate total rooms cost
         const totalRoomsCost = actualDistribution
@@ -732,68 +732,114 @@ export default function RoomDistributionWithStars({
         
         // Total package cost
         const totalPackageCost = totalRoomsCost + toursCost;
+        const totalPAX = adults + children + infants;
+
+        const formatPrice = (price: number) => {
+          return Math.round(price).toLocaleString("en-US");
+        };
 
         return (
-          <div className="bg-blue-50 border-2 border-blue-200 rounded-lg p-4 mt-6">
-            <h4 className="font-semibold text-blue-900 mb-3">Price Breakdown</h4>
-            
-            {/* Accommodation breakdown */}
-            <div className="space-y-2 mb-4">
-              <div className="flex justify-between text-sm">
-                <span className="text-blue-800">🏨 Accommodation ({nights} nights)</span>
-                <span className="font-medium text-blue-900">
-                  {totalRoomsCost.toLocaleString("en-US")} EGP
-                </span>
+          <Card className="mt-6">
+            <CardContent className="p-4 space-y-4">
+              <h4 className="font-semibold text-gray-900 flex items-center gap-2">
+                📊 Price Breakdown
+              </h4>
+
+              {/* Accommodation Costs */}
+              <div className="space-y-2">
+                <div className="flex items-center gap-2">
+                  <div className="w-4 h-4 text-blue-500">🏨</div>
+                  <h4 className="text-sm font-semibold">
+                    Accommodation ({nights} night{nights !== 1 ? "s" : ""})
+                  </h4>
+                </div>
+                <div className="bg-blue-50 border border-blue-200 rounded-lg p-3">
+                  <div className="space-y-1">
+                    {actualDistribution
+                      .filter((dist: any) => dist.isUsed)
+                      .map((dist: any, index: number) => {
+                        const basePrice = dist.pricePerPerson;
+                        return (
+                          <div key={index} className="flex justify-between text-sm">
+                            <span className="text-blue-800">{dist.room.name}</span>
+                            <span className="text-blue-900 font-medium">
+                              {formatPrice(basePrice)} EGP × {nights} nights × {dist.totalAssigned} PAX = {formatPrice(dist.totalCost)} EGP
+                            </span>
+                          </div>
+                        );
+                      })}
+                  </div>
+                </div>
+                <div className="flex justify-between text-sm font-medium border-t pt-1">
+                  <span>Total Accommodation</span>
+                  <span>{formatPrice(totalRoomsCost)} EGP</span>
+                </div>
               </div>
-              <div className="ml-4 space-y-1 text-xs text-blue-700">
-                {actualDistribution
-                  .filter((dist: any) => dist.isUsed)
-                  .map((dist: any, index: number) => (
-                    <div key={index} className="flex justify-between">
-                      <span>• {dist.room.name} × {dist.totalAssigned} pax × {nights} nights</span>
-                      <span>{dist.totalCost.toLocaleString("en-US")} EGP</span>
+
+              {/* Tours Costs */}
+              {toursCost > 0 && (
+                <>
+                  <div className="w-full border-t border-gray-200"></div>
+                  <div className="space-y-2">
+                    <h4 className="font-medium text-sm flex items-center gap-2">
+                      <div className="w-4 h-4 text-green-500">🚌</div>
+                      Included Tours
+                    </h4>
+                    {Array.isArray(packageTours) && packageTours.map((tour: any, index: number) => {
+                      const tourPrice = tour.price || 0;
+                      const totalTourCost = tourPrice * (adults + children * 0.7 + infants * 0.1);
+                      return (
+                        <div key={index} className="flex justify-between text-sm">
+                          <span>{tour.name || `Tour ${index + 1}`}</span>
+                          <span>{formatPrice(totalTourCost)} EGP</span>
+                        </div>
+                      );
+                    })}
+                    <div className="flex justify-between text-sm font-medium border-t pt-1">
+                      <span>Total Tours</span>
+                      <span>{formatPrice(toursCost)} EGP</span>
                     </div>
-                  ))}
-              </div>
-            </div>
+                  </div>
+                </>
+              )}
 
-            {/* Tours cost (when available) */}
-            {toursCost > 0 && (
-              <div className="space-y-2 mb-4">
-                <div className="flex justify-between text-sm">
-                  <span className="text-blue-800">🚌 Tours & Activities</span>
-                  <span className="font-medium text-blue-900">
-                    {toursCost.toLocaleString("en-US")} EGP
-                  </span>
-                </div>
-                <div className="ml-4 space-y-1 text-xs text-blue-700">
-                  {Array.isArray(packageTours) && packageTours.map((tour: any, index: number) => {
-                    const tourPrice = tour.price || 0;
-                    const totalTourCost = tourPrice * (adults + children * 0.7 + infants * 0.1);
-                    return (
-                      <div key={index} className="flex justify-between">
-                        <span>• {tour.name || `Tour ${index + 1}`}</span>
-                        <span>{totalTourCost.toLocaleString("en-US")} EGP</span>
-                      </div>
-                    );
-                  })}
+              <div className="w-full border-t border-gray-200"></div>
+
+              {/* Total */}
+              <div className="flex justify-between text-lg font-bold text-primary">
+                <span>Total Package Cost</span>
+                <div className="text-right">
+                  <div>{formatPrice(totalPackageCost)} EGP</div>
                 </div>
               </div>
-            )}
 
-            {/* Total */}
-            <div className="border-t border-blue-300 pt-3">
-              <div className="flex justify-between items-center">
-                <span className="font-semibold text-blue-900">Total Package Cost</span>
-                <span className="text-xl font-bold text-blue-900">
-                  {totalPackageCost.toLocaleString("en-US")} EGP
-                </span>
+              {/* Summary Information */}
+              <div className="mt-4 p-3 bg-gradient-to-r from-green-50 to-emerald-50 rounded-lg border border-green-200">
+                <div className="text-sm text-green-800">
+                  <div className="flex items-center justify-between">
+                    <span>
+                      <strong>{nights + 1} days</strong> package
+                    </span>
+                    <span>
+                      <strong>{totalPAX} PAX</strong>
+                    </span>
+                  </div>
+                  <div className="flex items-center justify-between mt-1">
+                    <span>Cost per traveler:</span>
+                    <span>
+                      <strong>{formatPrice(totalPackageCost / totalPAX)} EGP</strong>
+                    </span>
+                  </div>
+                  <div className="flex items-center justify-between mt-1">
+                    <span>Cost per night:</span>
+                    <span>
+                      <strong>{formatPrice(totalPackageCost / nights)} EGP</strong>
+                    </span>
+                  </div>
+                </div>
               </div>
-              <div className="text-xs text-blue-700 mt-1">
-                For {actualDistribution.reduce((sum: number, dist: any) => sum + dist.totalAssigned, 0)} travelers • {nights} nights
-              </div>
-            </div>
-          </div>
+            </CardContent>
+          </Card>
         );
       })()}
     </div>

@@ -1416,13 +1416,14 @@ The application uses a comprehensive PostgreSQL schema with the following core e
 - **Cart Integration**: Seamlessly integrated component into cart page with proper data handling
 - **Professional Styling**: Matches design requirements with green borders for active rooms and detailed breakdown
 
-### Total Calculation Enhancement Complete (July 24, 2025)
-- **Room Distribution Total**: Added comprehensive price breakdown section to RoomDistributionWithStars component
-- **Rooms Cost Calculation**: Sums individual room totals from room distribution system
-- **Tours Cost Integration**: Calculates tours cost from package data with per-person pricing (adults + 70% children + 10% infants)
-- **Detailed Breakdown**: Shows individual room costs and tour costs with itemized breakdown
-- **Total Package Cost**: Displays final total as sum of room costs + tour costs as requested
-- **Visual Enhancement**: Professional blue-themed summary card with clear cost hierarchy
+### Enhanced Price Calculation Format Integration Complete (July 24, 2025)
+- **Unified Calculation Format**: Updated RoomDistributionWithStars to match EnhancedPriceCalculation component styling and structure
+- **Professional Card Layout**: Replaced simple summary with Card/CardContent component matching reference design
+- **Detailed Room Breakdown**: Blue-themed accommodation section showing individual room calculations (price × nights × PAX = total)
+- **Tours Integration**: Green-themed tours section with per-person pricing calculations
+- **Comprehensive Summary**: Added cost per traveler and cost per night calculations in gradient summary box
+- **Format Consistency**: Price breakdown now follows exact same structure as main booking calculation component
+- **Visual Enhancement**: Professional spacing, borders, and color-coded sections for accommodation vs tours
 
 - **Hotel Features Database Storage Fix Complete (July 1, 2025)**: Successfully resolved critical issue where hotel features weren't being saved to database
   - Fixed missing 'features' field in insertHotelSchema .pick() selection that was stripping features during validation
