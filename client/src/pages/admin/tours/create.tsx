@@ -72,6 +72,11 @@ const formSchema = z.object({
   price: z.string().min(1, "Price is required"),
   currency: z.string().default("EGP"),
   discountedPrice: z.string().optional(),
+  
+  // Individual Pricing Rules
+  adultPrice: z.string().optional(),
+  childPrice: z.string().optional(),
+  infantPrice: z.string().optional(),
 
   // Capacity and Group Size
   maxCapacity: z.string().optional(),
@@ -134,6 +139,9 @@ export default function CreateTour() {
       price: "",
       currency: "EGP",
       discountedPrice: "",
+      adultPrice: "",
+      childPrice: "",
+      infantPrice: "",
       maxCapacity: "",
       maxGroupSize: "",
       numPassengers: "",
@@ -175,7 +183,6 @@ export default function CreateTour() {
       return data;
     },
     staleTime: 0, // Always fetch fresh data
-    cacheTime: 0, // Don't cache the data
   });
 
   // Add debugging for tour categories
@@ -209,6 +216,18 @@ export default function CreateTour() {
         discountedPrice:
           data.discountedPrice && data.discountedPrice.trim()
             ? Math.round(parseFloat(data.discountedPrice) * 100)
+            : undefined,
+        adultPrice:
+          data.adultPrice && data.adultPrice.trim()
+            ? Math.round(parseFloat(data.adultPrice) * 100)
+            : undefined,
+        childPrice:
+          data.childPrice && data.childPrice.trim()
+            ? Math.round(parseFloat(data.childPrice) * 100)
+            : undefined,
+        infantPrice:
+          data.infantPrice && data.infantPrice.trim()
+            ? Math.round(parseFloat(data.infantPrice) * 100)
             : undefined,
         maxGroupSize:
           data.maxGroupSize && data.maxGroupSize.trim()
@@ -880,6 +899,83 @@ export default function CreateTour() {
                           </FormItem>
                         )}
                       />
+                    </div>
+                    
+                    <Separator className="my-6" />
+                    
+                    {/* Individual Pricing Rules */}
+                    <div className="space-y-4">
+                      <div className="flex items-center gap-2">
+                        <div className="w-2 h-2 bg-blue-500 rounded-full"></div>
+                        <h4 className="text-lg font-semibold text-gray-800">
+                          Individual Pricing Rules
+                        </h4>
+                      </div>
+                      <p className="text-sm text-gray-600 mb-4">
+                        Set specific prices for different traveler types. Leave empty to use the regular price for all.
+                      </p>
+                      
+                      <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                        <FormField
+                          control={form.control}
+                          name="adultPrice"
+                          render={({ field }) => (
+                            <FormItem>
+                              <FormLabel>Adult Price</FormLabel>
+                              <FormControl>
+                                <Input
+                                  type="number"
+                                  min="0"
+                                  step="0.01"
+                                  placeholder="Enter adult price"
+                                  {...field}
+                                />
+                              </FormControl>
+                              <FormMessage />
+                            </FormItem>
+                          )}
+                        />
+
+                        <FormField
+                          control={form.control}
+                          name="childPrice"
+                          render={({ field }) => (
+                            <FormItem>
+                              <FormLabel>Child Price</FormLabel>
+                              <FormControl>
+                                <Input
+                                  type="number"
+                                  min="0"
+                                  step="0.01"
+                                  placeholder="Enter child price"
+                                  {...field}
+                                />
+                              </FormControl>
+                              <FormMessage />
+                            </FormItem>
+                          )}
+                        />
+
+                        <FormField
+                          control={form.control}
+                          name="infantPrice"
+                          render={({ field }) => (
+                            <FormItem>
+                              <FormLabel>Infant Price</FormLabel>
+                              <FormControl>
+                                <Input
+                                  type="number"
+                                  min="0"
+                                  step="0.01"
+                                  placeholder="Enter infant price"
+                                  {...field}
+                                />
+                              </FormControl>
+                              <FormMessage />
+                            </FormItem>
+                          )}
+                        />
+                      </div>
                     </div>
                   </CardContent>
                 </Card>
