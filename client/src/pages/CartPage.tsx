@@ -154,7 +154,7 @@ export default function CartPage() {
                                 <span>📅 {item.configuration.nights} nights</span>
                               )}
                               {item.configuration.basePricePerPerson && (
-                                <span>💰 {item.configuration.basePricePerPerson.toLocaleString('ar-EG')} EGP per person</span>
+                                <span>💰 {item.configuration.basePricePerPerson.toLocaleString('en-US')} EGP per person</span>
                               )}
                               {item.configuration.totalTravelers && (
                                 <span>👥 {item.configuration.totalTravelers} travelers total</span>
@@ -213,26 +213,26 @@ export default function CartPage() {
                       </div>
                       <div className="text-right ml-6">
                         <div className="text-2xl font-bold text-gray-900">
-                          {((item.discountedPriceAtAdd || item.priceAtAdd) * item.quantity).toLocaleString('ar-EG')} EGP
+                          {((item.discountedPriceAtAdd || item.priceAtAdd) * item.quantity).toLocaleString('en-US')} EGP
                         </div>
                         {item.configuration?.priceBreakdown ? (
                           <div className="text-xs text-gray-500 mt-1">
-                            <div>🏨 Room Cost: {item.configuration.priceBreakdown.roomsCost.toLocaleString('ar-EG')} EGP</div>
+                            <div>🏨 Room Cost: {item.configuration.priceBreakdown.roomsCost.toLocaleString('en-US')} EGP</div>
                             {item.configuration.priceBreakdown.toursCost > 0 && (
-                              <div>🚌 Tours: {item.configuration.priceBreakdown.toursCost.toLocaleString('ar-EG')} EGP</div>
+                              <div>🚌 Tours: {item.configuration.priceBreakdown.toursCost.toLocaleString('en-US')} EGP</div>
                             )}
-                            <div>📊 Total: {item.configuration.priceBreakdown.total.toLocaleString('ar-EG')} EGP</div>
+                            <div>📊 Total: {item.configuration.priceBreakdown.total.toLocaleString('en-US')} EGP</div>
                             {item.quantity > 1 && <div>× {item.quantity} booking${item.quantity > 1 ? 's' : ''}</div>}
                           </div>
                         ) : item.configuration?.basePricePerPerson && item.configuration?.totalTravelers && (
                           <div className="text-xs text-gray-500 mt-1">
-                            {item.configuration.basePricePerPerson.toLocaleString('ar-EG')} × {item.configuration.totalTravelers} travelers
+                            {item.configuration.basePricePerPerson.toLocaleString('en-US')} × {item.configuration.totalTravelers} travelers
                             {item.quantity > 1 && ` × ${item.quantity} booking${item.quantity > 1 ? 's' : ''}`}
                           </div>
                         )}
                         {item.discountedPriceAtAdd && item.discountedPriceAtAdd < item.priceAtAdd && (
                           <div className="text-sm text-gray-500 line-through">
-                            {(item.priceAtAdd * item.quantity).toLocaleString('ar-EG')} EGP
+                            {(item.priceAtAdd * item.quantity).toLocaleString('en-US')} EGP
                           </div>
                         )}
                       </div>
@@ -251,16 +251,16 @@ export default function CartPage() {
                 <CardContent className="space-y-4">
                   <div className="flex justify-between text-base">
                     <span>Subtotal</span>
-                    <span>{subtotal.toLocaleString('ar-EG')} EGP</span>
+                    <span>{subtotal.toLocaleString('en-US')} EGP</span>
                   </div>
                   <div className="flex justify-between text-base">
                     <span>Tax (10%)</span>
-                    <span>{tax.toLocaleString('ar-EG')} EGP</span>
+                    <span>{tax.toLocaleString('en-US')} EGP</span>
                   </div>
                   <Separator />
                   <div className="flex justify-between text-lg font-semibold">
                     <span>Total</span>
-                    <span>{total.toLocaleString('ar-EG')} EGP</span>
+                    <span>{total.toLocaleString('en-US')} EGP</span>
                   </div>
                   <Link href="/checkout">
                     <Button className="w-full" size="lg">

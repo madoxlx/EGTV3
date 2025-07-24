@@ -8,7 +8,7 @@ interface PackageData {
   duration?: number;
   selectedHotels?: any;
   rooms?: any;
-  selectedTourId?: number;
+  selectedTourId?: number | null;
   tourSelection?: any;
   pricingMode?: string;
 }
