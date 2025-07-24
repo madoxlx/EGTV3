@@ -742,6 +742,8 @@ export const cartItems = pgTable("cart_items", {
   sessionId: text("session_id"), // For guest users
   itemType: text("item_type").notNull(), // 'flight', 'hotel', 'room', 'tour', 'package', 'visa', 'transportation'
   itemId: integer("item_id").notNull(), // References the actual item ID
+  itemName: text("item_name"), // Store item name for quick access
+  itemDetails: json("item_details"), // Store complete package/item details snapshot
   quantity: integer("quantity").notNull().default(1),
   adults: integer("adults").default(1),
   children: integer("children").default(0),

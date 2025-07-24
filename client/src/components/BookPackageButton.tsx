@@ -5,17 +5,71 @@ import { useToast } from '@/hooks/use-toast';
 import { useAuth } from '@/hooks/use-auth';
 import { useLocation } from 'wouter';
 
-interface Package {
+// Use the same Package type as package-detail.tsx for compatibility
+type Package = {
   id: number;
   title: string;
-  description?: string;
+  description: string;
   price: number;
   discountedPrice?: number;
+  currency: string;
   duration: number;
-  imageUrl?: string;
-  slug?: string;
+  durationType?: string;
   destinationId?: number;
-}
+  imageUrl?: string;
+  galleryUrls?: string[] | null;
+  featured?: boolean;
+  type?: string;
+  inclusions?: string[] | null;
+  excludedItems?: string[] | null;
+  rating?: number;
+  reviewCount?: number;
+  slug?: string;
+  // Real data fields from database
+  itinerary?: Array<{
+    day: number;
+    title: string;
+    description: string;
+    image?: string;
+  }> | null;
+  includedFeatures?: string[] | null;
+  excludedFeatures?: string[] | null;
+  idealFor?: string[] | null;
+  bestTimeToVisit?: string | null;
+  whatToPack?: Array<{
+    item: string;
+    icon?: string;
+    tooltip?: string;
+  }> | null;
+  selectedTourId?: number | null;
+  tourSelection?: string | null;
+  // Additional package creation form fields
+  selectedHotels?: any[] | null;
+  rooms?: any[] | null;
+  // Arabic translation fields
+  hasArabicVersion?: boolean;
+  titleAr?: string | null;
+  descriptionAr?: string | null;
+  shortDescription?: string | null;
+  shortDescriptionAr?: string | null;
+  overview?: string | null;
+  overviewAr?: string | null;
+  bestTimeToVisitAr?: string | null;
+  includedFeaturesAr?: string[] | null;
+  excludedFeaturesAr?: string[] | null;
+  idealForAr?: string[] | null;
+  itineraryAr?: Array<{
+    day: number;
+    title: string;
+    description: string;
+    image?: string;
+  }> | null;
+  whatToPackAr?: Array<{
+    item: string;
+    icon?: string;
+    tooltip?: string;
+  }> | null;
+};
 
 interface BookPackageButtonProps {
   package: Package;
@@ -107,6 +161,56 @@ const BookPackageButton: React.FC<BookPackageButtonProps> = ({
         itemType: 'package',
         itemId: parseInt(pkg.id.toString(), 10),
         itemName: pkg.title,
+        itemDetails: {
+          // Core package information
+          id: pkg.id,
+          title: pkg.title,
+          description: pkg.description,
+          shortDescription: pkg.shortDescription,
+          overview: pkg.overview,
+          price: pkg.price,
+          discountedPrice: pkg.discountedPrice,
+          currency: pkg.currency || 'EGP',
+          duration: pkg.duration,
+          durationType: pkg.durationType || 'days',
+          imageUrl: pkg.imageUrl,
+          galleryUrls: pkg.galleryUrls,
+          rating: pkg.rating,
+          reviewCount: pkg.reviewCount,
+          featured: pkg.featured,
+          type: pkg.type,
+          destinationId: pkg.destinationId,
+          slug: pkg.slug,
+          
+          // Package features and details
+          includedFeatures: pkg.includedFeatures,
+          excludedFeatures: pkg.excludedFeatures,
+          inclusions: pkg.inclusions,
+          excludedItems: pkg.excludedItems,
+          idealFor: pkg.idealFor,
+          bestTimeToVisit: pkg.bestTimeToVisit,
+          whatToPack: pkg.whatToPack,
+          itinerary: pkg.itinerary,
+          
+          // Tour and hotel information
+          selectedTourId: pkg.selectedTourId,
+          tourSelection: pkg.tourSelection,
+          selectedHotels: pkg.selectedHotels,
+          rooms: pkg.rooms,
+          
+          // Arabic translations
+          hasArabicVersion: pkg.hasArabicVersion,
+          titleAr: pkg.titleAr,
+          descriptionAr: pkg.descriptionAr,
+          shortDescriptionAr: pkg.shortDescriptionAr,
+          overviewAr: pkg.overviewAr,
+          bestTimeToVisitAr: pkg.bestTimeToVisitAr,
+          includedFeaturesAr: pkg.includedFeaturesAr,
+          excludedFeaturesAr: pkg.excludedFeaturesAr,
+          idealForAr: pkg.idealForAr,
+          itineraryAr: pkg.itineraryAr,
+          whatToPackAr: pkg.whatToPackAr,
+        },
         priceAtAdd: pkg.discountedPrice || pkg.price,
         discountedPriceAtAdd: pkg.discountedPrice || pkg.price,
         quantity: 1,
