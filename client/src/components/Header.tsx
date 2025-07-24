@@ -318,10 +318,10 @@ const Header: React.FC = () => {
                           }`}
                           onClick={() => setIsMenuOpen(false)}
                         >
-                          {item.title}
+                          {isRTL && item.titleAr ? item.titleAr : item.title}
                         </Link>
                       ) : (
-                        <span className="font-medium text-gray-700">{item.title}</span>
+                        <span className="font-medium text-gray-700">{isRTL && item.titleAr ? item.titleAr : item.title}</span>
                       )}
                       <button
                         onClick={() => toggleMobileSubmenu(item.id)}
@@ -350,7 +350,7 @@ const Header: React.FC = () => {
                               target={child.target === '_blank' ? '_blank' : undefined}
                               rel={child.target === '_blank' ? 'noopener noreferrer' : undefined}
                             >
-                              {child.title}
+                              {isRTL && child.titleAr ? child.titleAr : child.title}
                             </Link>
                           </li>
                         ))}
@@ -371,7 +371,7 @@ const Header: React.FC = () => {
                     target={item.target === '_blank' ? '_blank' : undefined}
                     rel={item.target === '_blank' ? 'noopener noreferrer' : undefined}
                   >
-                    {item.title}
+                    {isRTL && item.titleAr ? item.titleAr : item.title}
                   </Link>
                 )}
               </li>
