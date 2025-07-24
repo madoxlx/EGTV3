@@ -204,7 +204,16 @@ export default function CartPage() {
                         <div className="text-2xl font-bold text-gray-900">
                           {((item.discountedPriceAtAdd || item.priceAtAdd) * item.quantity).toLocaleString('ar-EG')} EGP
                         </div>
-                        {item.configuration?.basePricePerPerson && item.configuration?.totalTravelers && (
+                        {item.configuration?.priceBreakdown ? (
+                          <div className="text-xs text-gray-500 mt-1">
+                            <div>🏨 Room Cost: {item.configuration.priceBreakdown.roomsCost.toLocaleString('ar-EG')} EGP</div>
+                            {item.configuration.priceBreakdown.toursCost > 0 && (
+                              <div>🚌 Tours: {item.configuration.priceBreakdown.toursCost.toLocaleString('ar-EG')} EGP</div>
+                            )}
+                            <div>📊 Total: {item.configuration.priceBreakdown.total.toLocaleString('ar-EG')} EGP</div>
+                            {item.quantity > 1 && <div>× {item.quantity} booking${item.quantity > 1 ? 's' : ''}</div>}
+                          </div>
+                        ) : item.configuration?.basePricePerPerson && item.configuration?.totalTravelers && (
                           <div className="text-xs text-gray-500 mt-1">
                             {item.configuration.basePricePerPerson.toLocaleString('ar-EG')} × {item.configuration.totalTravelers} travelers
                             {item.quantity > 1 && ` × ${item.quantity} booking${item.quantity > 1 ? 's' : ''}`}

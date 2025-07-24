@@ -4,6 +4,7 @@ import { ShoppingCart, Check, Loader2 } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import { useAuth } from '@/hooks/use-auth';
 import { useLocation } from 'wouter';
+import { calculatePackagePrice } from '@/utils/packagePriceCalculator';
 
 // Use the same Package type as package-detail.tsx for compatibility
 type Package = {
@@ -90,6 +91,9 @@ interface BookPackageButtonProps {
     selectedRooms: string[];
     hotelPackage: string;
   };
+  // Additional data needed for accurate price calculation
+  allRooms?: any[];
+  allTours?: any[];
 }
 
 const BookPackageButton: React.FC<BookPackageButtonProps> = ({ 
@@ -100,7 +104,9 @@ const BookPackageButton: React.FC<BookPackageButtonProps> = ({
   onClick,
   disabled = false,
   disabledReason,
-  formData
+  formData,
+  allRooms = [],
+  allTours = []
 }) => {
   const [isAdding, setIsAdding] = useState(false);
   const [isAdded, setIsAdded] = useState(false);
@@ -157,37 +163,34 @@ const BookPackageButton: React.FC<BookPackageButtonProps> = ({
         return new Date(Date.now() + 30 * 24 * 60 * 60 * 1000).toISOString().split('T')[0];
       };
 
-      // Calculate actual nights based on date range or package duration
-      const calculateNights = () => {
-        if (formData?.dateMode === "range" && formData?.startDate && formData?.endDate) {
-          const start = new Date(formData.startDate);
-          const end = new Date(formData.endDate);
-          const diffTime = Math.abs(end.getTime() - start.getTime());
-          return Math.max(1, Math.ceil(diffTime / (1000 * 60 * 60 * 24)));
-        }
-        // Use package duration as nights (convert days to nights)
-        return Math.max(1, (pkg.duration || 3) - 1);
-      };
+      // Use the sophisticated price calculation that matches EnhancedPriceCalculation
+      const priceCalculation = calculatePackagePrice({
+        packageData: pkg,
+        adults: formData?.adults || 2,
+        children: formData?.children || 0,
+        infants: formData?.infants || 0,
+        startDate: formData?.startDate,
+        endDate: formData?.endDate,
+        selectedDate: formData?.selectedDate,
+        dateMode: formData?.dateMode || "range",
+        hotelPackage: formData?.hotelPackage || "standard",
+        allRooms: allRooms,
+        allTours: allTours
+      });
 
-      // Calculate total travelers
-      const totalTravelers = (formData?.adults || 2) + (formData?.children || 0) + (formData?.infants || 0);
-      const nights = calculateNights();
-      
-      // Calculate actual total price for all travelers and nights
-      // This matches the pricing calculation from EnhancedPriceCalculation.tsx
+      // Use the calculated total from the price breakdown
+      const totalPrice = priceCalculation.total;
       const basePricePerPerson = pkg.discountedPrice || pkg.price;
-      
-      // For packages, multiply by total travelers (adults + children + infants)
-      // This ensures cart shows the same total as the booking page
-      const totalPrice = basePricePerPerson * totalTravelers;
 
       console.log('Package Slug:', pkg.id);
       console.log('All Packages:', [pkg]);
       console.log('Package Data:', pkg);
-      console.log('Total travelers:', totalTravelers);
-      console.log('Nights:', nights);
-      console.log('Base price per person:', basePricePerPerson);
-      console.log('Calculated total price:', totalPrice);
+      console.log('Price Calculation Result:', priceCalculation);
+      console.log('Room Cost:', priceCalculation.roomsCost);
+      console.log('Tours Cost:', priceCalculation.toursCost);
+      console.log('Total Calculated Price:', totalPrice);
+      console.log('Nights:', priceCalculation.actualNights);
+      console.log('Total PAX:', priceCalculation.totalPAX);
 
       const cartItem = {
         itemType: 'package',
@@ -258,9 +261,18 @@ const BookPackageButton: React.FC<BookPackageButtonProps> = ({
           dateMode: formData?.dateMode || "single",
           startDate: formData?.startDate || "",
           endDate: formData?.endDate || "",
-          nights: nights,
-          totalTravelers: totalTravelers,
-          basePricePerPerson: basePricePerPerson
+          nights: priceCalculation.actualNights,
+          totalTravelers: priceCalculation.totalPAX,
+          basePricePerPerson: basePricePerPerson,
+          priceBreakdown: {
+            roomsCost: priceCalculation.roomsCost,
+            toursCost: priceCalculation.toursCost,
+            excursionsCost: priceCalculation.excursionsCost,
+            upgradePrice: priceCalculation.upgradePrice,
+            subtotal: priceCalculation.subtotal,
+            total: priceCalculation.total,
+            breakdown: priceCalculation.breakdown
+          }
         }
       };
 

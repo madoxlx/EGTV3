@@ -309,6 +309,18 @@ export default function PackageDetail() {
     ? destinations.find((d) => d.id === packageData.destinationId)
     : null;
 
+  // Fetch rooms data for accurate pricing calculation (same as EnhancedPriceCalculation)
+  const { data: allRooms = [] } = useQuery<any[]>({
+    queryKey: ["/api/admin/rooms"],
+    retry: 1,
+  });
+
+  // Fetch tours data for accurate pricing calculation (same as EnhancedPriceCalculation)
+  const { data: allTours = [] } = useQuery<any[]>({
+    queryKey: ["/api/tours"],
+    retry: 1,
+  });
+
   // Detect manual packages and redirect to manual package detail page
   React.useEffect(() => {
     if (packageData && packageData.title && packageData.title.startsWith("MANUAL:")) {
@@ -1339,6 +1351,8 @@ export default function PackageDetail() {
                                   selectedRooms,
                                   hotelPackage: "",
                                 }}
+                                allRooms={allRooms}
+                                allTours={allTours}
                               />
                             </div>
                           </div>
