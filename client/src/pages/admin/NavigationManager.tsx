@@ -184,6 +184,7 @@ export default function NavigationManager() {
   // Menu item form state
   const [itemForm, setItemForm] = useState({
     title: '',
+    titleAr: '',
     url: '',
     icon: '',
     type: 'link',
@@ -194,16 +195,16 @@ export default function NavigationManager() {
   });
 
   // Fetch menus
-  const { data: menus = [], isLoading: menusLoading } = useQuery({
+  const { data: menus = [], isLoading: menusLoading } = useQuery<Menu[]>({
     queryKey: ['/api/menus'],
-    select: (data) => data || []
+    select: (data) => (data as Menu[]) || []
   });
 
   // Fetch menu items for selected menu
-  const { data: menuItems = [], isLoading: itemsLoading, refetch: refetchMenuItems } = useQuery({
+  const { data: menuItems = [], isLoading: itemsLoading, refetch: refetchMenuItems } = useQuery<MenuItem[]>({
     queryKey: [`/api/menu-items/${selectedMenu?.id}`],
     enabled: !!selectedMenu,
-    select: (data) => data || []
+    select: (data) => (data as MenuItem[]) || []
   });
 
   // Automatically refresh menu items when selected menu changes
@@ -304,7 +305,7 @@ export default function NavigationManager() {
       }
       
       setIsItemDialogOpen(false);
-      setItemForm({ title: '', url: '', icon: '', type: 'link', target: '_self', orderPosition: 1, active: true, parentId: null });
+      setItemForm({ title: '', titleAr: '', url: '', icon: '', type: 'link', target: '_self', orderPosition: 1, active: true, parentId: null });
       setEditingItem(null);
       toast({
         title: "Success",
@@ -340,7 +341,7 @@ export default function NavigationManager() {
       }
       
       setIsItemDialogOpen(false);
-      setItemForm({ title: '', url: '', icon: '', type: 'link', target: '_self', orderPosition: 1, active: true, parentId: null });
+      setItemForm({ title: '', titleAr: '', url: '', icon: '', type: 'link', target: '_self', orderPosition: 1, active: true, parentId: null });
       setEditingItem(null);
       toast({
         title: "Success",
@@ -465,7 +466,13 @@ export default function NavigationManager() {
     if (isDropOnParent && draggedItem.parentId !== targetItem.id) {
       // Make the dragged item a child of the target item
       const updateData = {
-        ...draggedItem,
+        title: draggedItem.title,
+        titleAr: draggedItem.titleAr || '',
+        url: draggedItem.url || '',
+        icon: draggedItem.icon || '',
+        type: draggedItem.type || 'link',
+        target: draggedItem.target || '_self',
+        active: draggedItem.active !== null ? Boolean(draggedItem.active) : true,
         parentId: targetItem.id,
         orderPosition: 1 // Set as first child
       };
@@ -502,7 +509,7 @@ export default function NavigationManager() {
     setMenuForm({
       name: menu.name,
       location: menu.location,
-      active: menu.active,
+      active: menu.active !== null ? Boolean(menu.active) : true,
       description: menu.description || ''
     });
     setSelectedMenu(menu);
@@ -537,12 +544,13 @@ export default function NavigationManager() {
   const handleEditItem = (item: MenuItem) => {
     setItemForm({
       title: item.title || '',
+      titleAr: item.titleAr || '',
       url: item.url || '',
       icon: item.icon || '',
       type: item.type || 'link',
       target: item.target || '_self',
       orderPosition: item.orderPosition || 1,
-      active: item.active !== undefined ? item.active : true,
+      active: item.active !== null ? Boolean(item.active) : true,
       parentId: item.parentId || null
     });
     setEditingItem(item);
@@ -556,7 +564,7 @@ export default function NavigationManager() {
   };
 
   const openCreateItemDialog = () => {
-    setItemForm({ title: '', url: '', icon: '', type: 'link', target: '_self', orderPosition: 1, active: true, parentId: null });
+    setItemForm({ title: '', titleAr: '', url: '', icon: '', type: 'link', target: '_self', orderPosition: 1, active: true, parentId: null });
     setEditingItem(null);
     setIsItemDialogOpen(true);
   };
@@ -829,12 +837,22 @@ export default function NavigationManager() {
           </DialogHeader>
           <div className="space-y-4">
             <div>
-              <Label htmlFor="title">Title</Label>
+              <Label htmlFor="title">Title (English)</Label>
               <Input
                 id="title"
                 value={itemForm.title}
                 onChange={(e) => setItemForm({ ...itemForm, title: e.target.value })}
-                placeholder="Enter menu item title"
+                placeholder="Enter menu item title in English"
+              />
+            </div>
+            <div>
+              <Label htmlFor="titleAr">Title (Arabic)</Label>
+              <Input
+                id="titleAr"
+                value={itemForm.titleAr}
+                onChange={(e) => setItemForm({ ...itemForm, titleAr: e.target.value })}
+                placeholder="أدخل عنوان عنصر القائمة بالعربية"
+                style={{ direction: 'rtl' }}
               />
             </div>
             <div>

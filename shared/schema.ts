@@ -552,6 +552,7 @@ export const menuItems = pgTable("menu_items", {
     .notNull(),
   parentId: integer("parent_id"),
   title: text("title").notNull(),
+  titleAr: text("title_ar"), // Arabic title
   url: text("url"), // URL is now optional
   icon: text("icon"), // FontAwesome icon name
   iconType: text("icon_type").default("fas"), // FontAwesome icon type
@@ -1724,6 +1725,7 @@ export const insertMenuItemSchema = createInsertSchema(menuItems).pick({
   menuId: true,
   parentId: true,
   title: true,
+  titleAr: true,
   url: true,
   icon: true,
   orderPosition: true,
