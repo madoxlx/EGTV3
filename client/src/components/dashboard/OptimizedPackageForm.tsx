@@ -19,6 +19,12 @@ const optimizedPackageSchema = z.object({
   basePrice: z.number().min(1, "Base price must be greater than 0"),
   startDate: z.string().min(1, "Start date is required"),
   endDate: z.string().min(1, "End date is required"),
+  // Arabic fields
+  shortDescriptionAr: z.string().optional(),
+  routeDescription: z.string().optional(),
+  accommodationHighlights: z.string().optional(),
+  routeDescriptionAr: z.string().optional(),
+  accommodationHighlightsAr: z.string().optional(),
 });
 
 type OptimizedPackageFormValues = z.infer<typeof optimizedPackageSchema>;
@@ -45,6 +51,11 @@ export function OptimizedPackageForm({ packageId }: OptimizedPackageFormProps) {
       basePrice: 0,
       startDate: "",
       endDate: "",
+      shortDescriptionAr: "",
+      routeDescription: "",
+      accommodationHighlights: "",
+      routeDescriptionAr: "",
+      accommodationHighlightsAr: "",
     },
   });
 
@@ -168,10 +179,11 @@ export function OptimizedPackageForm({ packageId }: OptimizedPackageFormProps) {
 
       <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
         <Tabs value={activeTab} onValueChange={setActiveTab}>
-          <TabsList className="grid w-full grid-cols-3">
+          <TabsList className="grid w-full grid-cols-4">
             <TabsTrigger value="basic">Basic Info</TabsTrigger>
             <TabsTrigger value="pricing">Pricing</TabsTrigger>
             <TabsTrigger value="details">Details</TabsTrigger>
+            <TabsTrigger value="arabic">Arabic</TabsTrigger>
           </TabsList>
 
           <TabsContent value="basic" className="space-y-4">
@@ -303,8 +315,56 @@ export function OptimizedPackageForm({ packageId }: OptimizedPackageFormProps) {
           </TabsContent>
 
           <TabsContent value="details">
-            <div className="text-center py-8">
-              <p className="text-muted-foreground">Additional details coming soon...</p>
+            <div className="space-y-4">
+              <div>
+                <label className="block text-sm font-medium mb-2">Route Description</label>
+                <textarea
+                  {...form.register("routeDescription")}
+                  className="w-full p-2 border rounded-md h-32"
+                  placeholder="Describe the travel route and journey details"
+                />
+              </div>
+
+              <div>
+                <label className="block text-sm font-medium mb-2">Accommodation Highlights</label>
+                <textarea
+                  {...form.register("accommodationHighlights")}
+                  className="w-full p-2 border rounded-md h-32"
+                  placeholder="Describe the accommodation features and highlights"
+                />
+              </div>
+            </div>
+          </TabsContent>
+
+          <TabsContent value="arabic" className="space-y-4">
+            <div>
+              <label className="block text-sm font-medium mb-2">Short Description (Arabic)</label>
+              <textarea
+                {...form.register("shortDescriptionAr")}
+                className="w-full p-2 border rounded-md h-24"
+                placeholder="أدخل وصف قصير بالعربية"
+                dir="rtl"
+              />
+            </div>
+
+            <div>
+              <label className="block text-sm font-medium mb-2">Route Description (Arabic)</label>
+              <textarea
+                {...form.register("routeDescriptionAr")}
+                className="w-full p-2 border rounded-md h-32"
+                placeholder="اكتب وصف المسار وتفاصيل الرحلة بالعربية"
+                dir="rtl"
+              />
+            </div>
+
+            <div>
+              <label className="block text-sm font-medium mb-2">Accommodation Highlights (Arabic)</label>
+              <textarea
+                {...form.register("accommodationHighlightsAr")}
+                className="w-full p-2 border rounded-md h-32"
+                placeholder="اكتب مميزات الإقامة والسكن بالعربية"
+                dir="rtl"
+              />
             </div>
           </TabsContent>
         </Tabs>
