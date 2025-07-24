@@ -183,6 +183,18 @@ The application uses a comprehensive PostgreSQL schema with the following core e
 - **Capacity Validation**: Enhanced validation system that verifies actual accommodation capability using database capacity values rather than simple capacity numbers
 - **User Experience**: More accurate room allocation that matches real-world hotel room usage patterns and traveler expectations using authentic data
 
+### Critical Database Schema Fix (July 24, 2025)
+- **Tour Creation Database Issues Resolved**: Successfully fixed all database schema problems preventing tour creation and listing functionality
+  - **Missing Column Resolution**: Added critical missing 'active' column to tours table that was causing "column 'active' does not exist" SQL errors
+  - **Complete Schema Alignment**: Added all missing columns required by shared/schema.ts including title, currency, gallery_urls, created_by, updated_by, and Arabic translation fields
+  - **Foreign Key Integrity**: Added missing created_by and updated_by columns with proper user references to support Drizzle ORM operations
+  - **Duplicate Category Cleanup**: Removed duplicate tour categories (Cultural, Adventure, Sightseeing, Food & Drink) that were causing rendering issues
+  - **JSON Field Initialization**: Properly initialized all JSON fields (included, excluded, gallery_urls) with empty arrays to prevent null reference errors
+  - **Drizzle ORM Compatibility**: Ensured full compatibility between database schema and Drizzle ORM expectations for seamless CRUD operations
+  - **Tour Functionality Testing**: Comprehensive testing confirmed tour creation, listing, and filtering operations work correctly with proper error handling
+  - **Database Verification**: All tests pass including direct SQL inserts, Drizzle ORM operations, and active status filtering
+  - **Production Ready**: Tours system fully operational with proper validation, data integrity, and admin interface functionality
+
 ### Translation System Fix (July 23, 2025)
 - **Translation Function Calls**: Fixed critical issue where translation keys were hardcoded as strings instead of proper `t()` function calls in Advanced Bookings Management page
 - **Database Setup**: Created translations table and populated missing translation keys for admin interface
