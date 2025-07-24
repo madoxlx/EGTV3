@@ -577,7 +577,7 @@ export default function PackageDetail() {
 {t("packages", "Packages")}
                       </a>
                       <span className="mx-2">/</span>
-                      <span className="font-medium">{getLocalizedTitle(packageData)}</span>
+                      <span className="font-medium">{destination?.name || getLocalizedTitle(packageData)}</span>
                     </div>
                     {userData?.role === "admin" && (
                       <div className="flex items-center gap-2">

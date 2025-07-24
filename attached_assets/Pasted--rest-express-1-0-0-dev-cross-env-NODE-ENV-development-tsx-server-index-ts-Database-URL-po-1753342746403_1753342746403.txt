@@ -1,0 +1,445 @@
+
+> rest-express@1.0.0 dev
+> cross-env NODE_ENV=development tsx server/index.ts
+
+Database URL: postgresql:****@20.77.106.39:5432/mydb
+Attempting to connect to external PostgreSQL database...
+Database URL: postgresql:****@20.77.106.39:5432/mydb
+🔑 Google AI API Key status: Found (AIzaSyBLsu...)
+🔍 Full environment check: {
+  hasGoogleAIKey: false,
+  hasOldGoogleKey: false,
+  hasGeminiKey: false,
+  nodeEnv: 'development',
+  keyLength: 39,
+  usingFallback: true
+}
+⏳ Waiting for database initialization...
+✅ Database connection established successfully
+Connected to database: mydb
+✅ Database initialized.
+🔐 Setting up admin users...
+✅ Main admin user already exists
+✅ Test admin user already exists
+✅ Admin setup completed
+✅ Unified auth setup completed
+✅ Hero slides routes setup completed
+🔧 Setting up upload routes...
+✅ Upload routes and static serving setup completed
+🔧 Setting up upload routes...
+✅ API routes registered successfully
+⚠️  Skipping automatic database initialization to prevent startup delays
+💡 Database is already configured and ready to use
+✅ Database connection verified
+✅ Vite development setup completed
+7:36:54 AM [express] ✅ Server serving on port 8080
+🌍 Application available at http://localhost:8080
+🔧 Session Debug - GET /src/lib/admin-route.tsx
+   Session ID: 7y2bPZXvHNpzbUJvWqhlu4vGI5TVZxq8
+   Session User: None
+🔧 Session Debug - GET /src/lib/admin-route.tsx
+   Session ID: 7FFpa7A4Cd73noP8whbEsQqsZpPXvC7w
+   Session User: None
+🔧 Session Debug - GET /src/components/admin/SessionGuard.tsx
+   Session ID: UDDhe0rozzyoFpfT83vGi6r3hRNt-2f8
+   Session User: None
+🔧 Session Debug - GET /src/lib/admin-route.tsx
+   Session ID: YAKPhjJVCkQ2h0iwz25-SMg9oXLCpX8x
+   Session User: None
+🔧 Session Debug - GET /src/components/admin/SessionGuard.tsx
+   Session ID: KxsYR2DagKvhN29SMEe5pOB11krCiozI
+   Session User: None
+🔥 API ROUTE DEBUG: GET /api/cart
+🔥 Query params: {}
+Cart GET request - userId: undefined sessionId: undefined
+🔥 API ROUTE DEBUG: GET /api/menus/location/header
+🔥 Query params: {}
+🔥 STORAGE: getMenuByLocation called with location: header
+🔥 API ROUTE DEBUG: GET /api/countries
+🔥 Query params: {}
+🔥 API ROUTE: GET /api/countries
+🔥 Query params: {}
+🔥 Active filter: undefined
+🔍 listCountries called with active: undefined
+🔥 API ROUTE DEBUG: GET /api/cities
+🔥 Query params: {}
+🔥 STORAGE: getMenuByLocation query returned: 1 results
+🔥 STORAGE: Found menu: {"id":1,"name":"Header Menu","location":"header","description":"Main navigation menu","active":true,"createdAt":"2025-07-20T10:21:53.131Z","updatedAt":null}
+🔥 API ROUTE DEBUG: GET /api/destinations
+🔥 Query params: {}
+🔥 API ROUTE DEBUG: GET /api/packages
+🔥 Query params: {}
+7:37:05 AM [express] GET /api/menus/location/header 304 in 214ms
+🔥 API ROUTE DEBUG: GET /api/homepage-sections?active=true
+🔥 Query params: { active: 'true' }
+Error listing homepage sections: error: column "order" does not exist
+    at /home/runner/workspace/node_modules/pg-pool/index.js:45:11
+    at process.processTicksAndRejections (node:internal/process/task_queues:95:5)
+    at async <anonymous> (/home/runner/workspace/node_modules/src/node-postgres/session.ts:104:19)
+    at async DatabaseStorage.listHomepageSections (/home/runner/workspace/server/storage.ts:1060:16)
+    at async <anonymous> (/home/runner/workspace/server/routes.ts:6652:24) {
+  length: 106,
+  severity: 'ERROR',
+  code: '42703',
+  detail: undefined,
+  hint: undefined,
+  position: '559',
+  internalPosition: undefined,
+  internalQuery: undefined,
+  where: undefined,
+  schema: undefined,
+  table: undefined,
+  column: undefined,
+  dataType: undefined,
+  constraint: undefined,
+  file: 'parse_relation.c',
+  line: '3647',
+  routine: 'errorMissingColumn'
+}
+7:37:05 AM [express] GET /api/homepage-sections 304 in 135ms
+🔥 API ROUTE DEBUG: GET /api/menus/location/footer
+🔥 Query params: {}
+🔥 STORAGE: getMenuByLocation called with location: footer
+🔧 Session Debug - GET /src/components/admin/SessionGuard.tsx
+   Session ID: PZjPYgfLYqz_rGiEG9HzPWkbaHkW7KDN
+   Session User: None
+🔍 listCountries returning: 6 countries
+🔍 Sample data: {
+  id: 1,
+  name: 'Egypt',
+  code: 'EG',
+  description: 'The land of pharaohs and ancient wonders',
+  imageUrl: null,
+  active: true,
+  createdAt: 2025-07-20T11:02:42.638Z,
+  updatedAt: null
+}
+🔥 Countries returned from storage: 6
+7:37:05 AM [express] GET /api/countries 304 in 822ms
+7:37:05 AM [express] GET /api/tour-categories 304 in 829ms
+7:37:05 AM [express] GET /api/cities 304 in 851ms
+7:37:05 AM [express] GET /api/destinations 304 in 832ms
+7:37:05 AM [express] GET /api/packages 304 in 951ms
+🔥 API ROUTE DEBUG: GET /api/homepage-sections?active=true
+🔥 Query params: { active: 'true' }
+7:37:06 AM [express] GET /api/translations 304 in 427ms
+🔥 STORAGE: getMenuByLocation query returned: 1 results
+🔥 STORAGE: Found menu: {"id":2,"name":"Footer Menu","location":"footer","description":"Footer navigation menu","active":true,"createdAt":"2025-07-20T10:21:53.131Z","updatedAt":null}
+7:37:06 AM [express] GET /api/translations/settings 304 in 103ms
+Error listing homepage sections: error: column "order" does not exist
+    at /home/runner/workspace/node_modules/pg-pool/index.js:45:11
+    at process.processTicksAndRejections (node:internal/process/task_queues:95:5)
+    at async <anonymous> (/home/runner/workspace/node_modules/src/node-postgres/session.ts:104:19)
+    at async DatabaseStorage.listHomepageSections (/home/runner/workspace/server/storage.ts:1060:16)
+    at async <anonymous> (/home/runner/workspace/server/routes.ts:6652:24) {
+  length: 106,
+  severity: 'ERROR',
+  code: '42703',
+  detail: undefined,
+  hint: undefined,
+  position: '559',
+  internalPosition: undefined,
+  internalQuery: undefined,
+  where: undefined,
+  schema: undefined,
+  table: undefined,
+  column: undefined,
+  dataType: undefined,
+  constraint: undefined,
+  file: 'parse_relation.c',
+  line: '3647',
+  routine: 'errorMissingColumn'
+}
+7:37:06 AM [express] GET /api/homepage-sections 304 in 103ms
+🔥 API ROUTE DEBUG: GET /api/cart
+🔥 Query params: {}
+Cart GET request - userId: undefined sessionId: undefined
+7:37:06 AM [express] GET /api/menus/location/footer 304 in 927ms
+🔥 API ROUTE DEBUG: GET /api/countries
+🔥 Query params: {}
+🔥 API ROUTE: GET /api/countries
+🔥 Query params: {}
+🔥 Active filter: undefined
+🔍 listCountries called with active: undefined
+🔥 API ROUTE DEBUG: GET /api/menus/location/header
+🔥 Query params: {}
+🔥 STORAGE: getMenuByLocation called with location: header
+🔥 API ROUTE DEBUG: GET /api/cities
+🔥 Query params: {}
+🔍 listCountries returning: 6 countries
+🔍 Sample data: {
+  id: 1,
+  name: 'Egypt',
+  code: 'EG',
+  description: 'The land of pharaohs and ancient wonders',
+  imageUrl: null,
+  active: true,
+  createdAt: 2025-07-20T11:02:42.638Z,
+  updatedAt: null
+}
+🔥 Countries returned from storage: 6
+7:37:06 AM [express] GET /api/countries 304 in 104ms
+🔥 STORAGE: getMenuByLocation query returned: 1 results
+🔥 STORAGE: Found menu: {"id":1,"name":"Header Menu","location":"header","description":"Main navigation menu","active":true,"createdAt":"2025-07-20T10:21:53.131Z","updatedAt":null}
+7:37:06 AM [express] GET /api/cities 304 in 104ms
+7:37:06 AM [express] GET /api/menus/location/header 304 in 205ms
+🔥 API ROUTE DEBUG: GET /api/destinations
+🔥 Query params: {}
+7:37:06 AM [express] GET /api/destinations 304 in 103ms
+🔥 API ROUTE DEBUG: GET /api/menus/location/footer
+🔥 Query params: {}
+🔥 STORAGE: getMenuByLocation called with location: footer
+7:37:07 AM [express] GET /api/tour-categories 304 in 103ms
+7:37:07 AM [express] GET /api/translations/settings 304 in 102ms
+🔥 STORAGE: getMenuByLocation query returned: 1 results
+🔥 STORAGE: Found menu: {"id":2,"name":"Footer Menu","location":"footer","description":"Footer navigation menu","active":true,"createdAt":"2025-07-20T10:21:53.131Z","updatedAt":null}
+7:37:07 AM [express] GET /api/menus/location/footer 304 in 206ms
+🔥 API ROUTE DEBUG: GET /api/packages
+🔥 Query params: {}
+7:37:07 AM [express] GET /api/translations 304 in 414ms
+7:37:07 AM [express] GET /api/packages 304 in 204ms
+🔥 API ROUTE DEBUG: GET /api/menus/location/header
+🔥 Query params: {}
+🔥 STORAGE: getMenuByLocation called with location: header
+7:37:10 AM [express] GET /api/tour-categories 200 in 120ms
+🔥 STORAGE: getMenuByLocation query returned: 1 results
+🔥 STORAGE: Found menu: {"id":1,"name":"Header Menu","location":"header","description":"Main navigation menu","active":true,"createdAt":"2025-07-20T10:21:53.131Z","updatedAt":null}
+🔥 API ROUTE DEBUG: GET /api/countries
+🔥 Query params: {}
+🔥 API ROUTE: GET /api/countries
+🔥 Query params: {}
+🔥 Active filter: undefined
+🔍 listCountries called with active: undefined
+7:37:10 AM [express] GET /api/menus/location/header 200 in 221ms
+🔍 listCountries returning: 6 countries
+🔍 Sample data: {
+  id: 1,
+  name: 'Egypt',
+  code: 'EG',
+  description: 'The land of pharaohs and ancient wonders',
+  imageUrl: null,
+  active: true,
+  createdAt: 2025-07-20T11:02:42.638Z,
+  updatedAt: null
+}
+🔥 Countries returned from storage: 6
+7:37:10 AM [express] GET /api/countries 200 in 101ms
+🔥 API ROUTE DEBUG: GET /api/cities
+🔥 Query params: {}
+7:37:11 AM [express] GET /api/cities 200 in 101ms
+🔥 API ROUTE DEBUG: GET /api/destinations
+🔥 Query params: {}
+🔥 API ROUTE DEBUG: GET /api/packages
+🔥 Query params: {}
+7:37:11 AM [express] GET /api/destinations 200 in 102ms
+🔥 API ROUTE DEBUG: GET /api/homepage-sections?active=true
+🔥 Query params: { active: 'true' }
+🔥 API ROUTE DEBUG: GET /api/menus/location/footer
+🔥 Query params: {}
+🔥 STORAGE: getMenuByLocation called with location: footer
+Error listing homepage sections: error: column "order" does not exist
+    at /home/runner/workspace/node_modules/pg-pool/index.js:45:11
+    at process.processTicksAndRejections (node:internal/process/task_queues:95:5)
+    at async <anonymous> (/home/runner/workspace/node_modules/src/node-postgres/session.ts:104:19)
+    at async DatabaseStorage.listHomepageSections (/home/runner/workspace/server/storage.ts:1060:16)
+    at async <anonymous> (/home/runner/workspace/server/routes.ts:6652:24) {
+  length: 106,
+  severity: 'ERROR',
+  code: '42703',
+  detail: undefined,
+  hint: undefined,
+  position: '559',
+  internalPosition: undefined,
+  internalQuery: undefined,
+  where: undefined,
+  schema: undefined,
+  table: undefined,
+  column: undefined,
+  dataType: undefined,
+  constraint: undefined,
+  file: 'parse_relation.c',
+  line: '3647',
+  routine: 'errorMissingColumn'
+}
+7:37:11 AM [express] GET /api/homepage-sections 200 in 102ms
+🔥 STORAGE: getMenuByLocation query returned: 1 results
+🔥 STORAGE: Found menu: {"id":2,"name":"Footer Menu","location":"footer","description":"Footer navigation menu","active":true,"createdAt":"2025-07-20T10:21:53.131Z","updatedAt":null}
+7:37:11 AM [express] GET /api/packages 200 in 206ms
+7:37:11 AM [express] GET /api/translations/settings 200 in 101ms
+7:37:11 AM [express] GET /api/menus/location/footer 200 in 203ms
+7:37:11 AM [express] GET /api/translations 200 in 420ms
+🔧 Session Debug - GET /src/lib/admin-route.tsx
+   Session ID: oGPHkp86WcO3W_U_zeXQonSOpqxXTyDc
+   Session User: None
+🔧 Session Debug - GET /src/components/admin/SessionGuard.tsx
+   Session ID: mZ6DImo44I9rYsTa83_NzB8eifHZnPlG
+   Session User: None
+🔥 API ROUTE DEBUG: GET /api/cart
+🔥 Query params: {}
+Cart GET request - userId: undefined sessionId: undefined
+🔥 API ROUTE DEBUG: GET /api/menus/location/header
+🔥 Query params: {}
+🔥 STORAGE: getMenuByLocation called with location: header
+🔥 API ROUTE DEBUG: GET /api/menus/location/footer
+🔥 Query params: {}
+🔥 STORAGE: getMenuByLocation called with location: footer
+🔥 API ROUTE DEBUG: GET /api/destinations
+🔥 Query params: {}
+🔥 API ROUTE DEBUG: GET /api/packages
+🔥 Query params: {}
+🔥 STORAGE: getMenuByLocation query returned: 1 results
+🔥 STORAGE: Found menu: {"id":1,"name":"Header Menu","location":"header","description":"Main navigation menu","active":true,"createdAt":"2025-07-20T10:21:53.131Z","updatedAt":null}
+7:38:15 AM [express] GET /api/translations/settings 304 in 901ms
+🔥 STORAGE: getMenuByLocation query returned: 1 results
+🔥 STORAGE: Found menu: {"id":2,"name":"Footer Menu","location":"footer","description":"Footer navigation menu","active":true,"createdAt":"2025-07-20T10:21:53.131Z","updatedAt":null}
+7:38:16 AM [express] GET /api/menus/location/header 304 in 1002ms
+7:38:16 AM [express] GET /api/menus/location/footer 304 in 1017ms
+7:38:16 AM [express] GET /api/translations 304 in 1230ms
+7:38:16 AM [express] GET /api/destinations 304 in 826ms
+7:38:16 AM [express] GET /api/packages 304 in 927ms
+🔧 Session Debug - GET /api/admin/rooms
+   Session ID: l996yL6t34jlbSJTWN17LirPz1ZKq6ug
+   Session User: None
+🔥 API ROUTE DEBUG: GET /api/admin/rooms
+🔥 Query params: {}
+🔍 Admin check - Session ID: l996yL6t34jlbSJTWN17LirPz1ZKq6ug
+🔍 Admin check - Session user: undefined
+🔍 Admin check - Request path: /api/admin/rooms
+⚠️ No session user found, creating temp admin and saving to session
+Admin rooms endpoint called
+🔍 Listing rooms with hotelId: undefined
+🔑 Temporary admin session created and saved
+🔥 API ROUTE DEBUG: GET /api/hotels
+🔥 Query params: {}
+🏨 Listing hotels with active filter: undefined
+🔧 Session Debug - GET /api/admin/settings
+   Session ID: x9pLK5GJqn0QA7HbEAjTr4NHRbtM-uFG
+   Session User: None
+🔥 API ROUTE DEBUG: GET /api/admin/settings
+🔥 Query params: {}
+⚠️ Using temporary admin access - session not found
+🔥 API ROUTE DEBUG: GET /api/tours
+🔥 Query params: {}
+🔧 Session Debug - GET /api/admin/hotels
+   Session ID: Eg-RRqfckiWBfQbDGmfFNSFVjqbNGGhN
+   Session User: None
+🔥 API ROUTE DEBUG: GET /api/admin/hotels
+🔥 Query params: {}
+🏨 Listing hotels with active filter: undefined
+✅ Rooms query result: 13 rooms found
+📋 Sample room: { id: 13, name: 'Single Garden view room', hotel_id: 7 }
+Rooms returned from storage: 13 rooms
+7:39:20 AM [express] GET /api/admin/rooms 304 in 801ms
+✅ Found total hotels: 8
+7:39:20 AM [express] GET /api/hotels 200 in 829ms
+Error listing tours: error: column "max_capacity" does not exist
+    at /home/runner/workspace/node_modules/pg-pool/index.js:45:11
+    at process.processTicksAndRejections (node:internal/process/task_queues:95:5)
+    at async <anonymous> (/home/runner/workspace/node_modules/src/node-postgres/session.ts:104:19)
+    at async DatabaseStorage.listTours (/home/runner/workspace/server/storage.ts:964:14)
+    at async <anonymous> (/home/runner/workspace/server/routes.ts:1026:21) {
+  length: 112,
+  severity: 'ERROR',
+  code: '42703',
+  detail: undefined,
+  hint: undefined,
+  position: '85',
+  internalPosition: undefined,
+  internalQuery: undefined,
+  where: undefined,
+  schema: undefined,
+  table: undefined,
+  column: undefined,
+  dataType: undefined,
+  constraint: undefined,
+  file: 'parse_relation.c',
+  line: '3647',
+  routine: 'errorMissingColumn'
+}
+7:39:20 AM [express] GET /api/tours 200 in 828ms
+✅ Found total hotels: 8
+7:39:20 AM [express] GET /api/admin/hotels 304 in 830ms
+🔥 API ROUTE DEBUG: POST /api/cart/add
+🔥 Query params: {}
+Cart add request - Session user: {
+  id: 1,
+  username: 'admin',
+  role: 'admin',
+  email: 'admin@example.com',
+  displayName: 'Admin User'
+}
+Cart add request - User ID: 1
+Cart add request - Body: {
+  itemType: 'package',
+  itemId: 5,
+  itemName: 'Special Summer Getaway – Sharm El Sheikh',
+  priceAtAdd: 4950,
+  discountedPriceAtAdd: 4950,
+  quantity: 1,
+  adults: 2,
+  children: 0,
+  infants: 0,
+  travelDate: '2025-07-31',
+  configuration: {
+    duration: 5,
+    imageUrl: '/uploads/image-1753104793354.png',
+    selectedRooms: [ '12' ],
+    hotelPackage: '',
+    dateMode: 'range',
+    startDate: '2025-07-31',
+    endDate: '2025-08-05'
+  }
+}
+Parsed cart data: {
+  itemType: 'package',
+  itemId: 5,
+  quantity: 1,
+  adults: 2,
+  children: 0,
+  infants: 0,
+  checkInDate: null,
+  checkOutDate: null,
+  travelDate: 2025-07-31T00:00:00.000Z,
+  configuration: {
+    duration: 5,
+    imageUrl: '/uploads/image-1753104793354.png',
+    selectedRooms: [ '12' ],
+    hotelPackage: '',
+    dateMode: 'range',
+    startDate: '2025-07-31',
+    endDate: '2025-08-05'
+  },
+  priceAtAdd: 4950,
+  discountedPriceAtAdd: 4950
+}
+Cart insert result: {
+  id: 4,
+  userId: 1,
+  sessionId: null,
+  itemType: 'package',
+  itemId: 5,
+  quantity: 1,
+  adults: 2,
+  children: 0,
+  infants: 0,
+  checkInDate: null,
+  checkOutDate: null,
+  travelDate: 2025-07-31T00:00:00.000Z,
+  configuration: {
+    endDate: '2025-08-05',
+    dateMode: 'range',
+    duration: 5,
+    imageUrl: '/uploads/image-1753104793354.png',
+    startDate: '2025-07-31',
+    hotelPackage: '',
+    selectedRooms: [ '12' ]
+  },
+  priceAtAdd: 4950,
+  discountedPriceAtAdd: 4950,
+  notes: null,
+  createdAt: 2025-07-24T07:39:22.985Z,
+  updatedAt: 2025-07-24T07:39:22.985Z,
+  createdBy: null,
+  updatedBy: null
+}
+7:39:23 AM [express] POST /api/cart/add 200 in 115ms
