@@ -362,19 +362,6 @@ export default function EnhancedPriceCalculation({
 
   return (
     <div className="space-y-4">
-        {/* Pricing Mode Indicator */}
-        <div className="flex items-center justify-between p-3 bg-gradient-to-r from-blue-50 to-indigo-50 rounded-lg border border-blue-200">
-          <div className="flex items-center gap-2">
-            <Info className="w-4 h-4 text-blue-600" />
-            <span className="text-sm font-medium text-blue-800">
-              Pricing Mode
-            </span>
-          </div>
-          <Badge variant="secondary" className="bg-blue-100 text-blue-800">
-            {isPricingPerPerson ? "Per Person" : "Per Booking"}
-          </Badge>
-        </div>
-
         {/* Base Package Pricing */}
         <div className="space-y-2">
           <h4 className="font-medium text-sm flex items-center gap-2">
