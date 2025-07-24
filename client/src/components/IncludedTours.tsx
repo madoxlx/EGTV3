@@ -2,7 +2,7 @@ import React from 'react';
 import { useQuery } from '@tanstack/react-query';
 import { Card, CardContent } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
-import { Clock, MapPin, Star, Users, CheckCircle2 } from 'lucide-react';
+import { Clock, MapPin, Star, Users, CheckCircle2, Baby, Heart, DollarSign } from 'lucide-react';
 
 type Tour = {
   id: number;
@@ -10,6 +10,9 @@ type Tour = {
   description?: string;
   price: number;
   discountedPrice?: number;
+  adultPrice?: number;
+  childPrice?: number;
+  infantPrice?: number;
   duration: string | number;
   destinationId?: number;
   imageUrl?: string;
@@ -134,69 +137,115 @@ export default function IncludedTours({ packageData }: IncludedToursProps) {
     <div className="space-y-3">
       <div className="flex items-center gap-2 mb-3">
         <CheckCircle2 className="w-4 h-4 text-green-600" />
-        <span className="text-sm font-medium text-green-800">Included Tours</span>
+        <span className="text-sm font-medium text-green-800">Included Tours with Pricing</span>
       </div>
       
       {includedTours.map((tour) => (
         <Card key={tour.id} className="border-green-200 bg-green-50/50">
           <CardContent className="p-3">
-            <div className="flex justify-between items-start gap-3">
-              <div className="flex-1">
-                <div className="flex items-start justify-between mb-2">
-                  <h4 className="font-medium text-sm text-green-800 line-clamp-1">{tour.name}</h4>
-                  <Badge variant="outline" className="text-xs text-green-700 border-green-300">
-                    Included
-                  </Badge>
-                </div>
-
-                <div className="flex items-center gap-3 text-xs text-green-700 mb-2">
-                  <div className="flex items-center gap-1">
-                    <Clock className="h-3 w-3" />
-                    <span>{typeof tour.duration === 'string' ? tour.duration : `${tour.duration} days`}</span>
-                  </div>
-                  <div className="flex items-center gap-1">
-                    <MapPin className="h-3 w-3" />
-                    <span>{getDestinationName(tour.destinationId)}</span>
-                  </div>
-                  {tour.rating && (
+            <div className="space-y-3">
+              {/* Tour Header */}
+              <div className="flex items-start justify-between">
+                <div className="flex-1">
+                  <h4 className="font-medium text-sm text-green-800 line-clamp-1 mb-1">{tour.name}</h4>
+                  <div className="flex items-center gap-3 text-xs text-green-700">
                     <div className="flex items-center gap-1">
-                      <Star className="h-3 w-3 fill-yellow-400 text-yellow-400" />
-                      <span>{tour.rating}/5</span>
+                      <Clock className="h-3 w-3" />
+                      <span>{typeof tour.duration === 'string' ? tour.duration : `${tour.duration} days`}</span>
                     </div>
-                  )}
-                </div>
-
-                {tour.description && (
-                  <p className="text-xs text-green-600 line-clamp-2 mb-2">
-                    {tour.description}
-                  </p>
-                )}
-
-                <div className="flex items-center justify-between">
-                  <div className="text-xs text-green-600">
-                    <span className="font-medium">Value: </span>
-                    {tour.discountedPrice ? (
-                      <>
-                        <span className="line-through text-gray-500 mr-1">
-                          {(tour.price).toLocaleString('en-US')} EGP
-                        </span>
-                        <span className="font-medium">
-                          {(tour.discountedPrice).toLocaleString('en-US')} EGP
-                        </span>
-                      </>
-                    ) : (
-                      <span className="font-medium">
-                        {(tour.price).toLocaleString('en-US')} EGP
-                      </span>
+                    <div className="flex items-center gap-1">
+                      <MapPin className="h-3 w-3" />
+                      <span>{getDestinationName(tour.destinationId)}</span>
+                    </div>
+                    {tour.rating && (
+                      <div className="flex items-center gap-1">
+                        <Star className="h-3 w-3 fill-yellow-400 text-yellow-400" />
+                        <span>{tour.rating}/5</span>
+                      </div>
                     )}
                   </div>
-                  {tour.difficulty && (
-                    <Badge variant="secondary" className="text-xs">
-                      {tour.difficulty}
-                    </Badge>
-                  )}
+                </div>
+                <Badge variant="outline" className="text-xs text-green-700 border-green-300">
+                  Included
+                </Badge>
+              </div>
+
+              {/* Tour Description */}
+              {tour.description && (
+                <p className="text-xs text-green-600 line-clamp-2">
+                  {tour.description}
+                </p>
+              )}
+
+              {/* Tour Pricing Breakdown */}
+              <div className="bg-white rounded-lg border border-green-200 p-3">
+                <div className="flex items-center gap-2 mb-2">
+                  <DollarSign className="h-3 w-3 text-green-600" />
+                  <span className="text-xs font-medium text-green-700">Tour Pricing per Person</span>
+                </div>
+                
+                <div className="grid grid-cols-3 gap-2">
+                  {/* Adult Price */}
+                  <div className="text-center p-2 bg-blue-50 border border-blue-200 rounded">
+                    <div className="flex items-center justify-center gap-1 mb-1">
+                      <Users className="h-3 w-3 text-blue-600" />
+                      <span className="text-xs font-medium text-blue-700">Adult</span>
+                    </div>
+                    <div className="text-xs text-blue-800 font-semibold">
+                      {tour.adultPrice ? 
+                        `${(tour.adultPrice / 100).toLocaleString('en-US')} EGP` : 
+                        `${(tour.price / 100).toLocaleString('en-US')} EGP`
+                      }
+                    </div>
+                  </div>
+
+                  {/* Child Price */}
+                  <div className="text-center p-2 bg-green-50 border border-green-200 rounded">
+                    <div className="flex items-center justify-center gap-1 mb-1">
+                      <Baby className="h-3 w-3 text-green-600" />
+                      <span className="text-xs font-medium text-green-700">Child</span>
+                    </div>
+                    <div className="text-xs text-green-800 font-semibold">
+                      {tour.childPrice ? 
+                        `${(tour.childPrice / 100).toLocaleString('en-US')} EGP` : 
+                        `${Math.round(tour.price * 0.7 / 100).toLocaleString('en-US')} EGP`
+                      }
+                    </div>
+                    <div className="text-xs text-green-600">(2-12 years)</div>
+                  </div>
+
+                  {/* Infant Price */}
+                  <div className="text-center p-2 bg-orange-50 border border-orange-200 rounded">
+                    <div className="flex items-center justify-center gap-1 mb-1">
+                      <Heart className="h-3 w-3 text-orange-600" />
+                      <span className="text-xs font-medium text-orange-700">Infant</span>
+                    </div>
+                    <div className="text-xs text-orange-800 font-semibold">
+                      {tour.infantPrice ? 
+                        `${(tour.infantPrice / 100).toLocaleString('en-US')} EGP` : 
+                        'Free'
+                      }
+                    </div>
+                    <div className="text-xs text-orange-600">(0-2 years)</div>
+                  </div>
+                </div>
+
+                {/* Tour Value Notice */}
+                <div className="mt-2 p-2 bg-yellow-50 border border-yellow-200 rounded">
+                  <p className="text-xs text-yellow-800 text-center">
+                    <span className="font-medium">✓ Included in Package</span> - No additional cost when booking this hotel package
+                  </p>
                 </div>
               </div>
+
+              {/* Tour Features */}
+              {tour.difficulty && (
+                <div className="flex justify-center">
+                  <Badge variant="secondary" className="text-xs">
+                    {tour.difficulty}
+                  </Badge>
+                </div>
+              )}
             </div>
           </CardContent>
         </Card>
@@ -204,7 +253,7 @@ export default function IncludedTours({ packageData }: IncludedToursProps) {
       
       <div className="text-xs text-gray-600 bg-gray-50 rounded p-2">
         <span className="font-medium">Note:</span> These tours are included in your package price. 
-        Additional optional tours can be added during checkout.
+        The pricing shown is for reference - you won't pay extra for these tours when booking this hotel package.
       </div>
     </div>
   );
