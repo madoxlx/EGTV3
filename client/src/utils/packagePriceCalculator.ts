@@ -75,12 +75,33 @@ export function calculatePackagePrice(params: CalculationParams): PriceBreakdown
   // Parse package data (same logic as EnhancedPriceCalculation)
   const packageRooms = parsePackageArray(packageData.rooms);
   
-  // Handle tours - can be single ID, array of IDs, or JSON string
+  // Handle tours - can be single ID, array of IDs, or array of tour objects with pricing
   let packageTours: number[] = [];
+  let tourPricingData: { [key: number]: { adultPrice: number; childPrice: number; infantPrice: number } } = {};
+  
   if (packageData.selectedTourId) {
     packageTours = [packageData.selectedTourId];
   } else if (packageData.tourSelection) {
-    packageTours = parsePackageArray(packageData.tourSelection);
+    const parsedTours = parsePackageArray(packageData.tourSelection);
+    console.log('Parsed tours data:', parsedTours);
+    
+    // Handle new tour pricing structure with adult/child/infant prices
+    if (parsedTours.length > 0 && typeof parsedTours[0] === 'object' && 'id' in parsedTours[0]) {
+      // New format: [{id: 6, adultPrice: 200000, childPrice: 120000, infantPrice: 80000}]
+      parsedTours.forEach((tour: any) => {
+        if (tour.id) {
+          packageTours.push(tour.id);
+          tourPricingData[tour.id] = {
+            adultPrice: (tour.adultPrice || 0) / 100, // Convert from piasters to EGP
+            childPrice: (tour.childPrice || 0) / 100,
+            infantPrice: (tour.infantPrice || 0) / 100
+          };
+        }
+      });
+    } else {
+      // Old format: [6, 7, 8] or ["6", "7", "8"]
+      packageTours = parsedTours.map(id => typeof id === 'string' ? parseInt(id) : id).filter(id => !isNaN(id));
+    }
   }
 
   // Determine pricing mode
@@ -143,20 +164,46 @@ export function calculatePackagePrice(params: CalculationParams): PriceBreakdown
   let toursCost = 0;
   let toursBreakdown: Array<{ name: string; price: number }> = [];
 
-  if (packageTours.length > 0 && allTours.length > 0) {
+  if (packageTours.length > 0) {
     packageTours.forEach((tourId: number) => {
-      const tour = allTours.find((t: any) => t.id === tourId);
-      if (tour) {
-        const tourPrice = tour.price;
-        const totalTourCost = isPricingPerPerson
-          ? tourPrice * (adults + children * 0.7 + infants * 0.1)
-          : tourPrice;
+      // Use custom pricing data if available, otherwise fall back to tour database
+      if (tourPricingData[tourId]) {
+        const pricing = tourPricingData[tourId];
+        const totalTourCost = 
+          (pricing.adultPrice * adults) + 
+          (pricing.childPrice * children) + 
+          (pricing.infantPrice * infants);
 
         toursCost += totalTourCost;
         toursBreakdown.push({
-          name: tour.name,
+          name: `Tour #${tourId}`, // We don't have tour name in pricing data
           price: totalTourCost,
         });
+        
+        console.log(`Tour ${tourId} cost calculation:`, {
+          adults: adults,
+          children: children,
+          infants: infants,
+          adultPrice: pricing.adultPrice,
+          childPrice: pricing.childPrice,
+          infantPrice: pricing.infantPrice,
+          totalCost: totalTourCost
+        });
+      } else if (allTours.length > 0) {
+        // Fallback to old pricing method
+        const tour = allTours.find((t: any) => t.id === tourId);
+        if (tour) {
+          const tourPrice = tour.price / 100; // Convert from piasters to EGP
+          const totalTourCost = isPricingPerPerson
+            ? tourPrice * (adults + children * 0.7 + infants * 0.1)
+            : tourPrice;
+
+          toursCost += totalTourCost;
+          toursBreakdown.push({
+            name: tour.name || `Tour #${tourId}`,
+            price: totalTourCost,
+          });
+        }
       }
     });
   }

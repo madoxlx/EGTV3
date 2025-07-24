@@ -110,6 +110,16 @@ The application uses a comprehensive PostgreSQL schema with the following core e
 - **User Experience**: Added price per person calculation and savings display for discounted packages
 - **Production Ready**: Comprehensive pricing calculation component fully operational with detailed breakdown for all package components
 
+### Tour Pricing Calculation Logic Fix (July 24, 2025)
+- **Root Cause Resolution**: Fixed critical parsing error where tour pricing data was stored in new format with adult/child/infant specific prices but components were trying to parse as simple tour IDs
+- **Enhanced Parsing Logic**: Updated both BookPackageButton and EnhancedPriceCalculation to handle new tour pricing structure: `[{"id":6,"adultPrice":200000,"childPrice":120000,"infantPrice":80000}]`
+- **Currency Conversion Fix**: Implemented proper piasters to EGP conversion (divide by 100) for tour pricing consistency
+- **Passenger-Specific Pricing**: Enhanced calculation to use actual adult/child/infant pricing instead of generic tour price with percentage calculations
+- **Cart Price Accuracy**: Fixed cart pricing mismatch where total was showing accommodation only (26,000 EGP) instead of accommodation + tours
+- **Calculation Consistency**: Ensured BookPackageButton and EnhancedPriceCalculation use identical tour pricing logic for cart/booking page consistency
+- **Enhanced Logging**: Added detailed console logging for tour cost calculation debugging including individual passenger type pricing
+- **Production Ready**: Tour pricing calculation now accurately reflects passenger-specific pricing with proper currency handling and consistent cart totals
+
 ### Cart Pricing Calculation Fix for Multi-Traveler Packages (July 24, 2025)
 - **Price Calculation Accuracy**: Fixed critical cart pricing mismatch where booking page showed correct total (144,000 EGP for 6 travelers) but cart only showed base price (4,950 EGP)
 - **Total Traveler Calculation**: Enhanced BookPackageButton to calculate total price as base price × (adults + children + infants) instead of saving only base price per person
