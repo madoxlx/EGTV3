@@ -88,6 +88,19 @@ The application uses a comprehensive PostgreSQL schema with the following core e
 
 ## Recent Changes
 
+### Enhanced Tour Pricing Interface with Separate Adult/Child/Infant Price Fields Complete (July 24, 2025)
+- **Tour Selection Enhancement**: Successfully implemented editable adult/child/infant price fields in SimplePackageForm.tsx for selected tours section
+- **Passenger Type Pricing**: Added comprehensive pricing interface with separate input fields for adult, child (2-12 years), and infant (0-2 years) pricing
+- **Visual Enhancements**: Implemented color-coded pricing cards with distinct icons (Users for adults, Baby for children, Heart for infants) and professional borders
+- **Smart Default Pricing**: Added intelligent default pricing logic - adult price equals tour price, child price defaults to 70% of tour price, infant price defaults to 0
+- **Real-time Price Updates**: Enhanced state management to update tour pricing in real-time when administrators modify individual passenger type prices
+- **Pricing Summary Display**: Added comprehensive pricing summary section showing breakdown of all three passenger types with color-coded display
+- **Form Submission Integration**: Updated package creation mutation to include separate pricing data (adultPrice, childPrice, infantPrice) when submitting tour selections
+- **Total Calculation Enhancement**: Modified total price calculation to use adult price instead of base price for more accurate package pricing
+- **Database Schema Support**: Leveraged existing tours table schema with adultPrice, childPrice, and infantPrice fields for persistent pricing storage
+- **Professional UI Design**: Implemented responsive grid layout with proper spacing, hover effects, and clear labeling for optimal user experience
+- **Production Ready**: Complete tour pricing management system ready for travel package administrators to set detailed passenger-specific pricing
+
 ### Cart Pricing Calculation Fix for Multi-Traveler Packages (July 24, 2025)
 - **Price Calculation Accuracy**: Fixed critical cart pricing mismatch where booking page showed correct total (144,000 EGP for 6 travelers) but cart only showed base price (4,950 EGP)
 - **Total Traveler Calculation**: Enhanced BookPackageButton to calculate total price as base price × (adults + children + infants) instead of saving only base price per person

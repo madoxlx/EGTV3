@@ -59,6 +59,9 @@ import {
   Check,
   LucideProps,
   Languages,
+  Users,
+  Baby,
+  Heart,
 } from "lucide-react";
 
 // A simple component to dynamically use Lucide icons based on string name
@@ -906,8 +909,13 @@ export function PackageCreatorForm({
         whatToPack: packItems,
         travelRoute: travelRouteItems,
 
-        // Tour selection
-        tourSelection: selectedTours.length > 0 ? selectedTours.map(t => t.id) : formData.selectedTourIds,
+        // Tour selection with separate pricing
+        tourSelection: selectedTours.length > 0 ? selectedTours.map(t => ({
+          id: t.id,
+          adultPrice: t.adultPrice || t.price,
+          childPrice: t.childPrice || Math.round(t.price * 0.7),
+          infantPrice: t.infantPrice || 0
+        })) : formData.selectedTourIds,
         selectedTourIds: selectedTours.length > 0 ? selectedTours.map(t => t.id) : formData.selectedTourIds,
 
         // Hotel and room selections
@@ -4148,7 +4156,10 @@ export function PackageCreatorForm({
                       Selected Tours ({selectedTours.length})
                     </h4>
                     <Badge variant="outline" className="bg-green-50 text-green-700 border-green-200">
-                      Total: {(selectedTours.reduce((sum, tour) => sum + (tour.price || 0), 0) / 100).toLocaleString("ar-EG")} EGP
+                      Total: {(selectedTours.reduce((sum, tour) => {
+                        const basePrice = tour.adultPrice || tour.price || 0;
+                        return sum + basePrice;
+                      }, 0) / 100).toLocaleString("ar-EG")} EGP
                     </Badge>
                   </div>
                   
@@ -4174,6 +4185,119 @@ export function PackageCreatorForm({
                           >
                             <X className="h-4 w-4" />
                           </Button>
+                        </div>
+
+                        {/* Passenger Type Pricing Section */}
+                        <div className="space-y-3 mb-4">
+                          <h6 className="text-sm font-medium text-green-700">Passenger Type Pricing</h6>
+                          <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
+                            {/* Adult Price */}
+                            <div className="p-3 bg-white rounded border border-blue-200">
+                              <div className="flex items-center gap-2 mb-2">
+                                <Users className="h-4 w-4 text-blue-600" />
+                                <label className="text-xs font-medium text-blue-700">Adult Price</label>
+                              </div>
+                              <Input
+                                type="number"
+                                min="0"
+                                step="0.01"
+                                value={tour.adultPrice ? (tour.adultPrice / 100) : (tour.price / 100)}
+                                onChange={(e) => {
+                                  const newPrice = parseFloat(e.target.value) * 100 || 0;
+                                  // Update the selected tours with new adult price
+                                  setSelectedTours(prevTours => 
+                                    prevTours.map(t => 
+                                      t.id === tour.id 
+                                        ? { ...t, adultPrice: newPrice }
+                                        : t
+                                    )
+                                  );
+                                }}
+                                className="text-sm font-semibold h-8"
+                                placeholder="Adult price"
+                              />
+                              <p className="text-xs text-gray-500 mt-1">EGP per adult</p>
+                            </div>
+
+                            {/* Child Price */}
+                            <div className="p-3 bg-white rounded border border-green-200">
+                              <div className="flex items-center gap-2 mb-2">
+                                <Baby className="h-4 w-4 text-green-600" />
+                                <label className="text-xs font-medium text-green-700">Child Price</label>
+                              </div>
+                              <Input
+                                type="number"
+                                min="0"
+                                step="0.01"
+                                value={tour.childPrice ? (tour.childPrice / 100) : (tour.price * 0.7 / 100)}
+                                onChange={(e) => {
+                                  const newPrice = parseFloat(e.target.value) * 100 || 0;
+                                  setSelectedTours(prevTours => 
+                                    prevTours.map(t => 
+                                      t.id === tour.id 
+                                        ? { ...t, childPrice: newPrice }
+                                        : t
+                                    )
+                                  );
+                                }}
+                                className="text-sm font-semibold h-8"
+                                placeholder="Child price"
+                              />
+                              <p className="text-xs text-gray-500 mt-1">EGP per child (2-12 years)</p>
+                            </div>
+
+                            {/* Infant Price */}
+                            <div className="p-3 bg-white rounded border border-orange-200">
+                              <div className="flex items-center gap-2 mb-2">
+                                <Heart className="h-4 w-4 text-orange-600" />
+                                <label className="text-xs font-medium text-orange-700">Infant Price</label>
+                              </div>
+                              <Input
+                                type="number"
+                                min="0"
+                                step="0.01"
+                                value={tour.infantPrice ? (tour.infantPrice / 100) : 0}
+                                onChange={(e) => {
+                                  const newPrice = parseFloat(e.target.value) * 100 || 0;
+                                  setSelectedTours(prevTours => 
+                                    prevTours.map(t => 
+                                      t.id === tour.id 
+                                        ? { ...t, infantPrice: newPrice }
+                                        : t
+                                    )
+                                  );
+                                }}
+                                className="text-sm font-semibold h-8"
+                                placeholder="Infant price"
+                              />
+                              <p className="text-xs text-gray-500 mt-1">EGP per infant (0-2 years)</p>
+                            </div>
+                          </div>
+
+                          {/* Pricing Summary */}
+                          <div className="p-3 bg-gray-50 rounded border border-gray-200">
+                            <h6 className="text-xs font-medium text-gray-700 mb-2">Pricing Summary</h6>
+                            <div className="grid grid-cols-3 gap-2 text-xs">
+                              <div className="text-center">
+                                <span className="block text-blue-600 font-medium">
+                                  {tour.adultPrice ? (tour.adultPrice / 100).toLocaleString("ar-EG") : (tour.price / 100).toLocaleString("ar-EG")} EGP
+                                </span>
+                                <span className="text-gray-600">Adult</span>
+                              </div>
+                              <div className="text-center">
+                                <span className="block text-green-600 font-medium">
+                                  {tour.childPrice ? (tour.childPrice / 100).toLocaleString("ar-EG") : (tour.price * 0.7 / 100).toLocaleString("ar-EG")} EGP
+                                </span>
+                                <span className="text-gray-600">Child</span>
+                              </div>
+                              <div className="text-center">
+                                <span className="block text-orange-600 font-medium">
+                                  {tour.infantPrice ? (tour.infantPrice / 100).toLocaleString("ar-EG") : "0"} EGP
+                                </span>
+                                <span className="text-gray-600">Infant</span>
+                              </div>
+                            </div>
+                          </div>
                         </div>
 
                         <div className="grid grid-cols-2 gap-4">
