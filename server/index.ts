@@ -316,8 +316,8 @@ if (process.env.NODE_ENV === 'development') {
 
     // ALWAYS serve the app on port 8080
     // this serves both the API and the client.
-    // Using port 8080 as discussed previously
-    const port = parseInt(process.env.PORT || "3000"); // Use PORT environment variable, fallback to 3000
+    // Using port 8080 as requested
+    const port = parseInt(process.env.PORT || "8080"); // Use PORT environment variable, fallback to 8080
 
     await new Promise<void>((resolve, reject) => {
       server.listen(port, "0.0.0.0", (err?: Error) => {
