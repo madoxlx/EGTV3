@@ -1795,7 +1795,7 @@ export function PackageCreatorForm({
     }, 100);
   };
 
-  const updateAvailableRooms = (selectedHotelIds: string[]) => {
+  const updateAvailableRooms = (selectedHotelIds: (string | number)[]) => {
     console.log("🏨 HOTEL SELECTION CHANGED:", selectedHotelIds);
     console.log("📊 All rooms in database:", allRooms.length, "rooms");
 
@@ -1806,13 +1806,21 @@ export function PackageCreatorForm({
       return;
     }
 
+    // Convert selectedHotelIds to both numbers and strings for flexible matching
+    const hotelIdStrings = selectedHotelIds.map(id => String(id));
+    const hotelIdNumbers = selectedHotelIds.map(id => typeof id === 'string' ? parseInt(id) : id).filter(id => !isNaN(id));
+
     const hotelRooms = allRooms.filter((room) => {
       // Handle both camelCase and snake_case field names
       const roomHotelId = room.hotelId || room.hotel_id;
-      // Convert both to strings for comparison since hotels API returns string IDs
-      const matches = selectedHotelIds.includes(String(roomHotelId));
+      
+      // Check both string and number matches
+      const matchesString = hotelIdStrings.includes(String(roomHotelId));
+      const matchesNumber = hotelIdNumbers.includes(Number(roomHotelId));
+      const matches = matchesString || matchesNumber;
+      
       console.log(
-        `🏠 Room "${room.name}": hotel_id=${roomHotelId}, matches=${matches ? "✅" : "❌"}`,
+        `🏠 Room "${room.name}": hotel_id=${roomHotelId}, selected=${selectedHotelIds}, matches=${matches ? "✅" : "❌"}`,
       );
       return matches;
     });
