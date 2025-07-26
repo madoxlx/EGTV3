@@ -1979,6 +1979,8 @@ export function PackageCreatorForm({
     console.log("Filtering rooms by capacity:", { adults, children, infants });
     console.log("Available rooms:", rooms);
 
+    // For travel packages, show rooms that can contribute to accommodating the group
+    // Rather than requiring a single room to fit everyone
     const filtered = rooms.filter((room) => {
       // Check detailed capacity constraints
       const maxAdults = room.max_adults || room.maxAdults || 2;
@@ -1986,19 +1988,25 @@ export function PackageCreatorForm({
       const maxInfants = room.max_infants || room.maxInfants || 0;
       const maxOccupancy = room.max_occupancy || room.maxOccupancy || 2;
 
-      // Check if room can accommodate the specific guest types
-      const canAccommodateAdults = adults <= maxAdults;
-      const canAccommodateChildren = children <= maxChildren;
-      const canAccommodateInfants = infants <= maxInfants;
-      const canAccommodateTotal = (adults + children + infants) <= maxOccupancy;
+      // A room is useful if it can accommodate at least 1 guest of any type
+      // This allows for multiple room combinations to accommodate larger groups
+      const canAccommodateAtLeastOneAdult = maxAdults >= 1 && adults > 0;
+      const canAccommodateAtLeastOneChild = maxChildren >= 1 && children > 0;
+      const canAccommodateAtLeastOneInfant = maxInfants >= 1 && infants > 0;
+      const hasGeneralCapacity = maxOccupancy >= 1;
 
-      const meetsCapacity = canAccommodateAdults && canAccommodateChildren && canAccommodateInfants && canAccommodateTotal;
+      // Room is valid if it can accommodate someone OR if there are no guests of that type
+      const isUsefulForAdults = adults === 0 || canAccommodateAtLeastOneAdult;
+      const isUsefulForChildren = children === 0 || canAccommodateAtLeastOneChild;
+      const isUsefulForInfants = infants === 0 || canAccommodateAtLeastOneInfant;
+
+      const isUseful = hasGeneralCapacity && (isUsefulForAdults || isUsefulForChildren || isUsefulForInfants);
 
       console.log(
-        `Room "${room.name}": adults=${adults}/${maxAdults}(${canAccommodateAdults}), children=${children}/${maxChildren}(${canAccommodateChildren}), infants=${infants}/${maxInfants}(${canAccommodateInfants}), total=${adults + children + infants}/${maxOccupancy}(${canAccommodateTotal}), meets=${meetsCapacity ? "✅" : "❌"}`,
+        `Room "${room.name}": capacity=${maxOccupancy}, adults=${maxAdults}, children=${maxChildren}, infants=${maxInfants}, useful=${isUseful ? "✅" : "❌"}`,
       );
 
-      return meetsCapacity;
+      return isUseful;
     });
 
     console.log("Filtered rooms:", filtered);
