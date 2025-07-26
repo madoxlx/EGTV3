@@ -45,6 +45,12 @@ English text: "${text}"`;
    */
   async batchTranslateToArabic(items: string[]): Promise<string[]> {
     try {
+      // Check if API key is available
+      const apiKey = import.meta.env.VITE_GOOGLE_API_KEY;
+      if (!apiKey) {
+        throw new Error("Google API key not found. Please provide your VITE_GOOGLE_API_KEY.");
+      }
+
       const modelInstance = this.genAI.getGenerativeModel({ model: this.model });
       
       // Join all texts with a special separator to translate in a single request
@@ -59,6 +65,10 @@ ${combinedText}`;
       const response = await result.response;
       const translatedText = response.text();
       
+      if (!translatedText || translatedText.trim() === "") {
+        throw new Error("Empty response from Gemini API");
+      }
+      
       // Split the response back into individual translations
       const translationLines = translatedText.split("\n").filter(line => line.trim() !== "");
       
@@ -71,14 +81,39 @@ ${combinedText}`;
       
       // Ensure we have the same number of translations as inputs
       if (translations.length !== items.length) {
-        throw new Error("The number of translations does not match the number of inputs");
+        console.warn(`Translation count mismatch: expected ${items.length}, got ${translations.length}`);
+        // Pad with empty strings if fewer translations received
+        while (translations.length < items.length) {
+          translations.push("");
+        }
+        // Trim if more translations received
+        translations.splice(items.length);
       }
       
       return translations;
     } catch (error: unknown) {
       const errorObj = error as Error | unknown;
-      console.error("Error batch translating with Gemini:", errorObj);
-      const errorMessage = errorObj instanceof Error ? errorObj.message : String(errorObj);
+      console.error("Error batch translating with Gemini:", error);
+      
+      // Extract meaningful error message
+      let errorMessage = "Unknown error occurred";
+      if (errorObj instanceof Error) {
+        errorMessage = errorObj.message;
+      } else if (typeof errorObj === 'string') {
+        errorMessage = errorObj;
+      } else if (errorObj && typeof errorObj === 'object' && 'message' in errorObj) {
+        errorMessage = String((errorObj as any).message);
+      }
+      
+      // Handle specific error cases
+      if (errorMessage.includes('API_KEY_INVALID') || errorMessage.includes('API key')) {
+        throw new Error("Invalid Google API key. Please check your VITE_GOOGLE_API_KEY environment variable.");
+      } else if (errorMessage.includes('QUOTA_EXCEEDED')) {
+        throw new Error("Google API quota exceeded. Please try again later or check your billing.");
+      } else if (errorMessage.includes('RATE_LIMIT_EXCEEDED')) {
+        throw new Error("Rate limit exceeded. Please wait a moment and try again.");
+      }
+      
       throw new Error(`Batch translation failed: ${errorMessage}`);
     }
   }

@@ -1200,19 +1200,35 @@ export function PackageCreatorForm({
     } catch (error: any) {
       console.error('Auto-translate error:', error);
       
-      // Handle specific error types
+      // Handle specific error types with better messaging
       let errorMessage = "Translation failed. Please try again.";
+      let errorTitle = "Translation Error";
       
-      if (error.message?.includes('QUOTA_EXCEEDED')) {
-        errorMessage = "Translation quota exceeded. Please try again later or contact support.";
-      } else if (error.message?.includes('RATE_LIMITED')) {
-        errorMessage = "Too many requests. Please wait a moment and try again.";
-      } else if (error.message?.includes('API_KEY_INVALID')) {
-        errorMessage = "Translation service configuration error. Please contact support.";
+      if (error.message?.includes('Google API key not found')) {
+        errorTitle = "API Key Missing";
+        errorMessage = "Google Gemini API key is not configured. Please contact your administrator to set up the VITE_GOOGLE_API_KEY environment variable.";
+      } else if (error.message?.includes('QUOTA_EXCEEDED') || error.message?.includes('quota exceeded')) {
+        errorTitle = "Translation Quota Exceeded";
+        errorMessage = "Your Google API quota has been exceeded. Please try again later or contact support to increase your limits.";
+      } else if (error.message?.includes('RATE_LIMIT_EXCEEDED') || error.message?.includes('Rate limit exceeded')) {
+        errorTitle = "Rate Limited";
+        errorMessage = "Too many translation requests. Please wait a few seconds and try again.";
+      } else if (error.message?.includes('API_KEY_INVALID') || error.message?.includes('Invalid Google API key')) {
+        errorTitle = "Invalid API Key";
+        errorMessage = "The Google API key is invalid or has insufficient permissions. Please check your API key configuration.";
+      } else if (error.message?.includes('Empty response from Gemini API')) {
+        errorTitle = "Translation Service Error";
+        errorMessage = "The translation service returned an empty response. Please try again with different text.";
+      } else if (error.message?.includes('not match the number of inputs')) {
+        errorTitle = "Translation Mismatch";
+        errorMessage = "Translation service returned incomplete results. Please try translating fewer fields at once.";
+      } else if (error.message && error.message.trim() !== '') {
+        // Use the actual error message if available
+        errorMessage = error.message;
       }
 
       toast({
-        title: "Translation Error",
+        title: errorTitle,
         description: errorMessage,
         variant: "destructive",
       });
@@ -1270,7 +1286,7 @@ export function PackageCreatorForm({
           "overview",
           "countryId",
           "cityId",
-          "category",
+          "destinationId",
           "startDate",
           "endDate",
           "price",
@@ -1281,7 +1297,7 @@ export function PackageCreatorForm({
           overview: "Overview",
           countryId: "Country",
           cityId: "City",
-          category: "Destination",
+          destinationId: "Destination",
           startDate: "Start Date",
           endDate: "End Date",
           price: "Base Price",
