@@ -772,6 +772,8 @@ export function PackageCreatorForm({
       childrenPolicyAr: "",
       termsAndConditionsAr: "",
       customTextAr: "",
+      itineraryAr: [],
+      whatToPackAr: [],
     },
   });
 
@@ -1138,6 +1140,30 @@ export function PackageCreatorForm({
         });
       }
 
+      // Itinerary translation
+      if (formValues.itinerary && Array.isArray(formValues.itinerary) && formValues.itinerary.length > 0) {
+        formValues.itinerary.forEach((day, index) => {
+          if (day?.title?.trim()) {
+            fieldsToTranslate.push({ id: `itinerary_${index}_title`, text: day.title });
+          }
+          if (day?.description?.trim()) {
+            fieldsToTranslate.push({ id: `itinerary_${index}_description`, text: day.description });
+          }
+        });
+      }
+
+      // What to Pack translation
+      if (formValues.whatToPack && Array.isArray(formValues.whatToPack) && formValues.whatToPack.length > 0) {
+        formValues.whatToPack.forEach((item, index) => {
+          if (item?.item?.trim()) {
+            fieldsToTranslate.push({ id: `whatToPack_${index}_item`, text: item.item });
+          }
+          if (item?.tooltip?.trim()) {
+            fieldsToTranslate.push({ id: `whatToPack_${index}_tooltip`, text: item.tooltip });
+          }
+        });
+      }
+
       if (fieldsToTranslate.length === 0) {
         toast({
           title: "No Content to Translate",
@@ -1184,12 +1210,57 @@ export function PackageCreatorForm({
         } else if (id.startsWith('excludedFeature_')) {
           if (!updates.excludedFeaturesAr) updates.excludedFeaturesAr = [];
           updates.excludedFeaturesAr.push(translation);
+        } else if (id.startsWith('itinerary_')) {
+          const parts = id.split('_');
+          const index = parseInt(parts[1]);
+          const field = parts[2]; // 'title' or 'description'
+          
+          if (!updates.itineraryAr) updates.itineraryAr = [];
+          
+          // Ensure we have an object at this index
+          if (!updates.itineraryAr[index]) {
+            const originalDay = formValues.itinerary?.[index];
+            updates.itineraryAr[index] = {
+              day: originalDay?.day || index + 1,
+              title: '',
+              description: '',
+              image: originalDay?.image || ''
+            };
+          }
+          
+          if (field === 'title') {
+            updates.itineraryAr[index].title = translation;
+          } else if (field === 'description') {
+            updates.itineraryAr[index].description = translation;
+          }
+        } else if (id.startsWith('whatToPack_')) {
+          const parts = id.split('_');
+          const index = parseInt(parts[1]);
+          const field = parts[2]; // 'item' or 'tooltip'
+          
+          if (!updates.whatToPackAr) updates.whatToPackAr = [];
+          
+          // Ensure we have an object at this index
+          if (!updates.whatToPackAr[index]) {
+            const originalItem = formValues.whatToPack?.[index];
+            updates.whatToPackAr[index] = {
+              item: '',
+              icon: originalItem?.icon || '',
+              tooltip: ''
+            };
+          }
+          
+          if (field === 'item') {
+            updates.whatToPackAr[index].item = translation;
+          } else if (field === 'tooltip') {
+            updates.whatToPackAr[index].tooltip = translation;
+          }
         }
       });
 
       // Update form with translations
       Object.keys(updates).forEach(key => {
-        form.setValue(key as any, updates[key]);
+        form.setValue(key as keyof PackageFormValues, (updates as any)[key]);
       });
 
       toast({
@@ -1719,6 +1790,8 @@ export function PackageCreatorForm({
           childrenPolicyAr: existingPackageData.childrenPolicyAr || "",
           termsAndConditionsAr: existingPackageData.termsAndConditionsAr || "",
           customTextAr: existingPackageData.customTextAr || "",
+          itineraryAr: existingPackageData.itineraryAr || [],
+          whatToPackAr: existingPackageData.whatToPackAr || [],
         });
 
         // Force update the form control values directly as a backup
@@ -4950,22 +5023,13 @@ export function PackageCreatorForm({
                   />
                 </div>
                 <div>
-                  <FormField
-                    control={form.control}
-                    name="icon"
-                    render={({ field }) => (
-                      <FormItem>
-                        <FormLabel>Icon</FormLabel>
-                        <FormControl>
-                          <IconSelector
-                            value={field.value}
-                            onChange={field.onChange}
-                            placeholder="Select an icon"
-                          />
-                        </FormControl>
-                        <FormMessage />
-                      </FormItem>
-                    )}
+                  <Label htmlFor="item-icon">Icon</Label>
+                  <IconSelector
+                    value={newPackItem.icon}
+                    onChange={(value) =>
+                      setNewPackItem({ ...newPackItem, icon: value })
+                    }
+                    placeholder="Select an icon"
                   />
                 </div>
                 <div>
@@ -5270,22 +5334,12 @@ export function PackageCreatorForm({
                     </div>
                     <div>
                       <Label htmlFor="highlight-icon">Icon</Label>
-                      <FormField
-                        control={form.control}
-                        name="icon"
-                        render={({ field }) => (
-                          <FormItem>
-                            <FormLabel>Icon</FormLabel>
-                            <FormControl>
-                              <IconSelector
-                                value={field.value}
-                                onChange={field.onChange}
-                                placeholder="Select an icon"
-                              />
-                            </FormControl>
-                            <FormMessage />
-                          </FormItem>
-                        )}
+                      <IconSelector
+                        value={newHighlight.icon}
+                        onChange={(value) =>
+                          setNewHighlight({ ...newHighlight, icon: value })
+                        }
+                        placeholder="Select an icon"
                       />
                     </div>
                     <div className="md:col-span-3">
