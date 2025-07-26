@@ -5670,67 +5670,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
   
-  // Batch translate multiple text items (admin only)
-  app.post('/api/admin/translations/batch-translate', isAdmin, async (req, res) => {
-    try {
-      const batchTranslateSchema = z.object({
-        items: z.array(z.object({
-          id: z.number(),
-          text: z.string().min(1, "Text cannot be empty")
-        })).min(1, "At least one item is required"),
-        targetLanguage: z.enum(['arabic']).default('arabic')
-      });
-      
-      const { items, targetLanguage } = batchTranslateSchema.parse(req.body);
-      
-      try {
-        // Use Gemini service for batch translation
-        const translations = await geminiService.batchTranslateToArabic(items);
-        
-        res.json({
-          success: true,
-          translations,
-          message: `Successfully translated ${translations.length} items`
-        });
-      } catch (genError: any) {
-        console.error('Batch translation error:', genError);
-        
-        // Handle Gemini-specific errors
-        if (genError.message?.includes('QUOTA_EXCEEDED')) {
-          return res.status(429).json({ 
-            success: false,
-            message: 'Translation quota exceeded. Please try again later.' 
-          });
-        }
-        
-        if (genError.message?.includes('API_KEY_INVALID')) {
-          return res.status(403).json({ 
-            success: false,
-            message: 'Translation service configuration error. Please contact support.' 
-          });
-        }
-        
-        res.status(500).json({ 
-          success: false,
-          message: `Translation error: ${genError.message || 'Unknown error'}` 
-        });
-      }
-    } catch (error) {
-      if (error instanceof z.ZodError) {
-        return res.status(400).json({ 
-          success: false,
-          message: 'Invalid request parameters', 
-          errors: error.errors 
-        });
-      }
-      console.error('Error processing batch translation:', error);
-      res.status(500).json({ 
-        success: false,
-        message: 'Failed to process batch translation request' 
-      });
-    }
-  });
-
+  // Batch translate multiple untranslated keys (admin only)
   // Generate image for package based on description and city
   app.post('/api/admin/packages/generate-image', isAdmin, async (req, res) => {
     try {
