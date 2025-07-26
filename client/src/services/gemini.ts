@@ -9,7 +9,7 @@ class GeminiService {
   private model: string = "gemini-2.0-flash";
   
   constructor() {
-    const apiKey = process.env.GOOGLE_API_KEY || "";
+    const apiKey = import.meta.env.VITE_GOOGLE_API_KEY || "";
     this.genAI = new GoogleGenerativeAI(apiKey);
   }
 

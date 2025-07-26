@@ -62,6 +62,7 @@ import {
   Users,
   Baby,
   Heart,
+  Zap,
 } from "lucide-react";
 
 // A simple component to dynamically use Lucide icons based on string name
@@ -97,6 +98,7 @@ import {
 } from "@/components/ui/table";
 import { cn } from "@/lib/utils";
 import { useToast } from "@/hooks/use-toast";
+import geminiService from "@/services/gemini";
 import { queryClient } from "@/lib/queryClient";
 import { useLanguage } from "@/hooks/use-language";
 import {
@@ -498,6 +500,7 @@ export function PackageCreatorForm({
   const [selectedHotelRooms, setSelectedHotelRooms] = useState<any[]>([]);
   const [aiGenerating, setAiGenerating] = useState<boolean>(false);
   const [isInitialized, setIsInitialized] = useState<boolean>(false);
+  const [isAutoTranslating, setIsAutoTranslating] = useState<boolean>(false);
 
   // Tour selection variables
   const [tourSearchQuery, setTourSearchQuery] = useState<string>("");
@@ -1076,6 +1079,147 @@ export function PackageCreatorForm({
       });
     },
   });
+
+  // Auto-translate function
+  const handleAutoTranslate = useCallback(async () => {
+    if (isAutoTranslating) return;
+
+    try {
+      setIsAutoTranslating(true);
+      
+      const formValues = form.getValues();
+      
+      // Collect all English text fields that need translation
+      const fieldsToTranslate: Array<{id: string, text: string}> = [];
+      
+      // Basic fields
+      if (formValues.title?.trim()) {
+        fieldsToTranslate.push({ id: 'title', text: formValues.title });
+      }
+      if (formValues.shortDescription?.trim()) {
+        fieldsToTranslate.push({ id: 'shortDescription', text: formValues.shortDescription });
+      }
+      if (formValues.overview?.trim()) {
+        fieldsToTranslate.push({ id: 'overview', text: formValues.overview });
+      }
+      if (formValues.bestTimeToVisit?.trim()) {
+        fieldsToTranslate.push({ id: 'bestTimeToVisit', text: formValues.bestTimeToVisit });
+      }
+
+      // Policy fields
+      if (formValues.cancellationPolicy?.trim()) {
+        fieldsToTranslate.push({ id: 'cancellationPolicy', text: formValues.cancellationPolicy });
+      }
+      if (formValues.childrenPolicy?.trim()) {
+        fieldsToTranslate.push({ id: 'childrenPolicy', text: formValues.childrenPolicy });
+      }
+      if (formValues.termsAndConditions?.trim()) {
+        fieldsToTranslate.push({ id: 'termsAndConditions', text: formValues.termsAndConditions });
+      }
+      if (formValues.customText?.trim()) {
+        fieldsToTranslate.push({ id: 'customText', text: formValues.customText });
+      }
+
+      // Array fields - included features
+      if (formValues.includedFeatures && Array.isArray(formValues.includedFeatures)) {
+        formValues.includedFeatures.forEach((feature, index) => {
+          if (feature?.trim()) {
+            fieldsToTranslate.push({ id: `includedFeature_${index}`, text: feature });
+          }
+        });
+      }
+
+      // Array fields - excluded features
+      if (formValues.excludedFeatures && Array.isArray(formValues.excludedFeatures)) {
+        formValues.excludedFeatures.forEach((feature, index) => {
+          if (feature?.trim()) {
+            fieldsToTranslate.push({ id: `excludedFeature_${index}`, text: feature });
+          }
+        });
+      }
+
+      if (fieldsToTranslate.length === 0) {
+        toast({
+          title: "No Content to Translate",
+          description: "Please fill in some English content before using auto-translate.",
+          variant: "destructive",
+        });
+        return;
+      }
+
+      // Prepare texts for batch translation
+      const textsToTranslate = fieldsToTranslate.map(field => field.text);
+      
+      // Batch translate using Gemini service
+      const translations = await geminiService.batchTranslateToArabic(textsToTranslate);
+
+      // Apply translations to form
+      const updates: any = {};
+      
+      translations.forEach((translation: string, index: number) => {
+        const fieldInfo = fieldsToTranslate[index];
+        const { id } = fieldInfo;
+        
+        if (!translation?.trim()) return; // Skip empty translations
+
+        if (id === 'title') {
+          updates.titleAr = translation;
+        } else if (id === 'shortDescription') {
+          updates.shortDescriptionAr = translation;
+        } else if (id === 'overview') {
+          updates.overviewAr = translation;
+        } else if (id === 'bestTimeToVisit') {
+          updates.bestTimeToVisitAr = translation;
+        } else if (id === 'cancellationPolicy') {
+          updates.cancellationPolicyAr = translation;
+        } else if (id === 'childrenPolicy') {
+          updates.childrenPolicyAr = translation;
+        } else if (id === 'termsAndConditions') {
+          updates.termsAndConditionsAr = translation;
+        } else if (id === 'customText') {
+          updates.customTextAr = translation;
+        } else if (id.startsWith('includedFeature_')) {
+          if (!updates.includedFeaturesAr) updates.includedFeaturesAr = [];
+          updates.includedFeaturesAr.push(translation);
+        } else if (id.startsWith('excludedFeature_')) {
+          if (!updates.excludedFeaturesAr) updates.excludedFeaturesAr = [];
+          updates.excludedFeaturesAr.push(translation);
+        }
+      });
+
+      // Update form with translations
+      Object.keys(updates).forEach(key => {
+        form.setValue(key as any, updates[key]);
+      });
+
+      toast({
+        title: "Translation Successful",
+        description: `Successfully translated ${Object.keys(updates).length} fields to Arabic.`,
+      });
+
+    } catch (error: any) {
+      console.error('Auto-translate error:', error);
+      
+      // Handle specific error types
+      let errorMessage = "Translation failed. Please try again.";
+      
+      if (error.message?.includes('QUOTA_EXCEEDED')) {
+        errorMessage = "Translation quota exceeded. Please try again later or contact support.";
+      } else if (error.message?.includes('RATE_LIMITED')) {
+        errorMessage = "Too many requests. Please wait a moment and try again.";
+      } else if (error.message?.includes('API_KEY_INVALID')) {
+        errorMessage = "Translation service configuration error. Please contact support.";
+      }
+
+      toast({
+        title: "Translation Error",
+        description: errorMessage,
+        variant: "destructive",
+      });
+    } finally {
+      setIsAutoTranslating(false);
+    }
+  }, [form, isAutoTranslating, toast]);
 
   const onSubmit = useCallback(
     (data: PackageFormValues) => {
@@ -5200,6 +5344,41 @@ export function PackageCreatorForm({
               {/* Show Arabic fields only when Arabic version is enabled */}
               {form.watch("hasArabicVersion") && (
                 <div className="space-y-6">
+                  {/* Smart Auto-Translate Button */}
+                  <div className="border rounded-lg p-4 bg-gradient-to-r from-blue-50 to-purple-50">
+                    <div className="flex items-center justify-between">
+                      <div className="space-y-0.5">
+                        <h3 className="text-lg font-semibold flex items-center gap-2">
+                          <Zap className="h-5 w-5 text-blue-600" />
+                          Smart Auto-Translate
+                        </h3>
+                        <p className="text-sm text-muted-foreground">
+                          Automatically translate all English content to Arabic using AI
+                        </p>
+                      </div>
+                      <Button
+                        type="button"
+                        variant="default"
+                        size="lg"
+                        className="bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 text-white px-6 py-3"
+                        onClick={handleAutoTranslate}
+                        disabled={isAutoTranslating}
+                      >
+                        {isAutoTranslating ? (
+                          <div className="flex items-center gap-2">
+                            <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin" />
+                            Translating...
+                          </div>
+                        ) : (
+                          <div className="flex items-center gap-2">
+                            <Languages className="h-4 w-4" />
+                            Start Auto-Translate
+                          </div>
+                        )}
+                      </Button>
+                    </div>
+                  </div>
+
                   {/* Basic Arabic Information */}
                   <div className="border rounded-lg p-4 space-y-4">
                     <h3 className="text-lg font-semibold">Basic Information (Arabic)</h3>
