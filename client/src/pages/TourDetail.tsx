@@ -32,51 +32,19 @@ import {
 import { Link } from "wouter";
 import { useLanguage } from "@/hooks/use-language";
 import { useToast } from "@/hooks/use-toast";
+import { tours } from "@shared/schema";
 
-interface Tour {
-  id: number;
-  name: string;
-  description: string;
-  imageUrl: string;
-  galleryUrls?: string[];
-  destinationId: number;
-  duration: number;
-  price: number;
-  discountedPrice?: number;
-  maxCapacity: number;
-  featured: boolean;
-  rating?: number;
-  reviewCount?: number;
-  included?: string[];
-  excluded?: string[];
-  slug?: string;
-  itinerary?: string[] | string;
+type Tour = typeof tours.$inferSelect & {
   destination?: {
     id: number;
     name: string;
   };
-  currency?: string;
-  tripType?: string;
-  startDate?: string;
-  endDate?: string;
-  categoryId?: number;
-  durationType?: string;
-  status?: string;
-  nameAr?: string;
-  descriptionAr?: string;
-  itineraryAr?: string;
-  includedAr?: string[];
-  excludedAr?: string[];
-  hasArabicVersion?: boolean;
-  createdAt?: string;
-  updatedAt?: string;
-  active?: boolean;
-  maxGroupSize?: number;
-}
+  slug?: string;
+};
 
 const TourDetail: React.FC = () => {
   const { slug } = useParams<{ slug: string }>();
-  const { t } = useLanguage();
+  const { t, currentLanguage } = useLanguage();
   const { toast } = useToast();
 
   const { data: tour, isLoading, error } = useQuery<Tour>({
@@ -132,6 +100,36 @@ const TourDetail: React.FC = () => {
     enabled: !!slug,
   });
 
+  // Helper function to get localized content
+  const getLocalizedContent = (enContent: string | null | undefined, arContent: string | null | undefined) => {
+    if (currentLanguage === 'ar' && arContent) {
+      return arContent;
+    }
+    return enContent || '';
+  };
+
+  // Helper function to get localized array content
+  const getLocalizedArray = (enArray: unknown, arArray: unknown) => {
+    const processArray = (arr: unknown): string[] => {
+      if (Array.isArray(arr)) return arr as string[];
+      if (typeof arr === 'string') {
+        try {
+          const parsed = JSON.parse(arr);
+          return Array.isArray(parsed) ? parsed : [];
+        } catch {
+          return [arr];
+        }
+      }
+      return [];
+    };
+
+    if (currentLanguage === 'ar' && arArray) {
+      const processed = processArray(arArray);
+      if (processed.length > 0) return processed;
+    }
+    return processArray(enArray);
+  };
+
   const formatPrice = (price: number) => {
     // Convert from cents to EGP (divide by 100)
     const priceInEGP = price;
@@ -167,7 +165,7 @@ const TourDetail: React.FC = () => {
         <div className="flex justify-center items-center h-64">
           <div className="text-center">
             <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary mx-auto"></div>
-            <p className="mt-2 text-muted-foreground">Loading tour details...</p>
+            <p className="mt-2 text-muted-foreground">{t('tour.loading', 'Loading tour details...')}</p>
           </div>
         </div>
       </div>
@@ -178,12 +176,12 @@ const TourDetail: React.FC = () => {
     return (
       <div className="container mx-auto px-4 py-8">
         <div className="text-center">
-          <h1 className="text-2xl font-bold text-gray-900 mb-4">Tour Not Found</h1>
-          <p className="text-gray-600 mb-6">The tour you're looking for doesn't exist or has been removed.</p>
+          <h1 className="text-2xl font-bold text-gray-900 mb-4">{t('tour.not_found', 'Tour Not Found')}</h1>
+          <p className="text-gray-600 mb-6">{t('tour.not_found_description', 'The tour you\'re looking for doesn\'t exist or has been removed.')}</p>
           <Link href="/tours">
             <Button>
               <ArrowLeft className="w-4 h-4 mr-2" />
-              Back to Tours
+              {t('tour.back_to_tours', 'Back to Tours')}
             </Button>
           </Link>
         </div>
@@ -198,7 +196,7 @@ const TourDetail: React.FC = () => {
         <Link href="/tours">
           <Button variant="outline" size="sm">
             <ArrowLeft className="w-4 h-4 mr-2" />
-            Back to Tours
+            {t('tour.back_to_tours', 'Back to Tours')}
           </Button>
         </Link>
       </div>
@@ -210,7 +208,7 @@ const TourDetail: React.FC = () => {
           <div className="relative">
             <img
               src={tour.imageUrl || 'https://images.unsplash.com/photo-1506905925346-21bda4d32df4?w=800&q=80'}
-              alt={tour.name}
+              alt={getLocalizedContent(tour.name, tour.nameAr)}
               className="w-full h-96 object-cover rounded-lg"
               onError={(e) => {
                 const target = e.target as HTMLImageElement;
@@ -220,7 +218,7 @@ const TourDetail: React.FC = () => {
             {tour.featured && (
               <Badge className="absolute top-4 left-4 bg-gradient-to-r from-yellow-500 to-orange-500 text-white border-0 shadow-lg">
                 <Star className="w-3 h-3 mr-1" />
-                Featured
+                {t('tour.featured', 'Featured')}
               </Badge>
             )}
           </div>
@@ -231,7 +229,7 @@ const TourDetail: React.FC = () => {
               <div className="flex justify-between items-start">
                 <div>
                   <CardTitle className="text-3xl font-bold text-gray-900 mb-2">
-                    {tour.name}
+                    {getLocalizedContent(tour.name, tour.nameAr)}
                   </CardTitle>
                   <div className="flex items-center text-gray-600 mb-4">
                     <MapPin className="w-4 h-4 mr-2" />
@@ -242,48 +240,48 @@ const TourDetail: React.FC = () => {
             </CardHeader>
             <CardContent>
               <p className="text-gray-700 leading-relaxed mb-6">
-                {tour.description}
+                {getLocalizedContent(tour.description, tour.descriptionAr)}
               </p>
 
               <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
                 <div className="flex items-center bg-blue-50 rounded-lg p-4">
                   <Clock className="w-5 h-5 text-blue-500 mr-3" />
                   <div>
-                    <div className="font-semibold text-gray-900">Duration</div>
+                    <div className="font-semibold text-gray-900">{t('tour.duration', 'Duration')}</div>
                     <div className="text-sm text-gray-600">
-                      {tour.duration} {tour.duration === 1 ? 'day' : 'days'}
+                      {tour.duration} {tour.duration === 1 ? t('tour.day', 'day') : t('tour.days', 'days')}
                     </div>
                   </div>
                 </div>
                 <div className="flex items-center bg-green-50 rounded-lg p-4">
                   <Users className="w-5 h-5 text-green-500 mr-3" />
                   <div>
-                    <div className="font-semibold text-gray-900">Group Size</div>
-                    <div className="text-sm text-gray-600">Max {tour.maxCapacity}</div>
+                    <div className="font-semibold text-gray-900">{t('tour.group_size', 'Group Size')}</div>
+                    <div className="text-sm text-gray-600">{t('tour.max', 'Max')} {tour.maxCapacity}</div>
                   </div>
                 </div>
                 <div className="flex items-center bg-yellow-50 rounded-lg p-4">
                   <Star className="w-5 h-5 text-yellow-500 mr-3" />
                   <div>
-                    <div className="font-semibold text-gray-900">Rating</div>
+                    <div className="font-semibold text-gray-900">{t('tour.rating', 'Rating')}</div>
                     <div className="text-sm text-gray-600">
-                      {tour.rating || 4.5} ({tour.reviewCount || 125} reviews)
+                      {tour.rating || 4.5} ({tour.reviewCount || 125} {t('tour.reviews', 'reviews')})
                     </div>
                   </div>
                 </div>
               </div>
 
               {/* Included/Excluded */}
-              {(tour.included || tour.excluded) && (
+              {(getLocalizedArray(tour.included, tour.includedAr).length > 0 || getLocalizedArray(tour.excluded, tour.excludedAr).length > 0) && (
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                  {tour.included && tour.included.length > 0 && (
+                  {getLocalizedArray(tour.included, tour.includedAr).length > 0 && (
                     <div>
                       <h3 className="font-semibold text-gray-900 mb-3 flex items-center">
                         <CheckCircle className="w-4 h-4 text-green-500 mr-2" />
-                        What's Included
+                        {t('tour.whats_included', 'What\'s Included')}
                       </h3>
                       <ul className="space-y-2">
-                        {tour.included.map((item, index) => (
+                        {getLocalizedArray(tour.included, tour.includedAr).map((item, index) => (
                           <li key={index} className="flex items-start">
                             <CheckCircle className="w-4 h-4 text-green-500 mr-2 mt-0.5 flex-shrink-0" />
                             <span className="text-sm text-gray-700">{item}</span>
@@ -293,14 +291,14 @@ const TourDetail: React.FC = () => {
                     </div>
                   )}
 
-                  {tour.excluded && tour.excluded.length > 0 && (
+                  {getLocalizedArray(tour.excluded, tour.excludedAr).length > 0 && (
                     <div>
                       <h3 className="font-semibold text-gray-900 mb-3 flex items-center">
                         <XCircle className="w-4 h-4 text-red-500 mr-2" />
-                        What's Not Included
+                        {t('tour.whats_not_included', 'What\'s Not Included')}
                       </h3>
                       <ul className="space-y-2">
-                        {tour.excluded.map((item, index) => (
+                        {getLocalizedArray(tour.excluded, tour.excludedAr).map((item, index) => (
                           <li key={index} className="flex items-start">
                             <XCircle className="w-4 h-4 text-red-500 mr-2 mt-0.5 flex-shrink-0" />
                             <span className="text-sm text-gray-700">{item}</span>
@@ -319,7 +317,7 @@ const TourDetail: React.FC = () => {
         <div className="lg:col-span-1">
           <Card className="sticky top-6">
             <CardHeader>
-              <CardTitle className="text-center">Book This Tour</CardTitle>
+              <CardTitle className="text-center">{t('tour.book_this_tour', 'Book This Tour')}</CardTitle>
             </CardHeader>
             <CardContent>
               <div className="text-center mb-6">
@@ -332,7 +330,7 @@ const TourDetail: React.FC = () => {
                       {formatPrice(tour.price)}
                     </div>
                     <Badge className="bg-red-100 text-red-800">
-                      Save {formatPrice(tour.price - tour.discountedPrice)}
+                      {t('tour.save', 'Save')} {formatPrice(tour.price - tour.discountedPrice)}
                     </Badge>
                   </div>
                 ) : (
@@ -340,7 +338,7 @@ const TourDetail: React.FC = () => {
                     {formatPrice(tour.price)}
                   </div>
                 )}
-                <div className="text-sm text-gray-500 mt-1">per person</div>
+                <div className="text-sm text-gray-500 mt-1">{t('tour.per_person', 'per person')}</div>
               </div>
 
               <div className="space-y-4">
@@ -348,11 +346,11 @@ const TourDetail: React.FC = () => {
                   tour={tour}
                   className="w-full bg-gradient-to-r from-blue-600 to-blue-700 hover:from-blue-700 hover:to-blue-800 text-white"
                 >
-                  Book Now
+                  {t('tour.book_now', 'Book Now')}
                 </BookTourButton>
                 <Button variant="outline" className="w-full">
                   <Heart className="w-4 h-4 mr-2" />
-                  Add to Favorites
+                  {t('tour.add_to_favorites', 'Add to Favorites')}
                 </Button>
               </div>
 
@@ -360,16 +358,16 @@ const TourDetail: React.FC = () => {
 
               <div className="space-y-3 text-sm">
                 <div className="flex justify-between">
-                  <span className="text-gray-600">Free cancellation</span>
-                  <span className="text-green-600 font-medium">Available</span>
+                  <span className="text-gray-600">{t('tour.free_cancellation', 'Free cancellation')}</span>
+                  <span className="text-green-600 font-medium">{t('tour.available', 'Available')}</span>
                 </div>
                 <div className="flex justify-between">
-                  <span className="text-gray-600">Instant confirmation</span>
-                  <span className="text-green-600 font-medium">Yes</span>
+                  <span className="text-gray-600">{t('tour.instant_confirmation', 'Instant confirmation')}</span>
+                  <span className="text-green-600 font-medium">{t('tour.yes', 'Yes')}</span>
                 </div>
                 <div className="flex justify-between">
-                  <span className="text-gray-600">Mobile voucher</span>
-                  <span className="text-green-600 font-medium">Accepted</span>
+                  <span className="text-gray-600">{t('tour.mobile_voucher', 'Mobile voucher')}</span>
+                  <span className="text-green-600 font-medium">{t('tour.accepted', 'Accepted')}</span>
                 </div>
               </div>
             </CardContent>
