@@ -505,9 +505,6 @@ interface Tour {
   duration?: number;
   status?: string;
   destination_id?: number;
-  adultPrice?: number;
-  childPrice?: number;
-  infantPrice?: number;
 }
 
 export function PackageCreatorForm({
@@ -534,9 +531,6 @@ export function PackageCreatorForm({
   const [isInitialized, setIsInitialized] = useState<boolean>(false);
   const [isAutoTranslating, setIsAutoTranslating] = useState(false);
   const [currentTranslationIndex, setCurrentTranslationIndex] = useState(0);
-  const [translationQueue, setTranslationQueue] = useState<
-    Array<{ id: string; text: string; fieldType: string }>
-  >([]);
 
   // Tour selection variables
   const [tourSearchQuery, setTourSearchQuery] = useState<string>("");
@@ -806,7 +800,7 @@ export function PackageCreatorForm({
       adultCount: 2,
       childrenCount: 0,
       infantCount: 0,
-
+      pricingMode: "per_booking",
       featured: false,
       slug: "",
       // Policy fields
@@ -2897,12 +2891,6 @@ export function PackageCreatorForm({
     }
   };
 
-  // Handle form submission
-  const onSubmit = (data: PackageFormValues) => {
-    console.log("Form submission data:", data);
-    packageMutation.mutate(data);
-  };
-
   return (
     <Form {...form}>
       <form
@@ -4245,7 +4233,8 @@ export function PackageCreatorForm({
                                 checked={
                                   Array.isArray(field.value) &&
                                   (field.value.includes(hotel.id) ||
-                                    field.value.includes(String(hotel.id)))
+                                    field.value.includes(String(hotel.id)) ||
+                                    field.value.includes(Number(hotel.id)))
                                 }
                                 onCheckedChange={(checked) => {
                                   const currentSelection = Array.isArray(
@@ -4437,7 +4426,7 @@ export function PackageCreatorForm({
                       <div className="space-y-6">
                         {/* Room Capacity Summary */}
                         {form.watch("rooms") &&
-                          form.watch("rooms")?.length && form.watch("rooms").length > 0 && (
+                          form.watch("rooms")?.length > 0 && (
                             <div className="bg-green-50 border border-green-200 rounded-md p-4">
                               <h4 className="text-sm font-medium text-green-900 mb-2">
                                 Selected Rooms Capacity:
@@ -4512,7 +4501,8 @@ export function PackageCreatorForm({
                                     <div className="flex gap-2">
                                       <Badge variant="secondary">
                                         Adults:{" "}
-                                        {(form.watch("rooms") || [])
+                                        {form
+                                          .watch("rooms")
                                           .reduce(
                                             (total: number, room: any) => {
                                               const roomData =
@@ -4531,7 +4521,8 @@ export function PackageCreatorForm({
                                       </Badge>
                                       <Badge variant="secondary">
                                         Children:{" "}
-                                        {(form.watch("rooms") || [])
+                                        {form
+                                          .watch("rooms")
                                           .reduce(
                                             (total: number, room: any) => {
                                               const roomData =
@@ -4550,7 +4541,8 @@ export function PackageCreatorForm({
                                       </Badge>
                                       <Badge variant="secondary">
                                         Infants:{" "}
-                                        {(form.watch("rooms") || [])
+                                        {form
+                                          .watch("rooms")
                                           .reduce(
                                             (total: number, room: any) => {
                                               const roomData =
@@ -5988,10 +5980,14 @@ export function PackageCreatorForm({
                               (opt) => opt.id === value,
                             );
                             if (option) {
-                              const basePrice = Number(form.getValues("price")) || 0;
+                              const basePrice =
+                                form.getValues("basePrice") || 0;
                               const newPrice =
                                 basePrice * (option.priceMultiplier - 1);
-                              // Note: transportation price calculation, using price field instead
+                              form.setValue(
+                                "transportationPrice",
+                                Math.round(newPrice),
+                              );
                               setTransportPrice(Math.round(newPrice));
                             }
                           }}
@@ -6283,29 +6279,16 @@ export function PackageCreatorForm({
                                   })),
                                 );
                               }
-                              // travelRoute - ensure proper object structure
-                              if (Array.isArray(values.travelRoute)) {
-                                form.setValue(
-                                  "travelRouteAr",
-                                  values.travelRoute.map((route) => ({
-                                    order: route.order || 1,
-                                    description: route.description || "",
-                                    location: route.location || "",
-                                    estimatedTime: route.estimatedTime || "",
-                                  })),
-                                );
-                              }
-                              // optionalExcursions - ensure proper object structure
-                              if (Array.isArray(values.optionalExcursions)) {
-                                form.setValue(
-                                  "optionalExcursionsAr",
-                                  values.optionalExcursions.map((excursion) => ({
-                                    name: excursion.name || "",
-                                    price: Number(excursion.price) || 0,
-                                    description: excursion.description || "",
-                                  })),
-                                );
-                              }
+                              // travelRoute
+                              form.setValue(
+                                "travelRouteAr",
+                                values.travelRoute || [],
+                              );
+                              // optionalExcursions
+                              form.setValue(
+                                "optionalExcursionsAr",
+                                values.optionalExcursions || [],
+                              );
 
                               // trigger re-render
                               setTimeout(() => {
@@ -6327,29 +6310,8 @@ export function PackageCreatorForm({
               {/* Show Arabic fields only when Arabic version is enabled */}
               {form.watch("hasArabicVersion") && (
                 <div className="space-y-6">
-                  {/* زر نسخ القيم الإنجليزية والترجمة الذكية */}
+                  {/* زر نسخ القيم الإنجليزية */}
                   <div className="flex justify-end mb-2 gap-2">
-                    {/* Smart Auto-Translate Button */}
-                    <Button
-                      type="button"
-                      variant="default"
-                      className="bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 text-white"
-                      disabled={autoTranslateLoading}
-                      onClick={handleAutoTranslate}
-                    >
-                      {autoTranslateLoading ? (
-                        <>
-                          <div className="animate-spin h-4 w-4 border-2 border-white border-t-transparent rounded-full mr-2" />
-                          Translating...
-                        </>
-                      ) : (
-                        <>
-                          <Zap className="h-4 w-4 mr-2" />
-                          Smart Auto-Translate
-                        </>
-                      )}
-                    </Button>
-                    
                     <Button
                       type="button"
                       variant="outline"

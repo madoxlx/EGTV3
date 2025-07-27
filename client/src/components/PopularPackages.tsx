@@ -1,11 +1,18 @@
-import React from 'react';
-import { Card } from '@/components/ui/card';
-import { Button } from '@/components/ui/button';
-import { StarIcon, StarHalfIcon, MapPinIcon, UsersIcon, UtensilsIcon, Loader2 } from 'lucide-react';
-import { handleImageError } from '@/lib/image-utils';
+import React from "react";
+import { Card } from "@/components/ui/card";
+import { Button } from "@/components/ui/button";
+import {
+  StarIcon,
+  StarHalfIcon,
+  MapPinIcon,
+  UsersIcon,
+  UtensilsIcon,
+  Loader2,
+} from "lucide-react";
+import { handleImageError } from "@/lib/image-utils";
 import { useQuery } from "@tanstack/react-query";
-import BookPackageButton from '@/components/BookPackageButton';
-import { useLanguage } from '@/hooks/use-language';
+import BookPackageButton from "@/components/BookPackageButton";
+import { useLanguage } from "@/hooks/use-language";
 
 // Package interface matching the database schema
 interface Package {
@@ -22,31 +29,39 @@ interface Package {
   type?: string;
   inclusions?: string[];
   slug?: string;
+  shortDescription?: string;
 }
 
 const PopularPackages: React.FC = () => {
   const { t } = useLanguage();
-  
+
   // Fetch packages from API with optimized settings
   const { data: packages = [], isLoading } = useQuery<Package[]>({
-    queryKey: ['/api/packages'],
+    queryKey: ["/api/packages"],
     staleTime: 5 * 60 * 1000, // Cache for 5 minutes
     retry: 1,
   });
 
   // Filter for featured/popular packages
-  const popularPackages = packages.filter(pkg => pkg.featured).slice(0, 6);
+  const popularPackages = packages.filter((pkg) => pkg.featured).slice(0, 6);
 
   // Fallback image for packages without images
-  const fallbackImage = "https://images.unsplash.com/photo-1488646953014-85cb44e25828?ixlib=rb-1.2.1&auto=format&fit=crop&w=800&q=80";
+  const fallbackImage =
+    "https://images.unsplash.com/photo-1488646953014-85cb44e25828?ixlib=rb-1.2.1&auto=format&fit=crop&w=800&q=80";
 
   return (
     <section className="py-12 bg-white">
       <div className="container mx-auto px-4">
         <div className="flex justify-between items-center mb-8">
-          <h2 className="text-2xl md:text-3xl font-bold">{t('packages.popular_title', 'Popular Travel Packages')}</h2>
-          <a href="#" className="text-primary hover:text-primary/90 font-medium flex items-center">
-            {t('packages.view_all', 'View All Packages')} <i className="fas fa-arrow-right ml-2"></i>
+          <h2 className="text-2xl md:text-3xl font-bold">
+            {t("packages.popular_title", "Popular Travel Packages")}
+          </h2>
+          <a
+            href="#"
+            className="text-primary hover:text-primary/90 font-medium flex items-center"
+          >
+            {t("packages.view_all", "View All Packages")}{" "}
+            <i className="fas fa-arrow-right ml-2"></i>
           </a>
         </div>
 
@@ -60,7 +75,10 @@ const PopularPackages: React.FC = () => {
         {/* No packages found */}
         {!isLoading && popularPackages.length === 0 && (
           <div className="text-center py-10 text-gray-500">
-            {t('packages.no_packages', 'No popular packages found. Add featured packages in the admin panel to display them here.')}
+            {t(
+              "packages.no_packages",
+              "No popular packages found. Add featured packages in the admin panel to display them here.",
+            )}
           </div>
         )}
 
@@ -68,7 +86,10 @@ const PopularPackages: React.FC = () => {
         {!isLoading && popularPackages.length > 0 && (
           <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-8 [&>*:last-child]:odd:xl:col-span-3">
             {popularPackages.map((pkg) => (
-              <Card key={pkg.id} className="border border-neutral-200 rounded-xl overflow-hidden shadow-sm hover:shadow-md transition-shadow">
+              <Card
+                key={pkg.id}
+                className="border border-neutral-200 rounded-xl overflow-hidden shadow-sm hover:shadow-md transition-shadow"
+              >
                 <div className="relative">
                   <img
                     src={pkg.imageUrl || fallbackImage}
@@ -77,14 +98,16 @@ const PopularPackages: React.FC = () => {
                     onError={handleImageError}
                   />
                   <div className="absolute top-3 left-3 bg-white/90 backdrop-blur-sm text-primary px-3 py-1 rounded-full text-sm font-medium">
-                    {pkg.duration || t('packages.multi_day', 'Multi-day')}
+                    {pkg.duration || t("packages.multi_day", "Multi-day")}
                   </div>
                 </div>
 
                 <div className="p-5">
                   <div className="flex justify-between items-start mb-3">
                     <h3 className="text-lg font-bold">{pkg.title}</h3>
-                    <div className="text-2xl font-bold text-primary">{pkg.price.toLocaleString('en-US')} EGP</div>
+                    <div className="text-2xl font-bold text-primary">
+                      {pkg.price.toLocaleString("en-US")} EGP
+                    </div>
                   </div>
 
                   <div className="flex items-center mb-3">
@@ -93,30 +116,47 @@ const PopularPackages: React.FC = () => {
                         <StarIcon key={i} fill="currentColor" size={16} />
                       ))}
                     </div>
-                    <span className="ml-2 text-neutral-600 text-sm">{t('packages.rating_new', '5.0 (New package)')}</span>
+                    <span className="ml-2 text-neutral-600 text-sm">
+                      {t("packages.rating_new", "5.0 (New package)")}
+                    </span>
                   </div>
 
-                  <p className="text-neutral-600 mb-4">{pkg.description}</p>
+                  <p className="text-neutral-600 mb-4">
+                    {pkg.shortDescription}
+                  </p>
 
                   <div className="flex flex-wrap gap-2 mb-4">
                     <span className="flex items-center text-xs text-neutral-700">
                       <MapPinIcon className="text-primary mr-1" size={12} />
-                      {pkg.type || t('packages.multiple_destinations', 'Multiple destinations')}
+                      {pkg.type ||
+                        t(
+                          "packages.multiple_destinations",
+                          "Multiple destinations",
+                        )}
                     </span>
                     <span className="flex items-center text-xs text-neutral-700">
                       <UsersIcon className="text-primary mr-1" size={12} />
-                      {pkg.duration || 5} {t('packages.days', 'days')}
+                      {pkg.duration || 5} {t("packages.days", "days")}
                     </span>
                     <span className="flex items-center text-xs text-neutral-700">
                       <UtensilsIcon className="text-primary mr-1" size={12} />
-                      {pkg.inclusions?.join(", ") || t('packages.inclusions_available', 'Inclusions available')}
+                      {pkg.inclusions?.join(", ") ||
+                        t(
+                          "packages.inclusions_available",
+                          "Inclusions available",
+                        )}
                     </span>
                   </div>
 
                   <div className="pt-3 border-t border-neutral-200 flex justify-between items-center">
-                    <a href={`/packages/${pkg.slug || pkg.id}`} className="text-primary hover:text-primary/90 font-medium text-sm">{t('packages.view_details', 'View Details')}</a>
-                    <BookPackageButton 
-                      package={{...pkg, currency: 'EGP'}}
+                    <a
+                      href={`/packages/${pkg.slug || pkg.id}`}
+                      className="text-primary hover:text-primary/90 font-medium text-sm"
+                    >
+                      {t("packages.view_details", "View Details")}
+                    </a>
+                    <BookPackageButton
+                      package={{ ...pkg, currency: "EGP" }}
                       className="bg-primary hover:bg-primary/90 text-white px-4 py-2 rounded-lg text-sm font-medium transition-colors"
                     />
                   </div>
