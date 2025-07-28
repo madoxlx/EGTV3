@@ -4356,14 +4356,14 @@ export function PackageCreatorForm({
                                       </span>
                                       <div className="flex gap-2">
                                         <Badge variant="secondary">
-                                        Adults: {form
-                                            .watch("rooms")
+                                        Adults: {(form.watch("rooms") || [])
                                             .reduce(
                                               (total: number, room: any) => {
                                                 const roomData =
                                                   filteredRooms.find(
                                                     (r) => r.id === room.id,
                                                   );
+                                                if (!roomData) return total;
                                                 return (
                                                   total +
                                                   (roomData?.max_adults ||
@@ -4376,14 +4376,14 @@ export function PackageCreatorForm({
                                         </Badge>
                                         <Badge variant="secondary">
                                           Children:{" "}
-                                          {form
-                                            .watch("rooms")
+                                          {(form.watch("rooms") || [])
                                             .reduce(
                                               (total: number, room: any) => {
                                                 const roomData =
                                                   filteredRooms.find(
                                                     (r) => r.id === room.id,
                                                   );
+                                                if (!roomData) return total;
                                                 return (
                                                   total +
                                                   (roomData?.max_children ||
@@ -4396,14 +4396,14 @@ export function PackageCreatorForm({
                                         </Badge>
                                         <Badge variant="secondary">
                                           Infants:{" "}
-                                          {form
-                                            .watch("rooms")
+                                          {(form.watch("rooms") || [])
                                             .reduce(
                                               (total: number, room: any) => {
                                                 const roomData =
                                                   filteredRooms.find(
                                                     (r) => r.id === room.id,
                                                   );
+                                                if (!roomData) return total;
                                                 return (
                                                   total +
                                                   (roomData?.max_infants ||
@@ -4419,13 +4419,14 @@ export function PackageCreatorForm({
                                           className="bg-green-700"
                                         >
                                           Total:{" "}
-                                          {form.watch("rooms")
+                                          {(form.watch("rooms") || [])
                                             .reduce(
                                               (total: number, room: any) => {
                                                 const roomData =
                                                   filteredRooms.find(
                                                     (r) => r.id === room.id,
                                                   );
+                                                if (!roomData) return total;
                                                 return (
                                                   total +
                                                   (roomData?.max_occupancy ||
