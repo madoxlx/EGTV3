@@ -188,9 +188,12 @@ export default function EnhancedPriceCalculation({
 
   // Base package cost is now excluded from calculations
   let packageBaseCost = 0;
-  let adultPrice = 0;
-  let childPrice = 0;
-  let infantPrice = 0;
+  
+  // Calculate pricing tiers based on base package price
+  const basePackagePrice = packageData.discountedPrice || packageData.price;
+  const adultPrice = basePackagePrice; // 100% of package price
+  const childPrice = Math.round(basePackagePrice * 0.7); // 70% of package price
+  const infantPrice = Math.round(basePackagePrice * 0.3); // 30% of package price
 
   // Calculate room costs based on selected rooms
   let roomsCost = 0;
@@ -411,48 +414,124 @@ export default function EnhancedPriceCalculation({
     ? `${days} ${t("day", days === 1 ? "يوم" : "أيام")}`
     : `${days} ${t("day", days === 1 ? "day" : "days")}`;
   const egpText = isArabic ? "ج.م" : "EGP";
+  // Calculate individual totals for detailed breakdown
+  const adultTotal = adults * adultPrice * days;
+  const childTotal = children * childPrice * days;
+  const infantTotal = infants * infantPrice * days;
+  const grandTotal = adultTotal + childTotal + infantTotal;
+
   // مفاتيح الترجمة: price_breakdown, subtotal, vat, service_fee, total, savings
   return (
     <div className="mt-4 p-4 bg-gray-50 rounded-lg border">
       <h4 className="font-bold mb-2">
         {t("price_breakdown", isArabic ? "تفصيل السعر" : "Price Breakdown")}
       </h4>
-      <div className="flex flex-col gap-1 text-sm">
-        <div className="mb-1 text-muted-foreground">
+      <div className="flex flex-col gap-2 text-sm">
+        <div className="mb-2 text-muted-foreground">
           {isArabic
             ? `${nightsText} / ${daysText}`
             : `${nightsText} / ${daysText}`}
         </div>
-        <div>
-          {t("subtotal", isArabic ? "المجموع الفرعي" : "Subtotal")}:
-          <span className="font-medium">
-            {formatPrice(subtotal)} {egpText}
-          </span>
-        </div>
-        {vatEnabled && (
-          <div>
-            {t("vat", isArabic ? "ضريبة القيمة المضافة" : "VAT")}:
-            <span className="font-medium">
-              {formatPrice(vatAmount)} {egpText}
+        
+        {/* Detailed Breakdown */}
+        {adults > 0 && (
+          <div className="flex justify-between items-center">
+            <span>
+              {t("adults", isArabic ? "البالغين" : "Adults")} ({adults} × {formatPrice(adultPrice)} × {days} {t("days", isArabic ? "أيام" : "days")}):
             </span>
+            <span className="font-medium">{formatPrice(adultTotal)} {egpText}</span>
           </div>
         )}
-        {serviceFeeEnabled && (
-          <div>
-            {t("service_fee", isArabic ? "رسوم الخدمة" : "Service Fee")}:
-            <span className="font-medium">
-              {formatPrice(serviceFee)} {egpText}
+        
+        {children > 0 && (
+          <div className="flex justify-between items-center">
+            <span>
+              {t("children", isArabic ? "الأطفال" : "Children")} ({children} × {formatPrice(childPrice)} × {days} {t("days", isArabic ? "أيام" : "days")}):
             </span>
+            <span className="font-medium">{formatPrice(childTotal)} {egpText}</span>
           </div>
         )}
-        <div className="font-bold text-lg mt-2">
-          {t("total", isArabic ? "الإجمالي" : "Total")}:
-          <span className="text-primary">
-            {formatPrice(total)} {egpText}
-          </span>
+        
+        {infants > 0 && (
+          <div className="flex justify-between items-center">
+            <span>
+              {t("infants", isArabic ? "الرضع" : "Infants")} ({infants} × {formatPrice(infantPrice)} × {days} {t("days", isArabic ? "أيام" : "days")}):
+            </span>
+            <span className="font-medium">{formatPrice(infantTotal)} {egpText}</span>
+          </div>
+        )}
+
+        {/* Border separation before grand total */}
+        <div className="border-t pt-2 mt-2">
+          <div className="flex justify-between items-center font-bold text-lg">
+            <span>{t("total", isArabic ? "الإجمالي" : "Total")}:</span>
+            <span className="text-primary">{formatPrice(grandTotal)} {egpText}</span>
+          </div>
         </div>
+
+        {/* Additional costs if applicable */}
+        {(roomsCost > 0 || toursCost > 0 || excursionsCost > 0 || upgradePrice > 0) && (
+          <div className="mt-3 pt-2 border-t">
+            <div className="text-xs text-muted-foreground mb-2">
+              {t("additional_costs", isArabic ? "تكاليف إضافية" : "Additional Costs")}:
+            </div>
+            {roomsCost > 0 && (
+              <div className="flex justify-between text-xs">
+                <span>{t("accommodation", isArabic ? "الإقامة" : "Accommodation")}:</span>
+                <span>{formatPrice(roomsCost)} {egpText}</span>
+              </div>
+            )}
+            {toursCost > 0 && (
+              <div className="flex justify-between text-xs">
+                <span>{t("tours", isArabic ? "الجولات" : "Tours")}:</span>
+                <span>{formatPrice(toursCost)} {egpText}</span>
+              </div>
+            )}
+            {excursionsCost > 0 && (
+              <div className="flex justify-between text-xs">
+                <span>{t("excursions", isArabic ? "الرحلات" : "Excursions")}:</span>
+                <span>{formatPrice(excursionsCost)} {egpText}</span>
+              </div>
+            )}
+            {upgradePrice > 0 && (
+              <div className="flex justify-between text-xs">
+                <span>{t("upgrades", isArabic ? "ترقيات" : "Upgrades")}:</span>
+                <span>{formatPrice(upgradePrice)} {egpText}</span>
+              </div>
+            )}
+          </div>
+        )}
+
+        {/* VAT and Service Fees */}
+        {(vatEnabled || serviceFeeEnabled) && (
+          <div className="mt-2 pt-2 border-t">
+            {vatEnabled && (
+              <div className="flex justify-between text-xs">
+                <span>{t("vat", isArabic ? "ضريبة القيمة المضافة" : "VAT")}:</span>
+                <span>{formatPrice(vatAmount)} {egpText}</span>
+              </div>
+            )}
+            {serviceFeeEnabled && (
+              <div className="flex justify-between text-xs">
+                <span>{t("service_fee", isArabic ? "رسوم الخدمة" : "Service Fee")}:</span>
+                <span>{formatPrice(serviceFee)} {egpText}</span>
+              </div>
+            )}
+          </div>
+        )}
+
+        {/* Final Total with all costs */}
+        {(roomsCost > 0 || toursCost > 0 || excursionsCost > 0 || upgradePrice > 0 || vatEnabled || serviceFeeEnabled) && (
+          <div className="border-t pt-2 mt-2">
+            <div className="flex justify-between items-center font-bold text-lg">
+              <span>{t("final_total", isArabic ? "المجموع النهائي" : "Final Total")}:</span>
+              <span className="text-primary">{formatPrice(total)} {egpText}</span>
+            </div>
+          </div>
+        )}
+
         {hasDiscount && (
-          <div className="text-green-700">
+          <div className="text-green-700 text-xs mt-1">
             {t("savings", isArabic ? "توفير" : "Savings")}:{" "}
             {formatPrice(savings)} {egpText}
           </div>
