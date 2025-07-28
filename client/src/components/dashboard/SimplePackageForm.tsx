@@ -4302,57 +4302,63 @@ export function PackageCreatorForm({
                                   Selected Rooms Capacity:
                                 </h4>
                                 <div className="space-y-2">
-                                  {form
-                                    .watch("rooms")
-                                    ?.map((selectedRoom: any, index: number) => {
-                                      const roomData = filteredRooms.find(
-                                        (r) => r.id === selectedRoom.id,
-                                      );
-                                      if (!roomData) return null;
+                                  {(form.watch("rooms") || [])
+                                    .map((selectedRoom: any, index: number) => {
+                                      try {
+                                        if (!selectedRoom || !selectedRoom.id) return null;
+                                        const foundRoom = filteredRooms?.find(
+                                          (r) => r?.id === selectedRoom?.id,
+                                        );
+                                        if (!foundRoom) return null;
 
-                                      return (
-                                        <div key={selectedRoom.id}>
-                                          <div className="flex items-center justify-between text-sm bg-white p-2 rounded border">
-                                            <span className="font-medium text-green-800">
-                                              {roomData?.name || 'Unknown Room'}
-                                            </span>
-                                            <div className="flex gap-2">
-                                              <Badge
-                                                variant="outline"
-                                                className="text-xs"
-                                              >
-                                                Adults: {roomData?.max_adults || roomData?.maxAdults || 2}
-                                              </Badge>
-                                              <Badge
-                                                variant="outline"
-                                                className="text-xs"
-                                              >
-                                                Children: {roomData?.max_children || roomData?.maxChildren || 0}
-                                              </Badge>
-                                              <Badge
-                                                variant="outline"
-                                                className="text-xs"
-                                              >
-                                                Infants: {roomData?.max_infants || roomData?.maxInfants || 0}
-                                              </Badge>
-                                              <Badge
-                                                variant="default"
-                                                className="bg-green-600 text-xs"
-                                              >
-                                                Total: {roomData?.max_occupancy || roomData?.maxOccupancy || 2} guests
-                                              </Badge>
+                                        return (
+                                          <div key={selectedRoom.id}>
+                                            <div className="flex items-center justify-between text-sm bg-white p-2 rounded border">
+                                              <span className="font-medium text-green-800">
+                                                {foundRoom?.name || 'Unknown Room'}
+                                              </span>
+                                              <div className="flex gap-2">
+                                                <Badge
+                                                  variant="outline"
+                                                  className="text-xs"
+                                                >
+                                                  Adults: {foundRoom?.max_adults || foundRoom?.maxAdults || 2}
+                                                </Badge>
+                                                <Badge
+                                                  variant="outline"
+                                                  className="text-xs"
+                                                >
+                                                  Children: {foundRoom?.max_children || foundRoom?.maxChildren || 0}
+                                                </Badge>
+                                                <Badge
+                                                  variant="outline"
+                                                  className="text-xs"
+                                                >
+                                                  Infants: {foundRoom?.max_infants || foundRoom?.maxInfants || 0}
+                                                </Badge>
+                                                <Badge
+                                                  variant="default"
+                                                  className="bg-green-600 text-xs"
+                                                >
+                                                  Total: {foundRoom?.max_occupancy || foundRoom?.maxOccupancy || 2} guests
+                                                </Badge>
+                                              </div>
                                             </div>
+                                            {index < (form.watch("rooms")?.length || 0) - 1 && (
+                                              <div className="border-b border-gray-200 my-2"></div>
+                                            )}
                                           </div>
-                                          {index < (form.watch("rooms")?.length || 0) - 1 && (
-                                            <div className="border-b border-gray-200 my-2"></div>
-                                          )}
-                                        </div>
-                                      );
-                                    })}
+                                        );
+                                      } catch (error) {
+                                        console.error('Error rendering room:', error);
+                                        return null;
+                                      }
+                                    })
+                                    .filter(Boolean)}
                                   <div className="border-t pt-2 mt-2">
                                     <div className="flex items-center justify-between">
                                       <span className="font-semibold text-green-900">
-                                        Total Package Capacity: {/* Fixed roomData errors */}
+                                        Total Package Capacity:
                                       </span>
                                       <div className="flex gap-2">
                                         <Badge variant="secondary">
