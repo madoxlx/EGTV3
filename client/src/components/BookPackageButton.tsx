@@ -1,10 +1,10 @@
-import React, { useState } from 'react';
-import { Button } from '@/components/ui/button';
-import { ShoppingCart, Check, Loader2 } from 'lucide-react';
-import { useToast } from '@/hooks/use-toast';
-import { useAuth } from '@/hooks/use-auth';
-import { useLocation } from 'wouter';
-import { calculatePackagePrice } from '@/utils/packagePriceCalculator';
+import React, { useState } from "react";
+import { Button } from "@/components/ui/button";
+import { ShoppingCart, Check, Loader2 } from "lucide-react";
+import { useToast } from "@/hooks/use-toast";
+import { useAuth } from "@/hooks/use-auth";
+import { useLocation } from "wouter";
+import { calculatePackagePrice } from "@/utils/packagePriceCalculator";
 
 // Use the same Package type as package-detail.tsx for compatibility
 type Package = {
@@ -75,8 +75,14 @@ type Package = {
 interface BookPackageButtonProps {
   package: Package;
   className?: string;
-  variant?: 'default' | 'outline' | 'secondary' | 'ghost' | 'link' | 'destructive';
-  size?: 'default' | 'sm' | 'lg' | 'icon';
+  variant?:
+    | "default"
+    | "outline"
+    | "secondary"
+    | "ghost"
+    | "link"
+    | "destructive";
+  size?: "default" | "sm" | "lg" | "icon";
   onClick?: () => boolean | void;
   disabled?: boolean;
   disabledReason?: string;
@@ -96,17 +102,17 @@ interface BookPackageButtonProps {
   allTours?: any[];
 }
 
-const BookPackageButton: React.FC<BookPackageButtonProps> = ({ 
-  package: pkg, 
-  className = '',
-  variant = 'default',
-  size = 'default',
+const BookPackageButton: React.FC<BookPackageButtonProps> = ({
+  package: pkg,
+  className = "",
+  variant = "default",
+  size = "default",
   onClick,
   disabled = false,
   disabledReason,
   formData,
   allRooms = [],
-  allTours = []
+  allTours = [],
 }) => {
   const [isAdding, setIsAdding] = useState(false);
   const [isAdded, setIsAdded] = useState(false);
@@ -115,9 +121,9 @@ const BookPackageButton: React.FC<BookPackageButtonProps> = ({
   const [, setLocation] = useLocation();
 
   const handleBookPackage = async () => {
-    console.log('Book Package clicked for:', pkg.title);
-    console.log('Current user:', user);
-    
+    console.log("Book Package clicked for:", pkg.title);
+    console.log("Current user:", user);
+
     // Check if button is disabled
     if (disabled) {
       if (disabledReason) {
@@ -129,7 +135,7 @@ const BookPackageButton: React.FC<BookPackageButtonProps> = ({
       }
       return;
     }
-    
+
     // If there's a custom onClick handler (for validation), call it first
     if (onClick) {
       const result = onClick();
@@ -137,11 +143,11 @@ const BookPackageButton: React.FC<BookPackageButtonProps> = ({
         return; // Validation failed, don't proceed
       }
     }
-    
+
     // For now, allow booking without authentication to test functionality
     // if (!user) {
     //   toast({
-    //     title: "Authentication Required", 
+    //     title: "Authentication Required",
     //     description: "Please sign in to book packages",
     //     variant: "destructive",
     //   });
@@ -150,7 +156,7 @@ const BookPackageButton: React.FC<BookPackageButtonProps> = ({
     // }
 
     setIsAdding(true);
-    
+
     try {
       // Determine travel date based on mode
       const getTravelDate = () => {
@@ -160,7 +166,9 @@ const BookPackageButton: React.FC<BookPackageButtonProps> = ({
           return formData.selectedDate;
         }
         // Default fallback
-        return new Date(Date.now() + 30 * 24 * 60 * 60 * 1000).toISOString().split('T')[0];
+        return new Date(Date.now() + 30 * 24 * 60 * 60 * 1000)
+          .toISOString()
+          .split("T")[0];
       };
 
       // Use the sophisticated price calculation that matches EnhancedPriceCalculation
@@ -175,25 +183,25 @@ const BookPackageButton: React.FC<BookPackageButtonProps> = ({
         dateMode: formData?.dateMode || "range",
         hotelPackage: formData?.hotelPackage || "standard",
         allRooms: allRooms,
-        allTours: allTours
+        allTours: allTours,
       });
 
       // Use the calculated total from the price breakdown
       const totalPrice = priceCalculation.total;
-      const basePricePerPerson = pkg.discountedPrice || pkg.price;
+      const basePricePerPerson = priceCalculation.total; //pkg.discountedPrice || pkg.price;
 
-      console.log('Package Slug:', pkg.id);
-      console.log('All Packages:', [pkg]);
-      console.log('Package Data:', pkg);
-      console.log('Price Calculation Result:', priceCalculation);
-      console.log('Room Cost:', priceCalculation.roomsCost);
-      console.log('Tours Cost:', priceCalculation.toursCost);
-      console.log('Total Calculated Price:', totalPrice);
-      console.log('Nights:', priceCalculation.actualNights);
-      console.log('Total PAX:', priceCalculation.totalPAX);
+      console.log("Package Slug:", pkg.id);
+      console.log("All Packages:", [pkg]);
+      console.log("Package Data:", pkg);
+      console.log("Price Calculation Result:", priceCalculation);
+      console.log("Room Cost:", priceCalculation.roomsCost);
+      console.log("Tours Cost:", priceCalculation.toursCost);
+      console.log("Total Calculated Price:", totalPrice);
+      console.log("Nights:", priceCalculation.actualNights);
+      console.log("Total PAX:", priceCalculation.totalPAX);
 
       const cartItem = {
-        itemType: 'package',
+        itemType: "package",
         itemId: parseInt(pkg.id.toString(), 10),
         itemName: pkg.title,
         itemDetails: {
@@ -205,9 +213,9 @@ const BookPackageButton: React.FC<BookPackageButtonProps> = ({
           overview: pkg.overview,
           price: pkg.price,
           discountedPrice: pkg.discountedPrice,
-          currency: pkg.currency || 'EGP',
+          currency: pkg.currency || "EGP",
           duration: pkg.duration,
-          durationType: pkg.durationType || 'days',
+          durationType: pkg.durationType || "days",
           imageUrl: pkg.imageUrl,
           galleryUrls: pkg.galleryUrls,
           rating: pkg.rating,
@@ -216,7 +224,7 @@ const BookPackageButton: React.FC<BookPackageButtonProps> = ({
           type: pkg.type,
           destinationId: pkg.destinationId,
           slug: pkg.slug,
-          
+
           // Package features and details
           includedFeatures: pkg.includedFeatures,
           excludedFeatures: pkg.excludedFeatures,
@@ -226,13 +234,13 @@ const BookPackageButton: React.FC<BookPackageButtonProps> = ({
           bestTimeToVisit: pkg.bestTimeToVisit,
           whatToPack: pkg.whatToPack,
           itinerary: pkg.itinerary,
-          
+
           // Tour and hotel information
           selectedTourId: pkg.selectedTourId,
           tourSelection: pkg.tourSelection,
           selectedHotels: pkg.selectedHotels,
           rooms: pkg.rooms,
-          
+
           // Arabic translations
           hasArabicVersion: pkg.hasArabicVersion,
           titleAr: pkg.titleAr,
@@ -255,7 +263,7 @@ const BookPackageButton: React.FC<BookPackageButtonProps> = ({
         travelDate: getTravelDate(),
         configuration: {
           duration: pkg.duration,
-          imageUrl: pkg.imageUrl || '/api/placeholder/300/200',
+          imageUrl: pkg.imageUrl || "/api/placeholder/300/200",
           selectedRooms: formData?.selectedRooms || [],
           hotelPackage: formData?.hotelPackage,
           dateMode: formData?.dateMode || "single",
@@ -271,64 +279,72 @@ const BookPackageButton: React.FC<BookPackageButtonProps> = ({
             upgradePrice: priceCalculation.upgradePrice,
             subtotal: priceCalculation.subtotal,
             total: priceCalculation.total,
-            breakdown: priceCalculation.breakdown
-          }
-        }
+            breakdown: priceCalculation.breakdown,
+          },
+        },
       };
 
-      console.log('Sending cart request with data:', cartItem);
-      
-      const response = await fetch('/api/cart/add', {
-        method: 'POST',
+      console.log("Sending cart request with data:", cartItem);
+
+      const response = await fetch("/api/cart/add", {
+        method: "POST",
         headers: {
-          'Content-Type': 'application/json',
+          "Content-Type": "application/json",
         },
-        credentials: 'include',
+        credentials: "include",
         body: JSON.stringify(cartItem),
       });
 
-      console.log('Cart response status:', response.status);
-      console.log('Cart response headers:', response.headers.get('content-type'));
+      console.log("Cart response status:", response.status);
+      console.log(
+        "Cart response headers:",
+        response.headers.get("content-type"),
+      );
 
       if (!response.ok) {
         const errorText = await response.text();
-        console.log('Cart error response:', errorText);
-        
+        console.log("Cart error response:", errorText);
+
         if (response.status === 401) {
           toast({
             title: "Authentication Required",
             description: "Please sign in to add packages to cart",
             variant: "destructive",
           });
-          setLocation('/auth/sign-up');
+          setLocation("/auth/sign-up");
           return;
         }
         throw new Error(`Failed to add package to cart: ${errorText}`);
       }
 
-      const contentType = response.headers.get('content-type');
-      if (!contentType || !contentType.includes('application/json')) {
+      const contentType = response.headers.get("content-type");
+      if (!contentType || !contentType.includes("application/json")) {
         const htmlResponse = await response.text();
-        console.log('Expected JSON but got HTML:', htmlResponse.substring(0, 200));
-        
+        console.log(
+          "Expected JSON but got HTML:",
+          htmlResponse.substring(0, 200),
+        );
+
         // Handle routing issue by showing success (backend database is working)
-        console.log('Cart API returned HTML instead of JSON, but package was likely added to database');
-        
+        console.log(
+          "Cart API returned HTML instead of JSON, but package was likely added to database",
+        );
+
         setIsAdded(true);
         toast({
           title: "Package Added to Cart!",
           description: `${pkg.title} has been added to your cart`,
         });
-        
+
         setTimeout(() => {
           setIsAdded(false);
         }, 2000);
-        
+
         return;
       }
 
       const result = await response.json();
-      
+
       setIsAdded(true);
       toast({
         title: "Package Added to Cart!",
@@ -339,16 +355,15 @@ const BookPackageButton: React.FC<BookPackageButtonProps> = ({
       setTimeout(() => {
         setIsAdded(false);
       }, 2000);
-
     } catch (error) {
-      console.error('Error adding package to cart:', error);
-      
+      console.error("Error adding package to cart:", error);
+
       // More detailed error handling
       let errorMessage = "Failed to add package to cart. Please try again.";
       if (error instanceof Error) {
         errorMessage = error.message;
       }
-      
+
       toast({
         title: "Error",
         description: errorMessage,
@@ -363,9 +378,9 @@ const BookPackageButton: React.FC<BookPackageButtonProps> = ({
     <Button
       onClick={handleBookPackage}
       disabled={isAdding || isAdded || disabled}
-      variant={disabled ? 'outline' : variant}
+      variant={disabled ? "outline" : variant}
       size={size}
-      className={`${className} ${disabled ? 'opacity-50 cursor-not-allowed' : ''}`}
+      className={`${className} ${disabled ? "opacity-50 cursor-not-allowed" : ""}`}
       title={disabled ? disabledReason : undefined}
     >
       {isAdding ? (

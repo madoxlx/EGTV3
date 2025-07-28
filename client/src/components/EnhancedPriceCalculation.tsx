@@ -13,6 +13,7 @@ import {
   Info,
 } from "lucide-react";
 import { useQuery } from "@tanstack/react-query";
+import { useLanguage } from "@/hooks/use-language";
 
 interface SystemSettings {
   payment?: {
@@ -130,16 +131,26 @@ export default function EnhancedPriceCalculation({
   const packageRooms = parsePackageArray(packageData.rooms);
   // Handle tours - can be single ID, array of IDs, or array of tour objects with pricing
   let packageTours: number[] = [];
-  let tourPricingData: { [key: number]: { adultPrice: number; childPrice: number; infantPrice: number } } = {};
-  
+  let tourPricingData: {
+    [key: number]: {
+      adultPrice: number;
+      childPrice: number;
+      infantPrice: number;
+    };
+  } = {};
+
   if (packageData.selectedTourId) {
     packageTours = [packageData.selectedTourId];
   } else if (packageData.tourSelection) {
     const parsedTours = parsePackageArray(packageData.tourSelection);
-    console.log('EnhancedPriceCalculation - Parsed tours data:', parsedTours);
-    
+    console.log("EnhancedPriceCalculation - Parsed tours data:", parsedTours);
+
     // Handle new tour pricing structure with adult/child/infant prices
-    if (parsedTours.length > 0 && typeof parsedTours[0] === 'object' && 'id' in parsedTours[0]) {
+    if (
+      parsedTours.length > 0 &&
+      typeof parsedTours[0] === "object" &&
+      "id" in parsedTours[0]
+    ) {
       // New format: [{id: 6, adultPrice: 200000, childPrice: 120000, infantPrice: 80000}]
       parsedTours.forEach((tour: any) => {
         if (tour.id) {
@@ -147,13 +158,15 @@ export default function EnhancedPriceCalculation({
           tourPricingData[tour.id] = {
             adultPrice: (tour.adultPrice || 0) / 100, // Convert from piasters to EGP
             childPrice: (tour.childPrice || 0) / 100,
-            infantPrice: (tour.infantPrice || 0) / 100
+            infantPrice: (tour.infantPrice || 0) / 100,
           };
         }
       });
     } else {
       // Old format: [6, 7, 8] or ["6", "7", "8"]
-      packageTours = parsedTours.map(id => typeof id === 'string' ? parseInt(id) : id).filter(id => !isNaN(id));
+      packageTours = parsedTours
+        .map((id) => (typeof id === "string" ? parseInt(id) : id))
+        .filter((id) => !isNaN(id));
     }
   } else if (packageData.selectedTourIds) {
     packageTours = parsePackageArray(packageData.selectedTourIds);
@@ -183,18 +196,18 @@ export default function EnhancedPriceCalculation({
   let roomsCost = 0;
   let roomsBreakdown: { name: string; nights: number; cost: number }[] = [];
 
-  // Calculate the number of nights based on the date range
+  // Calculate the number of nights and days based on the date range
   let actualNights = packageData.duration || 1; // Default to package duration
+  let days = actualNights + 1;
   if (dateMode === "range" && startDate && endDate) {
     const start = new Date(startDate);
     const end = new Date(endDate);
-    actualNights = Math.max(
-      1,
-      Math.ceil((end.getTime() - start.getTime()) / (1000 * 3600 * 24)),
-    );
+    const diff = (end.getTime() - start.getTime()) / (1000 * 3600 * 24);
+    actualNights = Math.max(1, Math.floor(diff));
+    days = actualNights + 1;
   } else if (dateMode === "single" && selectedDate) {
-    // For single date, use package duration
     actualNights = packageData.duration || 1;
+    days = actualNights + 1;
   }
 
   // Calculate total number of PAX
@@ -244,29 +257,32 @@ export default function EnhancedPriceCalculation({
       // Use custom pricing data if available, otherwise fall back to tour database
       if (tourPricingData[tourId]) {
         const pricing = tourPricingData[tourId];
-        const totalTourCost = 
-          (pricing.adultPrice * adults) + 
-          (pricing.childPrice * children) + 
-          (pricing.infantPrice * infants);
+        const totalTourCost =
+          pricing.adultPrice * adults +
+          pricing.childPrice * children +
+          pricing.infantPrice * infants;
 
         toursCost += totalTourCost;
-        
+
         // Try to get tour name from database, fallback to ID
         const tour = allTours.find((t) => t.id === tourId);
         toursBreakdown.push({
           name: tour?.name || `Tour #${tourId}`,
           price: totalTourCost,
         });
-        
-        console.log(`EnhancedPriceCalculation - Tour ${tourId} cost calculation:`, {
-          adults: adults,
-          children: children,
-          infants: infants,
-          adultPrice: pricing.adultPrice,
-          childPrice: pricing.childPrice,
-          infantPrice: pricing.infantPrice,
-          totalCost: totalTourCost
-        });
+
+        console.log(
+          `EnhancedPriceCalculation - Tour ${tourId} cost calculation:`,
+          {
+            adults: adults,
+            children: children,
+            infants: infants,
+            adultPrice: pricing.adultPrice,
+            childPrice: pricing.childPrice,
+            infantPrice: pricing.infantPrice,
+            totalCost: totalTourCost,
+          },
+        );
       } else if (allTours.length > 0) {
         // Fallback to old pricing method
         const tour = allTours.find((t) => t.id === tourId);
@@ -383,4 +399,65 @@ export default function EnhancedPriceCalculation({
   }
 
   // Only show calculation section when all requirements are met
+  const { t, currentLanguage } = useLanguage
+    ? useLanguage()
+    : { t: (k: string, d: string) => d, currentLanguage: "ar" };
+  // صياغة النصوص حسب اللغة
+  const isArabic = currentLanguage === "ar";
+  const nightsText = isArabic
+    ? `${actualNights} ${t("night", actualNights === 1 ? "ليلة" : "ليالي")}`
+    : `${actualNights} ${t("night", actualNights === 1 ? "night" : "nights")}`;
+  const daysText = isArabic
+    ? `${days} ${t("day", days === 1 ? "يوم" : "أيام")}`
+    : `${days} ${t("day", days === 1 ? "day" : "days")}`;
+  const egpText = isArabic ? "ج.م" : "EGP";
+  // مفاتيح الترجمة: price_breakdown, subtotal, vat, service_fee, total, savings
+  return (
+    <div className="mt-4 p-4 bg-gray-50 rounded-lg border">
+      <h4 className="font-bold mb-2">
+        {t("price_breakdown", isArabic ? "تفصيل السعر" : "Price Breakdown")}
+      </h4>
+      <div className="flex flex-col gap-1 text-sm">
+        <div className="mb-1 text-muted-foreground">
+          {isArabic
+            ? `${nightsText} / ${daysText}`
+            : `${nightsText} / ${daysText}`}
+        </div>
+        <div>
+          {t("subtotal", isArabic ? "المجموع الفرعي" : "Subtotal")}:
+          <span className="font-medium">
+            {formatPrice(subtotal)} {egpText}
+          </span>
+        </div>
+        {vatEnabled && (
+          <div>
+            {t("vat", isArabic ? "ضريبة القيمة المضافة" : "VAT")}:
+            <span className="font-medium">
+              {formatPrice(vatAmount)} {egpText}
+            </span>
+          </div>
+        )}
+        {serviceFeeEnabled && (
+          <div>
+            {t("service_fee", isArabic ? "رسوم الخدمة" : "Service Fee")}:
+            <span className="font-medium">
+              {formatPrice(serviceFee)} {egpText}
+            </span>
+          </div>
+        )}
+        <div className="font-bold text-lg mt-2">
+          {t("total", isArabic ? "الإجمالي" : "Total")}:
+          <span className="text-primary">
+            {formatPrice(total)} {egpText}
+          </span>
+        </div>
+        {hasDiscount && (
+          <div className="text-green-700">
+            {t("savings", isArabic ? "توفير" : "Savings")}:{" "}
+            {formatPrice(savings)} {egpText}
+          </div>
+        )}
+      </div>
+    </div>
+  );
 }
