@@ -6190,8 +6190,7 @@ export function PackageCreatorForm({
                               (opt) => opt.id === value,
                             );
                             if (option) {
-                              const basePrice =
-                                form.getValues("basePrice") || 0;
+                              const basePrice = Number(form.getValues("price")) || 0;
                               const newPrice =
                                 basePrice * (option.priceMultiplier - 1);
                               form.setValue(
@@ -6423,7 +6422,7 @@ export function PackageCreatorForm({
                               );
                               form.setValue(
                                 "descriptionAr",
-                                values.description || "",
+                                values.shortDescription || "",
                               );
                               form.setValue(
                                 "overviewAr",
@@ -7565,3 +7564,6 @@ export function PackageCreatorForm({
 
 // Export the same component as SimplePackageForm for use in PackageCreatorPage
 export const SimplePackageForm = PackageCreatorForm;
+
+// Default export for routing
+export default PackageCreatorForm;
