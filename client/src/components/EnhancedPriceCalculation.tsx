@@ -188,7 +188,7 @@ export default function EnhancedPriceCalculation({
 
   // Base package cost is now excluded from calculations
   let packageBaseCost = 0;
-  
+
   // Calculate the number of nights and days based on the date range first
   let actualNights = packageData.duration || 1; // Default to package duration
   let days = actualNights + 1;
@@ -202,11 +202,12 @@ export default function EnhancedPriceCalculation({
     actualNights = packageData.duration || 1;
     days = actualNights + 1;
   }
-  
+
   // Smart Room Distribution Logic (similar to RoomDistributionWithStars)
   const calculateRoomDistribution = () => {
-    const availableRooms = packageRooms.length > 0 ? packageRooms : allRooms.slice(0, 5); // Limit to first 5 rooms for calculation
-    
+    const availableRooms =
+      packageRooms.length > 0 ? packageRooms : allRooms.slice(0, 5); // Limit to first 5 rooms for calculation
+
     if (availableRooms.length === 0) {
       // Fallback to simple calculation if no rooms available
       const basePrice = packageData.discountedPrice || packageData.price;
@@ -215,57 +216,71 @@ export default function EnhancedPriceCalculation({
         childPrice: Math.round(basePrice * 0.7),
         infantPrice: Math.round(basePrice * 0.3),
         totalRoomsCost: 0,
-        roomsBreakdown: []
+        roomsBreakdown: [],
       };
     }
 
     const totalTravelers = adults + children + infants;
-    
+
     // Sort rooms by capacity (highest adults capacity first)
-    const sortedRooms = [...availableRooms].sort((a, b) => (b.max_adults || b.maxAdults || 2) - (a.max_adults || a.maxAdults || 2));
-    
+    const sortedRooms = [...availableRooms].sort(
+      (a, b) =>
+        (b.max_adults || b.maxAdults || 2) - (a.max_adults || a.maxAdults || 2),
+    );
+
     let remainingAdults = adults;
     let remainingChildren = children;
     let remainingInfants = infants;
-    
+
     const distribution = sortedRooms.map((room) => {
       let assignedAdults = 0;
       let assignedChildren = 0;
       let assignedInfants = 0;
-      
+
       const maxOccupancy = room.max_occupancy || room.maxOccupancy || 2;
       const maxAdults = room.max_adults || room.maxAdults || 2;
       const maxChildren = room.max_children || room.maxChildren || 2;
       const maxInfants = room.max_infants || room.maxInfants || 1;
-      
+
       // First, assign adults up to room capacity
       if (remainingAdults > 0 && maxAdults > 0) {
         assignedAdults = Math.min(remainingAdults, maxAdults);
         remainingAdults -= assignedAdults;
       }
-      
+
       // Assign children/infants with adults first (preferred arrangement)
       if (assignedAdults > 0) {
         // Then assign children if there's space and adults present
         const remainingCapacity = maxOccupancy - assignedAdults;
         if (remainingChildren > 0 && remainingCapacity > 0 && maxChildren > 0) {
-          assignedChildren = Math.min(remainingChildren, Math.min(remainingCapacity, maxChildren));
+          assignedChildren = Math.min(
+            remainingChildren,
+            Math.min(remainingCapacity, maxChildren),
+          );
           remainingChildren -= assignedChildren;
         }
-        
+
         // Finally assign infants if there's space and adults present
-        const finalRemainingCapacity = maxOccupancy - assignedAdults - assignedChildren;
-        if (remainingInfants > 0 && finalRemainingCapacity > 0 && maxInfants > 0) {
-          assignedInfants = Math.min(remainingInfants, Math.min(finalRemainingCapacity, maxInfants));
+        const finalRemainingCapacity =
+          maxOccupancy - assignedAdults - assignedChildren;
+        if (
+          remainingInfants > 0 &&
+          finalRemainingCapacity > 0 &&
+          maxInfants > 0
+        ) {
+          assignedInfants = Math.min(
+            remainingInfants,
+            Math.min(finalRemainingCapacity, maxInfants),
+          );
           remainingInfants -= assignedInfants;
         }
       }
-      
+
       const totalAssigned = assignedAdults + assignedChildren + assignedInfants;
       const pricePerPerson = room.customPrice || room.price || 0;
       const totalCostPerNight = totalAssigned * pricePerPerson;
       const totalCost = totalCostPerNight * actualNights;
-      
+
       return {
         room,
         assignedAdults,
@@ -278,35 +293,39 @@ export default function EnhancedPriceCalculation({
         isUsed: totalAssigned > 0,
       };
     });
-    
+
     // Calculate average price per person across all used rooms
-    const usedRooms = distribution.filter(d => d.isUsed);
-    const totalAssignedTravelers = usedRooms.reduce((sum, d) => sum + d.totalAssigned, 0);
+    const usedRooms = distribution.filter((d) => d.isUsed);
+    const totalAssignedTravelers = usedRooms.reduce(
+      (sum, d) => sum + d.totalAssigned,
+      0,
+    );
     const totalRoomsCost = usedRooms.reduce((sum, d) => sum + d.totalCost, 0);
-    
+
     let avgPricePerPerson = 0;
     if (totalAssignedTravelers > 0) {
-      avgPricePerPerson = totalRoomsCost / totalAssignedTravelers / actualNights;
+      avgPricePerPerson =
+        totalRoomsCost / totalAssignedTravelers / actualNights;
     } else if (usedRooms.length > 0) {
       avgPricePerPerson = usedRooms[0].pricePerPerson;
     } else {
       avgPricePerPerson = packageData.discountedPrice || packageData.price;
     }
-    
+
     return {
       adultPrice: avgPricePerPerson,
       childPrice: Math.round(avgPricePerPerson * 0.7),
       infantPrice: Math.round(avgPricePerPerson * 0.3),
       totalRoomsCost,
-      roomsBreakdown: usedRooms.map(d => ({
+      roomsBreakdown: usedRooms.map((d) => ({
         name: `${d.room.name} (${d.totalAssigned} guests)`,
         nights: actualNights,
         cost: d.totalCost,
       })),
-      distribution: usedRooms
+      distribution: usedRooms,
     };
   };
-  
+
   const roomDistribution = calculateRoomDistribution();
   const adultPrice = roomDistribution.adultPrice;
   const childPrice = roomDistribution.childPrice;
@@ -499,79 +518,53 @@ export default function EnhancedPriceCalculation({
           {isArabic
             ? `${nightsText} / ${daysText}`
             : `${nightsText} / ${daysText}`}
-          {roomDistribution.distribution && roomDistribution.distribution.length > 0 && (
-            <div className="text-xs mt-1">
-              {isArabic 
-                ? `${roomDistribution.distribution.length} غرف مطلوبة للتوزيع التلقائي`
-                : `${roomDistribution.distribution.length} rooms required for automatic distribution`
-              }
-            </div>
-          )}
+          {roomDistribution.distribution &&
+            roomDistribution.distribution.length > 0 && (
+              <div className="text-xs mt-1">
+                {isArabic
+                  ? `${roomDistribution.distribution.length} غرف مطلوبة للتوزيع التلقائي`
+                  : `${roomDistribution.distribution.length} rooms required for automatic distribution`}
+              </div>
+            )}
         </div>
-        
+
         {/* Detailed Breakdown */}
         {adults > 0 && (
           <div className="flex justify-between items-center">
             <span>
-              {t("adults", isArabic ? "البالغين" : "Adults")} ({adults} × {formatPrice(adultPrice)} × {actualNights} {t("nights", isArabic ? "ليالي" : "nights")}):
+              {t("adults", isArabic ? "البالغين" : "Adults")} ({adults} ×{" "}
+              {formatPrice(adultPrice)} × {actualNights}{" "}
+              {t("nights", isArabic ? "ليالي" : "nights")}):
             </span>
-            <span className="font-medium">{formatPrice(adultTotal)} {egpText}</span>
-          </div>
-        )}
-        
-        {children > 0 && (
-          <div className="flex justify-between items-center">
-            <span>
-              {t("children", isArabic ? "الأطفال" : "Children")} ({children} × {formatPrice(childPrice)} × {actualNights} {t("nights", isArabic ? "ليالي" : "nights")}):
+            <span className="font-medium">
+              {formatPrice(adultTotal)} {egpText}
             </span>
-            <span className="font-medium">{formatPrice(childTotal)} {egpText}</span>
-          </div>
-        )}
-        
-        {infants > 0 && (
-          <div className="flex justify-between items-center">
-            <span>
-              {t("infants", isArabic ? "الرضع" : "Infants")} ({infants} × {formatPrice(infantPrice)} × {actualNights} {t("nights", isArabic ? "ليالي" : "nights")}):
-            </span>
-            <span className="font-medium">{formatPrice(infantTotal)} {egpText}</span>
           </div>
         )}
 
-        {/* Room Distribution Details */}
-        {roomDistribution.distribution && roomDistribution.distribution.length > 0 && (
-          <div className="border-t pt-2 mt-2">
-            <h5 className="font-medium mb-2 text-blue-800">
-              {isArabic ? "توزيع الغرف التلقائي" : "Smart Room Distribution"}
-            </h5>
-            {roomDistribution.distribution.map((dist: any, index: number) => (
-              <div key={index} className="bg-blue-50 rounded-md p-2 border border-blue-200 mb-2">
-                <div className="flex justify-between items-center mb-1">
-                  <span className="font-medium text-sm text-blue-900">
-                    {isArabic ? `غرفة ${index + 1}: ` : `Room ${index + 1}: `}{dist.room.name}
-                  </span>
-                  <span className="text-sm font-semibold text-blue-900">
-                    {formatPrice(dist.totalCost)} {egpText}
-                  </span>
-                </div>
-                <div className="text-xs text-gray-700 space-y-1">
-                  {dist.assignedAdults > 0 && (
-                    <div>• {dist.assignedAdults} {isArabic ? "بالغ" : "adult(s)"}</div>
-                  )}
-                  {dist.assignedChildren > 0 && (
-                    <div>• {dist.assignedChildren} {isArabic ? "طفل" : "child(ren)"}</div>
-                  )}
-                  {dist.assignedInfants > 0 && (
-                    <div>• {dist.assignedInfants} {isArabic ? "رضيع" : "infant(s)"}</div>
-                  )}
-                  <div className="text-blue-700 font-medium">
-                    {isArabic ? "الإجمالي:" : "Total:"} {dist.totalAssigned}/{dist.room.max_occupancy || dist.room.maxOccupancy} {isArabic ? "شخص" : "people"}
-                  </div>
-                  <div className="text-blue-600">
-                    ({dist.totalAssigned} × {formatPrice(dist.pricePerPerson)} × {actualNights} {isArabic ? "ليالي" : "nights"})
-                  </div>
-                </div>
-              </div>
-            ))}
+        {children > 0 && (
+          <div className="flex justify-between items-center">
+            <span>
+              {t("children", isArabic ? "الأطفال" : "Children")} ({children} ×{" "}
+              {formatPrice(childPrice)} × {actualNights}{" "}
+              {t("nights", isArabic ? "ليالي" : "nights")}):
+            </span>
+            <span className="font-medium">
+              {formatPrice(childTotal)} {egpText}
+            </span>
+          </div>
+        )}
+
+        {infants > 0 && (
+          <div className="flex justify-between items-center">
+            <span>
+              {t("infants", isArabic ? "الرضع" : "Infants")} ({infants} ×{" "}
+              {formatPrice(infantPrice)} × {actualNights}{" "}
+              {t("nights", isArabic ? "ليالي" : "nights")}):
+            </span>
+            <span className="font-medium">
+              {formatPrice(infantTotal)} {egpText}
+            </span>
           </div>
         )}
 
@@ -579,38 +572,59 @@ export default function EnhancedPriceCalculation({
         <div className="border-t pt-2 mt-2">
           <div className="flex justify-between items-center font-bold text-lg">
             <span>{t("total", isArabic ? "الإجمالي" : "Total")}:</span>
-            <span className="text-primary">{formatPrice(grandTotal)} {egpText}</span>
+            <span className="text-primary">
+              {formatPrice(grandTotal)} {egpText}
+            </span>
           </div>
         </div>
 
         {/* Additional costs if applicable */}
-        {(roomsCost > 0 || toursCost > 0 || excursionsCost > 0 || upgradePrice > 0) && (
+        {(roomsCost > 0 ||
+          toursCost > 0 ||
+          excursionsCost > 0 ||
+          upgradePrice > 0) && (
           <div className="mt-3 pt-2 border-t">
             <div className="text-xs text-muted-foreground mb-2">
-              {t("additional_costs", isArabic ? "تكاليف إضافية" : "Additional Costs")}:
+              {t(
+                "additional_costs",
+                isArabic ? "تكاليف إضافية" : "Additional Costs",
+              )}
+              :
             </div>
             {roomsCost > 0 && (
               <div className="flex justify-between text-xs">
-                <span>{t("accommodation", isArabic ? "الإقامة" : "Accommodation")}:</span>
-                <span>{formatPrice(roomsCost)} {egpText}</span>
+                <span>
+                  {t("accommodation", isArabic ? "الإقامة" : "Accommodation")}:
+                </span>
+                <span>
+                  {formatPrice(roomsCost)} {egpText}
+                </span>
               </div>
             )}
             {toursCost > 0 && (
               <div className="flex justify-between text-xs">
                 <span>{t("tours", isArabic ? "الجولات" : "Tours")}:</span>
-                <span>{formatPrice(toursCost)} {egpText}</span>
+                <span>
+                  {formatPrice(toursCost)} {egpText}
+                </span>
               </div>
             )}
             {excursionsCost > 0 && (
               <div className="flex justify-between text-xs">
-                <span>{t("excursions", isArabic ? "الرحلات" : "Excursions")}:</span>
-                <span>{formatPrice(excursionsCost)} {egpText}</span>
+                <span>
+                  {t("excursions", isArabic ? "الرحلات" : "Excursions")}:
+                </span>
+                <span>
+                  {formatPrice(excursionsCost)} {egpText}
+                </span>
               </div>
             )}
             {upgradePrice > 0 && (
               <div className="flex justify-between text-xs">
                 <span>{t("upgrades", isArabic ? "ترقيات" : "Upgrades")}:</span>
-                <span>{formatPrice(upgradePrice)} {egpText}</span>
+                <span>
+                  {formatPrice(upgradePrice)} {egpText}
+                </span>
               </div>
             )}
           </div>
@@ -621,25 +635,43 @@ export default function EnhancedPriceCalculation({
           <div className="mt-2 pt-2 border-t">
             {vatEnabled && (
               <div className="flex justify-between text-xs">
-                <span>{t("vat", isArabic ? "ضريبة القيمة المضافة" : "VAT")}:</span>
-                <span>{formatPrice(vatAmount)} {egpText}</span>
+                <span>
+                  {t("vat", isArabic ? "ضريبة القيمة المضافة" : "VAT")}:
+                </span>
+                <span>
+                  {formatPrice(vatAmount)} {egpText}
+                </span>
               </div>
             )}
             {serviceFeeEnabled && (
               <div className="flex justify-between text-xs">
-                <span>{t("service_fee", isArabic ? "رسوم الخدمة" : "Service Fee")}:</span>
-                <span>{formatPrice(serviceFee)} {egpText}</span>
+                <span>
+                  {t("service_fee", isArabic ? "رسوم الخدمة" : "Service Fee")}:
+                </span>
+                <span>
+                  {formatPrice(serviceFee)} {egpText}
+                </span>
               </div>
             )}
           </div>
         )}
 
         {/* Final Total with all costs */}
-        {(roomsCost > 0 || toursCost > 0 || excursionsCost > 0 || upgradePrice > 0 || vatEnabled || serviceFeeEnabled) && (
+        {(roomsCost > 0 ||
+          toursCost > 0 ||
+          excursionsCost > 0 ||
+          upgradePrice > 0 ||
+          vatEnabled ||
+          serviceFeeEnabled) && (
           <div className="border-t pt-2 mt-2">
             <div className="flex justify-between items-center font-bold text-lg">
-              <span>{t("final_total", isArabic ? "المجموع النهائي" : "Final Total")}:</span>
-              <span className="text-primary">{formatPrice(total)} {egpText}</span>
+              <span>
+                {t("final_total", isArabic ? "المجموع النهائي" : "Final Total")}
+                :
+              </span>
+              <span className="text-primary">
+                {formatPrice(total)} {egpText}
+              </span>
             </div>
           </div>
         )}
