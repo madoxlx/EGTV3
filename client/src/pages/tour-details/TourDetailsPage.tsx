@@ -19,6 +19,9 @@ import {
   MessageCircle,
   Calendar as CalendarIcon
 } from 'lucide-react';
+import { useLanguage } from '@/hooks/use-language';
+import { useQuery } from '@tanstack/react-query';
+import { apiRequest } from '@/lib/queryClient';
 
 // Mock tour data - in a real app this would come from an API call based on ID
 const getTourById = (id: string) => {
@@ -218,24 +221,22 @@ const renderStars = (rating: number) => {
 
 const TourDetailsPage: React.FC = () => {
   const params = useParams();
-  const [tour, setTour] = useState<any>(null);
-  const [loading, setLoading] = useState<boolean>(true);
-  
-  useEffect(() => {
-    if (params && params.id) {
-      // In a real app, you would fetch tour data from an API
-      const tourData = getTourById(params.id);
-      setTour(tourData);
-      setLoading(false);
-    }
-  }, [params]);
+  const { currentLanguage } = useLanguage();
+  const tourId = params?.id;
 
-  if (loading) {
+  // جلب بيانات التور من الـ API
+  const { data: tour, isLoading } = useQuery({
+    queryKey: ['tour', tourId],
+    queryFn: () => apiRequest(`/api/tours/${tourId}`),
+    enabled: !!tourId,
+  });
+
+  if (isLoading) {
     return (
       <Layout>
         <div className="container mx-auto py-12 px-4">
           <div className="text-center">
-            <p>Loading tour details...</p>
+            <p>جاري تحميل تفاصيل الرحلة...</p>
           </div>
         </div>
       </Layout>
@@ -247,82 +248,84 @@ const TourDetailsPage: React.FC = () => {
       <Layout>
         <div className="container mx-auto py-12 px-4">
           <div className="text-center">
-            <h1 className="text-2xl font-bold mb-4">Tour Not Found</h1>
-            <p>The tour you're looking for doesn't exist or has been removed.</p>
-            <Button className="mt-4" onClick={() => window.history.back()}>Go Back</Button>
+            <h1 className="text-2xl font-bold mb-4">الرحلة غير موجودة</h1>
+            <p>الرحلة التي تبحث عنها غير متوفرة أو تم حذفها.</p>
+            <Button className="mt-4" onClick={() => window.history.back()}>العودة</Button>
           </div>
         </div>
       </Layout>
     );
   }
-  
+
+  // دوال مساعدة للعرض حسب اللغة
+  const getField = (en: any, ar: any) => currentLanguage === 'ar' ? (ar || en) : en;
+  const getArrayField = (enArr: any[], arArr: any[]) => currentLanguage === 'ar' && Array.isArray(arArr) && arArr.length > 0 ? arArr : enArr;
+
   return (
     <Layout>
       <div className="container mx-auto py-8 px-4">
         {/* Hero Section */}
         <div className="relative rounded-xl overflow-hidden mb-8 h-[400px]">
           <img 
-            src={tour.image} 
-            alt={tour.name} 
+            src={tour.imageUrl || tour.image || (tour.galleryUrls && tour.galleryUrls[0])} 
+            alt={getField(tour.name, tour.nameAr)} 
             className="w-full h-full object-cover"
           />
           <div className="absolute inset-0 bg-gradient-to-t from-black/70 to-transparent" />
           <div className="absolute bottom-0 left-0 right-0 p-6 text-white">
-            <h1 className="text-3xl md:text-4xl font-bold mb-2">{tour.name}</h1>
+            <h1 className="text-3xl md:text-4xl font-bold mb-2">{getField(tour.name, tour.nameAr)}</h1>
             <div className="flex items-center mb-2">
               <MapPin size={16} className="mr-1" />
-              <span>{tour.location}</span>
+              <span>{getField(tour.location, tour.locationAr)}</span>
             </div>
             <div className="flex items-center">
               <div className="flex mr-3">
                 {renderStars(tour.rating)}
                 <span className="ml-2">{tour.rating}</span>
               </div>
-              <span className="text-sm">({tour.reviewCount} reviews)</span>
+              <span className="text-sm">({tour.reviewCount} تقييم)</span>
             </div>
           </div>
         </div>
-        
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
           {/* Main Content */}
           <div className="lg:col-span-2">
             <Tabs defaultValue="overview">
               <TabsList>
-                <TabsTrigger value="overview">Overview</TabsTrigger>
-                <TabsTrigger value="itinerary">Itinerary</TabsTrigger>
-                <TabsTrigger value="gallery">Gallery</TabsTrigger>
-                <TabsTrigger value="reviews">Reviews</TabsTrigger>
+                <TabsTrigger value="overview">{currentLanguage === 'ar' ? 'نظرة عامة' : 'Overview'}</TabsTrigger>
+                <TabsTrigger value="itinerary">{currentLanguage === 'ar' ? 'البرنامج' : 'Itinerary'}</TabsTrigger>
+                <TabsTrigger value="gallery">{currentLanguage === 'ar' ? 'الصور' : 'Gallery'}</TabsTrigger>
+                <TabsTrigger value="reviews">{currentLanguage === 'ar' ? 'التقييمات' : 'Reviews'}</TabsTrigger>
               </TabsList>
-              
               <TabsContent value="overview" className="pt-6">
                 <div className="space-y-6">
                   <div>
-                    <h2 className="text-2xl font-bold mb-3">Tour Highlights</h2>
-                    <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
-                      {tour.highlights.map((highlight: string, index: number) => (
-                        <div key={index} className="flex items-start">
-                          <CheckCircle size={18} className="text-primary mr-2 flex-shrink-0 mt-1" />
-                          <span>{highlight}</span>
-                        </div>
-                      ))}
-                    </div>
+                    <h2 className="text-2xl font-bold mb-3">{currentLanguage === 'ar' ? 'أهم المميزات' : 'Tour Highlights'}</h2>
+                    {/* إذا كان هناك highlights أو highlightsAr */}
+                    {tour.highlights || tour.highlightsAr ? (
+                      <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+                        {getArrayField(tour.highlights || [], tour.highlightsAr || []).map((highlight: string, index: number) => (
+                          <div key={index} className="flex items-start">
+                            <CheckCircle size={18} className="text-primary mr-2 flex-shrink-0 mt-1" />
+                            <span>{highlight}</span>
+                          </div>
+                        ))}
+                      </div>
+                    ) : null}
                   </div>
-                  
                   <Separator />
-                  
                   <div>
-                    <h2 className="text-2xl font-bold mb-3">Description</h2>
-                    <p className="text-muted-foreground">{tour.description}</p>
+                    <h2 className="text-2xl font-bold mb-3">{currentLanguage === 'ar' ? 'الوصف' : 'Description'}</h2>
+                    <p className="text-muted-foreground">{getField(tour.description, tour.descriptionAr)}</p>
                   </div>
-                  
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                     <Card>
                       <CardHeader>
-                        <CardTitle className="text-lg">What's Included</CardTitle>
+                        <CardTitle className="text-lg">{currentLanguage === 'ar' ? 'يشمل' : "What's Included"}</CardTitle>
                       </CardHeader>
                       <CardContent className="pt-0">
                         <ul className="space-y-2">
-                          {tour.includes.map((item: string, index: number) => (
+                          {getArrayField(tour.included || [], tour.includedAr || []).map((item: string, index: number) => (
                             <li key={index} className="flex items-center">
                               <CheckCircle size={16} className="text-green-500 mr-2" />
                               <span>{item}</span>
@@ -331,14 +334,13 @@ const TourDetailsPage: React.FC = () => {
                         </ul>
                       </CardContent>
                     </Card>
-                    
                     <Card>
                       <CardHeader>
-                        <CardTitle className="text-lg">Not Included</CardTitle>
+                        <CardTitle className="text-lg">{currentLanguage === 'ar' ? 'لا يشمل' : 'Not Included'}</CardTitle>
                       </CardHeader>
                       <CardContent className="pt-0">
                         <ul className="space-y-2">
-                          {tour.notIncludes.map((item: string, index: number) => (
+                          {getArrayField(tour.excluded || [], tour.excludedAr || []).map((item: string, index: number) => (
                             <li key={index} className="flex items-center">
                               <Info size={16} className="text-red-500 mr-2" />
                               <span>{item}</span>
@@ -350,40 +352,23 @@ const TourDetailsPage: React.FC = () => {
                   </div>
                 </div>
               </TabsContent>
-              
               <TabsContent value="itinerary" className="pt-6">
-                <h2 className="text-2xl font-bold mb-6">Tour Itinerary</h2>
+                <h2 className="text-2xl font-bold mb-6">{currentLanguage === 'ar' ? 'برنامج الرحلة' : 'Tour Itinerary'}</h2>
+                {/* عرض البرنامج كنص وليس array */}
                 <div className="space-y-6">
-                  {tour.itinerary.map((day: any, index: number) => (
-                    <Card key={index}>
-                      <CardHeader>
-                        <CardTitle className="flex items-center">
-                          <span className="bg-primary text-white rounded-full w-8 h-8 flex items-center justify-center mr-3">
-                            {day.day}
-                          </span>
-                          <span>{day.title}</span>
-                        </CardTitle>
-                      </CardHeader>
-                      <CardContent>
-                        <p className="text-muted-foreground mb-4">{day.description}</p>
-                        <div className="flex items-center">
-                          <span className="font-medium mr-2">Meals:</span>
-                          <div className="flex gap-2">
-                            {day.meals.map((meal: string, i: number) => (
-                              <Badge key={i} variant="outline">{meal}</Badge>
-                            ))}
-                          </div>
-                        </div>
-                      </CardContent>
-                    </Card>
-                  ))}
+                  <Card>
+                    <CardContent>
+                      <pre className="whitespace-pre-wrap text-base text-muted-foreground">
+                        {getField(tour.itinerary, tour.itineraryAr)}
+                      </pre>
+                    </CardContent>
+                  </Card>
                 </div>
               </TabsContent>
-              
               <TabsContent value="gallery" className="pt-6">
-                <h2 className="text-2xl font-bold mb-6">Tour Gallery</h2>
+                <h2 className="text-2xl font-bold mb-6">{currentLanguage === 'ar' ? 'معرض الصور' : 'Tour Gallery'}</h2>
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                  {tour.galleryImages.map((image: string, index: number) => (
+                  {(tour.galleryUrls || tour.galleryImages)?.map((image: string, index: number) => (
                     <div key={index} className="rounded-lg overflow-hidden h-64">
                       <img 
                         src={image} 
@@ -394,12 +379,12 @@ const TourDetailsPage: React.FC = () => {
                   ))}
                 </div>
               </TabsContent>
-              
               <TabsContent value="reviews" className="pt-6">
                 <div className="flex items-center justify-between mb-6">
-                  <h2 className="text-2xl font-bold">Customer Reviews</h2>
-                  <Button>Write a Review</Button>
+                  <h2 className="text-2xl font-bold">{currentLanguage === 'ar' ? 'تقييمات العملاء' : 'Customer Reviews'}</h2>
+                  <Button>{currentLanguage === 'ar' ? 'أضف تقييمك' : 'Write a Review'}</Button>
                 </div>
+                {/* التقييمات يمكن ربطها لاحقاً بالـ API */}
                 <div className="bg-muted p-6 rounded-lg mb-6">
                   <div className="flex items-center mb-4">
                     <div className="h-12 w-12 rounded-full bg-primary/10 flex items-center justify-center text-primary font-bold mr-4">JD</div>
@@ -420,10 +405,9 @@ const TourDetailsPage: React.FC = () => {
                     </div>
                   </div>
                   <p className="text-muted-foreground">
-                    Absolutely amazing tour! The guide was knowledgeable and friendly. The itinerary was well-planned with enough free time to explore on our own. I learned so much about Egyptian history and culture. Highly recommend!
+                    {currentLanguage === 'ar' ? 'جولة رائعة! الدليل كان ممتازاً والبرنامج منظم.' : 'Absolutely amazing tour! The guide was knowledgeable and friendly. The itinerary was well-planned with enough free time to explore on our own. I learned so much about Egyptian history and culture. Highly recommend!'}
                   </p>
                 </div>
-                
                 <div className="bg-muted p-6 rounded-lg">
                   <div className="flex items-center mb-4">
                     <div className="h-12 w-12 rounded-full bg-primary/10 flex items-center justify-center text-primary font-bold mr-4">SM</div>
@@ -445,13 +429,12 @@ const TourDetailsPage: React.FC = () => {
                     </div>
                   </div>
                   <p className="text-muted-foreground">
-                    Great experience overall. The accommodations were comfortable and the food was delicious. The only reason I'm giving 4 stars instead of 5 is because our flight was delayed and we had to rush through some of the sites. Would definitely book with this company again.
+                    {currentLanguage === 'ar' ? 'تجربة جيدة جداً. الإقامة كانت مريحة والطعام لذيذ.' : 'Great experience overall. The accommodations were comfortable and the food was delicious. The only reason I\'m giving 4 stars instead of 5 is because our flight was delayed and we had to rush through some of the sites. Would definitely book with this company again.'}
                   </p>
                 </div>
               </TabsContent>
             </Tabs>
           </div>
-          
           {/* Sidebar */}
           <div>
             <Card className="sticky top-6">
@@ -459,38 +442,36 @@ const TourDetailsPage: React.FC = () => {
                 <CardTitle className="text-2xl">
                   {tour.currency} {tour.price}
                   <span className="text-sm font-normal ml-1">
-                    {tour.pricePerPerson ? 'per person' : 'total'}
+                    {tour.pricePerPerson ? (currentLanguage === 'ar' ? 'للفرد' : 'per person') : (currentLanguage === 'ar' ? 'الإجمالي' : 'total')}
                   </span>
                 </CardTitle>
                 <CardDescription>
                   <div className="flex items-center mb-1">
                     <Clock size={16} className="mr-1" />
-                    <span>{tour.duration}</span>
+                    <span>{getField(tour.duration, tour.durationAr)}</span>
                   </div>
                   <div className="flex items-center">
                     <Users size={16} className="mr-1" />
-                    <span>Group size: {tour.groupSize}</span>
+                    <span>{currentLanguage === 'ar' ? `عدد الأفراد: ${tour.groupSize}` : `Group size: ${tour.groupSize}`}</span>
                   </div>
                 </CardDescription>
               </CardHeader>
-              
               <CardContent>
                 <div className="mb-4">
-                  <label className="block text-sm font-medium mb-2">Select Date</label>
+                  <label className="block text-sm font-medium mb-2">{currentLanguage === 'ar' ? 'اختر التاريخ' : 'Select Date'}</label>
                   <select className="w-full p-2 border rounded-md">
-                    {tour.tourDates.map((date: any, index: number) => (
+                    {(tour.tourDates || tour.dates)?.map((date: any, index: number) => (
                       <option key={index} value={date.date}>
-                        {date.date} ({date.availability}, {date.spotsLeft} spots left)
+                        {date.date} ({date.availability}, {date.spotsLeft} {currentLanguage === 'ar' ? 'متاح' : 'spots left'})
                       </option>
                     ))}
                   </select>
                 </div>
-                
                 <div className="mb-4">
-                  <label className="block text-sm font-medium mb-2">Travelers</label>
+                  <label className="block text-sm font-medium mb-2">{currentLanguage === 'ar' ? 'المسافرون' : 'Travelers'}</label>
                   <div className="grid grid-cols-2 gap-2">
                     <div>
-                      <label className="block text-xs mb-1">Adults</label>
+                      <label className="block text-xs mb-1">{currentLanguage === 'ar' ? 'بالغين' : 'Adults'}</label>
                       <select className="w-full p-2 border rounded-md">
                         {[1, 2, 3, 4, 5, 6, 7, 8].map(num => (
                           <option key={num} value={num}>{num}</option>
@@ -498,7 +479,7 @@ const TourDetailsPage: React.FC = () => {
                       </select>
                     </div>
                     <div>
-                      <label className="block text-xs mb-1">Children</label>
+                      <label className="block text-xs mb-1">{currentLanguage === 'ar' ? 'أطفال' : 'Children'}</label>
                       <select className="w-full p-2 border rounded-md">
                         {[0, 1, 2, 3, 4, 5].map(num => (
                           <option key={num} value={num}>{num}</option>
@@ -508,14 +489,13 @@ const TourDetailsPage: React.FC = () => {
                   </div>
                 </div>
               </CardContent>
-              
               <CardFooter className="flex-col space-y-3">
                 <BookTourButton tour={tour} className="w-full" />
                 <Button variant="outline" className="w-full">
-                  <Heart size={16} className="mr-2" /> Add to Wishlist
+                  <Heart size={16} className="mr-2" /> {currentLanguage === 'ar' ? 'أضف للمفضلة' : 'Add to Wishlist'}
                 </Button>
                 <div className="text-center text-sm text-muted-foreground">
-                  Free cancellation up to 24 hours before the tour
+                  {currentLanguage === 'ar' ? 'إلغاء مجاني حتى 24 ساعة قبل الرحلة' : 'Free cancellation up to 24 hours before the tour'}
                 </div>
               </CardFooter>
             </Card>

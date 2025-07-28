@@ -43,9 +43,6 @@ import {
   Bookmark,
 } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
-import IncludedTours from "@/components/IncludedTours";
-import OptionalTours from "@/components/OptionalTours";
-import EnhancedPriceCalculation from "@/components/EnhancedPriceCalculation";
 
 // Simplified Package type for manual packages
 type ManualPackage = {
@@ -934,29 +931,6 @@ export default function ManualPackageDetail() {
                 </Card>
               )}
 
-            {/* Price Breakdown */}
-            <Card>
-              <CardHeader>
-                <CardTitle className="flex items-center gap-2">
-                  <Star className="h-5 w-5" />
-                  Price Breakdown
-                </CardTitle>
-              </CardHeader>
-              <CardContent>
-                <EnhancedPriceCalculation 
-                  packageData={packageData}
-                  adults={2}
-                  children={0}
-                  infants={0}
-                  hotelPackage=""
-                  selectedRooms={[]}
-                  dateMode="range"
-                  startDate={packageData.startDate}
-                  endDate={packageData.endDate}
-                />
-              </CardContent>
-            </Card>
-
             {/* Transportation */}
             {packageData.transportation && (
               <Card>
@@ -999,34 +973,6 @@ export default function ManualPackageDetail() {
                     <span>Email</span>
                   </div>
                 </div>
-              </CardContent>
-            </Card>
-
-            {/* Included Tours with Pricing */}
-            {packageData.selectedTourId || packageData.tourSelection ? (
-              <Card>
-                <CardHeader>
-                  <CardTitle className="flex items-center gap-2">
-                    <MapPin className="h-5 w-5" />
-                    Included Tours with Pricing
-                  </CardTitle>
-                </CardHeader>
-                <CardContent>
-                  <IncludedTours packageData={packageData} />
-                </CardContent>
-              </Card>
-            ) : null}
-
-            {/* Optional Tours & Activities */}
-            <Card>
-              <CardHeader>
-                <CardTitle className="flex items-center gap-2">
-                  <MapPin className="h-5 w-5" />
-                  Optional Tours & Activities
-                </CardTitle>
-              </CardHeader>
-              <CardContent>
-                <OptionalTours packageData={packageData} />
               </CardContent>
             </Card>
 

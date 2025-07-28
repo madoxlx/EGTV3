@@ -53,6 +53,15 @@ import {
   whyChooseUsSections,
   WhyChooseUsSection,
   InsertWhyChooseUsSection,
+  transportation,
+  Transport,
+  InsertTransport,
+  transportLocations,
+  TransportLocation,
+  InsertTransportLocation,
+  transportDurations,
+  TransportDuration,
+  InsertTransportDuration,
 } from "@shared/schema";
 import { db, pool } from "./db";
 import { eq, and, desc, asc, sql } from "drizzle-orm";
@@ -215,6 +224,27 @@ export interface IStorage {
   createRoomCategory(category: InsertRoomCategory): Promise<RoomCategory>;
   updateRoomCategory(id: number, category: Partial<InsertRoomCategory>): Promise<RoomCategory | undefined>;
   deleteRoomCategory(id: number): Promise<boolean>;
+
+  // --- Transportation ---
+  listTransportation(): Promise<any[]>;
+  getTransportation(id: number): Promise<any | undefined>;
+  createTransportation(data: any): Promise<any>;
+  updateTransportation(id: number, data: any): Promise<any | undefined>;
+  deleteTransportation(id: number): Promise<boolean>;
+
+  // --- Transport Locations ---
+  listTransportLocations(): Promise<any[]>;
+  getTransportLocation(id: number): Promise<any | undefined>;
+  createTransportLocation(data: any): Promise<any>;
+  updateTransportLocation(id: number, data: any): Promise<any | undefined>;
+  deleteTransportLocation(id: number): Promise<boolean>;
+
+  // --- Transport Durations ---
+  listTransportDurations(): Promise<any[]>;
+  getTransportDuration(id: number): Promise<any | undefined>;
+  createTransportDuration(data: any): Promise<any>;
+  updateTransportDuration(id: number, data: any): Promise<any | undefined>;
+  deleteTransportDuration(id: number): Promise<boolean>;
 }
 
 export class DatabaseStorage implements IStorage {
@@ -2205,6 +2235,156 @@ export class DatabaseStorage implements IStorage {
       return true;
     } catch (error) {
       console.error(`Error deleting room category with ID ${id}:`, error);
+      return false;
+    }
+  }
+
+  // --- Transportation ---
+  async listTransportation(): Promise<any[]> {
+    try {
+      return await db.select().from(transportation).orderBy(transportation.id);
+    } catch (error) {
+      console.error("Error listing transportation:", error);
+      return [];
+    }
+  }
+
+  async getTransportation(id: number): Promise<any | undefined> {
+    try {
+      const [item] = await db.select().from(transportation).where(eq(transportation.id, id));
+      return item || undefined;
+    } catch (error) {
+      console.error("Error getting transportation:", error);
+      return undefined;
+    }
+  }
+
+  async createTransportation(data: any): Promise<any> {
+    try {
+      const [created] = await db.insert(transportation).values(data).returning();
+      return created;
+    } catch (error) {
+      console.error("Error creating transportation:", error);
+      throw error;
+    }
+  }
+
+  async updateTransportation(id: number, data: any): Promise<any | undefined> {
+    try {
+      const [updated] = await db.update(transportation).set(data).where(eq(transportation.id, id)).returning();
+      return updated || undefined;
+    } catch (error) {
+      console.error("Error updating transportation:", error);
+      return undefined;
+    }
+  }
+
+  async deleteTransportation(id: number): Promise<boolean> {
+    try {
+      await db.delete(transportation).where(eq(transportation.id, id));
+      return true;
+    } catch (error) {
+      console.error("Error deleting transportation:", error);
+      return false;
+    }
+  }
+
+  // --- Transport Locations ---
+  async listTransportLocations(): Promise<any[]> {
+    try {
+      return await db.select().from(transportLocations).orderBy(transportLocations.id);
+    } catch (error) {
+      console.error("Error listing transport locations:", error);
+      return [];
+    }
+  }
+
+  async getTransportLocation(id: number): Promise<any | undefined> {
+    try {
+      const [item] = await db.select().from(transportLocations).where(eq(transportLocations.id, id));
+      return item || undefined;
+    } catch (error) {
+      console.error("Error getting transport location:", error);
+      return undefined;
+    }
+  }
+
+  async createTransportLocation(data: any): Promise<any> {
+    try {
+      const [created] = await db.insert(transportLocations).values(data).returning();
+      return created;
+    } catch (error) {
+      console.error("Error creating transport location:", error);
+      throw error;
+    }
+  }
+
+  async updateTransportLocation(id: number, data: any): Promise<any | undefined> {
+    try {
+      const [updated] = await db.update(transportLocations).set(data).where(eq(transportLocations.id, id)).returning();
+      return updated || undefined;
+    } catch (error) {
+      console.error("Error updating transport location:", error);
+      return undefined;
+    }
+  }
+
+  async deleteTransportLocation(id: number): Promise<boolean> {
+    try {
+      await db.delete(transportLocations).where(eq(transportLocations.id, id));
+      return true;
+    } catch (error) {
+      console.error("Error deleting transport location:", error);
+      return false;
+    }
+  }
+
+  // --- Transport Durations ---
+  async listTransportDurations(): Promise<any[]> {
+    try {
+      return await db.select().from(transportDurations).orderBy(transportDurations.id);
+    } catch (error) {
+      console.error("Error listing transport durations:", error);
+      return [];
+    }
+  }
+
+  async getTransportDuration(id: number): Promise<any | undefined> {
+    try {
+      const [item] = await db.select().from(transportDurations).where(eq(transportDurations.id, id));
+      return item || undefined;
+    } catch (error) {
+      console.error("Error getting transport duration:", error);
+      return undefined;
+    }
+  }
+
+  async createTransportDuration(data: any): Promise<any> {
+    try {
+      const [created] = await db.insert(transportDurations).values(data).returning();
+      return created;
+    } catch (error) {
+      console.error("Error creating transport duration:", error);
+      throw error;
+    }
+  }
+
+  async updateTransportDuration(id: number, data: any): Promise<any | undefined> {
+    try {
+      const [updated] = await db.update(transportDurations).set(data).where(eq(transportDurations.id, id)).returning();
+      return updated || undefined;
+    } catch (error) {
+      console.error("Error updating transport duration:", error);
+      return undefined;
+    }
+  }
+
+  async deleteTransportDuration(id: number): Promise<boolean> {
+    try {
+      await db.delete(transportDurations).where(eq(transportDurations.id, id));
+      return true;
+    } catch (error) {
+      console.error("Error deleting transport duration:", error);
       return false;
     }
   }

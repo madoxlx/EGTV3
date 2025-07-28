@@ -216,7 +216,6 @@ export const destinations = pgTable("destinations", {
 export const packages = pgTable("packages", {
   id: serial("id").primaryKey(),
   title: text("title").notNull(),
-  description: text("description").notNull(),
   shortDescription: text("short_description"),
   overview: text("overview"),
   price: integer("price").notNull(),

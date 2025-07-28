@@ -116,215 +116,185 @@ import { useLocation } from "wouter";
 import { IconSelector } from "@/components/ui/IconSelector";
 
 // Validation schema - Made more permissive to allow custom validation logic
-const packageFormSchema = z
-  .object({
-    // Basic fields
-    title: z
-      .string()
-      .min(3, { message: "Title must be at least 3 characters" }),
-    description: z.string().optional(), // Made optional since the form doesn't have this field
-    shortDescription: z.string().optional(),
-    overview: z
-      .string()
-      .min(10, { message: "Overview should be at least 10 characters" }),
-    price: z.coerce
-      .number()
-      .min(0, { message: "Price must be a positive number" }),
-    markup: z.coerce.number().min(0).optional().nullable(),
-    markupType: z.enum(["percentage", "fixed"]).default("percentage"),
-    currency: z.string().default("EGP"),
-    imageUrl: z.string().optional(),
-    galleryUrls: z.array(z.string()).optional(),
-    duration: z.coerce
-      .number()
-      .min(1, { message: "Duration must be at least 1 day" }),
-    durationType: z.string().default("days"),
-    rating: z.coerce.number().min(0).max(5).optional().nullable(),
-    reviewCount: z.coerce.number().min(0).optional().nullable(),
+const packageFormSchema = z.object({
+  // Basic fields
+  title: z.string().min(3, { message: "Title must be at least 3 characters" }),
+  shortDescription: z.string().optional(),
+  overview: z.string().min(10, { message: "Overview should be at least 10 characters" }),
+  price: z.coerce
+    .number()
+    .min(0, { message: "Price must be a positive number" }),
+  markup: z.coerce.number().min(0).optional().nullable(),
+  markupType: z.enum(["percentage", "fixed"]).default("percentage"),
+  currency: z.string().default("EGP"),
+  imageUrl: z.string().optional(),
+  galleryUrls: z.array(z.string()).optional(),
+  duration: z.coerce
+    .number()
+    .min(1, { message: "Duration must be at least 1 day" }),
+  durationType: z.string().default("days"),
+  rating: z.coerce.number().min(0).max(5).optional().nullable(),
+  reviewCount: z.coerce.number().min(0).optional().nullable(),
 
-    // Location fields
-    destinationId: z.coerce.number().positive().optional().nullable(),
-    countryId: z.coerce.number().optional().nullable(),
-    cityId: z.coerce.number().optional().nullable(),
-    categoryId: z.coerce.number().optional().nullable(),
-    category: z.string().optional(),
+  // Location fields
+  destinationId: z.coerce.number().positive().optional().nullable(),
+  countryId: z.coerce.number().optional().nullable(),
+  cityId: z.coerce.number().optional().nullable(),
+  categoryId: z.coerce.number().optional().nullable(),
+  category: z.string().optional(),
 
-    // Date fields
-    startDate: z.date().optional(),
-    endDate: z.date().optional(),
-    validUntil: z.date().optional(),
+  // Date fields
+  startDate: z.date().optional(),
+  endDate: z.date().optional(),
+  validUntil: z.date().optional(),
 
-    // Route and metadata
-    route: z.string().optional(),
-    type: z.string().optional(),
-    maxGroupSize: z.coerce
-      .number()
-      .min(1, { message: "Group size must be at least 1" })
-      .optional(),
-    language: z.string().optional(),
-    bestTimeToVisit: z.string().optional(),
+  // Route and metadata
+  route: z.string().optional(),
+  type: z.string().optional(),
+  maxGroupSize: z.coerce
+    .number()
+    .min(1, { message: "Group size must be at least 1" })
+    .optional(),
+  language: z.string().optional(),
+  bestTimeToVisit: z.string().optional(),
 
-    // Complex fields
-    idealFor: z.array(z.string()).optional(),
-    whatToPack: z
-      .array(
-        z.object({
-          item: z.string(),
-          icon: z.string().optional(),
-          tooltip: z.string().optional(),
-        }),
-      )
-      .optional(),
-    itinerary: z
-      .array(
-        z.object({
-          day: z.number(),
-          title: z.string(),
-          description: z.string(),
-          image: z.string().optional(),
-        }),
-      )
-      .optional(),
-    inclusions: z.array(z.string()).optional(),
-    includedFeatures: z.array(z.string()).optional(),
-    excludedFeatures: z.array(z.string()).optional(),
-    excludedItems: z.array(z.string()).optional(),
-    optionalExcursions: z.array(z.string()).optional(),
-    travelRoute: z.array(z.string()).optional(),
-    accommodationHighlights: z
-      .array(
-        z.object({
-          title: z.string(),
-          description: z.string(),
-          icon: z.string().optional(),
-        }),
-      )
-      .optional(),
-    transportationDetails: z.array(z.string()).optional(),
+  // Complex fields
+  idealFor: z.array(z.string()).optional(),
+  whatToPack: z
+    .array(
+      z.object({
+        item: z.string(),
+        icon: z.string().optional(),
+        tooltip: z.string().optional(),
+      }),
+    )
+    .optional(),
+  itinerary: z
+    .array(
+      z.object({
+        day: z.number(),
+        title: z.string(),
+        description: z.string(),
+        image: z.string().optional(),
+      }),
+    )
+    .optional(),
+  inclusions: z.array(z.string()).optional(),
+  includedFeatures: z.array(z.string()).optional(),
+  excludedFeatures: z.array(z.string()).optional(),
+  excludedItems: z.array(z.string()).optional(),
+  optionalExcursions: z.array(z.string()).optional(),
+  travelRoute: z.array(z.string()).optional(),
+  accommodationHighlights: z
+    .array(
+      z.object({
+        title: z.string(),
+        description: z.string(),
+        icon: z.string().optional(),
+      }),
+    )
+    .optional(),
+  transportationDetails: z.array(z.string()).optional(),
 
-    // Transportation
-    transportation: z.string().optional(),
-    transportationPrice: z.coerce.number().optional(),
+  // Transportation
+  transportation: z.string().optional(),
+  transportationPrice: z.coerce.number().optional(),
 
-    // Hotel and room selections
-    selectedHotels: z.array(z.string()).optional(),
-    rooms: z
-      .array(
-        z.object({
-          id: z.string(),
-          name: z.string(),
-          hotelId: z.string(),
-          hotelName: z.string(),
-          price: z.coerce.number(),
-          customPrice: z.number().optional(),
-          originalPrice: z.number().optional(),
-          maxOccupancy: z.number().optional(),
-          maxAdults: z.number().optional(),
-          maxChildren: z.number().optional(),
-          maxInfants: z.number().optional(),
-          amenities: z.array(z.string()).optional(),
-          bedType: z.string().optional(),
-          view: z.string().optional(),
-          size: z.string().optional(),
-        }),
-      )
-      .optional(),
+  // Hotel and room selections
+  selectedHotels: z.array(z.string()).optional(),
+  rooms: z
+    .array(
+      z.object({
+        id: z.string(),
+        name: z.string(),
+        hotelId: z.string(),
+        hotelName: z.string(),
+        price: z.coerce.number(),
+        customPrice: z.number().optional(),
+        originalPrice: z.number().optional(),
+        maxOccupancy: z.number().optional(),
+        maxAdults: z.number().optional(),
+        maxChildren: z.number().optional(),
+        maxInfants: z.number().optional(),
+        amenities: z.array(z.string()).optional(),
+        bedType: z.string().optional(),
+        view: z.string().optional(),
+        size: z.string().optional(),
+      }),
+    )
+    .optional(),
 
-    // Tour selection
-    tourSelection: z.array(z.string()).optional(),
-    selectedTourId: z.number().optional(),
-    selectedTourIds: z.array(z.number()).optional(),
+  // Tour selection
+  tourSelection: z.array(z.string()).optional(),
+  selectedTourId: z.number().optional(),
+  selectedTourIds: z.array(z.number()).optional(),
 
-    // Traveler counts
-    adultCount: z.coerce
-      .number()
-      .min(1, { message: "At least 1 adult is required" }),
-    childrenCount: z.coerce.number().min(0, { message: "Cannot be negative" }),
-    infantCount: z.coerce.number().min(0, { message: "Cannot be negative" }),
+  // Traveler counts
+  adultCount: z.coerce
+    .number()
+    .min(1, { message: "At least 1 adult is required" }),
+  childrenCount: z.coerce.number().min(0, { message: "Cannot be negative" }),
+  infantCount: z.coerce.number().min(0, { message: "Cannot be negative" }),
 
-    // Pricing
-    // pricingMode: z.enum(["per_booking", "per_percentage", "per_amount"]), // حذف - غير مطلوب
+  // Pricing
+            // pricingMode: z.enum(["per_booking", "per_percentage", "per_amount"]), // حذف - غير مطلوب
 
-    // Status
-    featured: z.boolean().default(false),
-    slug: z.string().optional(),
+  // Status
+  featured: z.boolean().default(false),
+  slug: z.string().optional(),
+  
+  // Policy fields - These were missing from the schema
+  cancellationPolicy: z.string().optional(),
+  childrenPolicy: z.string().optional(),
+  termsAndConditions: z.string().optional(),
+  customText: z.string().optional(),
 
-    // Policy fields - These were missing from the schema
-    cancellationPolicy: z.string().optional(),
-    childrenPolicy: z.string().optional(),
-    termsAndConditions: z.string().optional(),
-    customText: z.string().optional(),
-
-    // Arabic translation fields
-    hasArabicVersion: z.boolean().default(false),
-    titleAr: z.string().optional(),
-    descriptionAr: z.string().optional(),
-    shortDescriptionAr: z.string().optional(),
-    overviewAr: z.string().optional(),
-    bestTimeToVisitAr: z.string().optional(),
-    cancellationPolicyAr: z.string().optional(),
-    childrenPolicyAr: z.string().optional(),
-    termsAndConditionsAr: z.string().optional(),
-    customTextAr: z.string().optional(),
-    includedFeaturesAr: z.array(z.string()).optional(),
-    excludedFeaturesAr: z.array(z.string()).optional(),
-    idealForAr: z.array(z.string()).optional(),
-    itineraryAr: z
-      .array(
-        z.object({
-          day: z.number(),
-          title: z.string(),
-          description: z.string(),
-          image: z.string().optional(),
-        }),
-      )
-      .optional(),
-    whatToPackAr: z
-      .array(
-        z.object({
-          item: z.string(),
-          icon: z.string().optional(),
-          tooltip: z.string().optional(),
-        }),
-      )
-      .optional(),
-    travelRouteAr: z
-      .array(
-        z.object({
-          order: z.number(),
-          location: z.string(),
-          description: z.string(),
-          estimatedTime: z.string().optional(),
-        }),
-      )
-      .optional(),
-    optionalExcursionsAr: z
-      .array(
-        z.object({
-          name: z.string(),
-          price: z.number(),
-          description: z.string().optional(),
-        }),
-      )
-      .optional(),
-  })
-  .refine(
-    (data) => {
-      // Require at least one image: either imageUrl or at least one URL in galleryUrls
-      const hasMainImage = data.imageUrl && data.imageUrl.trim() !== "";
-      const hasGalleryImages =
-        data.galleryUrls &&
-        Array.isArray(data.galleryUrls) &&
-        data.galleryUrls.length > 0;
-
-      return hasMainImage || hasGalleryImages;
-    },
-    {
-      message:
-        "At least one image is required. Please provide either a main image or add images to the gallery.",
-      path: ["imageUrl"], // This will show the error on the imageUrl field
-    },
-  );
+  // Arabic translation fields
+  hasArabicVersion: z.boolean().default(false),
+  titleAr: z.string().optional(),
+  descriptionAr: z.string().optional(),
+  shortDescriptionAr: z.string().optional(),
+  overviewAr: z.string().optional(),
+  bestTimeToVisitAr: z.string().optional(),
+  cancellationPolicyAr: z.string().optional(),
+  childrenPolicyAr: z.string().optional(),
+  termsAndConditionsAr: z.string().optional(),
+  customTextAr: z.string().optional(),
+  includedFeaturesAr: z.array(z.string()).optional(),
+  excludedFeaturesAr: z.array(z.string()).optional(),
+  idealForAr: z.array(z.string()).optional(),
+  itineraryAr: z.array(z.object({
+    day: z.number(),
+    title: z.string(),
+    description: z.string(),
+    image: z.string().optional(),
+  })).optional(),
+  whatToPackAr: z.array(z.object({
+    item: z.string(),
+    icon: z.string().optional(),
+    tooltip: z.string().optional(),
+  })).optional(),
+  travelRouteAr: z.array(z.object({
+    order: z.number(),
+    location: z.string(),
+    description: z.string(),
+    estimatedTime: z.string().optional(),
+  })).optional(),
+  optionalExcursionsAr: z.array(z.object({
+    name: z.string(),
+    price: z.number(),
+    description: z.string().optional(),
+  })).optional(),
+}).refine((data) => {
+  // Require at least one image: either imageUrl or at least one URL in galleryUrls
+  const hasMainImage = data.imageUrl && data.imageUrl.trim() !== '';
+  const hasGalleryImages = data.galleryUrls && Array.isArray(data.galleryUrls) && data.galleryUrls.length > 0;
+  
+  return hasMainImage || hasGalleryImages;
+}, {
+  message: "At least one image is required. Please provide either a main image or add images to the gallery.",
+  path: ["imageUrl"] // This will show the error on the imageUrl field
+});
 
 type PackageFormValues = z.infer<typeof packageFormSchema>;
 
@@ -344,14 +314,14 @@ const features = [
   { id: "welcome_drink", label: "Welcome Drink" },
   { id: "traditional_meal", label: "Traditional Local Cuisine" },
   { id: "cooking_class", label: "Cooking Class Experience" },
-
+  
   // Transportation
   { id: "airport_transfer", label: "Airport Transfer" },
   { id: "private_transport", label: "Private Transportation" },
   { id: "train_tickets", label: "Train Tickets Included" },
   { id: "domestic_flights", label: "Domestic Flights" },
   { id: "car_rental", label: "Car Rental Included" },
-
+  
   // Accommodation Features
   { id: "wifi", label: "Free Wi-Fi" },
   { id: "spa_access", label: "Spa & Wellness Access" },
@@ -359,7 +329,7 @@ const features = [
   { id: "gym_access", label: "Fitness Center Access" },
   { id: "room_upgrade", label: "Room Upgrade Included" },
   { id: "concierge", label: "Concierge Services" },
-
+  
   // Tours & Activities
   { id: "city_tour", label: "City Tour" },
   { id: "museum_tickets", label: "Museum Entry Tickets" },
@@ -370,7 +340,7 @@ const features = [
   { id: "cultural_show", label: "Cultural Performance Show" },
   { id: "shopping_tour", label: "Shopping Tour" },
   { id: "photography_session", label: "Professional Photography" },
-
+  
   // Services & Support
   { id: "tour_guide", label: "Professional Tour Guide" },
   { id: "multilingual_guide", label: "Multilingual Guide Support" },
@@ -378,7 +348,7 @@ const features = [
   { id: "local_sim", label: "Local SIM Card" },
   { id: "luggage_handling", label: "Luggage Handling Service" },
   { id: "travel_kit", label: "Travel Kit & Amenities" },
-
+  
   // Special Experiences
   { id: "sunset_viewing", label: "Sunset Viewing Experience" },
   { id: "stargazing", label: "Stargazing Activity" },
@@ -386,13 +356,13 @@ const features = [
   { id: "helicopter_tour", label: "Helicopter Tour" },
   { id: "diving_snorkeling", label: "Diving/Snorkeling Activity" },
   { id: "adventure_sports", label: "Adventure Sports" },
-
+  
   // Cultural & Educational
   { id: "cultural_immersion", label: "Cultural Immersion Experience" },
   { id: "language_lesson", label: "Local Language Lessons" },
   { id: "artisan_workshop", label: "Local Artisan Workshop" },
   { id: "historical_lecture", label: "Historical Lectures" },
-
+  
   // Optional Services
   { id: "excursion", label: "Optional Excursions" },
   { id: "souvenir_package", label: "Souvenir Package" },
@@ -405,21 +375,21 @@ const excludedItems = [
   { id: "passport", label: "Passport Processing" },
   { id: "insurance", label: "Travel Insurance" },
   { id: "vaccination", label: "Vaccination Costs" },
-
+  
   // Meals & Beverages
   { id: "meals", label: "Additional Meals" },
   { id: "drinks", label: "Alcoholic Beverages" },
   { id: "room_service", label: "Room Service" },
   { id: "special_diet", label: "Special Dietary Requirements" },
   { id: "snacks", label: "Snacks & Refreshments" },
-
+  
   // Transportation
   { id: "excess_baggage", label: "Excess Baggage Fees" },
   { id: "seat_upgrade", label: "Flight Seat Upgrades" },
   { id: "taxi_fares", label: "Local Taxi Fares" },
   { id: "fuel_surcharge", label: "Fuel Surcharges" },
   { id: "parking_fees", label: "Parking Fees" },
-
+  
   // Personal & Services
   { id: "tips", label: "Tips and Gratuities" },
   { id: "personal", label: "Personal Expenses" },
@@ -428,7 +398,7 @@ const excludedItems = [
   { id: "internet", label: "Premium Internet Access" },
   { id: "spa_treatments", label: "Spa Treatments" },
   { id: "minibar", label: "Minibar Consumption" },
-
+  
   // Activities & Entertainment
   { id: "extras", label: "Optional Activities" },
   { id: "entrance_fees", label: "Additional Entrance Fees" },
@@ -437,12 +407,12 @@ const excludedItems = [
   { id: "shopping", label: "Shopping & Souvenirs" },
   { id: "entertainment", label: "Evening Entertainment" },
   { id: "excursions", label: "Optional Day Excursions" },
-
+  
   // Medical & Emergency
   { id: "medical", label: "Medical Expenses" },
   { id: "emergency", label: "Emergency Evacuation" },
   { id: "medication", label: "Personal Medication" },
-
+  
   // Accommodation Extras
   { id: "room_upgrade_fees", label: "Room Upgrade Fees" },
   { id: "early_checkin", label: "Early Check-in Fees" },
@@ -505,6 +475,9 @@ interface Tour {
   duration?: number;
   status?: string;
   destination_id?: number;
+  adultPrice?: number;
+  childPrice?: number;
+  infantPrice?: number;
 }
 
 export function PackageCreatorForm({
@@ -531,6 +504,8 @@ export function PackageCreatorForm({
   const [isInitialized, setIsInitialized] = useState<boolean>(false);
   const [isAutoTranslating, setIsAutoTranslating] = useState(false);
   const [currentTranslationIndex, setCurrentTranslationIndex] = useState(0);
+  const [translationQueue, setTranslationQueue] = useState<Array<{id: string, text: string, fieldType: string}>>([]);
+
 
   // Tour selection variables
   const [tourSearchQuery, setTourSearchQuery] = useState<string>("");
@@ -559,19 +534,15 @@ export function PackageCreatorForm({
   >([]);
   const [optionalExcursions, setOptionalExcursions] = useState<string[]>([]);
   const [newExcursion, setNewExcursion] = useState<string>("");
-
+  
   // Custom features state
   const [newIncludedFeature, setNewIncludedFeature] = useState<string>("");
   const [newExcludedFeature, setNewExcludedFeature] = useState<string>("");
-  const [customIncludedFeatures, setCustomIncludedFeatures] = useState<
-    string[]
-  >([]);
-  const [customExcludedFeatures, setCustomExcludedFeatures] = useState<
-    string[]
-  >([]);
+  const [customIncludedFeatures, setCustomIncludedFeatures] = useState<string[]>([]);
+  const [customExcludedFeatures, setCustomExcludedFeatures] = useState<string[]>([]);
   const [travelRouteItems, setTravelRouteItems] = useState<string[]>([]);
   const [newRouteStop, setNewRouteStop] = useState<string>("");
-
+  
   // Custom traveler types state
   const [newTravelerType, setNewTravelerType] = useState<string>("");
   const [customTravelerTypes, setCustomTravelerTypes] = useState<string[]>([]);
@@ -714,7 +685,7 @@ export function PackageCreatorForm({
           }
           const data = await response.json();
           console.log("Fetched package data:", data);
-
+          
           // Log policy fields specifically for debugging
           console.log("Policy fields in fetched data:", {
             cancellationPolicy: data.cancellationPolicy || "NOT FOUND",
@@ -722,7 +693,7 @@ export function PackageCreatorForm({
             termsAndConditions: data.termsAndConditions || "NOT FOUND",
             customText: data.customText || "NOT FOUND",
           });
-
+          
           return data;
         } catch (error) {
           console.error("Error fetching package:", error);
@@ -754,7 +725,6 @@ export function PackageCreatorForm({
     resolver: zodResolver(packageFormSchema),
     defaultValues: {
       title: "",
-      description: "",
       shortDescription: "",
       overview: "",
       price: 0,
@@ -800,7 +770,6 @@ export function PackageCreatorForm({
       adultCount: 2,
       childrenCount: 0,
       infantCount: 0,
-      pricingMode: "per_booking",
       featured: false,
       slug: "",
       // Policy fields
@@ -846,48 +815,25 @@ export function PackageCreatorForm({
         }
       }
 
-      // Handle gallery URLs
+      // Handle gallery URLs - استخدم formData.galleryUrls بدلاً من المتغير المحلي
       let galleryUrls: string[] = [];
 
-      if (
-        isEditMode &&
-        existingPackageData &&
-        existingPackageData.galleryUrls
-      ) {
-        // For edit mode, if we already have gallery URLs in the database, start with those
-        try {
-          // Parse the existing gallery URLs
-          const existingGalleryUrls: string[] =
-            typeof existingPackageData.galleryUrls === "string"
-              ? JSON.parse(existingPackageData.galleryUrls)
-              : (existingPackageData.galleryUrls as string[]) || [];
-
-          // Then add all non-blob URLs from the images array
-          const validNewUrls = images
-            .map((img) => img.preview)
-            .filter((url) => !url.startsWith("blob:"));
-
-          // Merge the two lists, filtering out duplicates
-          // Use Array.from to properly handle the Set to Array conversion for TypeScript
-          galleryUrls = Array.from(
-            new Set([...existingGalleryUrls, ...validNewUrls]),
-          );
-        } catch (e) {
-          console.error("Error parsing galleryUrls:", e);
-          galleryUrls = [];
-        }
+      // أولاً: استخدم galleryUrls من النموذج إذا كان موجوداً
+      if (formData.galleryUrls && Array.isArray(formData.galleryUrls)) {
+        galleryUrls = formData.galleryUrls.filter(url => url && !url.startsWith("blob:"));
+        console.log("📸 Using galleryUrls from form:", galleryUrls);
       } else {
-        // For new packages, just use valid URLs
+        // إذا لم يكن موجوداً في النموذج، استخدم الصور الحالية
         galleryUrls = images
           .map((img) => img.preview)
-          .filter((url) => !url.startsWith("blob:"));
+          .filter((url) => url && !url.startsWith("blob:"));
+        console.log("📸 Using galleryUrls from images state:", galleryUrls);
       }
 
       // Transform the form data to match the API schema
       // Log current form values for debugging
       console.log("Form submission values:", {
         title: formData.title,
-        description: formData.description,
         price: formData.price,
         countryId: formData.countryId,
         cityId: formData.cityId,
@@ -905,8 +851,7 @@ export function PackageCreatorForm({
         // Basic package information
         title: formData.title,
         shortDescription: formData.shortDescription || "",
-        description: formData.description,
-        overview: formData.overview || formData.description,
+        overview: formData.overview || "",
         price: formData.price || 0,
         // Map markup fields to existing database schema
         discountType: formData.markupType || "percentage",
@@ -917,9 +862,7 @@ export function PackageCreatorForm({
         galleryUrls: galleryUrls,
 
         // Location and categorization
-        destinationId:
-          formData.destinationId ||
-          (formData.category ? parseInt(formData.category) : null),
+        destinationId: formData.destinationId || (formData.category ? parseInt(formData.category) : null),
         category: formData.category, // Map to categoryId on server
         categoryId: formData.categoryId,
         countryId: countryId,
@@ -932,15 +875,14 @@ export function PackageCreatorForm({
         // Travel details
         duration: formData.duration,
         durationType: formData.durationType,
-        startDate: formData.startDate
-          ? new Date(formData.startDate).toISOString()
-          : new Date().toISOString(),
-        endDate: formData.endDate
-          ? new Date(formData.endDate).toISOString()
-          : new Date(Date.now() + 7 * 24 * 60 * 60 * 1000).toISOString(),
-        validUntil: formData.validUntil
-          ? new Date(formData.validUntil).toISOString()
-          : new Date(Date.now() + 6 * 30 * 24 * 60 * 60 * 1000).toISOString(), // Default to 6 months from now
+        startDate:
+          formData.startDate ? new Date(formData.startDate).toISOString() : new Date().toISOString(),
+        endDate:
+          formData.endDate ? new Date(formData.endDate).toISOString() :
+          new Date(Date.now() + 7 * 24 * 60 * 60 * 1000).toISOString(),
+        validUntil:
+          formData.validUntil ? new Date(formData.validUntil).toISOString() :
+          new Date(Date.now() + 6 * 30 * 24 * 60 * 60 * 1000).toISOString(), // Default to 6 months from now
 
         // Traveler information
         idealFor: customTravelerTypes,
@@ -962,19 +904,13 @@ export function PackageCreatorForm({
         travelRoute: travelRouteItems,
 
         // Tour selection with separate pricing
-        tourSelection:
-          selectedTours.length > 0
-            ? selectedTours.map((t) => ({
-                id: t.id,
-                adultPrice: t.adultPrice || t.price,
-                childPrice: t.childPrice || Math.round(t.price * 0.7),
-                infantPrice: t.infantPrice || 0,
-              }))
-            : formData.selectedTourIds,
-        selectedTourIds:
-          selectedTours.length > 0
-            ? selectedTours.map((t) => t.id)
-            : formData.selectedTourIds,
+        tourSelection: selectedTours.length > 0 ? selectedTours.map(t => ({
+          id: t.id,
+          adultPrice: t.price,
+          childPrice: Math.round(t.price * 0.7),
+          infantPrice: 0
+        })) : formData.selectedTourIds,
+        selectedTourIds: selectedTours.length > 0 ? selectedTours.map(t => t.id) : formData.selectedTourIds,
 
         // Hotel and room selections
         selectedHotels: formData.selectedHotels || [],
@@ -986,7 +922,7 @@ export function PackageCreatorForm({
         transportationDetails: formData.transportationDetails || [],
 
         // Pricing and metadata
-        // pricingMode: formData.pricingMode || "per_booking", // حذف - غير مطلوب
+                  // pricingMode: formData.pricingMode || "per_booking", // حذف - غير مطلوب
         language: formData.language || "english",
         bestTimeToVisit: formData.bestTimeToVisit || "",
 
@@ -1022,15 +958,54 @@ export function PackageCreatorForm({
       };
 
       // Log final payload for debugging
-      console.log("Package payload:", packagePayload);
-
-      // Log policy fields specifically in payload
-      console.log("Policy fields in payload:", {
-        cancellationPolicy: packagePayload.cancellationPolicy,
-        childrenPolicy: packagePayload.childrenPolicy,
-        termsAndConditions: packagePayload.termsAndConditions,
-        customText: packagePayload.customText,
+      console.log("=== 🚀 PACKAGE PAYLOAD LOG ===");
+      console.log("📦 Payload Basic Info:", {
+        title: packagePayload.title,
+        shortDescription: packagePayload.shortDescription,
+        overview: packagePayload.overview,
+        bestTimeToVisit: packagePayload.bestTimeToVisit,
       });
+      
+      console.log("📋 Payload Policy Fields:", {
+        cancellationPolicy: packagePayload.cancellationPolicy || "NOT SENT",
+        childrenPolicy: packagePayload.childrenPolicy || "NOT SENT",
+        termsAndConditions: packagePayload.termsAndConditions || "NOT SENT",
+        customText: packagePayload.customText || "NOT SENT",
+      });
+      
+      console.log("🌍 Payload Location Info:", {
+        countryId: packagePayload.countryId,
+        cityId: packagePayload.cityId,
+        destinationId: packagePayload.destinationId,
+        categoryId: packagePayload.categoryId,
+      });
+      
+      console.log("🔤 Payload Arabic Fields:", {
+        hasArabicVersion: packagePayload.hasArabicVersion,
+        titleAr: packagePayload.titleAr || "NOT SENT",
+        shortDescriptionAr: packagePayload.shortDescriptionAr || "NOT SENT",
+        overviewAr: packagePayload.overviewAr || "NOT SENT",
+        bestTimeToVisitAr: packagePayload.bestTimeToVisitAr || "NOT SENT",
+        cancellationPolicyAr: packagePayload.cancellationPolicyAr || "NOT SENT",
+        childrenPolicyAr: packagePayload.childrenPolicyAr || "NOT SENT",
+        termsAndConditionsAr: packagePayload.termsAndConditionsAr || "NOT SENT",
+        customTextAr: packagePayload.customTextAr || "NOT SENT",
+      });
+      
+      console.log("🗺️ Payload Travel Info:", {
+        itinerary: packagePayload.itinerary,
+        whatToPack: packagePayload.whatToPack,
+        travelRoute: packagePayload.travelRoute,
+        optionalExcursions: packagePayload.optionalExcursions,
+      });
+      
+      console.log("📸 Payload Media Info:", {
+        imageUrl: packagePayload.imageUrl,
+        galleryUrls: packagePayload.galleryUrls,
+        galleryUrlsCount: packagePayload.galleryUrls?.length || 0,
+      });
+      
+      console.log("=== 🚀 END PAYLOAD LOG ===");
 
       // Determine if this is an update or create
       const isUpdate = isEditMode && packageId;
@@ -1048,12 +1023,12 @@ export function PackageCreatorForm({
 
       if (!response.ok) {
         let errorMessage = `Failed to ${isUpdate ? "update" : "create"} package`;
-
+        
         try {
           const errorData = await response.json();
-          console.log("API Error Response:", errorData);
+          console.log('API Error Response:', errorData);
           errorMessage = errorData.message || errorData.error || errorMessage;
-
+          
           // If the error contains validation details, include them
           if (errorData.details) {
             errorMessage += `. Details: ${JSON.stringify(errorData.details)}`;
@@ -1062,28 +1037,28 @@ export function PackageCreatorForm({
           // If we can't parse the response as JSON, try to get text
           try {
             const errorText = await response.text();
-            console.log("API Error Text Response:", errorText);
-
+            console.log('API Error Text Response:', errorText);
+            
             // Check if it's an HTML error page
-            if (errorText.includes("<!DOCTYPE html>")) {
+            if (errorText.includes('<!DOCTYPE html>')) {
               errorMessage += ` (Server returned HTML error page - Status: ${response.status})`;
             } else {
               errorMessage = errorText || errorMessage;
             }
           } catch (textError) {
-            console.log("Failed to parse error response:", textError);
+            console.log('Failed to parse error response:', textError);
             errorMessage += ` (Status: ${response.status})`;
           }
         }
-
+        
         throw new Error(errorMessage);
       }
 
       const responseData = await response.json();
-
+      
       // Log response data for debugging
       console.log("Server response data:", responseData);
-
+      
       // Log policy fields in response
       console.log("Policy fields in server response:", {
         cancellationPolicy: responseData.cancellationPolicy || "NOT FOUND",
@@ -1091,7 +1066,7 @@ export function PackageCreatorForm({
         termsAndConditions: responseData.termsAndConditions || "NOT FOUND",
         customText: responseData.customText || "NOT FOUND",
       });
-
+      
       return responseData;
     },
     onSuccess: (data) => {
@@ -1162,7 +1137,7 @@ export function PackageCreatorForm({
         message: error.message,
         stack: error.stack,
       });
-
+      
       toast({
         title: `Error ${isEditMode ? "updating" : "creating"} package`,
         description: error.message,
@@ -1202,11 +1177,8 @@ export function PackageCreatorForm({
         galleryUrls = [existingPackageData.imageUrl];
       }
 
-      // Make sure the main image is included in the gallery
-      if (
-        existingPackageData.imageUrl &&
-        !galleryUrls.includes(existingPackageData.imageUrl)
-      ) {
+      // Make sure the main image is included in the gallery  
+      if (existingPackageData.imageUrl && !galleryUrls.includes(existingPackageData.imageUrl)) {
         galleryUrls.unshift(existingPackageData.imageUrl);
       }
 
@@ -1254,7 +1226,7 @@ export function PackageCreatorForm({
       // Try to detect city ID based on the destination name matching a city name
       let cityId = existingPackageData.cityId;
       let countryId = existingPackageData.countryId;
-
+      
       // Log the raw data for debugging
       console.log("Raw package data for location:", {
         cityId: existingPackageData.cityId,
@@ -1262,12 +1234,10 @@ export function PackageCreatorForm({
         destinationId: existingPackageData.destinationId,
         categoryId: existingPackageData.categoryId,
       });
-
+      
       // Find the destination data for this package
-      const destination = destinations.find(
-        (d) => d.id === existingPackageData.destinationId,
-      );
-
+      const destination = destinations.find(d => d.id === existingPackageData.destinationId);
+      
       if (!cityId && destination) {
         if (destination.city_id) {
           cityId = destination.city_id;
@@ -1355,6 +1325,13 @@ export function PackageCreatorForm({
               : existingPackageData.accommodationHighlights
             : [];
 
+        // Parse travelRoute from database
+        const parsedTravelRoute = existingPackageData.travelRoute
+          ? typeof existingPackageData.travelRoute === "string"
+            ? JSON.parse(existingPackageData.travelRoute)
+            : existingPackageData.travelRoute
+          : [];
+
         // Parse included_features and excluded_features arrays
         const parsedIncludedFeatures = existingPackageData.includedFeatures
           ? typeof existingPackageData.includedFeatures === "string"
@@ -1373,11 +1350,12 @@ export function PackageCreatorForm({
         setItineraryItems(parsedItinerary);
         setExcludedItemsList(parsedExcludedItems);
         setAccommodationHighlights(parsedAccommodationHighlights);
-
+        setTravelRouteItems(parsedTravelRoute);
+        
         // Set custom included and excluded features state (ensure fresh arrays)
         setCustomIncludedFeatures([...parsedIncludedFeatures]);
         setCustomExcludedFeatures([...parsedExcludedFeatures]);
-
+        
         // Set custom traveler types state (ensure fresh array)
         setCustomTravelerTypes([...parsedIdealFor]);
 
@@ -1395,12 +1373,9 @@ export function PackageCreatorForm({
 
         // Set selected tour if exists
         // Handle multiple tour IDs from existing package data
-        if (
-          existingPackageData.selectedTourIds &&
-          Array.isArray(existingPackageData.selectedTourIds)
-        ) {
-          const selectedTourObjects = tours.filter((t) =>
-            existingPackageData.selectedTourIds.includes(t.id),
+        if (existingPackageData.selectedTourIds && Array.isArray(existingPackageData.selectedTourIds)) {
+          const selectedTourObjects = tours.filter(
+            (t) => existingPackageData.selectedTourIds.includes(t.id)
           );
           setSelectedTours(selectedTourObjects);
         } else if (existingPackageData.selectedTourId) {
@@ -1431,53 +1406,37 @@ export function PackageCreatorForm({
         console.log("- Rooms:", parsedRooms);
 
         // Set component state for hotels and rooms
-        if (
-          Array.isArray(parsedSelectedHotels) &&
-          parsedSelectedHotels.length > 0
-        ) {
-          // Extract hotel IDs from objects or use values directly if they're already IDs
-          const hotelIds = parsedSelectedHotels.map((h) => {
-            // If h is an object with an id property, extract the id
-            if (typeof h === 'object' && h !== null && 'id' in h) {
-              return String(h.id);
-            }
-            // Otherwise, assume it's already an ID and convert to string
-            return String(h);
-          });
+        if (Array.isArray(parsedSelectedHotels) && parsedSelectedHotels.length > 0) {
+          // Convert hotel IDs to strings if they aren't already
+          const hotelIds = parsedSelectedHotels.map(h => String(h));
           console.log("Setting selectedHotels state:", hotelIds);
-          console.log("Original parsed data:", parsedSelectedHotels);
-
+          
           // Update available rooms based on selected hotels
-          const hotelRooms = allRooms.filter((room) =>
-            hotelIds.includes(String(room.hotelId || room.hotel_id)),
+          const hotelRooms = allRooms.filter(room => 
+            hotelIds.includes(String(room.hotelId || room.hotel_id))
           );
           setAvailableRooms(hotelRooms);
           console.log("Available rooms for selected hotels:", hotelRooms);
-
+          
           // Trigger room filtering with current guest counts
           const adultCount = form.getValues("adultCount") || 2;
           const childrenCount = form.getValues("childrenCount") || 0;
           const infantCount = form.getValues("infantCount") || 0;
-          filterRoomsByCapacity(
-            hotelRooms,
-            adultCount,
-            childrenCount,
-            infantCount,
-          );
-
-          // Force form to re-render the hotels and rooms sections
-          setTimeout(() => {
-            form.trigger("selectedHotels");
-            form.trigger("rooms");
-
-            // Also trigger policy fields to ensure they are properly rendered
-            form.trigger("cancellationPolicy");
-            form.trigger("childrenPolicy");
-            form.trigger("termsAndConditions");
-            form.trigger("customText");
-
-            console.log("Form fields triggered for re-render");
-          }, 100);
+          filterRoomsByCapacity(hotelRooms, adultCount, childrenCount, infantCount);
+          
+                  // Force form to re-render the hotels and rooms sections
+        setTimeout(() => {
+          form.trigger("selectedHotels");
+          form.trigger("rooms");
+          
+          // Also trigger policy fields to ensure they are properly rendered
+          form.trigger("cancellationPolicy");
+          form.trigger("childrenPolicy");
+          form.trigger("termsAndConditions");
+          form.trigger("customText");
+          
+          console.log("Form fields triggered for re-render");
+        }, 100);
         }
 
         if (Array.isArray(parsedRooms) && parsedRooms.length > 0) {
@@ -1486,15 +1445,72 @@ export function PackageCreatorForm({
         }
 
         // Set form values with correct field names matching schema
-        console.log("Setting form values with existing package data:", {
+        console.log("=== 🔍 COMPREHENSIVE PACKAGE DATA LOG ===");
+        console.log("📦 Package Basic Info:", {
+          id: existingPackageData.id,
+          name: existingPackageData.name,
           title: existingPackageData.title,
-          cancellationPolicy: existingPackageData.cancellationPolicy,
-          childrenPolicy: existingPackageData.childrenPolicy,
-          termsAndConditions: existingPackageData.termsAndConditions,
-          customText: existingPackageData.customText,
+          shortDescription: existingPackageData.shortDescription,
+          overview: existingPackageData.overview,
+          bestTimeToVisit: existingPackageData.bestTimeToVisit,
         });
-
-        // --- لمسات وتحسينات عند تحميل بيانات الباقة في وضع التعديل ---
+        
+        console.log("📋 Package Policy Fields:", {
+          cancellationPolicy: existingPackageData.cancellationPolicy || "NOT FOUND",
+          childrenPolicy: existingPackageData.childrenPolicy || "NOT FOUND", 
+          termsAndConditions: existingPackageData.termsAndConditions || "NOT FOUND",
+          customText: existingPackageData.customText || "NOT FOUND",
+        });
+        
+        console.log("🌍 Package Location Info:", {
+          countryId: existingPackageData.countryId,
+          cityId: existingPackageData.cityId,
+          destinationId: existingPackageData.destinationId,
+          categoryId: existingPackageData.categoryId,
+        });
+        
+        console.log("📅 Package Date Info:", {
+          startDate: existingPackageData.startDate,
+          endDate: existingPackageData.endDate,
+          validUntil: existingPackageData.validUntil,
+          duration: existingPackageData.duration,
+          durationType: existingPackageData.durationType,
+        });
+        
+        console.log("💰 Package Pricing Info:", {
+          price: existingPackageData.price,
+          discountValue: existingPackageData.discountValue,
+          discountType: existingPackageData.discountType,
+          currency: existingPackageData.currency,
+        });
+        
+        console.log("🏨 Package Hotel Info:", {
+          selectedHotels: existingPackageData.selectedHotels,
+          rooms: existingPackageData.rooms,
+        });
+        
+        console.log("🎯 Package Features:", {
+          includedFeatures: existingPackageData.includedFeatures,
+          excludedFeatures: existingPackageData.excludedFeatures,
+          idealFor: existingPackageData.idealFor,
+        });
+        
+        console.log("📸 Package Media:", {
+          imageUrl: existingPackageData.imageUrl,
+          galleryUrls: existingPackageData.galleryUrls,
+        });
+        
+        console.log("🔤 Package Arabic Fields:", {
+          hasArabicVersion: existingPackageData.hasArabicVersion,
+          titleAr: existingPackageData.titleAr || "NOT FOUND",
+          shortDescriptionAr: existingPackageData.shortDescriptionAr || "NOT FOUND",
+          overviewAr: existingPackageData.overviewAr || "NOT FOUND",
+          bestTimeToVisitAr: existingPackageData.bestTimeToVisitAr || "NOT FOUND",
+          cancellationPolicyAr: existingPackageData.cancellationPolicyAr || "NOT FOUND",
+          childrenPolicyAr: existingPackageData.childrenPolicyAr || "NOT FOUND",
+          termsAndConditionsAr: existingPackageData.termsAndConditionsAr || "NOT FOUND",
+          customTextAr: existingPackageData.customTextAr || "NOT FOUND",
+        });
         // معالجة وتحويل معرفات الفنادق المختارة إلى نصوص موحدة
         const hotelIds = Array.isArray(parsedSelectedHotels)
           ? parsedSelectedHotels.map((h) => String(h))
@@ -1526,12 +1542,8 @@ export function PackageCreatorForm({
 
         form.reset({
           title: existingPackageData.title || "",
-          description: existingPackageData.description || "",
           shortDescription: parsedShortDescription,
-          overview:
-            existingPackageData.overview ||
-            existingPackageData.description ||
-            "",
+          overview: existingPackageData.overview || "",
           price: existingPackageData.price || 0,
           // Map from existing database schema
           markup: existingPackageData.discountValue || null,
@@ -1550,9 +1562,7 @@ export function PackageCreatorForm({
           // Set dates with sensible defaults
           startDate: startDate,
           endDate: endDate,
-          validUntil: existingPackageData.validUntil
-            ? new Date(existingPackageData.validUntil)
-            : new Date(new Date().setMonth(new Date().getMonth() + 6)),
+          validUntil: existingPackageData.validUntil ? new Date(existingPackageData.validUntil) : new Date(new Date().setMonth(new Date().getMonth() + 6)),
           // pricingMode: "per_booking", // حذف - غير مطلوب // Default if not available
           includedFeatures: [], // Keep form field empty, use component state instead
           excludedFeatures: [], // Keep form field empty, use component state instead
@@ -1563,9 +1573,7 @@ export function PackageCreatorForm({
           accommodationHighlights: parsedAccommodationHighlights,
           selectedTourId: existingPackageData.selectedTourId,
           selectedTourIds: existingPackageData.selectedTourIds || [],
-          selectedHotels: Array.isArray(parsedSelectedHotels)
-            ? parsedSelectedHotels.map((h) => String(h))
-            : [],
+          selectedHotels: Array.isArray(parsedSelectedHotels) ? parsedSelectedHotels.map(h => String(h)) : [],
           rooms: Array.isArray(parsedRooms) ? parsedRooms : [],
           adultCount: existingPackageData.adultCount || 2,
           childrenCount: existingPackageData.childrenCount || 0,
@@ -1604,23 +1612,18 @@ export function PackageCreatorForm({
           categoryId: parsedCategoryId,
           destinationId: existingPackageData.destinationId,
         });
-
+        
         // إصلاح مشكلة NaN للمدينة والوجهة - تحويل إلى رقم صحيح
-        const validCityId =
-          cityId && !isNaN(Number(cityId)) ? Number(cityId) : null;
-        const validDestinationId =
-          existingPackageData.destinationId &&
-          !isNaN(Number(existingPackageData.destinationId))
-            ? Number(existingPackageData.destinationId)
-            : null;
-
+        const validCityId = cityId && !isNaN(Number(cityId)) ? Number(cityId) : null;
+        const validDestinationId = existingPackageData.destinationId && !isNaN(Number(existingPackageData.destinationId)) ? Number(existingPackageData.destinationId) : null;
+        
         console.log("Setting location values:", {
           countryId,
           validCityId,
           validDestinationId,
-          parsedCategoryId,
+          parsedCategoryId
         });
-
+        
         // تعيين القيم مع تأخير لضمان تحميل البيانات
         setTimeout(() => {
           form.setValue("countryId", countryId);
@@ -1629,29 +1632,23 @@ export function PackageCreatorForm({
           form.setValue("destinationId", validDestinationId);
           form.setValue("shortDescription", parsedShortDescription);
           form.setValue("route", parsedRoute);
-
+          
           // إضافة حقل أفضل وقت للزيارة
-          form.setValue(
-            "bestTimeToVisit",
-            existingPackageData.bestTimeToVisit || "",
-          );
-
+          form.setValue("bestTimeToVisit", existingPackageData.bestTimeToVisit || "");
+          
           // إضافة حقل نوع المدة
-          form.setValue(
-            "durationType",
-            existingPackageData.durationType || "days",
-          );
-
+          form.setValue("durationType", existingPackageData.durationType || "days");
+          
           // تفعيل التحقق مرة أخرى
           form.trigger("countryId");
           form.trigger("cityId");
           form.trigger("destinationId");
           form.trigger("categoryId");
           form.trigger("bestTimeToVisit");
-
+          
           console.log("Location values set successfully");
         }, 300);
-
+        
         // Force set policy fields to ensure they are loaded in edit mode
         console.log("Force setting policy fields:", {
           cancellationPolicy: existingPackageData.cancellationPolicy || "",
@@ -1659,21 +1656,12 @@ export function PackageCreatorForm({
           termsAndConditions: existingPackageData.termsAndConditions || "",
           customText: existingPackageData.customText || "",
         });
-
-        form.setValue(
-          "cancellationPolicy",
-          existingPackageData.cancellationPolicy || "",
-        );
-        form.setValue(
-          "childrenPolicy",
-          existingPackageData.childrenPolicy || "",
-        );
-        form.setValue(
-          "termsAndConditions",
-          existingPackageData.termsAndConditions || "",
-        );
+        
+        form.setValue("cancellationPolicy", existingPackageData.cancellationPolicy || "");
+        form.setValue("childrenPolicy", existingPackageData.childrenPolicy || "");
+        form.setValue("termsAndConditions", existingPackageData.termsAndConditions || "");
         form.setValue("customText", existingPackageData.customText || "");
-
+        
         // Force set Arabic translation fields to ensure they are loaded in edit mode
         console.log("Force setting Arabic fields:", {
           titleAr: existingPackageData.titleAr || "",
@@ -1687,135 +1675,101 @@ export function PackageCreatorForm({
           customTextAr: existingPackageData.customTextAr || "",
           hasArabicVersion: existingPackageData.hasArabicVersion || false,
         });
-
+        
         form.setValue("titleAr", existingPackageData.titleAr || "");
         form.setValue("descriptionAr", existingPackageData.descriptionAr || "");
-        form.setValue(
-          "shortDescriptionAr",
-          existingPackageData.shortDescriptionAr || "",
-        );
+        form.setValue("shortDescriptionAr", existingPackageData.shortDescriptionAr || "");
         form.setValue("overviewAr", existingPackageData.overviewAr || "");
-        form.setValue(
-          "bestTimeToVisitAr",
-          existingPackageData.bestTimeToVisitAr || "",
-        );
-        form.setValue(
-          "cancellationPolicyAr",
-          existingPackageData.cancellationPolicyAr || "",
-        );
-        form.setValue(
-          "childrenPolicyAr",
-          existingPackageData.childrenPolicyAr || "",
-        );
-        form.setValue(
-          "termsAndConditionsAr",
-          existingPackageData.termsAndConditionsAr || "",
-        );
+        form.setValue("bestTimeToVisitAr", existingPackageData.bestTimeToVisitAr || "");
+        form.setValue("cancellationPolicyAr", existingPackageData.cancellationPolicyAr || "");
+        form.setValue("childrenPolicyAr", existingPackageData.childrenPolicyAr || "");
+        form.setValue("termsAndConditionsAr", existingPackageData.termsAndConditionsAr || "");
         form.setValue("customTextAr", existingPackageData.customTextAr || "");
-        form.setValue(
-          "hasArabicVersion",
-          existingPackageData.hasArabicVersion || false,
-        );
-
+        form.setValue("hasArabicVersion", existingPackageData.hasArabicVersion || false);
+        
         // Force set Arabic arrays
         if (Array.isArray(parsedIncludedFeaturesAr)) {
           form.setValue("includedFeaturesAr", parsedIncludedFeaturesAr);
-          console.log(
-            "Force set includedFeaturesAr:",
-            parsedIncludedFeaturesAr,
-          );
+          console.log("Force set includedFeaturesAr:", parsedIncludedFeaturesAr);
         }
         if (Array.isArray(parsedExcludedFeaturesAr)) {
           form.setValue("excludedFeaturesAr", parsedExcludedFeaturesAr);
-          console.log(
-            "Force set excludedFeaturesAr:",
-            parsedExcludedFeaturesAr,
-          );
+          console.log("Force set excludedFeaturesAr:", parsedExcludedFeaturesAr);
         }
         if (Array.isArray(existingPackageData.itineraryAr)) {
           form.setValue("itineraryAr", existingPackageData.itineraryAr);
-          console.log(
-            "Force set itineraryAr:",
-            existingPackageData.itineraryAr,
-          );
+          console.log("Force set itineraryAr:", existingPackageData.itineraryAr);
         }
         if (Array.isArray(existingPackageData.whatToPackAr)) {
           form.setValue("whatToPackAr", existingPackageData.whatToPackAr);
-          console.log(
-            "Force set whatToPackAr:",
-            existingPackageData.whatToPackAr,
-          );
+          console.log("Force set whatToPackAr:", existingPackageData.whatToPackAr);
         }
-
+        
         // Force set Arabic complex arrays with proper parsing
         if (existingPackageData.itineraryAr) {
-          const parsedItineraryAr =
-            typeof existingPackageData.itineraryAr === "string"
-              ? JSON.parse(existingPackageData.itineraryAr)
-              : existingPackageData.itineraryAr;
+          const parsedItineraryAr = typeof existingPackageData.itineraryAr === "string"
+            ? JSON.parse(existingPackageData.itineraryAr)
+            : existingPackageData.itineraryAr;
           if (Array.isArray(parsedItineraryAr)) {
             form.setValue("itineraryAr", parsedItineraryAr);
             console.log("Force set parsed itineraryAr:", parsedItineraryAr);
           }
         }
-
+        
         if (existingPackageData.whatToPackAr) {
-          const parsedWhatToPackAr =
-            typeof existingPackageData.whatToPackAr === "string"
-              ? JSON.parse(existingPackageData.whatToPackAr)
-              : existingPackageData.whatToPackAr;
+          const parsedWhatToPackAr = typeof existingPackageData.whatToPackAr === "string"
+            ? JSON.parse(existingPackageData.whatToPackAr)
+            : existingPackageData.whatToPackAr;
           if (Array.isArray(parsedWhatToPackAr)) {
             form.setValue("whatToPackAr", parsedWhatToPackAr);
             console.log("Force set parsed whatToPackAr:", parsedWhatToPackAr);
           }
         }
-
+        
         if (existingPackageData.travelRouteAr) {
-          const parsedTravelRouteAr =
-            typeof existingPackageData.travelRouteAr === "string"
-              ? JSON.parse(existingPackageData.travelRouteAr)
-              : existingPackageData.travelRouteAr;
+          const parsedTravelRouteAr = typeof existingPackageData.travelRouteAr === "string"
+            ? JSON.parse(existingPackageData.travelRouteAr)
+            : existingPackageData.travelRouteAr;
           if (Array.isArray(parsedTravelRouteAr)) {
             form.setValue("travelRouteAr", parsedTravelRouteAr);
             console.log("Force set parsed travelRouteAr:", parsedTravelRouteAr);
           }
         }
-
+        
         if (existingPackageData.optionalExcursionsAr) {
-          const parsedOptionalExcursionsAr =
-            typeof existingPackageData.optionalExcursionsAr === "string"
-              ? JSON.parse(existingPackageData.optionalExcursionsAr)
-              : existingPackageData.optionalExcursionsAr;
+          const parsedOptionalExcursionsAr = typeof existingPackageData.optionalExcursionsAr === "string"
+            ? JSON.parse(existingPackageData.optionalExcursionsAr)
+            : existingPackageData.optionalExcursionsAr;
           if (Array.isArray(parsedOptionalExcursionsAr)) {
             form.setValue("optionalExcursionsAr", parsedOptionalExcursionsAr);
-            console.log(
-              "Force set parsed optionalExcursionsAr:",
-              parsedOptionalExcursionsAr,
-            );
+            console.log("Force set parsed optionalExcursionsAr:", parsedOptionalExcursionsAr);
           }
         }
-
+        
         // Force set hotel and room data in form
-        if (
-          Array.isArray(parsedSelectedHotels) &&
-          parsedSelectedHotels.length > 0
-        ) {
-          const hotelIds = parsedSelectedHotels.map((h) => String(h));
+        if (Array.isArray(parsedSelectedHotels) && parsedSelectedHotels.length > 0) {
+          const hotelIds = parsedSelectedHotels.map(h => String(h));
           form.setValue("selectedHotels", hotelIds);
           console.log("Force set selectedHotels in form:", hotelIds);
         }
-
+        
         if (Array.isArray(parsedRooms) && parsedRooms.length > 0) {
           form.setValue("rooms", parsedRooms);
           console.log("Force set rooms in form:", parsedRooms);
         }
-
+        
+        // Force set travelRoute in form
+        if (Array.isArray(parsedTravelRoute) && parsedTravelRoute.length > 0) {
+          form.setValue("travelRoute", parsedTravelRoute);
+          console.log("Force set travelRoute in form:", parsedTravelRoute);
+        }
+        
         // Update the selected country state to enable city filtering
         if (countryId) {
           setSelectedCountryId(countryId);
           console.log("Updated selectedCountryId state to:", countryId);
         }
-
+        
         // Force trigger form validation for location fields
         setTimeout(() => {
           form.trigger("countryId");
@@ -1823,7 +1777,7 @@ export function PackageCreatorForm({
           form.trigger("destinationId");
           form.trigger("categoryId");
           form.trigger("bestTimeToVisit");
-
+          
           // Trigger Arabic fields validation
           form.trigger("titleAr");
           form.trigger("descriptionAr");
@@ -1835,12 +1789,10 @@ export function PackageCreatorForm({
           form.trigger("termsAndConditionsAr");
           form.trigger("customTextAr");
           form.trigger("hasArabicVersion");
-
-          console.log(
-            "Location fields, best time to visit, and Arabic fields triggered for validation",
-          );
+          
+          console.log("Location fields, best time to visit, and Arabic fields triggered for validation");
         }, 200);
-
+        
         // تحسين إضافي: إعادة تعيين القيم بعد تحميل البيانات بالكامل
         setTimeout(() => {
           if (validCityId) {
@@ -1856,20 +1808,46 @@ export function PackageCreatorForm({
         // Set initial form data for change tracking
         const currentFormData = form.getValues();
         setInitialFormData(currentFormData);
-
+        
         // Log form values after setting for debugging
-        console.log("Form values after setting:", currentFormData);
-
-        // Log policy fields in form values
-        console.log("Policy fields in form values:", {
-          cancellationPolicy: currentFormData.cancellationPolicy || "NOT FOUND",
-          childrenPolicy: currentFormData.childrenPolicy || "NOT FOUND",
-          termsAndConditions: currentFormData.termsAndConditions || "NOT FOUND",
-          customText: currentFormData.customText || "NOT FOUND",
+        console.log("=== 📝 FORM VALUES AFTER SETTING ===");
+        console.log("📦 Form Basic Info:", {
+          title: currentFormData.title || "NOT SET",
+          shortDescription: currentFormData.shortDescription || "NOT SET",
+          overview: currentFormData.overview || "NOT SET",
+          bestTimeToVisit: currentFormData.bestTimeToVisit || "NOT SET",
         });
+        
+        console.log("📋 Form Policy Fields:", {
+          cancellationPolicy: currentFormData.cancellationPolicy || "NOT SET",
+          childrenPolicy: currentFormData.childrenPolicy || "NOT SET",
+          termsAndConditions: currentFormData.termsAndConditions || "NOT SET",
+          customText: currentFormData.customText || "NOT SET",
+        });
+        
+        console.log("🌍 Form Location Info:", {
+          countryId: currentFormData.countryId,
+          cityId: currentFormData.cityId,
+          destinationId: currentFormData.destinationId,
+          categoryId: currentFormData.categoryId,
+        });
+        
+        console.log("🔤 Form Arabic Fields:", {
+          hasArabicVersion: currentFormData.hasArabicVersion,
+          titleAr: currentFormData.titleAr || "NOT SET",
+          shortDescriptionAr: currentFormData.shortDescriptionAr || "NOT SET",
+          overviewAr: currentFormData.overviewAr || "NOT SET",
+          bestTimeToVisitAr: currentFormData.bestTimeToVisitAr || "NOT SET",
+          cancellationPolicyAr: currentFormData.cancellationPolicyAr || "NOT SET",
+          childrenPolicyAr: currentFormData.childrenPolicyAr || "NOT SET",
+          termsAndConditionsAr: currentFormData.termsAndConditionsAr || "NOT SET",
+          customTextAr: currentFormData.customTextAr || "NOT SET",
+        });
+        
+        console.log("=== 📝 END FORM VALUES LOG ===");
 
         console.log("Form values set:", currentFormData);
-
+        
         // Log policy fields specifically for debugging
         console.log("Policy fields loaded:", {
           cancellationPolicy: existingPackageData.cancellationPolicy || "",
@@ -1877,6 +1855,8 @@ export function PackageCreatorForm({
           termsAndConditions: existingPackageData.termsAndConditions || "",
           customText: existingPackageData.customText || "",
         });
+
+
       }, 800); // Give a longer delay to ensure cities are loaded
     }
   }, [
@@ -1891,15 +1871,15 @@ export function PackageCreatorForm({
 
   // Watch form changes to track unsaved changes (after form is initialized)
   const formValues = form.watch();
-
+  
   // Watch policy fields specifically
   const policyFields = form.watch([
     "cancellationPolicy",
-    "childrenPolicy",
+    "childrenPolicy", 
     "termsAndConditions",
-    "customText",
+    "customText"
   ]);
-
+  
   // Log policy fields changes
   useEffect(() => {
     if (isEditMode && isInitialized) {
@@ -1911,7 +1891,7 @@ export function PackageCreatorForm({
       });
     }
   }, [policyFields, isEditMode, isInitialized]);
-
+  
   // Log form values changes for debugging (only in edit mode)
   useEffect(() => {
     if (isEditMode && isInitialized) {
@@ -1956,11 +1936,9 @@ export function PackageCreatorForm({
     filterRoomsByCapacity(allRooms, adultCount, childrenCount, infantCount);
   }, []);
 
-  const handleHotelSelectionChange = (selectedHotelIds: (string | number)[]) => {
+  const handleHotelSelectionChange = (selectedHotelIds: string[]) => {
     console.log("🏨 HOTEL SELECTION CHANGED:", selectedHotelIds);
-    // Convert all IDs to strings for consistent form storage
-    const stringIds = selectedHotelIds.map(id => String(id));
-    form.setValue("selectedHotels", stringIds);
+    form.setValue("selectedHotels", selectedHotelIds);
     updateAvailableRooms(selectedHotelIds);
 
     // Force re-render by triggering form watch
@@ -1984,20 +1962,18 @@ export function PackageCreatorForm({
     }
 
     // Convert selectedHotelIds to both numbers and strings for flexible matching
-    const hotelIdStrings = selectedHotelIds.map((id) => String(id));
-    const hotelIdNumbers = selectedHotelIds
-      .map((id) => (typeof id === "string" ? parseInt(id) : id))
-      .filter((id) => !isNaN(id));
+    const hotelIdStrings = selectedHotelIds.map(id => String(id));
+    const hotelIdNumbers = selectedHotelIds.map(id => typeof id === 'string' ? parseInt(id) : id).filter(id => !isNaN(id));
 
     const hotelRooms = allRooms.filter((room) => {
       // Handle both camelCase and snake_case field names
       const roomHotelId = room.hotelId || room.hotel_id;
-
+      
       // Check both string and number matches
       const matchesString = hotelIdStrings.includes(String(roomHotelId));
       const matchesNumber = hotelIdNumbers.includes(Number(roomHotelId));
       const matches = matchesString || matchesNumber;
-
+      
       console.log(
         `🏠 Room "${room.name}": hotel_id=${roomHotelId}, selected=${selectedHotelIds}, matches=${matches ? "✅" : "❌"}`,
       );
@@ -2024,27 +2000,21 @@ export function PackageCreatorForm({
   // Function to handle tour selection (multiple tours)
   const handleTourSelection = (tour: Tour) => {
     // Check if tour is already selected
-    if (selectedTours.find((t) => t.id === tour.id)) {
+    if (selectedTours.find(t => t.id === tour.id)) {
       return; // Don't add duplicate tours
     }
-
+    
     const updatedTours = [...selectedTours, tour];
     setSelectedTours(updatedTours);
-    form.setValue(
-      "selectedTourIds",
-      updatedTours.map((t) => t.id),
-    );
+    form.setValue("selectedTourIds", updatedTours.map(t => t.id));
     setTourSearchQuery("");
     setShowTourDropdown(false);
   };
 
   const handleRemoveTour = (tourId: number) => {
-    const updatedTours = selectedTours.filter((tour) => tour.id !== tourId);
+    const updatedTours = selectedTours.filter(tour => tour.id !== tourId);
     setSelectedTours(updatedTours);
-    form.setValue(
-      "selectedTourIds",
-      updatedTours.map((t) => t.id),
-    );
+    form.setValue("selectedTourIds", updatedTours.map(t => t.id));
   };
 
   // Function to handle adding route stops
@@ -2083,10 +2053,7 @@ export function PackageCreatorForm({
   // Handler for adding custom included features
   const handleAddIncludedFeature = () => {
     if (newIncludedFeature.trim()) {
-      const updatedFeatures = [
-        ...customIncludedFeatures,
-        newIncludedFeature.trim(),
-      ];
+      const updatedFeatures = [...customIncludedFeatures, newIncludedFeature.trim()];
       setCustomIncludedFeatures(updatedFeatures);
       form.setValue("includedFeatures", updatedFeatures);
       setNewIncludedFeature("");
@@ -2095,9 +2062,7 @@ export function PackageCreatorForm({
 
   // Handler for removing custom included features
   const handleRemoveIncludedFeature = (index: number) => {
-    const updatedFeatures = customIncludedFeatures.filter(
-      (_, i) => i !== index,
-    );
+    const updatedFeatures = customIncludedFeatures.filter((_, i) => i !== index);
     setCustomIncludedFeatures(updatedFeatures);
     form.setValue("includedFeatures", updatedFeatures);
   };
@@ -2105,10 +2070,7 @@ export function PackageCreatorForm({
   // Handler for adding custom excluded features
   const handleAddExcludedFeature = () => {
     if (newExcludedFeature.trim()) {
-      const updatedFeatures = [
-        ...customExcludedFeatures,
-        newExcludedFeature.trim(),
-      ];
+      const updatedFeatures = [...customExcludedFeatures, newExcludedFeature.trim()];
       setCustomExcludedFeatures(updatedFeatures);
       form.setValue("excludedFeatures", updatedFeatures);
       setNewExcludedFeature("");
@@ -2117,9 +2079,7 @@ export function PackageCreatorForm({
 
   // Handler for removing custom excluded features
   const handleRemoveExcludedFeature = (index: number) => {
-    const updatedFeatures = customExcludedFeatures.filter(
-      (_, i) => i !== index,
-    );
+    const updatedFeatures = customExcludedFeatures.filter((_, i) => i !== index);
     setCustomExcludedFeatures(updatedFeatures);
     form.setValue("excludedFeatures", updatedFeatures);
   };
@@ -2192,14 +2152,10 @@ export function PackageCreatorForm({
 
       // Room is valid if it can accommodate someone OR if there are no guests of that type
       const isUsefulForAdults = adults === 0 || canAccommodateAtLeastOneAdult;
-      const isUsefulForChildren =
-        children === 0 || canAccommodateAtLeastOneChild;
-      const isUsefulForInfants =
-        infants === 0 || canAccommodateAtLeastOneInfant;
+      const isUsefulForChildren = children === 0 || canAccommodateAtLeastOneChild;
+      const isUsefulForInfants = infants === 0 || canAccommodateAtLeastOneInfant;
 
-      const isUseful =
-        hasGeneralCapacity &&
-        (isUsefulForAdults || isUsefulForChildren || isUsefulForInfants);
+      const isUseful = hasGeneralCapacity && (isUsefulForAdults || isUsefulForChildren || isUsefulForInfants);
 
       console.log(
         `Room "${room.name}": capacity=${maxOccupancy}, adults=${maxAdults}, children=${maxChildren}, infants=${maxInfants}, useful=${isUseful ? "✅" : "❌"}`,
@@ -2243,7 +2199,7 @@ export function PackageCreatorForm({
   const handleImageUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
     if (e.target.files && e.target.files.length > 0) {
       const files = Array.from(e.target.files);
-
+      
       // Process each file
       for (const file of files) {
         // Create a temporary URL for preview until upload completes
@@ -2283,7 +2239,25 @@ export function PackageCreatorForm({
               isMain: isFirstImage,
             };
 
-            setImages((prev) => [...prev, newImage]);
+            setImages((prev) => {
+              const updatedImages = [...prev, newImage];
+              
+              // Update galleryUrls in form
+              const updatedGalleryUrls = updatedImages
+                .filter(img => img.preview && !img.preview.startsWith("blob:"))
+                .map(img => img.preview);
+              
+              console.log("📸 Updated galleryUrls after upload:", updatedGalleryUrls);
+              form.setValue("galleryUrls", updatedGalleryUrls);
+              
+              // Update main image if this is the first image
+              if (isFirstImage) {
+                console.log("🖼️ Setting first uploaded image as main:", serverUrl);
+                form.setValue("imageUrl", serverUrl);
+              }
+              
+              return updatedImages;
+            });
 
             // Clean up the temporary blob URL
             URL.revokeObjectURL(tempPreview);
@@ -2306,12 +2280,21 @@ export function PackageCreatorForm({
   };
 
   const setMainImage = (id: string) => {
-    setImages((prev) =>
-      prev.map((image) => ({
+    setImages((prev) => {
+      const updatedImages = prev.map((image) => ({
         ...image,
         isMain: image.id === id,
-      })),
-    );
+      }));
+      
+      // Update main image URL in form
+      const newMainImage = updatedImages.find(img => img.isMain);
+      if (newMainImage && newMainImage.preview && !newMainImage.preview.startsWith("blob:")) {
+        console.log("🖼️ Setting main image:", newMainImage.preview);
+        form.setValue("imageUrl", newMainImage.preview);
+      }
+      
+      return updatedImages;
+    });
   };
 
   const addImage = () => {
@@ -2328,18 +2311,18 @@ export function PackageCreatorForm({
     }
 
     const searchQuery = hotelSearchQuery.toLowerCase().trim();
-
+    
     return hotels.filter((hotel) => {
       // Search by hotel name
       const nameMatch = hotel.name.toLowerCase().includes(searchQuery);
-
+      
       // Search by destination/city
       const cityMatch = hotel.city?.toLowerCase().includes(searchQuery);
       const countryMatch = hotel.country?.toLowerCase().includes(searchQuery);
-
+      
       // Search by ID (convert to string for comparison)
       const idMatch = hotel.id.toString().includes(searchQuery);
-
+      
       return nameMatch || cityMatch || countryMatch || idMatch;
     });
   }, [hotels, hotelSearchQuery]);
@@ -2348,7 +2331,7 @@ export function PackageCreatorForm({
   const validateFormFields = useCallback(() => {
     const formData = form.getValues();
     const errors: { [key: string]: string[] } = {};
-
+    
     // Log form data for validation debugging
     console.log("Validating form data:", {
       title: formData.title,
@@ -2446,6 +2429,8 @@ export function PackageCreatorForm({
     const imageToRemove = images.find((img) => img.id === id);
     const wasMainImage = imageToRemove?.isMain || false;
 
+    console.log("🗑️ Removing image:", id, "wasMainImage:", wasMainImage);
+
     // Revoke object URL to prevent memory leaks
     if (
       imageToRemove &&
@@ -2463,8 +2448,32 @@ export function PackageCreatorForm({
       updatedImages[0].isMain = true;
     }
 
+    // Update images state
     setImages(updatedImages);
+
+    // Update galleryUrls in form - مهم جداً!
+    const updatedGalleryUrls = updatedImages
+      .filter(img => img.preview && !img.preview.startsWith("blob:")) // Only include non-blob URLs
+      .map(img => img.preview);
+    
+    console.log("📸 Updated galleryUrls:", updatedGalleryUrls);
+    form.setValue("galleryUrls", updatedGalleryUrls);
+
+    // Update main image URL if needed
+    if (wasMainImage && updatedImages.length > 0) {
+      const newMainImage = updatedImages.find(img => img.isMain);
+      if (newMainImage && newMainImage.preview && !newMainImage.preview.startsWith("blob:")) {
+        console.log("🖼️ Setting new main image:", newMainImage.preview);
+        form.setValue("imageUrl", newMainImage.preview);
+      }
+    } else if (updatedImages.length === 0) {
+      // If no images left, clear the main image
+      console.log("🖼️ Clearing main image - no images left");
+      form.setValue("imageUrl", "");
+    }
   };
+
+
 
   // Auto Translate function - تدريجي ومريح
   const handleAutoTranslate = useCallback(async () => {
@@ -2473,147 +2482,83 @@ export function PackageCreatorForm({
     try {
       setIsAutoTranslating(true);
       setCurrentTranslationIndex(0);
-
+      
       const formValues = form.getValues();
-
+      
       // تجهيز قائمة الترجمة بالترتيب المطلوب
-      const fieldsToTranslate: Array<{
-        id: string;
-        text: string;
-        fieldType: string;
-      }> = [];
-
+      const fieldsToTranslate: Array<{id: string, text: string, fieldType: string}> = [];
+      
       // 1. Basic fields أولاً
       if (formValues.title?.trim()) {
-        fieldsToTranslate.push({
-          id: "title",
-          text: formValues.title,
-          fieldType: "basic",
-        });
+        fieldsToTranslate.push({ id: 'title', text: formValues.title, fieldType: 'basic' });
       }
       if (formValues.shortDescription?.trim()) {
-        fieldsToTranslate.push({
-          id: "shortDescription",
-          text: formValues.shortDescription,
-          fieldType: "basic",
-        });
+        fieldsToTranslate.push({ id: 'shortDescription', text: formValues.shortDescription, fieldType: 'basic' });
       }
       if (formValues.overview?.trim()) {
-        fieldsToTranslate.push({
-          id: "overview",
-          text: formValues.overview,
-          fieldType: "basic",
-        });
+        fieldsToTranslate.push({ id: 'overview', text: formValues.overview, fieldType: 'basic' });
       }
       if (formValues.bestTimeToVisit?.trim()) {
-        fieldsToTranslate.push({
-          id: "bestTimeToVisit",
-          text: formValues.bestTimeToVisit,
-          fieldType: "basic",
-        });
+        fieldsToTranslate.push({ id: 'bestTimeToVisit', text: formValues.bestTimeToVisit, fieldType: 'basic' });
       }
 
       // 2. Policy fields - اهتمام خاص
       if (formValues.cancellationPolicy?.trim()) {
-        fieldsToTranslate.push({
-          id: "cancellationPolicy",
-          text: formValues.cancellationPolicy,
-          fieldType: "policy",
-        });
+        fieldsToTranslate.push({ id: 'cancellationPolicy', text: formValues.cancellationPolicy, fieldType: 'policy' });
       }
       if (formValues.childrenPolicy?.trim()) {
-        fieldsToTranslate.push({
-          id: "childrenPolicy",
-          text: formValues.childrenPolicy,
-          fieldType: "policy",
-        });
+        fieldsToTranslate.push({ id: 'childrenPolicy', text: formValues.childrenPolicy, fieldType: 'policy' });
       }
       if (formValues.termsAndConditions?.trim()) {
-        fieldsToTranslate.push({
-          id: "termsAndConditions",
-          text: formValues.termsAndConditions,
-          fieldType: "policy",
-        });
+        fieldsToTranslate.push({ id: 'termsAndConditions', text: formValues.termsAndConditions, fieldType: 'policy' });
       }
       if (formValues.customText?.trim()) {
-        fieldsToTranslate.push({
-          id: "customText",
-          text: formValues.customText,
-          fieldType: "policy",
-        });
+        fieldsToTranslate.push({ id: 'customText', text: formValues.customText, fieldType: 'policy' });
       }
 
       // 3. Array fields
       if (customIncludedFeatures.length > 0) {
         customIncludedFeatures.forEach((feature, index) => {
           if (feature?.trim()) {
-            fieldsToTranslate.push({
-              id: `includedFeature_${index}`,
-              text: feature,
-              fieldType: "array",
-            });
+            fieldsToTranslate.push({ id: `includedFeature_${index}`, text: feature, fieldType: 'array' });
           }
         });
       }
       if (customExcludedFeatures.length > 0) {
         customExcludedFeatures.forEach((feature, index) => {
           if (feature?.trim()) {
-            fieldsToTranslate.push({
-              id: `excludedFeature_${index}`,
-              text: feature,
-              fieldType: "array",
-            });
+            fieldsToTranslate.push({ id: `excludedFeature_${index}`, text: feature, fieldType: 'array' });
           }
         });
       }
       if (customTravelerTypes.length > 0) {
         customTravelerTypes.forEach((type, index) => {
           if (type?.trim()) {
-            fieldsToTranslate.push({
-              id: `idealFor_${index}`,
-              text: type,
-              fieldType: "array",
-            });
+            fieldsToTranslate.push({ id: `idealFor_${index}`, text: type, fieldType: 'array' });
           }
         });
       }
 
-      // 4. Itinerary
-      if (formValues.itinerary && Array.isArray(formValues.itinerary)) {
-        formValues.itinerary.forEach((day, index) => {
+      // 4. Itinerary - من state variable
+      if (itineraryItems.length > 0) {
+        itineraryItems.forEach((day, index) => {
           if (day?.title?.trim()) {
-            fieldsToTranslate.push({
-              id: `itinerary_${index}_title`,
-              text: day.title,
-              fieldType: "itinerary",
-            });
+            fieldsToTranslate.push({ id: `itinerary_${index}_title`, text: day.title, fieldType: 'itinerary' });
           }
           if (day?.description?.trim()) {
-            fieldsToTranslate.push({
-              id: `itinerary_${index}_description`,
-              text: day.description,
-              fieldType: "itinerary",
-            });
+            fieldsToTranslate.push({ id: `itinerary_${index}_description`, text: day.description, fieldType: 'itinerary' });
           }
         });
       }
 
-      // 5. What to Pack
-      if (formValues.whatToPack && Array.isArray(formValues.whatToPack)) {
-        formValues.whatToPack.forEach((item, index) => {
+      // 5. What to Pack - من state variable
+      if (packItems.length > 0) {
+        packItems.forEach((item, index) => {
           if (item?.item?.trim()) {
-            fieldsToTranslate.push({
-              id: `whatToPack_${index}_item`,
-              text: item.item,
-              fieldType: "packing",
-            });
+            fieldsToTranslate.push({ id: `whatToPack_${index}_item`, text: item.item, fieldType: 'packing' });
           }
           if (item?.tooltip?.trim()) {
-            fieldsToTranslate.push({
-              id: `whatToPack_${index}_tooltip`,
-              text: item.tooltip,
-              fieldType: "packing",
-            });
+            fieldsToTranslate.push({ id: `whatToPack_${index}_tooltip`, text: item.tooltip, fieldType: 'packing' });
           }
         });
       }
@@ -2621,19 +2566,20 @@ export function PackageCreatorForm({
       if (fieldsToTranslate.length === 0) {
         toast({
           title: "لا يوجد محتوى للترجمة",
-          description:
-            "يرجى إضافة محتوى إنجليزي قبل استخدام الترجمة التلقائية.",
+          description: "يرجى إضافة محتوى إنجليزي قبل استخدام الترجمة التلقائية.",
           variant: "destructive",
         });
         return;
       }
 
+      console.log("🚀 Starting auto-translate for", fieldsToTranslate.length, "fields");
       setTranslationQueue(fieldsToTranslate);
-
+      
       // بدء الترجمة التدريجية
       await translateNextField(fieldsToTranslate, 0);
+
     } catch (error: any) {
-      console.error("Auto-translate error:", error);
+      console.error('Auto-translate error:', error);
       toast({
         title: "خطأ في الترجمة",
         description: "حدث خطأ أثناء الترجمة. يرجى المحاولة مرة أخرى.",
@@ -2644,55 +2590,56 @@ export function PackageCreatorForm({
       setCurrentTranslationIndex(0);
       setTranslationQueue([]);
     }
-  }, [
-    form,
-    isAutoTranslating,
-    toast,
-    customIncludedFeatures,
-    customExcludedFeatures,
-    customTravelerTypes,
-  ]);
+  }, [form, isAutoTranslating, toast, customIncludedFeatures, customExcludedFeatures, customTravelerTypes, itineraryItems, packItems]);
 
-  // دالة الترجمة التدريجية
-  const translateNextField = async (
-    queue: Array<{ id: string; text: string; fieldType: string }>,
-    index: number,
-  ) => {
+  // دالة الترجمة التدريجية - محسّنة
+  const translateNextField = async (queue: Array<{id: string, text: string, fieldType: string}>, index: number) => {
     if (index >= queue.length) {
+      console.log("✅ Translation completed for", queue.length, "fields");
       toast({
         title: "تمت الترجمة بنجاح",
         description: `تم ترجمة ${queue.length} حقل إلى العربية.`,
       });
+      setIsAutoTranslating(false);
+      setCurrentTranslationIndex(0);
+      setTranslationQueue([]);
       return;
     }
 
     const field = queue[index];
     setCurrentTranslationIndex(index + 1);
 
+    console.log(`🔄 Translating field ${index + 1}/${queue.length}: ${field.id}`);
+
     try {
       // ترجمة الحقل الحالي
       const translation = await geminiService.translateToArabic(field.text);
-
+      
       if (translation?.trim()) {
+        console.log(`✅ Translation successful for ${field.id}:`, translation.substring(0, 50) + "...");
+        
         // تطبيق الترجمة
         applyTranslation(field.id, translation, field.fieldType);
-
+        
         // مسح النص الإنجليزي
         clearEnglishField(field.id, field.fieldType);
-
+        
         // عرض تقدم الترجمة
         toast({
           title: "تمت الترجمة",
           description: `تم ترجمة: ${field.id}`,
         });
+      } else {
+        console.log(`⚠️ Empty translation for ${field.id}`);
       }
 
       // انتظار قبل الترجمة التالية (2 ثانية)
       setTimeout(() => {
         translateNextField(queue, index + 1);
       }, 2000);
+
     } catch (error) {
-      console.error(`Error translating ${field.id}:`, error);
+      console.error(`❌ Error translating ${field.id}:`, error);
       // المتابعة للحقل التالي حتى لو فشل الحقل الحالي
       setTimeout(() => {
         translateNextField(queue, index + 1);
@@ -2701,105 +2648,90 @@ export function PackageCreatorForm({
   };
 
   // تطبيق الترجمة على الحقل المناسب
-  const applyTranslation = (
-    fieldId: string,
-    translation: string,
-    fieldType: string,
-  ) => {
+  const applyTranslation = (fieldId: string, translation: string, fieldType: string) => {
     switch (fieldType) {
-      case "basic":
+      case 'basic':
         switch (fieldId) {
-          case "title":
+          case 'title':
             form.setValue("titleAr", translation);
             break;
-          case "shortDescription":
+          case 'shortDescription':
             form.setValue("shortDescriptionAr", translation);
             break;
-          case "overview":
+          case 'overview':
             form.setValue("overviewAr", translation);
             break;
-          case "bestTimeToVisit":
+          case 'bestTimeToVisit':
             form.setValue("bestTimeToVisitAr", translation);
             break;
         }
         break;
-
-      case "policy":
+      
+      case 'policy':
         switch (fieldId) {
-          case "cancellationPolicy":
+          case 'cancellationPolicy':
             form.setValue("cancellationPolicyAr", translation);
             break;
-          case "childrenPolicy":
+          case 'childrenPolicy':
             form.setValue("childrenPolicyAr", translation);
             break;
-          case "termsAndConditions":
+          case 'termsAndConditions':
             form.setValue("termsAndConditionsAr", translation);
             break;
-          case "customText":
+          case 'customText':
             form.setValue("customTextAr", translation);
             break;
         }
         break;
-
-      case "array":
-        if (fieldId.startsWith("includedFeature_")) {
+      
+      case 'array':
+        if (fieldId.startsWith('includedFeature_')) {
           const currentFeatures = form.getValues("includedFeaturesAr") || [];
-          form.setValue("includedFeaturesAr", [
-            ...currentFeatures,
-            translation,
-          ]);
-        } else if (fieldId.startsWith("excludedFeature_")) {
+          form.setValue("includedFeaturesAr", [...currentFeatures, translation]);
+        } else if (fieldId.startsWith('excludedFeature_')) {
           const currentFeatures = form.getValues("excludedFeaturesAr") || [];
-          form.setValue("excludedFeaturesAr", [
-            ...currentFeatures,
-            translation,
-          ]);
-        } else if (fieldId.startsWith("idealFor_")) {
+          form.setValue("excludedFeaturesAr", [...currentFeatures, translation]);
+        } else if (fieldId.startsWith('idealFor_')) {
           const currentTypes = form.getValues("idealForAr") || [];
           form.setValue("idealForAr", [...currentTypes, translation]);
         }
         break;
-
-      case "itinerary":
-        const parts = fieldId.split("_");
+      
+      case 'itinerary':
+        const parts = fieldId.split('_');
         const dayIndex = parseInt(parts[1]);
         const field = parts[2];
         const currentItinerary = form.getValues("itineraryAr") || [];
-
+        
         if (!currentItinerary[dayIndex]) {
-          currentItinerary[dayIndex] = {
-            day: dayIndex + 1,
-            title: "",
-            description: "",
-            image: "",
-          };
+          currentItinerary[dayIndex] = { day: dayIndex + 1, title: '', description: '', image: '' };
         }
-
-        if (field === "title") {
+        
+        if (field === 'title') {
           currentItinerary[dayIndex].title = translation;
-        } else if (field === "description") {
+        } else if (field === 'description') {
           currentItinerary[dayIndex].description = translation;
         }
-
+        
         form.setValue("itineraryAr", currentItinerary);
         break;
-
-      case "packing":
-        const packParts = fieldId.split("_");
+      
+      case 'packing':
+        const packParts = fieldId.split('_');
         const itemIndex = parseInt(packParts[1]);
         const packField = packParts[2];
         const currentPack = form.getValues("whatToPackAr") || [];
-
+        
         if (!currentPack[itemIndex]) {
-          currentPack[itemIndex] = { item: "", icon: "Luggage", tooltip: "" };
+          currentPack[itemIndex] = { item: '', icon: 'Luggage', tooltip: '' };
         }
-
-        if (packField === "item") {
+        
+        if (packField === 'item') {
           currentPack[itemIndex].item = translation;
-        } else if (packField === "tooltip") {
+        } else if (packField === 'tooltip') {
           currentPack[itemIndex].tooltip = translation;
         }
-
+        
         form.setValue("whatToPackAr", currentPack);
         break;
     }
@@ -2808,91 +2740,85 @@ export function PackageCreatorForm({
   // مسح الحقل الإنجليزي
   const clearEnglishField = (fieldId: string, fieldType: string) => {
     switch (fieldType) {
-      case "basic":
+      case 'basic':
         switch (fieldId) {
-          case "title":
+          case 'title':
             form.setValue("title", "");
             break;
-          case "shortDescription":
+          case 'shortDescription':
             form.setValue("shortDescription", "");
             break;
-          case "overview":
+          case 'overview':
             form.setValue("overview", "");
             break;
-          case "bestTimeToVisit":
+          case 'bestTimeToVisit':
             form.setValue("bestTimeToVisit", "");
             break;
         }
         break;
-
-      case "policy":
+      
+      case 'policy':
         switch (fieldId) {
-          case "cancellationPolicy":
+          case 'cancellationPolicy':
             form.setValue("cancellationPolicy", "");
             break;
-          case "childrenPolicy":
+          case 'childrenPolicy':
             form.setValue("childrenPolicy", "");
             break;
-          case "termsAndConditions":
+          case 'termsAndConditions':
             form.setValue("termsAndConditions", "");
             break;
-          case "customText":
+          case 'customText':
             form.setValue("customText", "");
             break;
         }
         break;
-
-      case "array":
-        if (fieldId.startsWith("includedFeature_")) {
-          const index = parseInt(fieldId.split("_")[1]);
-          const updatedFeatures = customIncludedFeatures.filter(
-            (_, i) => i !== index,
-          );
+      
+      case 'array':
+        if (fieldId.startsWith('includedFeature_')) {
+          const index = parseInt(fieldId.split('_')[1]);
+          const updatedFeatures = customIncludedFeatures.filter((_, i) => i !== index);
           setCustomIncludedFeatures(updatedFeatures);
           form.setValue("includedFeatures", updatedFeatures);
-        } else if (fieldId.startsWith("excludedFeature_")) {
-          const index = parseInt(fieldId.split("_")[1]);
-          const updatedFeatures = customExcludedFeatures.filter(
-            (_, i) => i !== index,
-          );
+        } else if (fieldId.startsWith('excludedFeature_')) {
+          const index = parseInt(fieldId.split('_')[1]);
+          const updatedFeatures = customExcludedFeatures.filter((_, i) => i !== index);
           setCustomExcludedFeatures(updatedFeatures);
           form.setValue("excludedFeatures", updatedFeatures);
-        } else if (fieldId.startsWith("idealFor_")) {
-          const index = parseInt(fieldId.split("_")[1]);
-          const updatedTypes = customTravelerTypes.filter(
-            (_, i) => i !== index,
-          );
+        } else if (fieldId.startsWith('idealFor_')) {
+          const index = parseInt(fieldId.split('_')[1]);
+          const updatedTypes = customTravelerTypes.filter((_, i) => i !== index);
           setCustomTravelerTypes(updatedTypes);
           form.setValue("idealFor", updatedTypes);
         }
         break;
-
-      case "itinerary":
-        const parts = fieldId.split("_");
+      
+      case 'itinerary':
+        const parts = fieldId.split('_');
         const dayIndex = parseInt(parts[1]);
         const field = parts[2];
         const currentItinerary = form.getValues("itinerary") || [];
-
+        
         if (currentItinerary[dayIndex]) {
-          if (field === "title") {
+          if (field === 'title') {
             currentItinerary[dayIndex].title = "";
-          } else if (field === "description") {
+          } else if (field === 'description') {
             currentItinerary[dayIndex].description = "";
           }
           form.setValue("itinerary", currentItinerary);
         }
         break;
-
-      case "packing":
-        const packParts = fieldId.split("_");
+      
+      case 'packing':
+        const packParts = fieldId.split('_');
         const itemIndex = parseInt(packParts[1]);
         const packField = packParts[2];
         const currentPack = form.getValues("whatToPack") || [];
-
+        
         if (currentPack[itemIndex]) {
-          if (packField === "item") {
+          if (packField === 'item') {
             currentPack[itemIndex].item = "";
-          } else if (packField === "tooltip") {
+          } else if (packField === 'tooltip') {
             currentPack[itemIndex].tooltip = "";
           }
           form.setValue("whatToPack", currentPack);
@@ -2914,7 +2840,7 @@ export function PackageCreatorForm({
           }
 
           console.log("✅ ALLOWED: Manual form submission proceeding");
-          onSubmit(form.getValues());
+          packageMutation.mutate(form.getValues());
         }}
         className="space-y-8"
       >
@@ -2996,6 +2922,7 @@ export function PackageCreatorForm({
                         id="package-short-description"
                         className="package-short-description-input admin-input"
                         placeholder="Brief description for package listings"
+                        
                         {...field}
                       />
                     </FormControl>
@@ -3075,9 +3002,7 @@ export function PackageCreatorForm({
                         field.onChange(parseInt(value));
                       }}
                       value={field.value?.toString()}
-                      disabled={
-                        !selectedCountryId && !form.getValues("countryId")
-                      }
+                      disabled={!selectedCountryId && !form.getValues("countryId")}
                     >
                       <FormControl>
                         <SelectTrigger
@@ -3096,17 +3021,12 @@ export function PackageCreatorForm({
                       <SelectContent>
                         {Array.isArray(cities) &&
                           cities
-                            .filter((city: any) => {
-                              const currentCountryId =
-                                selectedCountryId ||
-                                form.getValues("countryId");
-                              return (
-                                currentCountryId &&
-                                (city.countryId === currentCountryId ||
-                                  Number(city.countryId) ===
-                                    Number(currentCountryId))
-                              );
-                            })
+                            .filter(
+                              (city: any) => {
+                                const currentCountryId = selectedCountryId || form.getValues("countryId");
+                                return currentCountryId && (city.countryId === currentCountryId || Number(city.countryId) === Number(currentCountryId));
+                              }
+                            )
                             .map((city: any) => (
                               <SelectItem
                                 key={city.id}
@@ -3129,8 +3049,8 @@ export function PackageCreatorForm({
                 render={({ field }) => (
                   <FormItem>
                     <FormLabel>Destination</FormLabel>
-                    <Select
-                      onValueChange={(value) => field.onChange(parseInt(value))}
+                    <Select 
+                      onValueChange={(value) => field.onChange(parseInt(value))} 
                       value={field.value?.toString()}
                     >
                       <FormControl>
@@ -3287,12 +3207,8 @@ export function PackageCreatorForm({
                         </SelectTrigger>
                       </FormControl>
                       <SelectContent>
-                        <SelectItem value="percentage">
-                          Percentage (%)
-                        </SelectItem>
-                        <SelectItem value="fixed">
-                          Fixed Amount (EGP)
-                        </SelectItem>
+                        <SelectItem value="percentage">Percentage (%)</SelectItem>
+                        <SelectItem value="fixed">Fixed Amount (EGP)</SelectItem>
                       </SelectContent>
                     </Select>
                     <FormDescription>
@@ -3309,37 +3225,22 @@ export function PackageCreatorForm({
                 render={({ field }) => (
                   <FormItem>
                     <FormLabel>
-                      Markup{" "}
-                      {form.watch("markupType") === "percentage"
-                        ? "(%)"
-                        : "(EGP)"}
+                      Markup {form.watch("markupType") === "percentage" ? "(%)" : "(EGP)"}
                     </FormLabel>
                     <FormControl>
                       <Input
                         type="number"
                         min="0"
-                        step={
-                          form.watch("markupType") === "percentage"
-                            ? "0.1"
-                            : "1"
-                        }
-                        placeholder={
-                          form.watch("markupType") === "percentage"
-                            ? "e.g., 15"
-                            : "Enter amount"
-                        }
+                        step={form.watch("markupType") === "percentage" ? "0.1" : "1"}
+                        placeholder={form.watch("markupType") === "percentage" ? "e.g., 15" : "Enter amount"}
                         {...field}
                         value={field.value || ""}
-                        onChange={(e) =>
-                          field.onChange(
-                            e.target.value ? Number(e.target.value) : null,
-                          )
-                        }
+                        onChange={(e) => field.onChange(e.target.value ? Number(e.target.value) : null)}
                       />
                     </FormControl>
                     <FormDescription>
-                      {form.watch("markupType") === "percentage"
-                        ? "Enter percentage (0-100)"
+                      {form.watch("markupType") === "percentage" 
+                        ? "Enter percentage (0-100)" 
                         : "Enter fixed amount in EGP"}
                     </FormDescription>
                     <FormMessage />
@@ -3419,12 +3320,9 @@ export function PackageCreatorForm({
               render={({ field }) => (
                 <FormItem className="flex flex-row items-center justify-between rounded-lg border p-4">
                   <div className="space-y-0.5">
-                    <FormLabel className="text-base">
-                      Featured Package
-                    </FormLabel>
+                    <FormLabel className="text-base">Featured Package</FormLabel>
                     <FormDescription>
-                      Mark this package as featured to display it prominently on
-                      the website.
+                      Mark this package as featured to display it prominently on the website.
                     </FormDescription>
                   </div>
                   <FormControl>
@@ -3451,12 +3349,10 @@ export function PackageCreatorForm({
                           variant={"outline"}
                           className={cn(
                             "w-full pl-3 text-left font-normal",
-                            !field.value && "text-muted-foreground",
+                            !field.value && "text-muted-foreground"
                           )}
                         >
-                          {field.value &&
-                          field.value instanceof Date &&
-                          !isNaN(field.value.getTime()) ? (
+                          {field.value && field.value instanceof Date && !isNaN(field.value.getTime()) ? (
                             format(field.value, "PPP")
                           ) : (
                             <span>Pick a date</span>
@@ -3468,14 +3364,11 @@ export function PackageCreatorForm({
                     <PopoverContent className="w-auto p-0" align="start">
                       <Calendar
                         mode="single"
-                        selected={
-                          field.value instanceof Date &&
-                          !isNaN(field.value.getTime())
-                            ? field.value
-                            : undefined
-                        }
+                        selected={field.value instanceof Date && !isNaN(field.value.getTime()) ? field.value : undefined}
                         onSelect={field.onChange}
-                        disabled={(date) => date < new Date()}
+                        disabled={(date) =>
+                          date < new Date()
+                        }
                         initialFocus
                       />
                     </PopoverContent>
@@ -3543,6 +3436,7 @@ export function PackageCreatorForm({
             />
 
             {/* Ideal For */}
+          
 
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
               <FormField
@@ -3680,11 +3574,7 @@ export function PackageCreatorForm({
                         placeholder="Enter duration"
                         {...field}
                         value={field.value || ""}
-                        onChange={(e) =>
-                          field.onChange(
-                            e.target.value ? Number(e.target.value) : "",
-                          )
-                        }
+                        onChange={(e) => field.onChange(e.target.value ? Number(e.target.value) : "")}
                       />
                     </FormControl>
                     <FormDescription>
@@ -3725,15 +3615,10 @@ export function PackageCreatorForm({
 
             <div>
               <h3 className="text-sm font-medium mb-3">
-                {t("gallery_images", "Gallery Images")}{" "}
-                <span className="text-destructive">*</span>
+                {t("gallery_images", "Gallery Images")} <span className="text-destructive">*</span>
               </h3>
               <p className="text-sm text-muted-foreground mb-3">
-                <span className="text-destructive">*</span>{" "}
-                {t(
-                  "gallery_images_required",
-                  "At least one image is required. Upload images to the package gallery. The first or featured image will be used as the main image.",
-                )}
+                <span className="text-destructive">*</span> {t("gallery_images_required", "At least one image is required. Upload images to the package gallery. The first or featured image will be used as the main image.")}
               </p>
 
               {/* Hidden file input */}
@@ -3763,17 +3648,11 @@ export function PackageCreatorForm({
                         size="icon"
                         className="h-6 w-6 rounded-full bg-white"
                         onClick={() => setMainImage(image.id)}
-                        title={
-                          image.isMain ? "Main image" : "Set as main image"
-                        }
+                        title={image.isMain ? "Main image" : "Set as main image"}
                       >
-                        <Star
-                          size={14}
-                          className={
-                            image.isMain
-                              ? "text-amber-500 fill-amber-500"
-                              : "text-amber-500"
-                          }
+                        <Star 
+                          size={14} 
+                          className={image.isMain ? "text-amber-500 fill-amber-500" : "text-amber-500"} 
                         />
                       </Button>
                       <Button
@@ -3915,7 +3794,7 @@ export function PackageCreatorForm({
                 <AlertCircle className="h-5 w-5 text-primary" />
                 <h3 className="text-lg font-semibold">Policies</h3>
               </div>
-
+              
               <div className="grid grid-cols-1 gap-6">
                 {/* Cancellation Policy (English) */}
                 <FormField
@@ -4051,34 +3930,21 @@ export function PackageCreatorForm({
                         </TableCell>
                         <TableCell>
                           {(() => {
-                            const selectedRoom = form
-                              .watch("rooms")
-                              ?.find((r) => r.id === room.id);
+                            const selectedRoom = form.watch("rooms")?.find(r => r.id === room.id);
                             return selectedRoom ? (
                               <Input
                                 type="number"
                                 min="0"
-                                value={
-                                  selectedRoom.customPrice ||
-                                  selectedRoom.price ||
-                                  0
-                                }
+                                value={selectedRoom.customPrice || selectedRoom.price || 0}
                                 onChange={(e) => {
-                                  const currentRooms =
-                                    form.getValues("rooms") || [];
+                                  const currentRooms = form.getValues("rooms") || [];
                                   const updatedRooms = currentRooms.map((r) =>
                                     r.id === room.id
-                                      ? {
-                                          ...r,
-                                          customPrice: Number(e.target.value),
-                                        }
+                                      ? { ...r, customPrice: Number(e.target.value) }
                                       : r,
                                   );
                                   form.setValue("rooms", updatedRooms);
-                                  console.log(
-                                    "Updated room pricing:",
-                                    updatedRooms,
-                                  );
+                                  console.log("Updated room pricing:", updatedRooms);
                                 }}
                                 className="w-24"
                               />
@@ -4208,7 +4074,7 @@ export function PackageCreatorForm({
             {/* Hotel Selection */}
             <div className="space-y-4 border rounded-md p-4">
               <h3 className="text-lg font-semibold">Select Hotels</h3>
-
+              
               {/* Hotel Search Input */}
               <div className="space-y-2">
                 <Label htmlFor="hotel-search">Search Hotels</Label>
@@ -4242,56 +4108,20 @@ export function PackageCreatorForm({
                                 id={`hotel-${hotel.id}`}
                                 checked={
                                   Array.isArray(field.value) &&
-                                  field.value.some(item => {
-                                    // Handle both hotel objects and hotel IDs
-                                    const itemId = typeof item === 'object' && item !== null && 'id' in item ? item.id : item;
-                                    return itemId == hotel.id || String(itemId) === String(hotel.id);
-                                  })
+                                  (field.value.includes(hotel.id) || 
+                                   field.value.includes(String(hotel.id)) ||
+                                   field.value.includes(Number(hotel.id)))
                                 }
                                 onCheckedChange={(checked) => {
-                                  const currentSelection = Array.isArray(
-                                    field.value,
-                                  )
-                                    ? field.value
-                                    : [];
-                                  
-                                  // Extract IDs from current selection (handle both objects and IDs)
-                                  const currentIds = currentSelection.map(item => {
-                                    // Handle hotel objects with id property
-                                    if (typeof item === 'object' && item !== null && 'id' in item) {
-                                      return item.id;
-                                    }
-                                    // Handle direct ID values
-                                    return item;
-                                  }).filter(id => id !== null && id !== undefined);
-                                  
+                                  const currentSelection = Array.isArray(field.value) ? field.value : [];
                                   let newSelection;
                                   if (checked) {
-                                    // Add hotel ID if not already present
-                                    if (!currentIds.includes(hotel.id)) {
-                                      newSelection = [...currentIds, hotel.id];
-                                    } else {
-                                      newSelection = currentIds;
-                                    }
+                                    newSelection = [...currentSelection, hotel.id];
                                   } else {
-                                    // Remove hotel ID
-                                    newSelection = currentIds.filter(id => 
-                                      id !== hotel.id && 
-                                      String(id) !== String(hotel.id) && 
-                                      Number(id) !== Number(hotel.id)
+                                    newSelection = currentSelection.filter(
+                                      (id) => id == hotel.id ? false : true
                                     );
                                   }
-                                  
-                                  console.log("Hotel selection change:", {
-                                    hotelId: hotel.id,
-                                    checked,
-                                    currentSelection: currentSelection.map(item => 
-                                      typeof item === 'object' ? `{id: ${item?.id}, name: ${item?.name}}` : item
-                                    ),
-                                    currentIds,
-                                    newSelection
-                                  });
-                                  
                                   field.onChange(newSelection);
                                   handleHotelSelectionChange(newSelection);
                                 }}
@@ -4428,591 +4258,453 @@ export function PackageCreatorForm({
               const isHotelsArray = Array.isArray(selectedHotels);
               const hotelsLength = selectedHotels?.length || 0;
               const roomsLength = filteredRooms.length;
-              const shouldShow =
-                isHotelsArray && hotelsLength > 0 && roomsLength > 0;
-
+              const shouldShow = isHotelsArray && hotelsLength > 0 && roomsLength > 0;
+              
               console.log("🔍 Room section visibility check:", {
                 selectedHotels,
                 isHotelsArray,
                 hotelsLength,
                 roomsLength,
-                shouldShow,
+                shouldShow
               });
-
+              
               return shouldShow;
             })() && (
-              <FormField
-                control={form.control}
-                name="rooms"
-                render={() => (
-                  <FormItem>
-                    <div className="mb-4">
-                      <h3 className="text-lg font-semibold">Available Rooms</h3>
-                      <FormDescription>
-                        Only rooms that can accommodate your specified guest
-                        count are shown.
-                      </FormDescription>
-                    </div>
-
-                    {filteredRooms.length === 0 ? (
-                      <div className="text-center p-8 border border-dashed rounded-md">
-                        <p className="text-muted-foreground">
-                          No rooms match the selected criteria. Try adjusting
-                          your guest count or selecting different hotels.
-                        </p>
+                <FormField
+                  control={form.control}
+                  name="rooms"
+                  render={() => (
+                    <FormItem>
+                      <div className="mb-4">
+                        <h3 className="text-lg font-semibold">
+                          Available Rooms
+                        </h3>
+                        <FormDescription>
+                          Only rooms that can accommodate your specified guest
+                          count are shown.
+                        </FormDescription>
                       </div>
-                    ) : (
-                      <div className="space-y-6">
-                        {/* Room Capacity Summary */}
-                        {form.watch("rooms") &&
-                          form.watch("rooms")?.length > 0 && (
-                            <div className="bg-green-50 border border-green-200 rounded-md p-4">
-                              <h4 className="text-sm font-medium text-green-900 mb-2">
-                                Selected Rooms Capacity:
-                              </h4>
-                              <div className="space-y-2">
-                                {form
-                                  .watch("rooms")
-                                  ?.map((selectedRoom: any, index: number) => {
-                                    const roomData = filteredRooms.find(
-                                      (r) => r.id === selectedRoom.id,
-                                    );
-                                    if (!roomData) return null;
 
-                                    return (
-                                      <div key={selectedRoom.id}>
-                                        <div className="flex items-center justify-between text-sm bg-white p-2 rounded border">
-                                          <span className="font-medium text-green-800">
-                                            {roomData.name}
-                                          </span>
-                                          <div className="flex gap-2">
-                                            <Badge
-                                              variant="outline"
-                                              className="text-xs"
-                                            >
-                                              Adults:{" "}
-                                              {roomData.max_adults ||
-                                                roomData.maxAdults ||
-                                                2}
-                                            </Badge>
-                                            <Badge
-                                              variant="outline"
-                                              className="text-xs"
-                                            >
-                                              Children:{" "}
-                                              {roomData.max_children ||
-                                                roomData.maxChildren ||
-                                                0}
-                                            </Badge>
-                                            <Badge
-                                              variant="outline"
-                                              className="text-xs"
-                                            >
-                                              Infants:{" "}
-                                              {roomData.max_infants ||
-                                                roomData.maxInfants ||
-                                                0}
-                                            </Badge>
-                                            <Badge
-                                              variant="default"
-                                              className="bg-green-600 text-xs"
-                                            >
-                                              Total:{" "}
-                                              {roomData.max_occupancy ||
-                                                roomData.maxOccupancy ||
-                                                2}
-                                            </Badge>
-                                          </div>
-                                        </div>
-                                        {index <
-                                          (form.watch("rooms")?.length || 0) -
-                                            1 && (
-                                          <div className="border-b border-gray-200 my-2"></div>
-                                        )}
-                                      </div>
-                                    );
-                                  })}
-                                <div className="border-t pt-2 mt-2">
-                                  <div className="flex items-center justify-between">
-                                    <span className="font-semibold text-green-900">
-                                      Total Package Capacity:
-                                    </span>
-                                    <div className="flex gap-2">
-                                      <Badge variant="secondary">
-                                        Adults:{" "}
-                                        {form
-                                          .watch("rooms")
-                                          .reduce(
-                                            (total: number, room: any) => {
-                                              const roomData =
-                                                filteredRooms.find(
-                                                  (r) => r.id === room.id,
-                                                );
-                                              return (
-                                                total +
-                                                (roomData?.max_adults ||
-                                                  roomData?.maxAdults ||
-                                                  2)
-                                              );
-                                            },
-                                            0,
-                                          )}
-                                      </Badge>
-                                      <Badge variant="secondary">
-                                        Children:{" "}
-                                        {form
-                                          .watch("rooms")
-                                          .reduce(
-                                            (total: number, room: any) => {
-                                              const roomData =
-                                                filteredRooms.find(
-                                                  (r) => r.id === room.id,
-                                                );
-                                              return (
-                                                total +
-                                                (roomData?.max_children ||
-                                                  roomData?.maxChildren ||
-                                                  0)
-                                              );
-                                            },
-                                            0,
-                                          )}
-                                      </Badge>
-                                      <Badge variant="secondary">
-                                        Infants:{" "}
-                                        {form
-                                          .watch("rooms")
-                                          .reduce(
-                                            (total: number, room: any) => {
-                                              const roomData =
-                                                filteredRooms.find(
-                                                  (r) => r.id === room.id,
-                                                );
-                                              return (
-                                                total +
-                                                (roomData?.max_infants ||
-                                                  roomData?.maxInfants ||
-                                                  0)
-                                              );
-                                            },
-                                            0,
-                                          )}
-                                      </Badge>
-                                      <Badge
-                                        variant="default"
-                                        className="bg-green-700"
-                                      >
-                                        Total:{" "}
-                                        {form
-                                          .watch("rooms")
-                                          .reduce(
-                                            (total: number, room: any) => {
-                                              const roomData =
-                                                filteredRooms.find(
-                                                  (r) => r.id === room.id,
-                                                );
-                                              return (
-                                                total +
-                                                (roomData?.max_occupancy ||
-                                                  roomData?.maxOccupancy ||
-                                                  2)
-                                              );
-                                            },
-                                            0,
-                                          )}{" "}
-                                        guests
-                                      </Badge>
-                                    </div>
-                                  </div>
-                                </div>
-                              </div>
-                            </div>
-                          )}
-
-                        {hotels
-                          .filter(
-                            (hotel) =>
-                              Array.isArray(form.watch("selectedHotels")) &&
-                              form.watch("selectedHotels")?.includes(hotel.id),
-                          )
-                          .map((hotel) => {
-                            const hotelRooms = filteredRooms.filter((room) => {
-                              const roomHotelId = String(
-                                room.hotelId || room.hotel_id,
-                              );
-                              const hotelId = String(hotel.id);
-                              const matches = roomHotelId === hotelId;
-                              console.log(
-                                `🏨 Hotel ${hotel.name} (ID: ${hotelId}): Room "${room.name}" has hotel_id=${roomHotelId}, matches=${matches ? "✅" : "❌"}`,
-                              );
-                              return matches;
-                            });
-                            console.log(
-                              `🏨 Hotel ${hotel.name}: Found ${hotelRooms.length} rooms`,
-                            );
-
-                            return (
-                              <div
-                                key={hotel.id}
-                                className="border-2 border-blue-200 rounded-lg p-6 bg-gradient-to-r from-blue-50 to-indigo-50 mb-6"
-                              >
-                                {/* Hotel Header */}
-                                <div className="flex items-center justify-between mb-4 pb-3 border-b border-blue-200">
-                                  <div className="flex items-center gap-3">
-                                    <div className="w-12 h-12 bg-blue-100 rounded-full flex items-center justify-center">
-                                      <span className="text-blue-600 font-bold text-lg">
-                                        {hotel.name.charAt(0).toUpperCase()}
-                                      </span>
-                                    </div>
-                                    <div>
-                                      <h4 className="font-bold text-lg text-gray-900">
-                                        {hotel.name}
-                                      </h4>
-                                      <p className="text-sm text-gray-600">
-                                        {hotel.city}, {hotel.country}
-                                      </p>
-                                    </div>
-                                  </div>
-                                  <div className="flex flex-col items-end">
-                                    <div className="flex items-center gap-1 mb-1">
-                                      {Array.from({ length: 5 }, (_, i) => (
-                                        <span
-                                          key={i}
-                                          className={`text-lg ${
-                                            i < (hotel.stars || 0)
-                                              ? "text-yellow-500"
-                                              : "text-gray-300"
-                                          }`}
-                                        >
-                                          ★
-                                        </span>
-                                      ))}
-                                    </div>
-                                    <span className="text-sm text-gray-600 font-medium">
-                                      {hotel.stars || 0} Star Hotel
-                                    </span>
-                                  </div>
-                                </div>
-
-                                {/* Room Count Info */}
-                                <div className="mb-4 bg-white rounded-md p-3 border border-blue-100">
-                                  <div className="flex items-center justify-between">
-                                    <span className="text-sm font-medium text-gray-700">
-                                      Available Rooms for Your Group:
-                                    </span>
-                                    <span className="bg-blue-100 text-blue-800 px-2 py-1 rounded-full text-xs font-medium">
-                                      {hotelRooms.length} room
-                                      {hotelRooms.length !== 1 ? "s" : ""}{" "}
-                                      available
-                                    </span>
-                                  </div>
-                                </div>
-
-                                {/* Rooms Grid */}
-                                {hotelRooms.length === 0 ? (
-                                  <div className="text-center py-8 bg-white rounded-md border border-dashed border-gray-300">
-                                    <p className="text-gray-500">
-                                      No rooms available at this hotel for your
-                                      guest count.
-                                    </p>
-                                  </div>
-                                ) : (
-                                  <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
-                                    {hotelRooms.map((room) => {
-                                      const isSelected =
-                                        Array.isArray(form.watch("rooms")) &&
-                                        form
-                                          .watch("rooms")
-                                          ?.some((r) => r.id === room.id);
+                      {filteredRooms.length === 0 ? (
+                        <div className="text-center p-8 border border-dashed rounded-md">
+                          <p className="text-muted-foreground">
+                            No rooms match the selected criteria. Try adjusting
+                            your guest count or selecting different hotels.
+                          </p>
+                        </div>
+                      ) : (
+                        <div className="space-y-6">
+                          {/* Room Capacity Summary */}
+                          {form.watch("rooms") &&
+                            form.watch("rooms")?.length > 0 && (
+                              <div className="bg-green-50 border border-green-200 rounded-md p-4">
+                                <h4 className="text-sm font-medium text-green-900 mb-2">
+                                  Selected Rooms Capacity:
+                                </h4>
+                                <div className="space-y-2">
+                                  {form
+                                    .watch("rooms")
+                                    ?.map((selectedRoom: any, index: number) => {
+                                      const roomData = filteredRooms.find(
+                                        (r) => r.id === selectedRoom.id,
+                                      );
+                                      if (!roomData) return null;
 
                                       return (
-                                        <FormItem
-                                          key={room.id}
-                                          className={`bg-white border-2 rounded-lg p-4 transition-all duration-200 ${
-                                            isSelected
-                                              ? "border-green-400 bg-green-50 shadow-md"
-                                              : "border-gray-200 hover:border-blue-300 hover:shadow-sm"
-                                          }`}
-                                        >
-                                          {/* Room Header */}
-                                          <div className="flex items-start justify-between mb-3">
-                                            <div className="flex items-center space-x-3">
-                                              <FormControl>
-                                                <Checkbox
-                                                  checked={isSelected}
-                                                  onCheckedChange={(
-                                                    checked,
-                                                  ) => {
-                                                    const currentRooms =
-                                                      form.watch("rooms") || [];
-                                                    if (checked) {
-                                                      // Add comprehensive room data
-                                                      const roomData = {
-                                                        id: room.id,
-                                                        name: room.name,
-                                                        description:
-                                                          room.description,
-                                                        hotelId:
-                                                          room.hotelId ||
-                                                          room.hotel_id,
-                                                        hotelName: hotel.name,
-                                                        type: room.type,
-                                                        maxOccupancy:
-                                                          room.max_occupancy ||
-                                                          room.maxOccupancy,
-                                                        maxAdults:
-                                                          room.max_adults ||
-                                                          room.maxAdults,
-                                                        maxChildren:
-                                                          room.max_children ||
-                                                          room.maxChildren,
-                                                        maxInfants:
-                                                          room.max_infants ||
-                                                          room.maxInfants,
-                                                        price: room.price
-                                                          ? room.price / 100
-                                                          : 0,
-                                                        originalPrice:
-                                                          room.price
-                                                            ? room.price / 100
-                                                            : 0,
-                                                        discountedPrice:
-                                                          room.discounted_price
-                                                            ? room.discounted_price /
-                                                              100
-                                                            : null,
-                                                        currency:
-                                                          room.currency ||
-                                                          "EGP",
-                                                        size: room.size,
-                                                        bedType:
-                                                          room.bed_type ||
-                                                          room.bedType,
-                                                        view: room.view,
-                                                        amenities:
-                                                          room.amenities || [],
-                                                        imageUrl:
-                                                          room.image_url ||
-                                                          room.imageUrl,
-                                                        available:
-                                                          room.available,
-                                                        status: room.status,
-                                                        customPrice: room.price
-                                                          ? room.price / 100
-                                                          : 0,
-                                                        customDiscount: 0,
-                                                      };
-
-                                                      form.setValue("rooms", [
-                                                        ...currentRooms,
-                                                        roomData,
-                                                      ]);
-                                                    } else {
-                                                      form.setValue(
-                                                        "rooms",
-                                                        currentRooms.filter(
-                                                          (r) =>
-                                                            r.id !== room.id,
-                                                        ),
-                                                      );
-                                                    }
-                                                  }}
-                                                  className="mt-1"
-                                                />
-                                              </FormControl>
-                                              <div className="flex-1">
-                                                <FormLabel className="font-semibold text-base cursor-pointer block text-gray-900">
-                                                  {room.name}
-                                                </FormLabel>
-                                                {room.description && (
-                                                  <p className="text-sm text-gray-600 mt-1 line-clamp-2">
-                                                    {room.description}
-                                                  </p>
-                                                )}
-                                              </div>
-                                            </div>
-
-                                            {/* Selected Badge */}
-                                            {isSelected && (
-                                              <div className="bg-green-100 text-green-800 px-2 py-1 rounded-full text-xs font-medium">
-                                                Selected
-                                              </div>
-                                            )}
-                                          </div>
-
-                                          {/* Room Details */}
-                                          <div className="grid grid-cols-2 gap-3 mb-3">
-                                            {/* Capacity Info */}
-                                            <div className="bg-gray-50 rounded-md p-3">
-                                              <div className="text-xs font-medium text-gray-700 mb-2">
-                                                Guest Capacity
-                                              </div>
-                                              <div className="flex flex-wrap gap-1">
-                                                <Badge
-                                                  variant="outline"
-                                                  className="text-xs"
-                                                >
-                                                  Adults:{" "}
-                                                  {room.max_adults ||
-                                                    room.maxAdults ||
-                                                    2}
-                                                </Badge>
-                                                <Badge
-                                                  variant="outline"
-                                                  className="text-xs"
-                                                >
-                                                  Children:{" "}
-                                                  {room.max_children ||
-                                                    room.maxChildren ||
-                                                    0}
-                                                </Badge>
-                                                <Badge
-                                                  variant="outline"
-                                                  className="text-xs"
-                                                >
-                                                  Infants:{" "}
-                                                  {room.max_infants ||
-                                                    room.maxInfants ||
-                                                    0}
-                                                </Badge>
-                                              </div>
-                                              <div className="mt-1">
-                                                <Badge
-                                                  variant="secondary"
-                                                  className="text-xs"
-                                                >
-                                                  Total:{" "}
-                                                  {room.max_occupancy ||
-                                                    room.maxOccupancy ||
-                                                    2}{" "}
-                                                  guests
-                                                </Badge>
-                                              </div>
-                                            </div>
-
-                                            {/* Room Features */}
-                                            <div className="bg-gray-50 rounded-md p-3">
-                                              <div className="text-xs font-medium text-gray-700 mb-2">
-                                                Room Features
-                                              </div>
-                                              <div className="flex flex-wrap gap-1">
-                                                {room.type && (
-                                                  <Badge
-                                                    variant="secondary"
-                                                    className="text-xs"
-                                                  >
-                                                    {room.type}
-                                                  </Badge>
-                                                )}
-                                                {room.bedType && (
-                                                  <Badge
-                                                    variant="outline"
-                                                    className="text-xs"
-                                                  >
-                                                    {room.bedType}
-                                                  </Badge>
-                                                )}
-                                                {room.view && (
-                                                  <Badge
-                                                    variant="outline"
-                                                    className="text-xs"
-                                                  >
-                                                    {room.view} view
-                                                  </Badge>
-                                                )}
-                                                {room.size && (
-                                                  <Badge
-                                                    variant="outline"
-                                                    className="text-xs"
-                                                  >
-                                                    {room.size}
-                                                  </Badge>
-                                                )}
-                                              </div>
+                                        <div key={selectedRoom.id}>
+                                          <div className="flex items-center justify-between text-sm bg-white p-2 rounded border">
+                                            <span className="font-medium text-green-800">
+                                              {roomData.name}
+                                            </span>
+                                            <div className="flex gap-2">
+                                              <Badge
+                                                variant="outline"
+                                                className="text-xs"
+                                              >
+                                                Adults: {roomData.max_adults || roomData.maxAdults || 2}
+                                              </Badge>
+                                              <Badge
+                                                variant="outline"
+                                                className="text-xs"
+                                              >
+                                                Children: {roomData.max_children || roomData.maxChildren || 0}
+                                              </Badge>
+                                              <Badge
+                                                variant="outline"
+                                                className="text-xs"
+                                              >
+                                                Infants: {roomData.max_infants || roomData.maxInfants || 0}
+                                              </Badge>
+                                              <Badge
+                                                variant="default"
+                                                className="bg-green-600 text-xs"
+                                              >
+                                                Total: {roomData.max_occupancy || roomData.maxOccupancy || 2} guests
+                                              </Badge>
                                             </div>
                                           </div>
-
-                                          {/* Pricing Section */}
-                                          <div className="flex items-center justify-between pt-3 border-t border-gray-200">
-                                            <div className="text-sm text-gray-600">
-                                              Custom pricing in{" "}
-                                              <span className="font-medium">
-                                                Pricing Rules
-                                              </span>{" "}
-                                              section
-                                            </div>
-                                            <div className="flex items-center space-x-2">
-                                              <span className="text-xs text-gray-500">
-                                                Price/night:
-                                              </span>
-                                              <Input
-                                                className="w-20 h-8 text-sm"
-                                                type="number"
-                                                min="0"
-                                                value={
-                                                  room.price
-                                                    ? room.price / 100
-                                                    : 0
-                                                }
-                                                onChange={(e) => {
-                                                  const newPrice =
-                                                    parseInt(e.target.value) *
-                                                    100;
-                                                  const newRooms =
-                                                    filteredRooms.map((r) =>
-                                                      r.id === room.id
-                                                        ? {
-                                                            ...r,
-                                                            price: newPrice,
-                                                          }
-                                                        : r,
-                                                    );
-                                                  setFilteredRooms(newRooms);
-
-                                                  const currentRooms =
-                                                    form.getValues("rooms") ||
-                                                    [];
-                                                  const roomIndex =
-                                                    currentRooms.findIndex(
-                                                      (r) => r.id === room.id,
-                                                    );
-                                                  if (roomIndex !== -1) {
-                                                    const updatedRooms = [
-                                                      ...currentRooms,
-                                                    ];
-                                                    updatedRooms[roomIndex] = {
-                                                      ...updatedRooms[
-                                                        roomIndex
-                                                      ],
-                                                      price: newPrice / 100,
-                                                    };
-                                                    form.setValue(
-                                                      "rooms",
-                                                      updatedRooms,
-                                                    );
-                                                  }
-                                                }}
-                                              />
-                                              <span className="text-xs text-gray-600">
-                                                EGP
-                                              </span>
-                                            </div>
-                                          </div>
-                                        </FormItem>
+                                          {index < (form.watch("rooms")?.length || 0) - 1 && (
+                                            <div className="border-b border-gray-200 my-2"></div>
+                                          )}
+                                        </div>
                                       );
                                     })}
+                                  <div className="border-t pt-2 mt-2">
+                                    <div className="flex items-center justify-between">
+                                      <span className="font-semibold text-green-900">
+                                        Total Package Capacity:
+                                      </span>
+                                      <div className="flex gap-2">
+                                        <Badge variant="secondary">
+                                        Adults: {form
+                                            .watch("rooms")
+                                            .reduce(
+                                              (total: number, room: any) => {
+                                                const roomData =
+                                                  filteredRooms.find(
+                                                    (r) => r.id === room.id,
+                                                  );
+                                                return (
+                                                  total +
+                                                  (roomData?.max_adults ||
+                                                    roomData?.maxAdults ||
+                                                    2)
+                                                );
+                                              },
+                                              0,
+                                            )}
+                                        </Badge>
+                                        <Badge variant="secondary">
+                                          Children:{" "}
+                                          {form
+                                            .watch("rooms")
+                                            .reduce(
+                                              (total: number, room: any) => {
+                                                const roomData =
+                                                  filteredRooms.find(
+                                                    (r) => r.id === room.id,
+                                                  );
+                                                return (
+                                                  total +
+                                                  (roomData?.max_children ||
+                                                    roomData?.maxChildren ||
+                                                    0)
+                                                );
+                                              },
+                                              0,
+                                            )}
+                                        </Badge>
+                                        <Badge variant="secondary">
+                                          Infants:{" "}
+                                          {form
+                                            .watch("rooms")
+                                            .reduce(
+                                              (total: number, room: any) => {
+                                                const roomData =
+                                                  filteredRooms.find(
+                                                    (r) => r.id === room.id,
+                                                  );
+                                                return (
+                                                  total +
+                                                  (roomData?.max_infants ||
+                                                    roomData?.maxInfants ||
+                                                    0)
+                                                );
+                                              },
+                                              0,
+                                            )}
+                                        </Badge>
+                                        <Badge
+                                          variant="default"
+                                          className="bg-green-700"
+                                        >
+                                          Total:{" "}
+                                          {form.watch("rooms")
+                                            .reduce(
+                                              (total: number, room: any) => {
+                                                const roomData =
+                                                  filteredRooms.find(
+                                                    (r) => r.id === room.id,
+                                                  );
+                                                return (
+                                                  total +
+                                                  (roomData?.max_occupancy ||
+                                                    roomData?.maxOccupancy ||
+                                                    2)
+                                                );
+                                              },
+                                              0,
+                                            )}{" "}
+                                          guests
+                                        </Badge>
+                                      </div>
+                                    </div>
                                   </div>
-                                )}
+                                </div>
                               </div>
-                            );
-                          })}
-                      </div>
-                    )}
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
-            )}
+                            )}
+
+                          {hotels
+                            .filter(
+                              (hotel) =>
+                                Array.isArray(form.watch("selectedHotels")) &&
+                                form.watch("selectedHotels")?.includes(hotel.id),
+                            )
+                            .map((hotel) => {
+                              const hotelRooms = filteredRooms.filter(
+                                (room) => {
+                                  const roomHotelId = String(room.hotelId || room.hotel_id);
+                                  const hotelId = String(hotel.id);
+                                  const matches = roomHotelId === hotelId;
+                                  console.log(
+                                    `🏨 Hotel ${hotel.name} (ID: ${hotelId}): Room "${room.name}" has hotel_id=${roomHotelId}, matches=${matches ? "✅" : "❌"}`
+                                  );
+                                  return matches;
+                                }
+                              );
+                              console.log(`🏨 Hotel ${hotel.name}: Found ${hotelRooms.length} rooms`);
+                              
+                              return (
+                                <div
+                                  key={hotel.id}
+                                  className="border-2 border-blue-200 rounded-lg p-6 bg-gradient-to-r from-blue-50 to-indigo-50 mb-6"
+                                >
+                                  {/* Hotel Header */}
+                                  <div className="flex items-center justify-between mb-4 pb-3 border-b border-blue-200">
+                                    <div className="flex items-center gap-3">
+                                      <div className="w-12 h-12 bg-blue-100 rounded-full flex items-center justify-center">
+                                        <span className="text-blue-600 font-bold text-lg">
+                                          {hotel.name.charAt(0).toUpperCase()}
+                                        </span>
+                                      </div>
+                                      <div>
+                                        <h4 className="font-bold text-lg text-gray-900">
+                                          {hotel.name}
+                                        </h4>
+                                        <p className="text-sm text-gray-600">
+                                          {hotel.city}, {hotel.country}
+                                        </p>
+                                      </div>
+                                    </div>
+                                    <div className="flex flex-col items-end">
+                                      <div className="flex items-center gap-1 mb-1">
+                                        {Array.from({ length: 5 }, (_, i) => (
+                                          <span
+                                            key={i}
+                                            className={`text-lg ${
+                                              i < (hotel.stars || 0)
+                                                ? "text-yellow-500"
+                                                : "text-gray-300"
+                                            }`}
+                                          >
+                                            ★
+                                          </span>
+                                        ))}
+                                      </div>
+                                      <span className="text-sm text-gray-600 font-medium">
+                                        {hotel.stars || 0} Star Hotel
+                                      </span>
+                                    </div>
+                                  </div>
+
+                                  {/* Room Count Info */}
+                                  <div className="mb-4 bg-white rounded-md p-3 border border-blue-100">
+                                    <div className="flex items-center justify-between">
+                                      <span className="text-sm font-medium text-gray-700">
+                                        Available Rooms for Your Group:
+                                      </span>
+                                      <span className="bg-blue-100 text-blue-800 px-2 py-1 rounded-full text-xs font-medium">
+                                        {hotelRooms.length} room{hotelRooms.length !== 1 ? 's' : ''} available
+                                      </span>
+                                    </div>
+                                  </div>
+
+                                  {/* Rooms Grid */}
+                                  {hotelRooms.length === 0 ? (
+                                    <div className="text-center py-8 bg-white rounded-md border border-dashed border-gray-300">
+                                      <p className="text-gray-500">
+                                        No rooms available at this hotel for your guest count.
+                                      </p>
+                                    </div>
+                                  ) : (
+                                    <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
+                                      {hotelRooms.map((room) => {
+                                        const isSelected = Array.isArray(form.watch("rooms")) &&
+                                          form.watch("rooms")?.some((r) => r.id === room.id);
+                                        
+                                        return (
+                                          <FormItem
+                                            key={room.id}
+                                            className={`bg-white border-2 rounded-lg p-4 transition-all duration-200 ${
+                                              isSelected 
+                                                ? "border-green-400 bg-green-50 shadow-md" 
+                                                : "border-gray-200 hover:border-blue-300 hover:shadow-sm"
+                                            }`}
+                                          >
+                                            {/* Room Header */}
+                                            <div className="flex items-start justify-between mb-3">
+                                              <div className="flex items-center space-x-3">
+                                                <FormControl>
+                                                  <Checkbox
+                                                    checked={isSelected}
+                                                    onCheckedChange={(checked) => {
+                                                      const currentRooms = form.watch("rooms") || [];
+                                                      if (checked) {
+                                                        // Add comprehensive room data
+                                                        const roomData = {
+                                                          id: room.id,
+                                                          name: room.name,
+                                                          description: room.description,
+                                                          hotelId: room.hotelId || room.hotel_id,
+                                                          hotelName: hotel.name,
+                                                          type: room.type,
+                                                          maxOccupancy: room.max_occupancy || room.maxOccupancy,
+                                                          maxAdults: room.max_adults || room.maxAdults,
+                                                          maxChildren: room.max_children || room.maxChildren,
+                                                          maxInfants: room.max_infants || room.maxInfants,
+                                                          price: room.price ? room.price / 100 : 0,
+                                                          originalPrice: room.price ? room.price / 100 : 0,
+                                                          discountedPrice: room.discounted_price ? room.discounted_price / 100 : null,
+                                                          currency: room.currency || 'EGP',
+                                                          size: room.size,
+                                                          bedType: room.bed_type || room.bedType,
+                                                          view: room.view,
+                                                          amenities: room.amenities || [],
+                                                          imageUrl: room.image_url || room.imageUrl,
+                                                          available: room.available,
+                                                          status: room.status,
+                                                          customPrice: room.price ? room.price / 100 : 0,
+                                                          customDiscount: 0,
+                                                        };
+                                                        
+                                                        form.setValue("rooms", [...currentRooms, roomData]);
+                                                      } else {
+                                                        form.setValue("rooms", currentRooms.filter((r) => r.id !== room.id));
+                                                      }
+                                                    }}
+                                                    className="mt-1"
+                                                  />
+                                                </FormControl>
+                                                <div className="flex-1">
+                                                  <FormLabel className="font-semibold text-base cursor-pointer block text-gray-900">
+                                                    {room.name}
+                                                  </FormLabel>
+                                                  {room.description && (
+                                                    <p className="text-sm text-gray-600 mt-1 line-clamp-2">
+                                                      {room.description}
+                                                    </p>
+                                                  )}
+                                                </div>
+                                              </div>
+                                              
+                                              {/* Selected Badge */}
+                                              {isSelected && (
+                                                <div className="bg-green-100 text-green-800 px-2 py-1 rounded-full text-xs font-medium">
+                                                  Selected
+                                                </div>
+                                              )}
+                                            </div>
+
+                                            {/* Room Details */}
+                                            <div className="grid grid-cols-2 gap-3 mb-3">
+                                              {/* Capacity Info */}
+                                              <div className="bg-gray-50 rounded-md p-3">
+                                                <div className="text-xs font-medium text-gray-700 mb-2">Guest Capacity</div>
+                                                <div className="flex flex-wrap gap-1">
+                                                  <Badge variant="outline" className="text-xs">
+                                                    Adults: {room.max_adults || room.maxAdults || 2}
+                                                  </Badge>
+                                                  <Badge variant="outline" className="text-xs">
+                                                    Children: {room.max_children || room.maxChildren || 0}
+                                                  </Badge>
+                                                  <Badge variant="outline" className="text-xs">
+                                                    Infants: {room.max_infants || room.maxInfants || 0}
+                                                  </Badge>
+                                                </div>
+                                                <div className="mt-1">
+                                                  <Badge variant="secondary" className="text-xs">
+                                                    Total: {room.max_occupancy || room.maxOccupancy || 2} guests
+                                                  </Badge>
+                                                </div>
+                                              </div>
+
+                                              {/* Room Features */}
+                                              <div className="bg-gray-50 rounded-md p-3">
+                                                <div className="text-xs font-medium text-gray-700 mb-2">Room Features</div>
+                                                <div className="flex flex-wrap gap-1">
+                                                  {room.type && (
+                                                    <Badge variant="secondary" className="text-xs">
+                                                      {room.type}
+                                                    </Badge>
+                                                  )}
+                                                  {room.bedType && (
+                                                    <Badge variant="outline" className="text-xs">
+                                                      {room.bedType}
+                                                    </Badge>
+                                                  )}
+                                                  {room.view && (
+                                                    <Badge variant="outline" className="text-xs">
+                                                      {room.view} view
+                                                    </Badge>
+                                                  )}
+                                                  {room.size && (
+                                                    <Badge variant="outline" className="text-xs">
+                                                      {room.size}
+                                                    </Badge>
+                                                  )}
+                                                </div>
+                                              </div>
+                                            </div>
+
+                                            {/* Pricing Section */}
+                                            <div className="flex items-center justify-between pt-3 border-t border-gray-200">
+                                              <div className="text-sm text-gray-600">
+                                                Custom pricing in <span className="font-medium">Pricing Rules</span> section
+                                              </div>
+                                              <div className="flex items-center space-x-2">
+                                                <span className="text-xs text-gray-500">Price/night:</span>
+                                                <Input
+                                                  className="w-20 h-8 text-sm"
+                                                  type="number"
+                                                  min="0"
+                                                  value={room.price ? room.price / 100 : 0}
+                                                  onChange={(e) => {
+                                                    const newPrice = parseInt(e.target.value) * 100;
+                                                    const newRooms = filteredRooms.map((r) => 
+                                                      r.id === room.id ? { ...r, price: newPrice } : r
+                                                    );
+                                                    setFilteredRooms(newRooms);
+
+                                                    const currentRooms = form.getValues("rooms") || [];
+                                                    const roomIndex = currentRooms.findIndex((r) => r.id === room.id);
+                                                    if (roomIndex !== -1) {
+                                                      const updatedRooms = [...currentRooms];
+                                                      updatedRooms[roomIndex] = {
+                                                        ...updatedRooms[roomIndex],
+                                                        price: newPrice / 100,
+                                                      };
+                                                      form.setValue("rooms", updatedRooms);
+                                                    }
+                                                  }}
+                                                />
+                                                <span className="text-xs text-gray-600">EGP</span>
+                                              </div>
+                                            </div>
+                                          </FormItem>
+                                        );
+                                      })}
+                                    </div>
+                                  )}
+                                </div>
+                              );
+                            })}
+                        </div>
+                      )}
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+              )}
           </TabsContent>
 
           {/* Features Tab */}
@@ -5021,8 +4713,7 @@ export function PackageCreatorForm({
             <div className="p-4 border rounded-md mb-6">
               <h3 className="text-lg font-semibold mb-2">Tour Selection</h3>
               <FormDescription className="mb-4">
-                Search and select multiple tours to include in this package. You
-                can add as many tours as needed.
+                Search and select multiple tours to include in this package. You can add as many tours as needed.
               </FormDescription>
 
               <div className="relative mb-4" ref={tourSearchRef}>
@@ -5054,16 +4745,14 @@ export function PackageCreatorForm({
 
                     {getFilteredTours().length > 0 ? (
                       getFilteredTours().map((tour) => {
-                        const isSelected = selectedTours.find(
-                          (t) => t.id === tour.id,
-                        );
+                        const isSelected = selectedTours.find(t => t.id === tour.id);
                         return (
                           <div
                             key={tour.id}
                             className={`p-3 cursor-pointer border-b last:border-0 ${
-                              isSelected
-                                ? "bg-green-50 hover:bg-green-100"
-                                : "hover:bg-zinc-100"
+                              isSelected 
+                                ? 'bg-green-50 hover:bg-green-100' 
+                                : 'hover:bg-zinc-100'
                             }`}
                             onClick={() => handleTourSelection(tour)}
                           >
@@ -5074,9 +4763,7 @@ export function PackageCreatorForm({
                                     <Check className="w-2 h-2 text-white" />
                                   </div>
                                 )}
-                                <span
-                                  className={`font-medium ${isSelected ? "text-green-700" : ""}`}
-                                >
+                                <span className={`font-medium ${isSelected ? 'text-green-700' : ''}`}>
                                   {tour.name}
                                 </span>
                               </div>
@@ -5117,40 +4804,26 @@ export function PackageCreatorForm({
                     <h4 className="text-lg font-medium text-zinc-900">
                       Selected Tours ({selectedTours.length})
                     </h4>
-                    <Badge
-                      variant="outline"
-                      className="bg-green-50 text-green-700 border-green-200"
-                    >
-                      Total:{" "}
-                      {(
-                        selectedTours.reduce((sum, tour) => {
-                          const basePrice = tour.adultPrice || tour.price || 0;
-                          return sum + basePrice;
-                        }, 0) / 100
-                      ).toLocaleString("ar-EG")}{" "}
-                      EGP
+                    <Badge variant="outline" className="bg-green-50 text-green-700 border-green-200">
+                      Total: {(selectedTours.reduce((sum, tour) => {
+                        const basePrice = tour.adultPrice || tour.price || 0;
+                        return sum + basePrice;
+                      }, 0) / 100).toLocaleString("ar-EG")} EGP
                     </Badge>
                   </div>
-
+                  
                   <div className="grid gap-4">
                     {selectedTours.map((tour) => (
-                      <div
-                        key={tour.id}
-                        className="p-4 border rounded-md bg-green-50 border-green-200"
-                      >
+                      <div key={tour.id} className="p-4 border rounded-md bg-green-50 border-green-200">
                         <div className="flex justify-between items-start mb-3">
                           <div className="flex-1">
                             <div className="flex items-center gap-2 mb-1">
-                              <h5 className="font-semibold text-green-900">
-                                {tour.name}
-                              </h5>
+                              <h5 className="font-semibold text-green-900">{tour.name}</h5>
                               <Badge variant="secondary" className="text-xs">
                                 ID: {tour.id}
                               </Badge>
                             </div>
-                            <p className="text-sm text-green-700 mb-2">
-                              {tour.description}
-                            </p>
+                            <p className="text-sm text-green-700 mb-2">{tour.description}</p>
                           </div>
                           <Button
                             type="button"
@@ -5165,158 +4838,110 @@ export function PackageCreatorForm({
 
                         {/* Passenger Type Pricing Section */}
                         <div className="space-y-3 mb-4">
-                          <h6 className="text-sm font-medium text-green-700">
-                            Passenger Type Pricing
-                          </h6>
+                          <h6 className="text-sm font-medium text-green-700">Passenger Type Pricing</h6>
                           <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
                             {/* Adult Price */}
                             <div className="p-3 bg-white rounded border border-blue-200">
                               <div className="flex items-center gap-2 mb-2">
                                 <Users className="h-4 w-4 text-blue-600" />
-                                <label className="text-xs font-medium text-blue-700">
-                                  Adult Price
-                                </label>
+                                <label className="text-xs font-medium text-blue-700">Adult Price</label>
                               </div>
                               <Input
                                 type="number"
                                 min="0"
                                 step="0.01"
-                                value={
-                                  tour.adultPrice
-                                    ? tour.adultPrice / 100
-                                    : tour.price / 100
-                                }
+                                value={tour.adultPrice ? (tour.adultPrice / 100) : (tour.price / 100)}
                                 onChange={(e) => {
-                                  const newPrice =
-                                    parseFloat(e.target.value) * 100 || 0;
+                                  const newPrice = parseFloat(e.target.value) * 100 || 0;
                                   // Update the selected tours with new adult price
-                                  setSelectedTours((prevTours) =>
-                                    prevTours.map((t) =>
-                                      t.id === tour.id
+                                  setSelectedTours(prevTours => 
+                                    prevTours.map(t => 
+                                      t.id === tour.id 
                                         ? { ...t, adultPrice: newPrice }
-                                        : t,
-                                    ),
+                                        : t
+                                    )
                                   );
                                 }}
                                 className="text-sm font-semibold h-8"
                                 placeholder="Adult price"
                               />
-                              <p className="text-xs text-gray-500 mt-1">
-                                EGP per adult
-                              </p>
+                              <p className="text-xs text-gray-500 mt-1">EGP per adult</p>
                             </div>
 
                             {/* Child Price */}
                             <div className="p-3 bg-white rounded border border-green-200">
                               <div className="flex items-center gap-2 mb-2">
                                 <Baby className="h-4 w-4 text-green-600" />
-                                <label className="text-xs font-medium text-green-700">
-                                  Child Price
-                                </label>
+                                <label className="text-xs font-medium text-green-700">Child Price</label>
                               </div>
                               <Input
                                 type="number"
                                 min="0"
                                 step="0.01"
-                                value={
-                                  tour.childPrice
-                                    ? tour.childPrice / 100
-                                    : (tour.price * 0.7) / 100
-                                }
+                                value={tour.childPrice ? (tour.childPrice / 100) : (tour.price * 0.7 / 100)}
                                 onChange={(e) => {
-                                  const newPrice =
-                                    parseFloat(e.target.value) * 100 || 0;
-                                  setSelectedTours((prevTours) =>
-                                    prevTours.map((t) =>
-                                      t.id === tour.id
+                                  const newPrice = parseFloat(e.target.value) * 100 || 0;
+                                  setSelectedTours(prevTours => 
+                                    prevTours.map(t => 
+                                      t.id === tour.id 
                                         ? { ...t, childPrice: newPrice }
-                                        : t,
-                                    ),
+                                        : t
+                                    )
                                   );
                                 }}
                                 className="text-sm font-semibold h-8"
                                 placeholder="Child price"
                               />
-                              <p className="text-xs text-gray-500 mt-1">
-                                EGP per child (2-12 years)
-                              </p>
+                              <p className="text-xs text-gray-500 mt-1">EGP per child (2-12 years)</p>
                             </div>
 
                             {/* Infant Price */}
                             <div className="p-3 bg-white rounded border border-orange-200">
                               <div className="flex items-center gap-2 mb-2">
                                 <Heart className="h-4 w-4 text-orange-600" />
-                                <label className="text-xs font-medium text-orange-700">
-                                  Infant Price
-                                </label>
+                                <label className="text-xs font-medium text-orange-700">Infant Price</label>
                               </div>
                               <Input
                                 type="number"
                                 min="0"
                                 step="0.01"
-                                value={
-                                  tour.infantPrice ? tour.infantPrice / 100 : 0
-                                }
+                                value={tour.infantPrice ? (tour.infantPrice / 100) : 0}
                                 onChange={(e) => {
-                                  const newPrice =
-                                    parseFloat(e.target.value) * 100 || 0;
-                                  setSelectedTours((prevTours) =>
-                                    prevTours.map((t) =>
-                                      t.id === tour.id
+                                  const newPrice = parseFloat(e.target.value) * 100 || 0;
+                                  setSelectedTours(prevTours => 
+                                    prevTours.map(t => 
+                                      t.id === tour.id 
                                         ? { ...t, infantPrice: newPrice }
-                                        : t,
-                                    ),
+                                        : t
+                                    )
                                   );
                                 }}
                                 className="text-sm font-semibold h-8"
                                 placeholder="Infant price"
                               />
-                              <p className="text-xs text-gray-500 mt-1">
-                                EGP per infant (0-2 years)
-                              </p>
+                              <p className="text-xs text-gray-500 mt-1">EGP per infant (0-2 years)</p>
                             </div>
                           </div>
 
                           {/* Pricing Summary */}
                           <div className="p-3 bg-gray-50 rounded border border-gray-200">
-                            <h6 className="text-xs font-medium text-gray-700 mb-2">
-                              Pricing Summary
-                            </h6>
+                            <h6 className="text-xs font-medium text-gray-700 mb-2">Pricing Summary</h6>
                             <div className="grid grid-cols-3 gap-2 text-xs">
                               <div className="text-center">
                                 <span className="block text-blue-600 font-medium">
-                                  {tour.adultPrice
-                                    ? (tour.adultPrice / 100).toLocaleString(
-                                        "ar-EG",
-                                      )
-                                    : (tour.price / 100).toLocaleString(
-                                        "ar-EG",
-                                      )}{" "}
-                                  EGP
+                                  {tour.adultPrice ? (tour.adultPrice / 100).toLocaleString("ar-EG") : (tour.price / 100).toLocaleString("ar-EG")} EGP
                                 </span>
                                 <span className="text-gray-600">Adult</span>
                               </div>
                               <div className="text-center">
                                 <span className="block text-green-600 font-medium">
-                                  {tour.childPrice
-                                    ? (tour.childPrice / 100).toLocaleString(
-                                        "ar-EG",
-                                      )
-                                    : ((tour.price * 0.7) / 100).toLocaleString(
-                                        "ar-EG",
-                                      )}{" "}
-                                  EGP
+                                  {tour.childPrice ? (tour.childPrice / 100).toLocaleString("ar-EG") : (tour.price * 0.7 / 100).toLocaleString("ar-EG")} EGP
                                 </span>
                                 <span className="text-gray-600">Child</span>
                               </div>
                               <div className="text-center">
                                 <span className="block text-orange-600 font-medium">
-                                  {tour.infantPrice
-                                    ? (tour.infantPrice / 100).toLocaleString(
-                                        "ar-EG",
-                                      )
-                                    : "0"}{" "}
-                                  EGP
+                                  {tour.infantPrice ? (tour.infantPrice / 100).toLocaleString("ar-EG") : "0"} EGP
                                 </span>
                                 <span className="text-gray-600">Infant</span>
                               </div>
@@ -5326,9 +4951,7 @@ export function PackageCreatorForm({
 
                         <div className="grid grid-cols-2 gap-4">
                           <div className="p-2 bg-white rounded border">
-                            <h6 className="text-xs font-medium text-green-700 mb-1">
-                              Base Price
-                            </h6>
+                            <h6 className="text-xs font-medium text-green-700 mb-1">Base Price</h6>
                             <p className="text-sm font-semibold text-green-800">
                               {tour.price
                                 ? `${(tour.price / 100).toLocaleString("ar-EG")} EGP`
@@ -5336,13 +4959,9 @@ export function PackageCreatorForm({
                             </p>
                           </div>
                           <div className="p-2 bg-white rounded border">
-                            <h6 className="text-xs font-medium text-green-700 mb-1">
-                              Duration
-                            </h6>
+                            <h6 className="text-xs font-medium text-green-700 mb-1">Duration</h6>
                             <p className="text-sm font-semibold text-green-800">
-                              {tour.duration
-                                ? `${tour.duration} hours`
-                                : "Not specified"}
+                              {tour.duration ? `${tour.duration} hours` : "Not specified"}
                             </p>
                           </div>
                         </div>
@@ -5354,10 +4973,7 @@ export function PackageCreatorForm({
 
               {selectedTours.length === 0 && (
                 <div className="mt-4 p-4 border-2 border-dashed border-gray-200 rounded-lg text-center">
-                  <p className="text-sm text-gray-500">
-                    No tours selected yet. Search and click on tours above to
-                    add them to your package.
-                  </p>
+                  <p className="text-sm text-gray-500">No tours selected yet. Search and click on tours above to add them to your package.</p>
                 </div>
               )}
             </div>
@@ -5370,15 +4986,12 @@ export function PackageCreatorForm({
                   Add features that are included in this package
                 </p>
               </div>
-
+              
               {/* Display existing included features */}
               {customIncludedFeatures.length > 0 && (
                 <div className="mb-4 space-y-2">
                   {customIncludedFeatures.map((feature, index) => (
-                    <div
-                      key={index}
-                      className="flex items-center justify-between p-2 bg-green-100 rounded border"
-                    >
+                    <div key={index} className="flex items-center justify-between p-2 bg-green-100 rounded border">
                       <span className="text-sm text-green-800">{feature}</span>
                       <Button
                         type="button"
@@ -5401,7 +5014,7 @@ export function PackageCreatorForm({
                   value={newIncludedFeature}
                   onChange={(e) => setNewIncludedFeature(e.target.value)}
                   onKeyPress={(e) => {
-                    if (e.key === "Enter") {
+                    if (e.key === 'Enter') {
                       e.preventDefault();
                       handleAddIncludedFeature();
                     }
@@ -5429,15 +5042,12 @@ export function PackageCreatorForm({
                   Add features that are NOT included in this package
                 </p>
               </div>
-
+              
               {/* Display existing excluded features */}
               {customExcludedFeatures.length > 0 && (
                 <div className="mb-4 space-y-2">
                   {customExcludedFeatures.map((feature, index) => (
-                    <div
-                      key={index}
-                      className="flex items-center justify-between p-2 bg-red-100 rounded border"
-                    >
+                    <div key={index} className="flex items-center justify-between p-2 bg-red-100 rounded border">
                       <span className="text-sm text-red-800">{feature}</span>
                       <Button
                         type="button"
@@ -5460,7 +5070,7 @@ export function PackageCreatorForm({
                   value={newExcludedFeature}
                   onChange={(e) => setNewExcludedFeature(e.target.value)}
                   onKeyPress={(e) => {
-                    if (e.key === "Enter") {
+                    if (e.key === 'Enter') {
                       e.preventDefault();
                       handleAddExcludedFeature();
                     }
@@ -5483,22 +5093,17 @@ export function PackageCreatorForm({
             {/* Ideal Traveler Types */}
             <div className="p-4 border rounded-md bg-blue-50">
               <div className="mb-4">
-                <Label className="text-sm font-medium">
-                  Ideal For (Traveler Types)
-                </Label>
+                <Label className="text-sm font-medium">Ideal For (Traveler Types)</Label>
                 <p className="text-xs text-muted-foreground mt-1">
                   Add types of travelers this package is best suited for
                 </p>
               </div>
-
+              
               {/* Display existing traveler types */}
               {customTravelerTypes.length > 0 && (
                 <div className="mb-4 space-y-2">
                   {customTravelerTypes.map((type, index) => (
-                    <div
-                      key={index}
-                      className="flex items-center justify-between p-2 bg-blue-100 rounded border"
-                    >
+                    <div key={index} className="flex items-center justify-between p-2 bg-blue-100 rounded border">
                       <span className="text-sm text-blue-800">{type}</span>
                       <Button
                         type="button"
@@ -5521,7 +5126,7 @@ export function PackageCreatorForm({
                   value={newTravelerType}
                   onChange={(e) => setNewTravelerType(e.target.value)}
                   onKeyPress={(e) => {
-                    if (e.key === "Enter") {
+                    if (e.key === 'Enter') {
                       e.preventDefault();
                       handleAddTravelerType();
                     }
@@ -5543,39 +5148,26 @@ export function PackageCreatorForm({
 
             {/* Optional Excursions */}
             <div className="border-t pt-6">
-              <FormLabel className="text-lg font-medium">
-                Optional Excursions & Add-ons
-              </FormLabel>
+              <FormLabel className="text-lg font-medium">Optional Excursions & Add-ons</FormLabel>
               <FormDescription className="mb-4">
-                Add optional activities that travelers can choose to add to
-                their package
+                Add optional activities that travelers can choose to add to their package
               </FormDescription>
-
+              
               <div className="space-y-4">
                 <div className="grid grid-cols-1 gap-4">
                   {optionalExcursions.map((excursion, index) => (
-                    <div
-                      key={index}
-                      className="border rounded-md p-4 bg-orange-50"
-                    >
+                    <div key={index} className="border rounded-md p-4 bg-orange-50">
                       <div className="flex items-center justify-between">
-                        <span className="font-medium text-orange-800">
-                          {excursion}
-                        </span>
+                        <span className="font-medium text-orange-800">{excursion}</span>
                         <Button
                           variant="ghost"
                           size="icon"
                           className="h-8 w-8 text-orange-600"
                           type="button"
                           onClick={() => {
-                            const updatedExcursions = optionalExcursions.filter(
-                              (_, i) => i !== index,
-                            );
+                            const updatedExcursions = optionalExcursions.filter((_, i) => i !== index);
                             setOptionalExcursions(updatedExcursions);
-                            form.setValue(
-                              "optionalExcursions",
-                              updatedExcursions,
-                            );
+                            form.setValue("optionalExcursions", updatedExcursions);
                           }}
                         >
                           <X className="h-4 w-4" />
@@ -5591,7 +5183,7 @@ export function PackageCreatorForm({
                     value={newExcursion}
                     onChange={(e) => setNewExcursion(e.target.value)}
                     onKeyPress={(e) => {
-                      if (e.key === "Enter") {
+                      if (e.key === 'Enter') {
                         e.preventDefault();
                         handleAddExcursion();
                       }
@@ -5918,11 +5510,9 @@ export function PackageCreatorForm({
                               <Input
                                 placeholder="Enter a destination (e.g., Cairo)"
                                 value={newRouteStop}
-                                onChange={(e) =>
-                                  setNewRouteStop(e.target.value)
-                                }
+                                onChange={(e) => setNewRouteStop(e.target.value)}
                                 onKeyPress={(e) => {
-                                  if (e.key === "Enter") {
+                                  if (e.key === 'Enter') {
                                     e.preventDefault();
                                     handleAddRouteStop();
                                   }
@@ -5940,23 +5530,18 @@ export function PackageCreatorForm({
                                 Add
                               </Button>
                             </div>
-
+                            
                             {/* Route Display */}
                             {travelRouteItems.length > 0 && (
                               <div className="bg-gray-50 p-3 rounded-lg">
                                 <div className="flex items-center flex-wrap gap-2 text-sm">
                                   {travelRouteItems.map((stop, index) => (
-                                    <div
-                                      key={index}
-                                      className="flex items-center"
-                                    >
+                                    <div key={index} className="flex items-center">
                                       <span className="bg-blue-100 text-blue-800 px-2 py-1 rounded flex items-center gap-1">
                                         {stop}
                                         <button
                                           type="button"
-                                          onClick={() =>
-                                            handleRemoveRouteStop(index)
-                                          }
+                                          onClick={() => handleRemoveRouteStop(index)}
                                           className="text-blue-600 hover:text-blue-800 ml-1"
                                         >
                                           <X className="h-3 w-3" />
@@ -5968,7 +5553,7 @@ export function PackageCreatorForm({
                                     </div>
                                   ))}
                                 </div>
-
+                                
                                 {/* Clear all button */}
                                 <div className="mt-2 pt-2 border-t border-gray-200">
                                   <Button
@@ -5983,18 +5568,17 @@ export function PackageCreatorForm({
                                 </div>
                               </div>
                             )}
-
+                            
                             {/* Hidden input to sync with form */}
                             <input
                               type="hidden"
                               {...field}
-                              value={travelRouteItems.join(" → ")}
+                              value={travelRouteItems.join(' → ')}
                             />
                           </div>
                         </FormControl>
                         <FormDescription>
-                          Add destinations to build your travel route (e.g.,
-                          Cairo → Aswan → Red Sea)
+                          Add destinations to build your travel route (e.g., Cairo → Aswan → Red Sea)
                         </FormDescription>
                         <FormMessage />
                       </FormItem>
@@ -6019,8 +5603,7 @@ export function PackageCreatorForm({
                               (opt) => opt.id === value,
                             );
                             if (option) {
-                              const basePrice =
-                                form.getValues("basePrice") || 0;
+                              const basePrice = Number(form.getValues("price")) || 0;
                               const newPrice =
                                 basePrice * (option.priceMultiplier - 1);
                               form.setValue(
@@ -6240,102 +5823,53 @@ export function PackageCreatorForm({
                             if (checked) {
                               // انسخ كل القيم الإنجليزية إلى الحقول العربية مباشرة
                               const values = form.getValues();
-                              console.log(
-                                "Copying English values to Arabic:",
-                                values,
-                              );
-
+                              console.log("Copying English values to Arabic:", values);
+                              
                               form.setValue("titleAr", values.title || "");
-                              form.setValue(
-                                "shortDescriptionAr",
-                                values.shortDescription || "",
-                              );
-                              form.setValue(
-                                "descriptionAr",
-                                values.description || "",
-                              );
-                              form.setValue(
-                                "overviewAr",
-                                values.overview || "",
-                              );
-                              form.setValue(
-                                "bestTimeToVisitAr",
-                                values.bestTimeToVisit || "",
-                              );
-                              form.setValue(
-                                "cancellationPolicyAr",
-                                values.cancellationPolicy || "",
-                              );
-                              form.setValue(
-                                "childrenPolicyAr",
-                                values.childrenPolicy || "",
-                              );
-                              form.setValue(
-                                "termsAndConditionsAr",
-                                values.termsAndConditions || "",
-                              );
-                              form.setValue(
-                                "customTextAr",
-                                values.customText || "",
-                              );
-
+                              form.setValue("shortDescriptionAr", values.shortDescription || "");
+                              form.setValue("descriptionAr", values.shortDescription || "");
+                              form.setValue("overviewAr", values.overview || "");
+                              form.setValue("bestTimeToVisitAr", values.bestTimeToVisit || "");
+                              form.setValue("cancellationPolicyAr", values.cancellationPolicy || "");
+                              form.setValue("childrenPolicyAr", values.childrenPolicy || "");
+                              form.setValue("termsAndConditionsAr", values.termsAndConditions || "");
+                              form.setValue("customTextAr", values.customText || "");
+                              
                               // مصفوفات - نسخ من state variables
-                              console.log("Copying arrays from state:", {
-                                customIncludedFeatures,
-                                customExcludedFeatures,
-                                customTravelerTypes,
+                              console.log("Copying arrays from state:", { 
+                                customIncludedFeatures, 
+                                customExcludedFeatures, 
+                                customTravelerTypes 
                               });
-
-                              form.setValue(
-                                "includedFeaturesAr",
-                                customIncludedFeatures,
-                              );
-                              form.setValue(
-                                "excludedFeaturesAr",
-                                customExcludedFeatures,
-                              );
+                              
+                              form.setValue("includedFeaturesAr", customIncludedFeatures);
+                              form.setValue("excludedFeaturesAr", customExcludedFeatures);
                               form.setValue("idealForAr", customTravelerTypes);
-
+                              
                               // itinerary
                               if (Array.isArray(values.itinerary)) {
-                                form.setValue(
-                                  "itineraryAr",
-                                  values.itinerary.map((day) => ({
-                                    ...day,
-                                    title: day.title || "",
-                                    description: day.description || "",
-                                  })),
-                                );
+                                form.setValue("itineraryAr", values.itinerary.map(day => ({
+                                  ...day,
+                                  title: day.title || "",
+                                  description: day.description || ""
+                                })));
                               }
                               // whatToPack
                               if (Array.isArray(values.whatToPack)) {
-                                form.setValue(
-                                  "whatToPackAr",
-                                  values.whatToPack.map((item) => ({
-                                    ...item,
-                                    item: item.item || "",
-                                    tooltip: item.tooltip || "",
-                                  })),
-                                );
+                                form.setValue("whatToPackAr", values.whatToPack.map(item => ({
+                                  ...item,
+                                  item: item.item || "",
+                                  tooltip: item.tooltip || ""
+                                })));
                               }
                               // travelRoute
-                              form.setValue(
-                                "travelRouteAr",
-                                values.travelRoute || [],
-                              );
+                              form.setValue("travelRouteAr", values.travelRoute || []);
                               // optionalExcursions
-                              form.setValue(
-                                "optionalExcursionsAr",
-                                values.optionalExcursions || [],
-                              );
-
+                              form.setValue("optionalExcursionsAr", values.optionalExcursions || []);
+                              
                               // trigger re-render
                               setTimeout(() => {
-                                form.trigger([
-                                  "includedFeaturesAr",
-                                  "excludedFeaturesAr",
-                                  "idealForAr",
-                                ]);
+                                form.trigger(["includedFeaturesAr", "excludedFeaturesAr", "idealForAr"]);
                               }, 100);
                             }
                           }}
@@ -6356,101 +5890,58 @@ export function PackageCreatorForm({
                       variant="outline"
                       onClick={() => {
                         const values = form.getValues();
-                        console.log(
-                          "Get Values - Copying English values to Arabic:",
-                          values,
-                        );
-
+                        console.log("Get Values - Copying English values to Arabic:", values);
+                        
                         form.setValue("titleAr", values.title || "");
-                        form.setValue(
-                          "shortDescriptionAr",
-                          values.shortDescription || "",
-                        );
-                        form.setValue(
-                          "descriptionAr",
-                          values.description || "",
-                        );
+                        form.setValue("shortDescriptionAr", values.shortDescription || "");
+                        form.setValue("descriptionAr", values.shortDescription || "");
                         form.setValue("overviewAr", values.overview || "");
-                        form.setValue(
-                          "bestTimeToVisitAr",
-                          values.bestTimeToVisit || "",
-                        );
-                        form.setValue(
-                          "cancellationPolicyAr",
-                          values.cancellationPolicy || "",
-                        );
-                        form.setValue(
-                          "childrenPolicyAr",
-                          values.childrenPolicy || "",
-                        );
-                        form.setValue(
-                          "termsAndConditionsAr",
-                          values.termsAndConditions || "",
-                        );
+                        form.setValue("bestTimeToVisitAr", values.bestTimeToVisit || "");
+                        form.setValue("cancellationPolicyAr", values.cancellationPolicy || "");
+                        form.setValue("childrenPolicyAr", values.childrenPolicy || "");
+                        form.setValue("termsAndConditionsAr", values.termsAndConditions || "");
                         form.setValue("customTextAr", values.customText || "");
                         // مصفوفات - نسخ من state variables
-                        console.log("Get Values - Copying arrays from state:", {
-                          customIncludedFeatures,
-                          customExcludedFeatures,
-                          customTravelerTypes,
+                        console.log("Get Values - Copying arrays from state:", { 
+                          customIncludedFeatures, 
+                          customExcludedFeatures, 
+                          customTravelerTypes 
                         });
-
-                        form.setValue(
-                          "includedFeaturesAr",
-                          customIncludedFeatures,
-                        );
-                        form.setValue(
-                          "excludedFeaturesAr",
-                          customExcludedFeatures,
-                        );
+                        
+                        form.setValue("includedFeaturesAr", customIncludedFeatures);
+                        form.setValue("excludedFeaturesAr", customExcludedFeatures);
                         form.setValue("idealForAr", customTravelerTypes);
-
+                        
                         // itinerary
                         if (Array.isArray(values.itinerary)) {
-                          form.setValue(
-                            "itineraryAr",
-                            values.itinerary.map((day) => ({
-                              ...day,
-                              title: day.title || "",
-                              description: day.description || "",
-                            })),
-                          );
+                          form.setValue("itineraryAr", values.itinerary.map(day => ({
+                            ...day,
+                            title: day.title || "",
+                            description: day.description || ""
+                          })));
                         }
                         // whatToPack
                         if (Array.isArray(values.whatToPack)) {
-                          form.setValue(
-                            "whatToPackAr",
-                            values.whatToPack.map((item) => ({
-                              ...item,
-                              item: item.item || "",
-                              tooltip: item.tooltip || "",
-                            })),
-                          );
+                          form.setValue("whatToPackAr", values.whatToPack.map(item => ({
+                            ...item,
+                            item: item.item || "",
+                            tooltip: item.tooltip || ""
+                          })));
                         }
                         // travelRoute
-                        form.setValue(
-                          "travelRouteAr",
-                          values.travelRoute || [],
-                        );
+                        form.setValue("travelRouteAr", values.travelRoute || []);
                         // optionalExcursions
-                        form.setValue(
-                          "optionalExcursionsAr",
-                          values.optionalExcursions || [],
-                        );
-
+                        form.setValue("optionalExcursionsAr", values.optionalExcursions || []);
+                        
                         // trigger re-render
                         setTimeout(() => {
-                          form.trigger([
-                            "includedFeaturesAr",
-                            "excludedFeaturesAr",
-                            "idealForAr",
-                          ]);
+                          form.trigger(["includedFeaturesAr", "excludedFeaturesAr", "idealForAr"]);
                         }, 100);
                       }}
                     >
                       get values
                     </Button>
-
+                    
                     {/* زر Auto Translate الجديد */}
                     <Button
                       type="button"
@@ -6481,8 +5972,7 @@ export function PackageCreatorForm({
                           Smart Auto-Translate
                         </h3>
                         <p className="text-sm text-muted-foreground">
-                          Automatically translate all English content to Arabic
-                          using AI
+                          Automatically translate all English content to Arabic using AI
                         </p>
                       </div>
                       <Button
@@ -6510,10 +6000,8 @@ export function PackageCreatorForm({
 
                   {/* Basic Arabic Information */}
                   <div className="border rounded-lg p-4 space-y-4">
-                    <h3 className="text-lg font-semibold">
-                      Basic Information (Arabic)
-                    </h3>
-
+                    <h3 className="text-lg font-semibold">Basic Information (Arabic)</h3>
+                    
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                       <FormField
                         control={form.control}
@@ -6522,8 +6010,8 @@ export function PackageCreatorForm({
                           <FormItem>
                             <FormLabel>Arabic Package Name</FormLabel>
                             <FormControl>
-                              <Input
-                                {...field}
+                              <Input 
+                                {...field} 
                                 placeholder="اسم الباقة بالعربية"
                                 dir="rtl"
                                 className="text-right"
@@ -6541,8 +6029,8 @@ export function PackageCreatorForm({
                           <FormItem>
                             <FormLabel>Arabic Short Description</FormLabel>
                             <FormControl>
-                              <Input
-                                {...field}
+                              <Input 
+                                {...field} 
                                 placeholder="وصف مختصر بالعربية"
                                 dir="rtl"
                                 className="text-right"
@@ -6561,8 +6049,8 @@ export function PackageCreatorForm({
                         <FormItem>
                           <FormLabel>Arabic Description</FormLabel>
                           <FormControl>
-                            <Textarea
-                              {...field}
+                            <Textarea 
+                              {...field} 
                               placeholder="وصف مفصل للباقة بالعربية"
                               dir="rtl"
                               className="text-right min-h-[100px]"
@@ -6580,8 +6068,8 @@ export function PackageCreatorForm({
                         <FormItem>
                           <FormLabel>Arabic Overview</FormLabel>
                           <FormControl>
-                            <Textarea
-                              {...field}
+                            <Textarea 
+                              {...field} 
                               placeholder="نظرة عامة بالعربية"
                               dir="rtl"
                               className="text-right min-h-[100px]"
@@ -6599,8 +6087,8 @@ export function PackageCreatorForm({
                         <FormItem>
                           <FormLabel>Best Time to Visit (Arabic)</FormLabel>
                           <FormControl>
-                            <Textarea
-                              {...field}
+                            <Textarea 
+                              {...field} 
                               placeholder="أفضل وقت للزيارة بالعربية"
                               dir="rtl"
                               className="text-right"
@@ -6615,13 +6103,11 @@ export function PackageCreatorForm({
                   {/* Arabic Features */}
                   <div className="border rounded-lg p-4 space-y-4">
                     <h3 className="text-lg font-semibold">Features (Arabic)</h3>
-
+                    
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                       {/* Arabic Included Features */}
                       <div>
-                        <Label className="text-sm font-medium">
-                          Included Features (Arabic)
-                        </Label>
+                        <Label className="text-sm font-medium">Included Features (Arabic)</Label>
                         <p className="text-xs text-muted-foreground mb-2">
                           Add Arabic translations for included features
                         </p>
@@ -6632,18 +6118,13 @@ export function PackageCreatorForm({
                               dir="rtl"
                               className="text-right"
                               onKeyPress={(e) => {
-                                if (e.key === "Enter") {
+                                if (e.key === 'Enter') {
                                   e.preventDefault();
                                   const input = e.target as HTMLInputElement;
                                   if (input.value.trim()) {
-                                    const currentFeatures =
-                                      form.getValues("includedFeaturesAr") ||
-                                      [];
-                                    form.setValue("includedFeaturesAr", [
-                                      ...currentFeatures,
-                                      input.value.trim(),
-                                    ]);
-                                    input.value = "";
+                                    const currentFeatures = form.getValues("includedFeaturesAr") || [];
+                                    form.setValue("includedFeaturesAr", [...currentFeatures, input.value.trim()]);
+                                    input.value = '';
                                   }
                                 }
                               }}
@@ -6652,16 +6133,11 @@ export function PackageCreatorForm({
                               type="button"
                               size="sm"
                               onClick={(e) => {
-                                const input = (e.target as HTMLElement)
-                                  .previousElementSibling as HTMLInputElement;
+                                const input = (e.target as HTMLElement).previousElementSibling as HTMLInputElement;
                                 if (input?.value.trim()) {
-                                  const currentFeatures =
-                                    form.getValues("includedFeaturesAr") || [];
-                                  form.setValue("includedFeaturesAr", [
-                                    ...currentFeatures,
-                                    input.value.trim(),
-                                  ]);
-                                  input.value = "";
+                                  const currentFeatures = form.getValues("includedFeaturesAr") || [];
+                                  form.setValue("includedFeaturesAr", [...currentFeatures, input.value.trim()]);
+                                  input.value = '';
                                 }
                               }}
                             >
@@ -6669,49 +6145,30 @@ export function PackageCreatorForm({
                             </Button>
                           </div>
                           <div className="space-y-1 max-h-32 overflow-y-auto">
-                            {(form.watch("includedFeaturesAr") || []).map(
-                              (feature: string, index: number) => (
-                                <div
-                                  key={index}
-                                  className="flex items-center justify-between p-2 bg-green-50 rounded border"
+                            {(form.watch("includedFeaturesAr") || []).map((feature: string, index: number) => (
+                              <div key={index} className="flex items-center justify-between p-2 bg-green-50 rounded border">
+                                <span className="text-sm text-green-800" dir="rtl">{feature}</span>
+                                <Button
+                                  type="button"
+                                  variant="ghost"
+                                  size="sm"
+                                  onClick={() => {
+                                    const currentFeatures = form.getValues("includedFeaturesAr") || [];
+                                    form.setValue("includedFeaturesAr", currentFeatures.filter((_, i) => i !== index));
+                                  }}
+                                  className="text-green-600 hover:text-green-800 h-6 w-6 p-0"
                                 >
-                                  <span
-                                    className="text-sm text-green-800"
-                                    dir="rtl"
-                                  >
-                                    {feature}
-                                  </span>
-                                  <Button
-                                    type="button"
-                                    variant="ghost"
-                                    size="sm"
-                                    onClick={() => {
-                                      const currentFeatures =
-                                        form.getValues("includedFeaturesAr") ||
-                                        [];
-                                      form.setValue(
-                                        "includedFeaturesAr",
-                                        currentFeatures.filter(
-                                          (_, i) => i !== index,
-                                        ),
-                                      );
-                                    }}
-                                    className="text-green-600 hover:text-green-800 h-6 w-6 p-0"
-                                  >
-                                    <X className="h-3 w-3" />
-                                  </Button>
-                                </div>
-                              ),
-                            )}
+                                  <X className="h-3 w-3" />
+                                </Button>
+                              </div>
+                            ))}
                           </div>
                         </div>
                       </div>
 
                       {/* Arabic Excluded Features */}
                       <div>
-                        <Label className="text-sm font-medium">
-                          Excluded Features (Arabic)
-                        </Label>
+                        <Label className="text-sm font-medium">Excluded Features (Arabic)</Label>
                         <p className="text-xs text-muted-foreground mb-2">
                           Add Arabic translations for excluded features
                         </p>
@@ -6722,18 +6179,13 @@ export function PackageCreatorForm({
                               dir="rtl"
                               className="text-right"
                               onKeyPress={(e) => {
-                                if (e.key === "Enter") {
+                                if (e.key === 'Enter') {
                                   e.preventDefault();
                                   const input = e.target as HTMLInputElement;
                                   if (input.value.trim()) {
-                                    const currentFeatures =
-                                      form.getValues("excludedFeaturesAr") ||
-                                      [];
-                                    form.setValue("excludedFeaturesAr", [
-                                      ...currentFeatures,
-                                      input.value.trim(),
-                                    ]);
-                                    input.value = "";
+                                    const currentFeatures = form.getValues("excludedFeaturesAr") || [];
+                                    form.setValue("excludedFeaturesAr", [...currentFeatures, input.value.trim()]);
+                                    input.value = '';
                                   }
                                 }
                               }}
@@ -6742,16 +6194,11 @@ export function PackageCreatorForm({
                               type="button"
                               size="sm"
                               onClick={(e) => {
-                                const input = (e.target as HTMLElement)
-                                  .previousElementSibling as HTMLInputElement;
+                                const input = (e.target as HTMLElement).previousElementSibling as HTMLInputElement;
                                 if (input?.value.trim()) {
-                                  const currentFeatures =
-                                    form.getValues("excludedFeaturesAr") || [];
-                                  form.setValue("excludedFeaturesAr", [
-                                    ...currentFeatures,
-                                    input.value.trim(),
-                                  ]);
-                                  input.value = "";
+                                  const currentFeatures = form.getValues("excludedFeaturesAr") || [];
+                                  form.setValue("excludedFeaturesAr", [...currentFeatures, input.value.trim()]);
+                                  input.value = '';
                                 }
                               }}
                             >
@@ -6759,40 +6206,23 @@ export function PackageCreatorForm({
                             </Button>
                           </div>
                           <div className="space-y-1 max-h-32 overflow-y-auto">
-                            {(form.watch("excludedFeaturesAr") || []).map(
-                              (feature: string, index: number) => (
-                                <div
-                                  key={index}
-                                  className="flex items-center justify-between p-2 bg-red-50 rounded border"
+                            {(form.watch("excludedFeaturesAr") || []).map((feature: string, index: number) => (
+                              <div key={index} className="flex items-center justify-between p-2 bg-red-50 rounded border">
+                                <span className="text-sm text-red-800" dir="rtl">{feature}</span>
+                                <Button
+                                  type="button"
+                                  variant="ghost"
+                                  size="sm"
+                                  onClick={() => {
+                                    const currentFeatures = form.getValues("excludedFeaturesAr") || [];
+                                    form.setValue("excludedFeaturesAr", currentFeatures.filter((_, i) => i !== index));
+                                  }}
+                                  className="text-red-600 hover:text-red-800 h-6 w-6 p-0"
                                 >
-                                  <span
-                                    className="text-sm text-red-800"
-                                    dir="rtl"
-                                  >
-                                    {feature}
-                                  </span>
-                                  <Button
-                                    type="button"
-                                    variant="ghost"
-                                    size="sm"
-                                    onClick={() => {
-                                      const currentFeatures =
-                                        form.getValues("excludedFeaturesAr") ||
-                                        [];
-                                      form.setValue(
-                                        "excludedFeaturesAr",
-                                        currentFeatures.filter(
-                                          (_, i) => i !== index,
-                                        ),
-                                      );
-                                    }}
-                                    className="text-red-600 hover:text-red-800 h-6 w-6 p-0"
-                                  >
-                                    <X className="h-3 w-3" />
-                                  </Button>
-                                </div>
-                              ),
-                            )}
+                                  <X className="h-3 w-3" />
+                                </Button>
+                              </div>
+                            ))}
                           </div>
                         </div>
                       </div>
@@ -6802,7 +6232,7 @@ export function PackageCreatorForm({
                   {/* Arabic Policies */}
                   <div className="border rounded-lg p-4 space-y-4">
                     <h3 className="text-lg font-semibold">Policies (Arabic)</h3>
-
+                    
                     <FormField
                       control={form.control}
                       name="cancellationPolicyAr"
@@ -6810,8 +6240,8 @@ export function PackageCreatorForm({
                         <FormItem>
                           <FormLabel>Cancellation Policy (Arabic)</FormLabel>
                           <FormControl>
-                            <Textarea
-                              {...field}
+                            <Textarea 
+                              {...field} 
                               placeholder="سياسة الإلغاء بالعربية"
                               dir="rtl"
                               className="text-right min-h-[80px]"
@@ -6829,8 +6259,8 @@ export function PackageCreatorForm({
                         <FormItem>
                           <FormLabel>Children Policy (Arabic)</FormLabel>
                           <FormControl>
-                            <Textarea
-                              {...field}
+                            <Textarea 
+                              {...field} 
                               placeholder="سياسة الأطفال بالعربية"
                               dir="rtl"
                               className="text-right min-h-[80px]"
@@ -6848,8 +6278,8 @@ export function PackageCreatorForm({
                         <FormItem>
                           <FormLabel>Terms & Conditions (Arabic)</FormLabel>
                           <FormControl>
-                            <Textarea
-                              {...field}
+                            <Textarea 
+                              {...field} 
                               placeholder="الشروط والأحكام بالعربية"
                               dir="rtl"
                               className="text-right min-h-[100px]"
@@ -6867,8 +6297,8 @@ export function PackageCreatorForm({
                         <FormItem>
                           <FormLabel>Custom Text (Arabic)</FormLabel>
                           <FormControl>
-                            <Textarea
-                              {...field}
+                            <Textarea 
+                              {...field} 
                               placeholder="نص مخصص بالعربية"
                               dir="rtl"
                               className="text-right min-h-[80px]"
@@ -6882,9 +6312,7 @@ export function PackageCreatorForm({
 
                   {/* Arabic Itinerary */}
                   <div className="border rounded-lg p-4 space-y-4">
-                    <h3 className="text-lg font-semibold">
-                      Itinerary (Arabic)
-                    </h3>
+                    <h3 className="text-lg font-semibold">Itinerary (Arabic)</h3>
                     <p className="text-sm text-muted-foreground">
                       Add Arabic translations for the daily itinerary
                     </p>
@@ -6895,195 +6323,121 @@ export function PackageCreatorForm({
                       render={({ field }) => (
                         <FormItem>
                           <div className="space-y-4">
-                            {(field.value || []).map(
-                              (day: any, dayIndex: number) => (
-                                <div
-                                  key={dayIndex}
-                                  className="border rounded-lg p-4 bg-gray-50"
-                                >
-                                  <div className="flex items-center justify-between mb-3">
-                                    <h4 className="font-medium">
-                                      Day {day.day} (Arabic)
-                                    </h4>
-                                    <Button
-                                      type="button"
-                                      variant="ghost"
-                                      size="sm"
-                                      onClick={() => {
-                                        const currentItinerary =
-                                          field.value || [];
-                                        field.onChange(
-                                          currentItinerary.filter(
-                                            (_: any, i: number) =>
-                                              i !== dayIndex,
-                                          ),
+                            {(field.value || []).map((day: any, dayIndex: number) => (
+                              <div key={dayIndex} className="border rounded-lg p-4 bg-gray-50">
+                                <div className="flex items-center justify-between mb-3">
+                                  <h4 className="font-medium">Day {day.day} (Arabic)</h4>
+                                  <Button
+                                    type="button"
+                                    variant="ghost"
+                                    size="sm"
+                                    onClick={() => {
+                                      const currentItinerary = field.value || [];
+                                      field.onChange(currentItinerary.filter((_: any, i: number) => i !== dayIndex));
+                                    }}
+                                    className="text-red-600 hover:text-red-800"
+                                  >
+                                    <Trash className="h-4 w-4" />
+                                  </Button>
+                                </div>
+                                
+                                <div className="grid grid-cols-1 gap-4">
+                                  <div>
+                                    <Label className="text-sm font-medium">Day Title (Arabic)</Label>
+                                    <Input
+                                      value={day.title || ''}
+                                      onChange={(e) => {
+                                        const currentItinerary = field.value || [];
+                                        const updatedItinerary = currentItinerary.map((item: any, i: number) =>
+                                          i === dayIndex ? { ...item, title: e.target.value } : item
                                         );
+                                        field.onChange(updatedItinerary);
                                       }}
-                                      className="text-red-600 hover:text-red-800"
-                                    >
-                                      <Trash className="h-4 w-4" />
-                                    </Button>
+                                      placeholder="عنوان اليوم بالعربية"
+                                      dir="rtl"
+                                      className="text-right"
+                                    />
                                   </div>
 
-                                  <div className="grid grid-cols-1 gap-4">
-                                    <div>
-                                      <Label className="text-sm font-medium">
-                                        Day Title (Arabic)
-                                      </Label>
+                                  <div>
+                                    <Label className="text-sm font-medium">Description (Arabic)</Label>
+                                    <Textarea
+                                      value={day.description || ''}
+                                      onChange={(e) => {
+                                        const currentItinerary = field.value || [];
+                                        const updatedItinerary = currentItinerary.map((item: any, i: number) =>
+                                          i === dayIndex ? { ...item, description: e.target.value } : item
+                                        );
+                                        field.onChange(updatedItinerary);
+                                      }}
+                                      placeholder="وصف الأنشطة بالعربية"
+                                      dir="rtl"
+                                      className="text-right min-h-[80px]"
+                                    />
+                                  </div>
+
+                                  <div>
+                                    <Label className="text-sm font-medium">Activities (Arabic)</Label>
+                                    <p className="text-xs text-muted-foreground mb-2">
+                                      Add activities in Arabic (press Enter to add each activity)
+                                    </p>
+                                    <div className="space-y-2">
                                       <Input
-                                        value={day.title || ""}
-                                        onChange={(e) => {
-                                          const currentItinerary =
-                                            field.value || [];
-                                          const updatedItinerary =
-                                            currentItinerary.map(
-                                              (item: any, i: number) =>
-                                                i === dayIndex
-                                                  ? {
-                                                      ...item,
-                                                      title: e.target.value,
-                                                    }
-                                                  : item,
-                                            );
-                                          field.onChange(updatedItinerary);
-                                        }}
-                                        placeholder="عنوان اليوم بالعربية"
+                                        placeholder="نشاط بالعربية - اضغط Enter للإضافة"
                                         dir="rtl"
                                         className="text-right"
-                                      />
-                                    </div>
-
-                                    <div>
-                                      <Label className="text-sm font-medium">
-                                        Description (Arabic)
-                                      </Label>
-                                      <Textarea
-                                        value={day.description || ""}
-                                        onChange={(e) => {
-                                          const currentItinerary =
-                                            field.value || [];
-                                          const updatedItinerary =
-                                            currentItinerary.map(
-                                              (item: any, i: number) =>
-                                                i === dayIndex
-                                                  ? {
-                                                      ...item,
-                                                      description:
-                                                        e.target.value,
-                                                    }
-                                                  : item,
-                                            );
-                                          field.onChange(updatedItinerary);
-                                        }}
-                                        placeholder="وصف الأنشطة بالعربية"
-                                        dir="rtl"
-                                        className="text-right min-h-[80px]"
-                                      />
-                                    </div>
-
-                                    <div>
-                                      <Label className="text-sm font-medium">
-                                        Activities (Arabic)
-                                      </Label>
-                                      <p className="text-xs text-muted-foreground mb-2">
-                                        Add activities in Arabic (press Enter to
-                                        add each activity)
-                                      </p>
-                                      <div className="space-y-2">
-                                        <Input
-                                          placeholder="نشاط بالعربية - اضغط Enter للإضافة"
-                                          dir="rtl"
-                                          className="text-right"
-                                          onKeyPress={(e) => {
-                                            if (e.key === "Enter") {
-                                              e.preventDefault();
-                                              const input =
-                                                e.target as HTMLInputElement;
-                                              if (input.value.trim()) {
-                                                const currentItinerary =
-                                                  field.value || [];
-                                                const updatedItinerary =
-                                                  currentItinerary.map(
-                                                    (item: any, i: number) =>
-                                                      i === dayIndex
-                                                        ? {
-                                                            ...item,
-                                                            activities: [
-                                                              ...(item.activities ||
-                                                                []),
-                                                              input.value.trim(),
-                                                            ],
-                                                          }
-                                                        : item,
-                                                  );
-                                                field.onChange(
-                                                  updatedItinerary,
-                                                );
-                                                input.value = "";
-                                              }
+                                        onKeyPress={(e) => {
+                                          if (e.key === 'Enter') {
+                                            e.preventDefault();
+                                            const input = e.target as HTMLInputElement;
+                                            if (input.value.trim()) {
+                                              const currentItinerary = field.value || [];
+                                              const updatedItinerary = currentItinerary.map((item: any, i: number) =>
+                                                i === dayIndex ? { 
+                                                  ...item, 
+                                                  activities: [...(item.activities || []), input.value.trim()]
+                                                } : item
+                                              );
+                                              field.onChange(updatedItinerary);
+                                              input.value = '';
                                             }
-                                          }}
-                                        />
-                                        <div className="flex flex-wrap gap-1 max-h-24 overflow-y-auto">
-                                          {(day.activities || []).map(
-                                            (
-                                              activity: string,
-                                              actIndex: number,
-                                            ) => (
-                                              <Badge
-                                                key={actIndex}
-                                                variant="secondary"
-                                                className="flex items-center gap-1"
-                                              >
-                                                <span dir="rtl">
-                                                  {activity}
-                                                </span>
-                                                <Button
-                                                  type="button"
-                                                  variant="ghost"
-                                                  size="sm"
-                                                  onClick={() => {
-                                                    const currentItinerary =
-                                                      field.value || [];
-                                                    const updatedItinerary =
-                                                      currentItinerary.map(
-                                                        (
-                                                          item: any,
-                                                          i: number,
-                                                        ) =>
-                                                          i === dayIndex
-                                                            ? {
-                                                                ...item,
-                                                                activities:
-                                                                  item.activities.filter(
-                                                                    (
-                                                                      _: any,
-                                                                      ai: number,
-                                                                    ) =>
-                                                                      ai !==
-                                                                      actIndex,
-                                                                  ),
-                                                              }
-                                                            : item,
-                                                      );
-                                                    field.onChange(
-                                                      updatedItinerary,
-                                                    );
-                                                  }}
-                                                  className="h-4 w-4 p-0 hover:bg-red-100"
-                                                >
-                                                  <X className="h-3 w-3" />
-                                                </Button>
-                                              </Badge>
-                                            ),
-                                          )}
-                                        </div>
+                                          }
+                                        }}
+                                      />
+                                      <div className="flex flex-wrap gap-1 max-h-24 overflow-y-auto">
+                                        {(day.activities || []).map((activity: string, actIndex: number) => (
+                                          <Badge 
+                                            key={actIndex} 
+                                            variant="secondary"
+                                            className="flex items-center gap-1"
+                                          >
+                                            <span dir="rtl">{activity}</span>
+                                            <Button
+                                              type="button"
+                                              variant="ghost"
+                                              size="sm"
+                                              onClick={() => {
+                                                const currentItinerary = field.value || [];
+                                                const updatedItinerary = currentItinerary.map((item: any, i: number) =>
+                                                  i === dayIndex ? {
+                                                    ...item,
+                                                    activities: item.activities.filter((_: any, ai: number) => ai !== actIndex)
+                                                  } : item
+                                                );
+                                                field.onChange(updatedItinerary);
+                                              }}
+                                              className="h-4 w-4 p-0 hover:bg-red-100"
+                                            >
+                                              <X className="h-3 w-3" />
+                                            </Button>
+                                          </Badge>
+                                        ))}
                                       </div>
                                     </div>
                                   </div>
                                 </div>
-                              ),
-                            )}
+                              </div>
+                            ))}
 
                             <Button
                               type="button"
@@ -7092,10 +6446,10 @@ export function PackageCreatorForm({
                                 const currentItinerary = field.value || [];
                                 const newDay = {
                                   day: currentItinerary.length + 1,
-                                  title: "",
-                                  description: "",
+                                  title: '',
+                                  description: '',
                                   activities: [],
-                                  meals: [],
+                                  meals: []
                                 };
                                 field.onChange([...currentItinerary, newDay]);
                               }}
@@ -7113,9 +6467,7 @@ export function PackageCreatorForm({
 
                   {/* Arabic Ideal For */}
                   <div className="border rounded-lg p-4 space-y-4">
-                    <h3 className="text-lg font-semibold">
-                      Ideal For (Arabic)
-                    </h3>
+                    <h3 className="text-lg font-semibold">Ideal For (Arabic)</h3>
                     <p className="text-sm text-muted-foreground">
                       Add Arabic translations for ideal traveler types
                     </p>
@@ -7127,17 +6479,13 @@ export function PackageCreatorForm({
                           dir="rtl"
                           className="text-right"
                           onKeyPress={(e) => {
-                            if (e.key === "Enter") {
+                            if (e.key === 'Enter') {
                               e.preventDefault();
                               const input = e.target as HTMLInputElement;
                               if (input.value.trim()) {
-                                const currentIdealFor =
-                                  form.getValues("idealForAr") || [];
-                                form.setValue("idealForAr", [
-                                  ...currentIdealFor,
-                                  input.value.trim(),
-                                ]);
-                                input.value = "";
+                                const currentIdealFor = form.getValues("idealForAr") || [];
+                                form.setValue("idealForAr", [...currentIdealFor, input.value.trim()]);
+                                input.value = '';
                               }
                             }
                           }}
@@ -7146,16 +6494,11 @@ export function PackageCreatorForm({
                           type="button"
                           size="sm"
                           onClick={(e) => {
-                            const input = (e.target as HTMLElement)
-                              .previousElementSibling as HTMLInputElement;
+                            const input = (e.target as HTMLElement).previousElementSibling as HTMLInputElement;
                             if (input?.value.trim()) {
-                              const currentIdealFor =
-                                form.getValues("idealForAr") || [];
-                              form.setValue("idealForAr", [
-                                ...currentIdealFor,
-                                input.value.trim(),
-                              ]);
-                              input.value = "";
+                              const currentIdealFor = form.getValues("idealForAr") || [];
+                              form.setValue("idealForAr", [...currentIdealFor, input.value.trim()]);
+                              input.value = '';
                             }
                           }}
                         >
@@ -7163,44 +6506,30 @@ export function PackageCreatorForm({
                         </Button>
                       </div>
                       <div className="flex flex-wrap gap-2 max-h-24 overflow-y-auto">
-                        {(form.watch("idealForAr") || []).map(
-                          (item: string, index: number) => (
-                            <Badge
-                              key={index}
-                              variant="outline"
-                              className="flex items-center gap-1"
+                        {(form.watch("idealForAr") || []).map((item: string, index: number) => (
+                          <Badge key={index} variant="outline" className="flex items-center gap-1">
+                            <span dir="rtl">{item}</span>
+                            <Button
+                              type="button"
+                              variant="ghost"
+                              size="sm"
+                              onClick={() => {
+                                const currentIdealFor = form.getValues("idealForAr") || [];
+                                form.setValue("idealForAr", currentIdealFor.filter((_, i) => i !== index));
+                              }}
+                              className="h-4 w-4 p-0 hover:bg-red-100"
                             >
-                              <span dir="rtl">{item}</span>
-                              <Button
-                                type="button"
-                                variant="ghost"
-                                size="sm"
-                                onClick={() => {
-                                  const currentIdealFor =
-                                    form.getValues("idealForAr") || [];
-                                  form.setValue(
-                                    "idealForAr",
-                                    currentIdealFor.filter(
-                                      (_, i) => i !== index,
-                                    ),
-                                  );
-                                }}
-                                className="h-4 w-4 p-0 hover:bg-red-100"
-                              >
-                                <X className="h-3 w-3" />
-                              </Button>
-                            </Badge>
-                          ),
-                        )}
+                              <X className="h-3 w-3" />
+                            </Button>
+                          </Badge>
+                        ))}
                       </div>
                     </div>
                   </div>
 
                   {/* Arabic What to Pack */}
                   <div className="border rounded-lg p-4 space-y-4">
-                    <h3 className="text-lg font-semibold">
-                      What to Pack (Arabic)
-                    </h3>
+                    <h3 className="text-lg font-semibold">What to Pack (Arabic)</h3>
                     <p className="text-sm text-muted-foreground">
                       Add Arabic translations for packing recommendations
                     </p>
@@ -7211,115 +6540,76 @@ export function PackageCreatorForm({
                       render={({ field }) => (
                         <FormItem>
                           <div className="space-y-4">
-                            {(field.value || []).map(
-                              (item: any, itemIndex: number) => (
-                                <div
-                                  key={itemIndex}
-                                  className="border rounded-lg p-4 bg-gray-50"
-                                >
-                                  <div className="flex items-center justify-between mb-3">
-                                    <h4 className="font-medium">
-                                      Item {itemIndex + 1} (Arabic)
-                                    </h4>
-                                    <Button
-                                      type="button"
-                                      variant="ghost"
-                                      size="sm"
-                                      onClick={() => {
+                            {(field.value || []).map((item: any, itemIndex: number) => (
+                              <div key={itemIndex} className="border rounded-lg p-4 bg-gray-50">
+                                <div className="flex items-center justify-between mb-3">
+                                  <h4 className="font-medium">Item {itemIndex + 1} (Arabic)</h4>
+                                  <Button
+                                    type="button"
+                                    variant="ghost"
+                                    size="sm"
+                                    onClick={() => {
+                                      const currentItems = field.value || [];
+                                      field.onChange(currentItems.filter((_: any, i: number) => i !== itemIndex));
+                                    }}
+                                    className="text-red-600 hover:text-red-800"
+                                  >
+                                    <Trash className="h-4 w-4" />
+                                  </Button>
+                                </div>
+                                
+                                <div className="grid grid-cols-1 gap-4">
+                                  <div>
+                                    <Label className="text-sm font-medium">Item Name (Arabic)</Label>
+                                    <Input
+                                      value={item.item || ''}
+                                      onChange={(e) => {
                                         const currentItems = field.value || [];
-                                        field.onChange(
-                                          currentItems.filter(
-                                            (_: any, i: number) =>
-                                              i !== itemIndex,
-                                          ),
+                                        const updatedItems = currentItems.map((it: any, i: number) =>
+                                          i === itemIndex ? { ...it, item: e.target.value } : it
                                         );
+                                        field.onChange(updatedItems);
                                       }}
-                                      className="text-red-600 hover:text-red-800"
-                                    >
-                                      <Trash className="h-4 w-4" />
-                                    </Button>
+                                      placeholder="اسم العنصر بالعربية"
+                                      dir="rtl"
+                                      className="text-right"
+                                    />
                                   </div>
 
-                                  <div className="grid grid-cols-1 gap-4">
-                                    <div>
-                                      <Label className="text-sm font-medium">
-                                        Item Name (Arabic)
-                                      </Label>
-                                      <Input
-                                        value={item.item || ""}
-                                        onChange={(e) => {
-                                          const currentItems =
-                                            field.value || [];
-                                          const updatedItems = currentItems.map(
-                                            (it: any, i: number) =>
-                                              i === itemIndex
-                                                ? {
-                                                    ...it,
-                                                    item: e.target.value,
-                                                  }
-                                                : it,
-                                          );
-                                          field.onChange(updatedItems);
-                                        }}
-                                        placeholder="اسم العنصر بالعربية"
-                                        dir="rtl"
-                                        className="text-right"
-                                      />
-                                    </div>
+                                  <div>
+                                    <Label className="text-sm font-medium">Icon Name</Label>
+                                    <Input
+                                      value={item.icon || ''}
+                                      onChange={(e) => {
+                                        const currentItems = field.value || [];
+                                        const updatedItems = currentItems.map((it: any, i: number) =>
+                                          i === itemIndex ? { ...it, icon: e.target.value } : it
+                                        );
+                                        field.onChange(updatedItems);
+                                      }}
+                                      placeholder="e.g., suitcase, camera, sunglasses"
+                                    />
+                                  </div>
 
-                                    <div>
-                                      <Label className="text-sm font-medium">
-                                        Icon Name
-                                      </Label>
-                                      <Input
-                                        value={item.icon || ""}
-                                        onChange={(e) => {
-                                          const currentItems =
-                                            field.value || [];
-                                          const updatedItems = currentItems.map(
-                                            (it: any, i: number) =>
-                                              i === itemIndex
-                                                ? {
-                                                    ...it,
-                                                    icon: e.target.value,
-                                                  }
-                                                : it,
-                                          );
-                                          field.onChange(updatedItems);
-                                        }}
-                                        placeholder="e.g., suitcase, camera, sunglasses"
-                                      />
-                                    </div>
-
-                                    <div>
-                                      <Label className="text-sm font-medium">
-                                        Tooltip (Arabic)
-                                      </Label>
-                                      <Input
-                                        value={item.tooltip || ""}
-                                        onChange={(e) => {
-                                          const currentItems =
-                                            field.value || [];
-                                          const updatedItems = currentItems.map(
-                                            (it: any, i: number) =>
-                                              i === itemIndex
-                                                ? {
-                                                    ...it,
-                                                    tooltip: e.target.value,
-                                                  }
-                                                : it,
-                                          );
-                                          field.onChange(updatedItems);
-                                        }}
-                                        placeholder="معلومات إضافية بالعربية"
-                                        dir="rtl"
-                                        className="text-right"
-                                      />
-                                    </div>
+                                  <div>
+                                    <Label className="text-sm font-medium">Tooltip (Arabic)</Label>
+                                    <Input
+                                      value={item.tooltip || ''}
+                                      onChange={(e) => {
+                                        const currentItems = field.value || [];
+                                        const updatedItems = currentItems.map((it: any, i: number) =>
+                                          i === itemIndex ? { ...it, tooltip: e.target.value } : it
+                                        );
+                                        field.onChange(updatedItems);
+                                      }}
+                                      placeholder="معلومات إضافية بالعربية"
+                                      dir="rtl"
+                                      className="text-right"
+                                    />
                                   </div>
                                 </div>
-                              ),
-                            )}
+                              </div>
+                            ))}
 
                             <Button
                               type="button"
@@ -7327,9 +6617,9 @@ export function PackageCreatorForm({
                               onClick={() => {
                                 const currentItems = field.value || [];
                                 const newItem = {
-                                  item: "",
-                                  icon: "",
-                                  tooltip: "",
+                                  item: '',
+                                  icon: '',
+                                  tooltip: ''
                                 };
                                 field.onChange([...currentItems, newItem]);
                               }}

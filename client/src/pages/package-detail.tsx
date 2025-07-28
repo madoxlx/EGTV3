@@ -5,7 +5,6 @@ import PackageLayout from "@/components/PackageLayout";
 import { Button } from "@/components/ui/button";
 import BookPackageButton from "@/components/BookPackageButton";
 import IncludedTours from "@/components/IncludedTours";
-import OptionalTours from "@/components/OptionalTours";
 import RoomDistributionWithStars from "@/components/RoomDistributionWithStars";
 import EnhancedPriceCalculation from "@/components/EnhancedPriceCalculation";
 
@@ -38,6 +37,7 @@ import {
   Utensils,
   Edit,
   ShieldCheck,
+  Copy,
 } from "lucide-react";
 
 type Package = {
@@ -133,63 +133,63 @@ export default function PackageDetail() {
 
   // Helper functions to get localized content
   const getLocalizedTitle = (pkg: Package) => {
-    if (currentLanguage === "ar" && pkg.titleAr) {
+    if (currentLanguage === 'ar' && pkg.titleAr) {
       return pkg.titleAr;
     }
     return pkg.title;
   };
 
   const getLocalizedDescription = (pkg: Package) => {
-    if (currentLanguage === "ar" && pkg.descriptionAr) {
+    if (currentLanguage === 'ar' && pkg.descriptionAr) {
       return pkg.descriptionAr;
     }
     return pkg.description;
   };
 
   const getLocalizedShortDescription = (pkg: Package) => {
-    if (currentLanguage === "ar" && pkg.shortDescriptionAr) {
+    if (currentLanguage === 'ar' && pkg.shortDescriptionAr) {
       return pkg.shortDescriptionAr;
     }
     return pkg.shortDescription;
   };
 
   const getLocalizedOverview = (pkg: Package) => {
-    if (currentLanguage === "ar" && pkg.overviewAr) {
+    if (currentLanguage === 'ar' && pkg.overviewAr) {
       return pkg.overviewAr;
     }
     return pkg.overview;
   };
 
   const getLocalizedIncludedFeatures = (pkg: Package) => {
-    if (currentLanguage === "ar" && pkg.includedFeaturesAr) {
+    if (currentLanguage === 'ar' && pkg.includedFeaturesAr) {
       return pkg.includedFeaturesAr;
     }
     return pkg.includedFeatures;
   };
 
   const getLocalizedExcludedFeatures = (pkg: Package) => {
-    if (currentLanguage === "ar" && pkg.excludedFeaturesAr) {
+    if (currentLanguage === 'ar' && pkg.excludedFeaturesAr) {
       return pkg.excludedFeaturesAr;
     }
     return pkg.excludedFeatures;
   };
 
   const getLocalizedItinerary = (pkg: Package) => {
-    if (currentLanguage === "ar" && pkg.itineraryAr) {
+    if (currentLanguage === 'ar' && pkg.itineraryAr) {
       return pkg.itineraryAr;
     }
     return pkg.itinerary;
   };
 
   const getLocalizedIdealFor = (pkg: Package) => {
-    if (currentLanguage === "ar" && pkg.idealForAr) {
+    if (currentLanguage === 'ar' && pkg.idealForAr) {
       return pkg.idealForAr;
     }
     return pkg.idealFor;
   };
 
   const getLocalizedWhatToPack = (pkg: Package) => {
-    if (currentLanguage === "ar" && pkg.whatToPackAr) {
+    if (currentLanguage === 'ar' && pkg.whatToPackAr) {
       return pkg.whatToPackAr;
     }
     return pkg.whatToPack;
@@ -209,13 +209,11 @@ export default function PackageDetail() {
   const [endDate, setEndDate] = useState("");
   const [dateMode, setDateMode] = useState<"single" | "range">("range");
   const [selectedRooms, setSelectedRooms] = useState<string[]>([]);
-
+  
   // For booking status management
   const [isBookingDisabled, setIsBookingDisabled] = useState(false);
-  const [bookingDisabledReason, setBookingDisabledReason] = useState<
-    string | undefined
-  >(undefined);
-
+  const [bookingDisabledReason, setBookingDisabledReason] = useState<string | undefined>(undefined);
+  
   // Callback to handle booking status changes from RoomDistributionWithStars
   const handleBookingStatusChange = (disabled: boolean, reason?: string) => {
     setIsBookingDisabled(disabled);
@@ -244,10 +242,7 @@ export default function PackageDetail() {
   };
 
   const nextImage = () => {
-    if (
-      packageData?.galleryUrls &&
-      currentImageIndex < packageData.galleryUrls.length - 1
-    ) {
+    if (packageData?.galleryUrls && currentImageIndex < packageData.galleryUrls.length - 1) {
       setCurrentImageIndex(currentImageIndex + 1);
     }
   };
@@ -262,18 +257,18 @@ export default function PackageDetail() {
   useEffect(() => {
     const handleKeyPress = (e: KeyboardEvent) => {
       if (!isGalleryOpen) return;
-
-      if (e.key === "ArrowLeft") {
+      
+      if (e.key === 'ArrowLeft') {
         prevImage();
-      } else if (e.key === "ArrowRight") {
+      } else if (e.key === 'ArrowRight') {
         nextImage();
-      } else if (e.key === "Escape") {
+      } else if (e.key === 'Escape') {
         closeGallery();
       }
     };
 
-    window.addEventListener("keydown", handleKeyPress);
-    return () => window.removeEventListener("keydown", handleKeyPress);
+    window.addEventListener('keydown', handleKeyPress);
+    return () => window.removeEventListener('keydown', handleKeyPress);
   }, [isGalleryOpen, currentImageIndex]);
 
   // Check if user is authenticated and is an admin
@@ -329,11 +324,7 @@ export default function PackageDetail() {
 
   // Detect manual packages and redirect to manual package detail page
   React.useEffect(() => {
-    if (
-      packageData &&
-      packageData.title &&
-      packageData.title.startsWith("MANUAL:")
-    ) {
+    if (packageData && packageData.title && packageData.title.startsWith("MANUAL:")) {
       // This is a manual package, redirect to manual package detail page
       setLocation(`/packages/manual/${packageSlug}`, { replace: true });
     }
@@ -345,13 +336,11 @@ export default function PackageDetail() {
       // Set start date to 7 days from now (default booking lead time)
       const defaultStartDate = new Date();
       defaultStartDate.setDate(defaultStartDate.getDate() + 7);
-
+      
       // Set end date based on package duration
       const defaultEndDate = new Date(defaultStartDate);
-      defaultEndDate.setDate(
-        defaultEndDate.getDate() + (packageData.duration || 7),
-      );
-
+      defaultEndDate.setDate(defaultEndDate.getDate() + (packageData.duration || 7));
+      
       setStartDate(defaultStartDate.toISOString().split("T")[0]);
       setEndDate(defaultEndDate.toISOString().split("T")[0]);
     }
@@ -359,41 +348,29 @@ export default function PackageDetail() {
 
   // Validation function
   const validateBookingForm = () => {
-    const errors: {
-      startDate?: string;
-      endDate?: string;
-      adults?: string;
-      room?: string;
+    const errors: { 
+      startDate?: string; 
+      endDate?: string; 
+      adults?: string; 
+      room?: string; 
     } = {};
 
     if (!startDate) {
-      errors.startDate = t(
-        "please_select_start_date",
-        "Please select a start date",
-      );
+      errors.startDate = t("please_select_start_date", "Please select a start date");
     }
     if (!endDate) {
       errors.endDate = t("please_select_end_date", "Please select an end date");
     }
     if (startDate && endDate && new Date(startDate) >= new Date(endDate)) {
-      errors.endDate = t(
-        "end_date_after_start_date",
-        "End date must be after start date",
-      );
+      errors.endDate = t("end_date_after_start_date", "End date must be after start date");
     }
 
     if (adults === 0) {
-      errors.adults = t(
-        "at_least_one_adult_required",
-        "At least 1 adult is required",
-      );
+      errors.adults = t("at_least_one_adult_required", "At least 1 adult is required");
     }
 
     if (selectedRooms.length === 0) {
-      errors.room = t(
-        "please_select_at_least_one_room",
-        "Please select at least one room",
-      );
+      errors.room = t("please_select_at_least_one_room", "Please select at least one room");
     }
 
     setValidationErrors(errors);
@@ -401,9 +378,7 @@ export default function PackageDetail() {
   };
 
   // Clear validation errors when user interacts with form
-  const clearValidationError = (
-    field: "startDate" | "endDate" | "adults" | "room",
-  ) => {
+  const clearValidationError = (field: "startDate" | "endDate" | "adults" | "room") => {
     setValidationErrors((prev) => {
       const updated = { ...prev };
       delete updated[field];
@@ -415,7 +390,7 @@ export default function PackageDetail() {
   const handleStartDateChange = (newStartDate: string) => {
     setStartDate(newStartDate);
     clearValidationError("startDate");
-
+    
     // Automatically adjust end date based on package duration
     if (newStartDate && packageData?.duration) {
       const startDateObj = new Date(newStartDate);
@@ -423,10 +398,10 @@ export default function PackageDetail() {
       newEndDate.setDate(newEndDate.getDate() + packageData.duration);
       setEndDate(newEndDate.toISOString().split("T")[0]);
     }
-
+    
     // Reset availability when dates change
     setShowAvailability(false);
-
+    
     // Clear end date validation if it was previously invalid
     if (validationErrors.endDate && endDate) {
       clearValidationError("endDate");
@@ -437,7 +412,7 @@ export default function PackageDetail() {
   const handleEndDateChange = (newEndDate: string) => {
     setEndDate(newEndDate);
     clearValidationError("endDate");
-
+    
     // Reset availability when dates change
     setShowAvailability(false);
   };
@@ -463,12 +438,7 @@ export default function PackageDetail() {
   const handleSeeAvailability = () => {
     // Validate travelers first
     if (adults === 0) {
-      setValidationErrors({
-        adults: t(
-          "at_least_one_adult_required",
-          "At least 1 adult is required",
-        ),
-      });
+      setValidationErrors({ adults: t("at_least_one_adult_required", "At least 1 adult is required") });
       return;
     }
     setShowAvailability(true);
@@ -517,21 +487,16 @@ export default function PackageDetail() {
       <PackageLayout>
         <div className="container py-12 px-4">
           <div className="text-center py-16">
-            <h1 className="text-3xl font-bold mb-4">
-              {t("package_not_found", "Package Not Found")}
-            </h1>
+            <h1 className="text-3xl font-bold mb-4">{t("package_not_found", "Package Not Found")}</h1>
             <p className="text-muted-foreground mb-8">
-              {t(
-                "package_not_exist_or_removed",
-                `The package with slug "${packageSlug}" doesn't exist or has been removed.`,
-              )}
+{t("package_not_exist_or_removed", `The package with slug "${packageSlug}" doesn't exist or has been removed.`)}
             </p>
             <Button onClick={() => setLocation("/packages")} className="mr-2">
               <ArrowLeft className="mr-2 h-4 w-4" />
-              {t("back_to_packages", "Back to Packages")}
+{t("back_to_packages", "Back to Packages")}
             </Button>
             <Button onClick={() => setLocation("/")} className="mr-2">
-              {t("return_home", "Return Home")}
+{t("return_home", "Return Home")}
             </Button>
           </div>
         </div>
@@ -571,6 +536,37 @@ export default function PackageDetail() {
         },
       ]
     : [];
+
+  // --- أضف دالة نسخ الرابط ---
+  const handleCopyLink = async () => {
+    try {
+      let url = null;
+      if (packageData?.slug) {
+        url = `${window.location.origin}/packages/${packageData.slug}`;
+      } else if (packageData?.id) {
+        url = `${window.location.origin}/packages/${packageData.id}`;
+      }
+      if (!url) {
+        toast({
+          title: t("copy_failed", "فشل النسخ"),
+          description: t("could_not_copy", "تعذر نسخ الرابط: لا يوجد معرف للباقة"),
+          variant: "destructive",
+        });
+        return;
+      }
+      await navigator.clipboard.writeText(url);
+      toast({
+        title: t("copied", "تم نسخ الرابط"),
+        description: t("package_link_copied", "تم نسخ رابط الباقة إلى الحافظة"),
+      });
+    } catch (err) {
+      toast({
+        title: t("copy_failed", "فشل النسخ"),
+        description: t("could_not_copy", "تعذر نسخ الرابط إلى الحافظة"),
+        variant: "destructive",
+      });
+    }
+  };
 
   return (
     <PackageLayout>
@@ -615,19 +611,17 @@ export default function PackageDetail() {
                         href="/"
                         className="hover:text-primary-foreground/90 transition-colors"
                       >
-                        {t("home", "Home")}
+{t("home", "Home")}
                       </a>
                       <span className="mx-2">/</span>
                       <a
                         href="/packages"
                         className="hover:text-primary-foreground/90 transition-colors"
                       >
-                        {t("packages", "Packages")}
+{t("packages", "Packages")}
                       </a>
                       <span className="mx-2">/</span>
-                      <span className="font-medium">
-                        {destination?.name || getLocalizedTitle(packageData)}
-                      </span>
+                      <span className="font-medium">{destination?.name || getLocalizedTitle(packageData)}</span>
                     </div>
                     {userData?.role === "admin" && (
                       <div className="flex items-center gap-2">
@@ -653,24 +647,17 @@ export default function PackageDetail() {
                           }}
                         >
                           <Globe className="h-3.5 w-3.5" />
-                          <span className="text-xs">
-                            {t("friendly_url", "Friendly URL")}
-                          </span>
+                          <span className="text-xs">{t("friendly_url", "Friendly URL")}</span>
                         </Button>
 
                         <Button
                           variant="secondary"
                           size="sm"
                           className="flex items-center gap-1.5"
-                          onClick={() =>
-                            window.open(
-                              `/packages/${packageData.slug}`,
-                              "_blank",
-                            )
-                          }
+                          onClick={handleCopyLink}
                         >
-                          <Share2 className="h-3.5 w-3.5" />
-                          <span className="text-xs">{t("view", "View")}</span>
+                          <Copy className="h-3.5 w-3.5" />
+                          <span className="text-xs">{t("copy_link", "نسخ الرابط")}</span>
                         </Button>
                       </div>
                     )}
@@ -704,22 +691,12 @@ export default function PackageDetail() {
                         className="text-white border-white bg-black/30 flex items-center gap-1"
                       >
                         <ShieldCheck className="h-3 w-3" />
-                        <span className="text-xs">
-                          {t("admin_view", "Admin View")}
-                        </span>
+                        <span className="text-xs">{t("admin_view", "Admin View")}</span>
                       </Badge>
                     )}
                   </div>
                   <p className="text-sm sm:text-base md:text-lg lg:text-xl">
-                    {destination
-                      ? t(
-                          "experience_destination_with_package",
-                          `Experience ${destination.name} with our exclusive package`,
-                        )
-                      : t(
-                          "experience_destination_default",
-                          "Experience the beauty of this destination with our exclusive package",
-                        )}
+                    {destination ? `Experience ${destination?.name} with our exclusive package` : "Experience the beauty of this destination with our exclusive package"}
                   </p>
                 </div>
               </div>
@@ -776,9 +753,7 @@ export default function PackageDetail() {
                   id="package-gallary"
                 >
                   <div className="p-6">
-                    <h2 className="text-2xl font-bold mb-4">
-                      {t("package_photos", "Package Photos")}
-                    </h2>
+                    <h2 className="text-2xl font-bold mb-4">{t("package_photos", "Package Photos")}</h2>
                     <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3">
                       {packageData.galleryUrls &&
                       packageData.galleryUrls.length > 0 ? (
@@ -795,18 +770,8 @@ export default function PackageDetail() {
                             />
                             <div className="absolute inset-0 bg-black bg-opacity-0 group-hover:bg-opacity-20 transition-all duration-300 flex items-center justify-center">
                               <div className="opacity-0 group-hover:opacity-100 transition-opacity duration-300 text-white bg-black bg-opacity-50 rounded-full p-2">
-                                <svg
-                                  className="w-6 h-6"
-                                  fill="none"
-                                  stroke="currentColor"
-                                  viewBox="0 0 24 24"
-                                >
-                                  <path
-                                    strokeLinecap="round"
-                                    strokeLinejoin="round"
-                                    strokeWidth={2}
-                                    d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0zM10 7v3m0 0v3m0-3h3m-3 0H7"
-                                  />
+                                <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0zM10 7v3m0 0v3m0-3h3m-3 0H7" />
                                 </svg>
                               </div>
                             </div>
@@ -815,10 +780,7 @@ export default function PackageDetail() {
                       ) : (
                         <div className="col-span-full bg-gray-100 rounded-lg p-8 text-center">
                           <p className="text-muted-foreground">
-                            {t(
-                              "gallery_images_coming_soon",
-                              "Gallery images coming soon",
-                            )}
+{t("gallery_images_coming_soon", "Gallery images coming soon")}
                           </p>
                         </div>
                       )}
@@ -830,9 +792,7 @@ export default function PackageDetail() {
                 <section className="bg-white rounded-xl shadow-md overflow-hidden">
                   <div className="p-6">
                     <h2 className="text-2xl font-bold mb-4">
-                      {packageData.selectedTourId || packageData.tourSelection
-                        ? t("tour_overview", "Tour Overview")
-                        : t("package_overview", "Package Overview")}
+{(packageData.selectedTourId || packageData.tourSelection) ? t("tour_overview", "Tour Overview") : t("package_overview", "Package Overview")}
                     </h2>
                     <p className="text-neutral-700 mb-4">
                       {getLocalizedDescription(packageData)}
@@ -846,7 +806,7 @@ export default function PackageDetail() {
                       <div className="bg-white border border-[#F1F1F1] p-4 rounded-lg flex flex-col items-center text-center shadow-inner shadow-[inset_0_0_20px_rgba(0,0,0,0.1)] hover:shadow-[inset_0_0_30px_rgba(0,0,0,0.15)] transition-all duration-200">
                         <Calendar className="h-6 w-6 text-primary mb-2" />
                         <h3 className="font-medium text-sm mb-1">
-                          {t("best_time_to_visit", "Best Time to Visit")}
+{t("best_time_to_visit", "Best Time to Visit")}
                         </h3>
                         <p className="text-xs text-neutral-600">
                           {packageData.bestTimeToVisit ||
@@ -855,9 +815,7 @@ export default function PackageDetail() {
                       </div>
                       <div className="bg-white border border-[#F1F1F1] p-4 rounded-lg flex flex-col items-center text-center shadow-inner shadow-[inset_0_0_20px_rgba(0,0,0,0.1)] hover:shadow-[inset_0_0_30px_rgba(0,0,0,0.15)] transition-all duration-200">
                         <Users className="h-6 w-6 text-primary mb-2" />
-                        <h3 className="font-medium text-sm mb-1">
-                          {t("ideal_for", "Ideal For")}
-                        </h3>
+                        <h3 className="font-medium text-sm mb-1">{t("ideal_for", "Ideal For")}</h3>
                         <p className="text-xs text-neutral-600">
                           {(() => {
                             const idealFor = getLocalizedIdealFor(packageData);
@@ -870,18 +828,14 @@ export default function PackageDetail() {
                       <div className="bg-white border border-[#F1F1F1] p-4 rounded-lg flex flex-col items-center text-center shadow-inner shadow-[inset_0_0_20px_rgba(0,0,0,0.1)] hover:shadow-[inset_0_0_30px_rgba(0,0,0,0.15)] transition-all duration-200">
                         <Globe className="h-6 w-6 text-primary mb-2" />
                         <h3 className="font-medium text-sm mb-1">
-                          {t("what_to_pack", "What to Pack")}
+{t("what_to_pack", "What to Pack")}
                         </h3>
                         <p className="text-xs text-neutral-600">
                           {(() => {
-                            const whatToPack =
-                              getLocalizedWhatToPack(packageData);
+                            const whatToPack = getLocalizedWhatToPack(packageData);
                             return whatToPack && whatToPack.length > 0
                               ? whatToPack.map((item) => item.item).join(", ")
-                              : t(
-                                  "standard_travel_essentials",
-                                  "Standard travel essentials",
-                                );
+                              : t("standard_travel_essentials", "Standard travel essentials");
                           })()}
                         </p>
                       </div>
@@ -893,22 +847,15 @@ export default function PackageDetail() {
                 <section className="bg-white rounded-xl shadow-md overflow-hidden">
                   <div className="p-4 sm:p-6">
                     <h2 className="text-xl sm:text-2xl font-bold mb-4 sm:mb-6">
-                      {t("package_itinerary", "Package Itinerary")}
+{t("package_itinerary", "Package Itinerary")}
                     </h2>
                     {(() => {
-                      const localizedItinerary =
-                        getLocalizedItinerary(packageData);
-                      return localizedItinerary &&
-                        localizedItinerary.length > 0 ? (
+                      const localizedItinerary = getLocalizedItinerary(packageData);
+                      return localizedItinerary && localizedItinerary.length > 0 ? (
                         <Tabs
                           defaultValue={`day${localizedItinerary[0]?.day || 1}`}
                         >
-                          <TabsList
-                            className={`grid w-full text-xs sm:text-sm`}
-                            style={{
-                              gridTemplateColumns: `repeat(${localizedItinerary.length}, minmax(0, 1fr))`,
-                            }}
-                          >
+                          <TabsList className={`grid w-full text-xs sm:text-sm`} style={{gridTemplateColumns: `repeat(${localizedItinerary.length}, minmax(0, 1fr))`}}>
                             {localizedItinerary.map((day, index) => (
                               <TabsTrigger key={index} value={`day${day.day}`}>
                                 {t("day", "Day")} {day.day}
@@ -944,16 +891,10 @@ export default function PackageDetail() {
                         <div className="bg-gray-50 rounded-lg p-8 text-center">
                           <Calendar className="h-12 w-12 text-gray-400 mx-auto mb-4" />
                           <h3 className="text-lg font-medium text-gray-900 mb-2">
-                            {t(
-                              "detailed_itinerary_coming_soon",
-                              "Detailed Itinerary Coming Soon",
-                            )}
+                            {t("detailed_itinerary_coming_soon", "Detailed Itinerary Coming Soon")}
                           </h3>
                           <p className="text-gray-600">
-                            {t(
-                              "itinerary_preparation_message",
-                              "Our team is preparing a comprehensive day-by-day itinerary for this package. Please contact us for more details about the planned activities.",
-                            )}
+                            {t("itinerary_preparation_message", "Our team is preparing a comprehensive day-by-day itinerary for this package. Please contact us for more details about the planned activities.")}
                           </p>
                         </div>
                       );
@@ -967,79 +908,39 @@ export default function PackageDetail() {
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                       <div>
                         <h2 className="text-xl font-bold mb-4">
-                          {t("whats_included", "What's Included")}
+{t("whats_included", "What's Included")}
                         </h2>
                         <ul className="space-y-3">
                           {(() => {
                             // Get included features from multiple possible data sources
                             let includedItems: string[] = [];
-
+                            
                             // Priority 1: includedFeatures array (localized)
-                            const localizedIncluded =
-                              getLocalizedIncludedFeatures(packageData);
-                            if (
-                              localizedIncluded &&
-                              localizedIncluded.length > 0
-                            ) {
+                            const localizedIncluded = getLocalizedIncludedFeatures(packageData);
+                            if (localizedIncluded && localizedIncluded.length > 0) {
                               includedItems = localizedIncluded;
                             }
                             // Priority 2: inclusions array
-                            else if (
-                              packageData.inclusions &&
-                              packageData.inclusions.length > 0
-                            ) {
+                            else if (packageData.inclusions && packageData.inclusions.length > 0) {
                               includedItems = packageData.inclusions;
                             }
                             // Priority 3: Extract from hotels and tours if available
-                            else if (
-                              packageData.selectedHotels ||
-                              packageData.rooms
-                            ) {
+                            else if (packageData.selectedHotels || packageData.rooms) {
                               const hotelInclusions: string[] = [];
-                              if (
-                                packageData.selectedHotels &&
-                                Array.isArray(packageData.selectedHotels)
-                              ) {
-                                hotelInclusions.push(
-                                  t(
-                                    "hotel_accommodation",
-                                    "Hotel accommodation",
-                                  ),
-                                );
-                                hotelInclusions.push(
-                                  t("daily_breakfast", "Daily breakfast"),
-                                );
+                              if (packageData.selectedHotels && Array.isArray(packageData.selectedHotels)) {
+                                hotelInclusions.push(t("hotel_accommodation", "Hotel accommodation"));
+                                hotelInclusions.push(t("daily_breakfast", "Daily breakfast"));
                               }
-                              if (
-                                packageData.rooms &&
-                                Array.isArray(packageData.rooms)
-                              ) {
-                                hotelInclusions.push(
-                                  t("room_service", "Room service"),
-                                );
+                              if (packageData.rooms && Array.isArray(packageData.rooms)) {
+                                hotelInclusions.push(t("room_service", "Room service"));
                               }
                               // Add basic travel inclusions
-                              hotelInclusions.push(
-                                t(
-                                  "professional_tour_guide",
-                                  "Professional tour guide",
-                                ),
-                              );
-                              hotelInclusions.push(
-                                t(
-                                  "transportation_during_tour",
-                                  "Transportation during tour",
-                                ),
-                              );
-                              hotelInclusions.push(
-                                t(
-                                  "entrance_fees_to_attractions",
-                                  "Entrance fees to attractions",
-                                ),
-                              );
+                              hotelInclusions.push(t("professional_tour_guide", "Professional tour guide"));
+                              hotelInclusions.push(t("transportation_during_tour", "Transportation during tour"));
+                              hotelInclusions.push(t("entrance_fees_to_attractions", "Entrance fees to attractions"));
                               includedItems = hotelInclusions;
                             }
-
+                            
                             // Render included items
                             if (includedItems.length > 0) {
                               return includedItems.map((item, index) => (
@@ -1049,22 +950,16 @@ export default function PackageDetail() {
                                 </li>
                               ));
                             }
-
+                            
                             // Fallback when no data available
                             return (
                               <li className="flex items-center justify-center py-8">
                                 <div className="text-center">
                                   <Check className="h-12 w-12 text-gray-300 mx-auto mb-3" />
                                   <p className="text-gray-500 text-sm">
-                                    {userData?.role === "admin"
-                                      ? t(
-                                          "no_included_features_admin",
-                                          "No included features defined for this package. Edit to add inclusions.",
-                                        )
-                                      : t(
-                                          "inclusion_details_on_inquiry",
-                                          "Inclusion details will be provided upon inquiry",
-                                        )}
+                                    {userData?.role === "admin" 
+                                      ? t("no_included_features_admin", "No included features defined for this package. Edit to add inclusions.")
+                                      : t("inclusion_details_on_inquiry", "Inclusion details will be provided upon inquiry")}
                                   </p>
                                 </div>
                               </li>
@@ -1074,48 +969,35 @@ export default function PackageDetail() {
                       </div>
                       <div>
                         <h2 className="text-xl font-bold mb-4">
-                          {t("whats_excluded", "What's Excluded")}
+{t("whats_excluded", "What's Excluded")}
                         </h2>
                         <ul className="space-y-3">
                           {(() => {
                             // Get excluded features from multiple possible data sources
                             let excludedItems: string[] = [];
-
+                            
                             // Priority 1: excludedFeatures array (localized)
-                            const localizedExcluded =
-                              getLocalizedExcludedFeatures(packageData);
-                            if (
-                              localizedExcluded &&
-                              localizedExcluded.length > 0
-                            ) {
+                            const localizedExcluded = getLocalizedExcludedFeatures(packageData);
+                            if (localizedExcluded && localizedExcluded.length > 0) {
                               excludedItems = localizedExcluded;
                             }
                             // Priority 2: excludedItems array
-                            else if (
-                              packageData.excludedItems &&
-                              packageData.excludedItems.length > 0
-                            ) {
+                            else if (packageData.excludedItems && packageData.excludedItems.length > 0) {
                               excludedItems = packageData.excludedItems;
                             }
                             // Priority 3: Add common exclusions if no data
                             else {
                               excludedItems = [
-                                t(
-                                  "international_flights",
-                                  "International flights",
-                                ),
-                                t("travel_insurance", "Travel insurance"),
+                                t("international_flights", "International flights"),
+                                t("travel_insurance", "Travel insurance"), 
                                 t("personal_expenses", "Personal expenses"),
                                 t("tips_and_gratuities", "Tips and gratuities"),
                                 t("alcoholic_beverages", "Alcoholic beverages"),
-                                t(
-                                  "optional_activities_not_mentioned",
-                                  "Optional activities not mentioned",
-                                ),
-                                t("visa_fees", "Visa fees"),
+                                t("optional_activities_not_mentioned", "Optional activities not mentioned"),
+                                t("visa_fees", "Visa fees")
                               ];
                             }
-
+                            
                             // Render excluded items
                             if (excludedItems.length > 0) {
                               return excludedItems.map((item, index) => (
@@ -1125,7 +1007,7 @@ export default function PackageDetail() {
                                 </li>
                               ));
                             }
-
+                            
                             // Fallback when no data available
                             return (
                               <li className="flex items-center justify-center py-8">
@@ -1133,14 +1015,8 @@ export default function PackageDetail() {
                                   <X className="h-12 w-12 text-gray-300 mx-auto mb-3" />
                                   <p className="text-gray-500 text-sm">
                                     {userData?.role === "admin"
-                                      ? t(
-                                          "no_excluded_features_admin",
-                                          "No excluded features defined for this package. Edit to add exclusions.",
-                                        )
-                                      : t(
-                                          "no_specific_exclusions",
-                                          "No specific exclusions listed for this package.",
-                                        )}
+                                      ? t("no_excluded_features_admin", "No excluded features defined for this package. Edit to add exclusions.")
+                                      : t("no_specific_exclusions", "No specific exclusions listed for this package.")}
                                   </p>
                                 </div>
                               </li>
@@ -1151,6 +1027,8 @@ export default function PackageDetail() {
                     </div>
                   </div>
                 </section>
+
+
               </div>
 
               {/* Booking Sidebar */}
@@ -1160,9 +1038,7 @@ export default function PackageDetail() {
                   <Card className="mb-6 shadow-lg border-t-4 border-t-primary">
                     <CardContent className="p-6">
                       <div className="flex items-center justify-between mb-4">
-                        <h3 className="text-xl font-bold">
-                          {t("book_this_package", "Book This Package")}
-                        </h3>
+                        <h3 className="text-xl font-bold">{t("book_this_package", "Book This Package")}</h3>
 
                         {/* Admin Edit Button in card */}
                         {userData?.role === "admin" && (
@@ -1186,121 +1062,96 @@ export default function PackageDetail() {
                         {/* Date Range Selection */}
                         <div>
                           <label className="text-sm font-medium mb-2 block">
-                            {t("travel_dates", "Travel Dates")} *
+{t("travel_dates", "Travel Dates")} *
                           </label>
-
+                          
                           {/* Duration Information */}
                           {packageData?.duration && (
                             <div className="mb-3 p-2 bg-blue-50 border border-blue-200 rounded-md">
                               <p className="text-xs text-blue-800 flex items-center">
                                 <Clock className="w-3 h-3 mr-1" />
-                                {t(
-                                  "package_duration",
-                                  "Package Duration",
-                                )}: {packageData.duration}{" "}
-                                {packageData.durationType || "days"}
+                                {t("package_duration", "Package Duration")}: {packageData.duration} {packageData.durationType || 'days'}
                                 <span className="text-blue-600 text-xs ml-2">
-                                  (
-                                  {t(
-                                    "end_date_auto_adjusts",
-                                    "End date adjusts automatically",
-                                  )}
-                                  )
+                                  ({t("end_date_auto_adjusts", "End date adjusts automatically")})
                                 </span>
                               </p>
                             </div>
                           )}
-
+                          
                           {/* Date Range Inputs */}
                           <div className="space-y-3">
-                            <div className="grid grid-cols-2 gap-3">
-                              <div>
-                                <label className="text-xs text-gray-600 mb-1 block">
-                                  {t("start_date", "Start Date")}
-                                </label>
-                                <input
-                                  type="date"
-                                  value={startDate}
-                                  onChange={(e) =>
-                                    handleStartDateChange(e.target.value)
-                                  }
-                                  className={`w-full rounded-md border px-3 py-2 text-sm ring-offset-background ${
-                                    validationErrors.startDate
-                                      ? "border-red-500"
-                                      : "border-input"
-                                  }`}
-                                  min={(() => {
-                                    const minDate = new Date();
-                                    minDate.setDate(minDate.getDate() + 4);
-                                    return minDate.toISOString().split("T")[0];
-                                  })()}
-                                  placeholder={t("start_date", "Start date")}
-                                />
-                                {validationErrors.startDate && (
-                                  <p className="text-red-500 text-xs mt-1">
-                                    {validationErrors.startDate}
-                                  </p>
-                                )}
-                              </div>
-                              <div>
-                                <label className="text-xs text-gray-600 mb-1 block">
-                                  {t("end_date", "End Date")}
-                                </label>
-                                <input
-                                  type="date"
-                                  value={endDate}
-                                  onChange={(e) =>
-                                    handleEndDateChange(e.target.value)
-                                  }
-                                  className={`w-full rounded-md border px-3 py-2 text-sm ring-offset-background ${
-                                    validationErrors.endDate
-                                      ? "border-red-500"
-                                      : "border-input"
-                                  }`}
-                                  min={
-                                    startDate ||
-                                    (() => {
+                              <div className="grid grid-cols-2 gap-3">
+                                <div>
+                                  <label className="text-xs text-gray-600 mb-1 block">
+{t("start_date", "Start Date")}
+                                  </label>
+                                  <input
+                                    type="date"
+                                    value={startDate}
+                                    onChange={(e) => handleStartDateChange(e.target.value)}
+                                    className={`w-full rounded-md border px-3 py-2 text-sm ring-offset-background ${
+                                      validationErrors.startDate
+                                        ? "border-red-500"
+                                        : "border-input"
+                                    }`}
+                                    min={(() => {
                                       const minDate = new Date();
                                       minDate.setDate(minDate.getDate() + 4);
-                                      return minDate
-                                        .toISOString()
-                                        .split("T")[0];
-                                    })()
-                                  }
-                                  placeholder={t("end_date", "End date")}
-                                />
-                                {validationErrors.endDate && (
-                                  <p className="text-red-500 text-xs mt-1">
-                                    {validationErrors.endDate}
+                                      return minDate.toISOString().split("T")[0];
+                                    })()}
+                                    placeholder={t("start_date", "Start date")}
+                                  />
+                                  {validationErrors.startDate && (
+                                    <p className="text-red-500 text-xs mt-1">
+                                      {validationErrors.startDate}
+                                    </p>
+                                  )}
+                                </div>
+                                <div>
+                                  <label className="text-xs text-gray-600 mb-1 block">
+{t("end_date", "End Date")}
+                                  </label>
+                                  <input
+                                    type="date"
+                                    value={endDate}
+                                    onChange={(e) => handleEndDateChange(e.target.value)}
+                                    className={`w-full rounded-md border px-3 py-2 text-sm ring-offset-background ${
+                                      validationErrors.endDate
+                                        ? "border-red-500"
+                                        : "border-input"
+                                    }`}
+                                    min={startDate || (() => {
+                                      const minDate = new Date();
+                                      minDate.setDate(minDate.getDate() + 4);
+                                      return minDate.toISOString().split("T")[0];
+                                    })()}
+                                    placeholder={t("end_date", "End date")}
+                                  />
+                                  {validationErrors.endDate && (
+                                    <p className="text-red-500 text-xs mt-1">
+                                      {validationErrors.endDate}
+                                    </p>
+                                  )}
+                                </div>
+                              </div>
+                              
+                              {/* Date Range Summary */}
+                              {startDate && endDate && (
+                                <div className="bg-blue-50 border border-blue-200 rounded-md p-2">
+                                  <p className="text-xs text-blue-800">
+                                    <Calendar className="w-3 h-3 inline mr-1" />
+                                    {(() => {
+                                      const start = new Date(startDate);
+                                      const end = new Date(endDate);
+                                      const diffTime = Math.abs(end.getTime() - start.getTime());
+                                      const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+                                      const nights = Math.max(0, diffDays - 1); // Nights = days - 1
+                                      return t("trip_duration_summary", `${diffDays} day${diffDays !== 1 ? 's' : ''}, ${nights} night${nights !== 1 ? 's' : ''} trip (${start.toLocaleDateString()} - ${end.toLocaleDateString()})`);
+                                    })()}
                                   </p>
-                                )}
-                              </div>
+                                </div>
+                              )}
                             </div>
-
-                            {/* Date Range Summary */}
-                            {startDate && endDate && (
-                              <div className="bg-blue-50 border border-blue-200 rounded-md p-2">
-                                <p className="text-xs text-blue-800">
-                                  <Calendar className="w-3 h-3 inline mr-1" />
-                                  {(() => {
-                                    const start = new Date(startDate);
-                                    const end = new Date(endDate);
-                                    const diffTime = Math.abs(
-                                      end.getTime() - start.getTime(),
-                                    );
-                                    const diffDays = Math.ceil(
-                                      diffTime / (1000 * 60 * 60 * 24),
-                                    );
-                                    const nights = Math.max(0, diffDays - 1); // Nights = days - 1
-                                    return t(
-                                      "trip_duration_summary",
-                                      `${diffDays} day${diffDays !== 1 ? "s" : ""}, ${nights} night${nights !== 1 ? "s" : ""} trip (${start.toLocaleDateString()} - ${end.toLocaleDateString()})`,
-                                    );
-                                  })()}
-                                </p>
-                              </div>
-                            )}
-                          </div>
                         </div>
 
                         {/* Step 1: Traveler Selection */}
@@ -1313,7 +1164,7 @@ export default function PackageDetail() {
                               {t("select_travelers", "Select Travelers")}
                             </h3>
                           </div>
-
+                          
                           {validationErrors.adults && (
                             <p className="text-red-500 text-xs">
                               {validationErrors.adults}
@@ -1359,9 +1210,7 @@ export default function PackageDetail() {
 
                             {/* Children */}
                             <div className="flex items-center justify-between">
-                              <span className="text-sm">
-                                {t("children_2_12_yrs", "Children (2-12 yrs)")}
-                              </span>
+                              <span className="text-sm">{t("children_2_12_yrs", "Children (2-12 yrs)")}</span>
                               <div className="flex items-center">
                                 <button
                                   className="w-8 h-8 rounded-full border border-input flex items-center justify-center hover:bg-muted"
@@ -1389,9 +1238,7 @@ export default function PackageDetail() {
 
                             {/* Infants */}
                             <div className="flex items-center justify-between">
-                              <span className="text-sm">
-                                {t("infants_0_2_yrs", "Infants (0-2 yrs)")}
-                              </span>
+                              <span className="text-sm">{t("infants_0_2_yrs", "Infants (0-2 yrs)")}</span>
                               <div className="flex items-center">
                                 <button
                                   className="w-8 h-8 rounded-full border border-input flex items-center justify-center hover:bg-muted"
@@ -1402,9 +1249,7 @@ export default function PackageDetail() {
                                 >
                                   -
                                 </button>
-                                <span className="w-8 text-center">
-                                  {infants}
-                                </span>
+                                <span className="w-8 text-center">{infants}</span>
                                 <button
                                   className="w-8 h-8 rounded-full border border-input flex items-center justify-center hover:bg-muted"
                                   onClick={() => {
@@ -1423,10 +1268,8 @@ export default function PackageDetail() {
                             <div className="pl-10 bg-blue-50 border border-blue-200 rounded-md p-3">
                               <p className="text-sm text-blue-800">
                                 <Users className="w-4 h-4 inline mr-1" />
-                                {t("total_travelers", "Total travelers")}:{" "}
-                                {adults + children + infants}
-                                {adults > 0 &&
-                                  ` (${adults} ${t("adults", "adults")}${children > 0 ? `, ${children} ${t("children", "children")}` : ""}${infants > 0 ? `, ${infants} ${t("infants", "infants")}` : ""})`}
+                                {t("total_travelers", "Total travelers")}: {adults + children + infants}
+                                {adults > 0 && ` (${adults} ${t("adults", "adults")}${children > 0 ? `, ${children} ${t("children", "children")}` : ''}${infants > 0 ? `, ${infants} ${t("infants", "infants")}` : ''})`}
                               </p>
                             </div>
                           )}
@@ -1435,16 +1278,14 @@ export default function PackageDetail() {
                         {/* Step 2: See Availability Button */}
                         <div className="space-y-4">
                           <div className="flex items-center gap-2">
-                            <div
-                              className={`w-8 h-8 rounded-full flex items-center justify-center text-sm font-semibold ${showAvailability ? "bg-green-500 text-white" : "bg-gray-200 text-gray-600"}`}
-                            >
+                            <div className={`w-8 h-8 rounded-full flex items-center justify-center text-sm font-semibold ${showAvailability ? 'bg-green-500 text-white' : 'bg-gray-200 text-gray-600'}`}>
                               2
                             </div>
                             <h3 className="text-lg font-semibold">
                               {t("check_availability", "Check Availability")}
                             </h3>
                           </div>
-
+                          
                           <div className="pl-10">
                             {!showAvailability ? (
                               <Button
@@ -1457,13 +1298,7 @@ export default function PackageDetail() {
                             ) : (
                               <div className="bg-green-50 border border-green-200 rounded-md p-3 mb-4">
                                 <p className="text-sm text-green-800">
-                                  ✓{" "}
-                                  {t(
-                                    "availability_checked",
-                                    "Availability checked for",
-                                  )}{" "}
-                                  {adults + children + infants}{" "}
-                                  {t("travelers", "travelers")}
+                                  ✓ {t("availability_checked", "Availability checked for")} {adults + children + infants} {t("travelers", "travelers")}
                                 </p>
                               </div>
                             )}
@@ -1471,6 +1306,7 @@ export default function PackageDetail() {
                         </div>
 
                         {/* Step 3: Room Distribution (shown after clicking See Availability) */}
+                        
                         {showAvailability && (
                           <div className="space-y-4">
                             <div className="flex items-center gap-2">
@@ -1481,10 +1317,10 @@ export default function PackageDetail() {
                                 {t("room_distribution", "Room Distribution")}
                               </h3>
                             </div>
-
+                            
                             <div className="pl-10 space-y-4">
                               {/* Room Distribution Component */}
-                              <RoomDistributionWithStars
+                              <RoomDistributionWithStars 
                                 packageData={packageData}
                                 selectedRooms={selectedRooms}
                                 onRoomSelect={(rooms: string[]) => {
@@ -1497,127 +1333,35 @@ export default function PackageDetail() {
                                 infants={infants}
                                 startDate={startDate}
                                 endDate={endDate}
-                                onBookingStatusChange={
-                                  handleBookingStatusChange
-                                }
+                                onBookingStatusChange={handleBookingStatusChange}
                               />
 
-                              {/* Enhanced Price Calculation */}
-                              <EnhancedPriceCalculation
-                                packageData={packageData}
-                                adults={adults}
-                                children={children}
-                                infants={infants}
-                                hotelPackage=""
-                                selectedRooms={selectedRooms}
-                                dateMode="range"
-                                startDate={startDate}
-                                endDate={endDate}
-                              />
-
-                              {/* Optional Tours */}
+                              {/* Included Tours */}
                               <div>
                                 <label className="text-sm font-medium mb-2 block">
-                                  {t(
-                                    "optional_tours_available",
-                                    "Optional Tours & Activities",
-                                  )}
+                                  {t("tours_included_in_package", "Tours Included in Package")}
                                 </label>
-                                <OptionalTours packageData={packageData} />
-                              </div>
-
-                              {/* Total Price Display */}
-                              <div className="border-t pt-4">
-                                <div className="space-y-2">
-                                  {/* Price Breakdown */}
-                                  <div className="text-sm space-y-1">
-                                    {(() => {
-                                      const basePrice = packageData?.price || 0;
-                                      const nights = (() => {
-                                        if (startDate && endDate) {
-                                          const start = new Date(startDate);
-                                          const end = new Date(endDate);
-                                          const diffTime = Math.abs(end.getTime() - start.getTime());
-                                          const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
-                                          return Math.max(1, diffDays - 1);
-                                        }
-                                        return packageData?.duration || 1;
-                                      })();
-                                      
-                                      // Different pricing for each category
-                                      const adultPrice = basePrice; // Full price for adults
-                                      const childPrice = Math.round(basePrice * 0.7); // 70% for children
-                                      const infantPrice = Math.round(basePrice * 0.3); // 30% for infants
-                                      
-                                      const adultTotal = adults * adultPrice * nights;
-                                      const childTotal = children * childPrice * nights;
-                                      const infantTotal = infants * infantPrice * nights;
-                                      const grandTotal = adultTotal + childTotal + infantTotal;
-                                      
-                                      return (
-                                        <>
-                                          {adults > 0 && (
-                                            <div className="flex justify-between">
-                                              <span>{t("adults", "Adults")} ({adults} × {(adultPrice / 100).toLocaleString()} × {nights} {t("days", "days")}):</span>
-                                              <span>{(adultTotal / 100).toLocaleString()} EGP</span>
-                                            </div>
-                                          )}
-                                          {children > 0 && (
-                                            <div className="flex justify-between">
-                                              <span>{t("children", "Children")} ({children} × {(childPrice / 100).toLocaleString()} × {nights} {t("days", "days")}):</span>
-                                              <span>{(childTotal / 100).toLocaleString()} EGP</span>
-                                            </div>
-                                          )}
-                                          {infants > 0 && (
-                                            <div className="flex justify-between">
-                                              <span>{t("infants", "Infants")} ({infants} × {(infantPrice / 100).toLocaleString()} × {nights} {t("days", "days")}):</span>
-                                              <span>{(infantTotal / 100).toLocaleString()} EGP</span>
-                                            </div>
-                                          )}
-                                        </>
-                                      );
-                                    })()}
-                                  </div>
-                                  
-                                  {/* Total */}
-                                  <div className="border-t pt-2">
-                                    <div className="font-bold text-xl text-center">
-                                      {t("total", "Total")}:{" "}
-                                      <span className="text-primary">
-                                        {(() => {
-                                          const basePrice = packageData?.price || 0;
-                                          const nights = (() => {
-                                            if (startDate && endDate) {
-                                              const start = new Date(startDate);
-                                              const end = new Date(endDate);
-                                              const diffTime = Math.abs(end.getTime() - start.getTime());
-                                              const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
-                                              return Math.max(1, diffDays - 1);
-                                            }
-                                            return packageData?.duration || 1;
-                                          })();
-                                          
-                                          const adultPrice = basePrice;
-                                          const childPrice = Math.round(basePrice * 0.7);
-                                          const infantPrice = Math.round(basePrice * 0.3);
-                                          
-                                          const adultTotal = adults * adultPrice * nights;
-                                          const childTotal = children * childPrice * nights;
-                                          const infantTotal = infants * infantPrice * nights;
-                                          const grandTotal = adultTotal + childTotal + infantTotal;
-                                          
-                                          return `${(grandTotal / 100).toLocaleString()} EGP`;
-                                        })()}
-                                      </span>
-                                    </div>
-                                  </div>
-                                </div>
+                                <IncludedTours packageData={packageData} />
+                                {/* Enhanced Price Calculation - تحت الجولات المضمنة */}
+                                <EnhancedPriceCalculation 
+                                  packageData={packageData}
+                                  adults={adults}
+                                  children={children}
+                                  infants={infants}
+                                  hotelPackage=""
+                                  selectedRooms={selectedRooms}
+                                  dateMode="range"
+                                  startDate={startDate}
+                                  endDate={endDate}
+                                />
                               </div>
 
                               {/* Book Package Button */}
                               <BookPackageButton
                                 package={packageData}
                                 className="w-full bg-primary hover:bg-primary/90 text-white"
+                                disabled={isBookingDisabled}
+                                disabledReason={bookingDisabledReason}
                                 onClick={() => {
                                   // Validate form before booking
                                   return validateBookingForm();
@@ -1640,10 +1384,7 @@ export default function PackageDetail() {
                         )}
 
                         <p className="text-xs text-center text-muted-foreground">
-                          {t(
-                            "no_payment_required_to_book",
-                            "No payment required to book. You'll only pay when finalizing your reservation.",
-                          )}
+{t("no_payment_required_to_book", "No payment required to book. You'll only pay when finalizing your reservation.")}
                         </p>
                       </div>
                     </CardContent>
@@ -1653,13 +1394,13 @@ export default function PackageDetail() {
                   <Card className="mb-6">
                     <CardContent className="p-6">
                       <h3 className="text-lg font-bold mb-4">
-                        {t("package_summary", "Package Summary")}
+{t("package_summary", "Package Summary")}
                       </h3>
 
                       <div className="space-y-4">
                         <div>
                           <h4 className="text-sm font-semibold mb-2">
-                            {t("whats_included_colon", "What's Included:")}
+{t("whats_included_colon", "What's Included:")}
                           </h4>
                           <ul className="space-y-1.5">
                             {packageData.inclusions &&
@@ -1679,39 +1420,23 @@ export default function PackageDetail() {
                               <>
                                 <li className="flex items-start text-sm">
                                   <Check className="h-4 w-4 text-green-500 mr-1.5 mt-0.5 flex-shrink-0" />
-                                  <span>
-                                    {t("accommodation", "Accommodation")}
-                                  </span>
+                                  <span>{t("accommodation", "Accommodation")}</span>
                                 </li>
                                 <li className="flex items-start text-sm">
                                   <Check className="h-4 w-4 text-green-500 mr-1.5 mt-0.5 flex-shrink-0" />
-                                  <span>
-                                    {t(
-                                      "meals_as_per_itinerary",
-                                      "Meals as per itinerary",
-                                    )}
-                                  </span>
+                                  <span>{t("meals_as_per_itinerary", "Meals as per itinerary")}</span>
                                 </li>
                                 <li className="flex items-start text-sm">
                                   <Check className="h-4 w-4 text-green-500 mr-1.5 mt-0.5 flex-shrink-0" />
-                                  <span>
-                                    {t("transportation", "Transportation")}
-                                  </span>
+                                  <span>{t("transportation", "Transportation")}</span>
                                 </li>
                                 <li className="flex items-start text-sm">
                                   <Check className="h-4 w-4 text-green-500 mr-1.5 mt-0.5 flex-shrink-0" />
-                                  <span>
-                                    {t(
-                                      "english_speaking_guide",
-                                      "English-speaking guide",
-                                    )}
-                                  </span>
+                                  <span>{t("english_speaking_guide", "English-speaking guide")}</span>
                                 </li>
                                 <li className="flex items-start text-sm">
                                   <Check className="h-4 w-4 text-green-500 mr-1.5 mt-0.5 flex-shrink-0" />
-                                  <span>
-                                    {t("entrance_fees", "Entrance fees")}
-                                  </span>
+                                  <span>{t("entrance_fees", "Entrance fees")}</span>
                                 </li>
                               </>
                             )}
@@ -1720,7 +1445,7 @@ export default function PackageDetail() {
 
                         <div>
                           <h4 className="text-sm font-semibold mb-2">
-                            {t("highlights_colon", "Highlights:")}
+{t("highlights_colon", "Highlights:")}
                           </h4>
                           <ul className="space-y-1.5">
                             <li className="flex items-start text-sm">
@@ -1728,44 +1453,26 @@ export default function PackageDetail() {
                                 •
                               </span>
                               <span>
-                                {t(
-                                  "professional_guides_quality_service",
-                                  "Professional guides and quality service",
-                                )}
+{t("professional_guides_quality_service", "Professional guides and quality service")}
                               </span>
                             </li>
                             <li className="flex items-start text-sm">
                               <span className="text-primary font-bold mr-2">
                                 •
                               </span>
-                              <span>
-                                {t(
-                                  "authentic_local_experiences",
-                                  "Authentic local experiences",
-                                )}
-                              </span>
+                              <span>{t("authentic_local_experiences", "Authentic local experiences")}</span>
                             </li>
                             <li className="flex items-start text-sm">
                               <span className="text-primary font-bold mr-2">
                                 •
                               </span>
-                              <span>
-                                {t(
-                                  "comfortable_accommodations",
-                                  "Comfortable accommodations",
-                                )}
-                              </span>
+                              <span>{t("comfortable_accommodations", "Comfortable accommodations")}</span>
                             </li>
                             <li className="flex items-start text-sm">
                               <span className="text-primary font-bold mr-2">
                                 •
                               </span>
-                              <span>
-                                {t(
-                                  "well_planned_itinerary",
-                                  "Well-planned itinerary",
-                                )}
-                              </span>
+                              <span>{t("well_planned_itinerary", "Well-planned itinerary")}</span>
                             </li>
                           </ul>
                         </div>
@@ -1777,7 +1484,7 @@ export default function PackageDetail() {
                   <Card>
                     <CardContent className="p-6">
                       <h3 className="text-lg font-bold mb-4">
-                        {t("destination_tips", "Destination Tips")}
+{t("destination_tips", "Destination Tips")}
                       </h3>
 
                       <div className="space-y-3">
@@ -1785,13 +1492,10 @@ export default function PackageDetail() {
                           <Calendar className="h-5 w-5 text-primary flex-shrink-0" />
                           <div>
                             <p className="text-sm font-medium">
-                              {t("best_time_to_visit", "Best Time to Visit")}
+{t("best_time_to_visit", "Best Time to Visit")}
                             </p>
                             <p className="text-xs text-muted-foreground">
-                              {t(
-                                "october_to_april_pleasant_weather",
-                                "October to April offers the most pleasant weather.",
-                              )}
+{t("october_to_april_pleasant_weather", "October to April offers the most pleasant weather.")}
                             </p>
                           </div>
                         </div>
@@ -1799,14 +1503,9 @@ export default function PackageDetail() {
                         <div className="flex gap-3">
                           <Coffee className="h-5 w-5 text-primary flex-shrink-0" />
                           <div>
-                            <p className="text-sm font-medium">
-                              {t("local_cuisine", "Local Cuisine")}
-                            </p>
+                            <p className="text-sm font-medium">{t("local_cuisine", "Local Cuisine")}</p>
                             <p className="text-xs text-muted-foreground">
-                              {t(
-                                "try_traditional_dishes_authentic_experience",
-                                "Try the traditional dishes for an authentic experience.",
-                              )}
+{t("try_traditional_dishes_authentic_experience", "Try the traditional dishes for an authentic experience.")}
                             </p>
                           </div>
                         </div>
@@ -1815,13 +1514,10 @@ export default function PackageDetail() {
                           <Car className="h-5 w-5 text-primary flex-shrink-0" />
                           <div>
                             <p className="text-sm font-medium">
-                              {t("getting_around", "Getting Around")}
+{t("getting_around", "Getting Around")}
                             </p>
                             <p className="text-xs text-muted-foreground">
-                              {t(
-                                "transportation_included_in_package",
-                                "Transportation is included in your package.",
-                              )}
+{t("transportation_included_in_package", "Transportation is included in your package.")}
                             </p>
                           </div>
                         </div>
@@ -1830,16 +1526,10 @@ export default function PackageDetail() {
                           <Mountain className="h-5 w-5 text-primary flex-shrink-0" />
                           <div>
                             <p className="text-sm font-medium">
-                              {t(
-                                "must_see_attractions",
-                                "Must-See Attractions",
-                              )}
+{t("must_see_attractions", "Must-See Attractions")}
                             </p>
                             <p className="text-xs text-muted-foreground">
-                              {t(
-                                "major_attractions_covered_in_itinerary",
-                                "All the major attractions are covered in your itinerary.",
-                              )}
+{t("major_attractions_covered_in_itinerary", "All the major attractions are covered in your itinerary.")}
                             </p>
                           </div>
                         </div>
@@ -1879,25 +1569,23 @@ export default function PackageDetail() {
             )}
 
             {/* Next button */}
-            {packageData?.galleryUrls &&
-              currentImageIndex < packageData.galleryUrls.length - 1 && (
-                <button
-                  onClick={nextImage}
-                  className="absolute right-4 top-1/2 transform -translate-y-1/2 z-40 text-white hover:text-gray-300 transition-colors"
-                >
-                  <ChevronRight className="w-12 h-12" />
-                </button>
-              )}
+            {packageData?.galleryUrls && currentImageIndex < packageData.galleryUrls.length - 1 && (
+              <button
+                onClick={nextImage}
+                className="absolute right-4 top-1/2 transform -translate-y-1/2 z-40 text-white hover:text-gray-300 transition-colors"
+              >
+                <ChevronRight className="w-12 h-12" />
+              </button>
+            )}
 
             {/* Current image */}
-            {packageData?.galleryUrls &&
-              packageData.galleryUrls[currentImageIndex] && (
-                <img
-                  src={packageData.galleryUrls[currentImageIndex]}
-                  alt={`${packageData.title} - Image ${currentImageIndex + 1}`}
-                  className="max-w-full max-h-full object-contain"
-                />
-              )}
+            {packageData?.galleryUrls && packageData.galleryUrls[currentImageIndex] && (
+              <img
+                src={packageData.galleryUrls[currentImageIndex]}
+                alt={`${packageData.title} - Image ${currentImageIndex + 1}`}
+                className="max-w-full max-h-full object-contain"
+              />
+            )}
 
             {/* Image counter */}
             {packageData?.galleryUrls && (
@@ -1914,9 +1602,9 @@ export default function PackageDetail() {
                     key={index}
                     onClick={() => setCurrentImageIndex(index)}
                     className={`flex-shrink-0 w-16 h-12 rounded-md overflow-hidden border-2 transition-all ${
-                      index === currentImageIndex
-                        ? "border-white"
-                        : "border-gray-500 hover:border-gray-300"
+                      index === currentImageIndex 
+                        ? 'border-white' 
+                        : 'border-gray-500 hover:border-gray-300'
                     }`}
                   >
                     <img

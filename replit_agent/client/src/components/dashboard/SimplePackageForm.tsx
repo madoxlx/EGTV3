@@ -1055,29 +1055,7 @@ export function PackageCreatorForm({ packageId }: PackageCreatorFormProps) {
                 )}
               />
 
-              {/* Short Description */}
-              <FormField
-                control={form.control}
-                name="shortDescription"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>Short Description <span className="text-destructive">*</span></FormLabel>
-                    <FormControl>
-                      <Input 
-                        id="package-short-description"
-                        className="package-short-description-input admin-input"
-                        placeholder="Brief description for package listings" 
-                        {...field} 
-                      />
-                    </FormControl>
-                    <FormDescription>
-                      A short summary that will appear in package listings (max 200 characters).
-                    </FormDescription>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
-
+             
               {/* Country Selection */}
               <FormField
                 control={form.control}

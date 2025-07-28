@@ -1,6 +1,27 @@
 /* Admin Panel Input Styles and Classes */
 
 /* Base admin input classes */
+input,
+textarea,
+select,
+.admin-input {
+  color: #111;
+  background: #fff;
+  transition: color 0.2s, background 0.2s;
+}
+
+input:hover,
+input:focus,
+textarea:hover,
+textarea:focus,
+select:hover,
+select:focus,
+.admin-input:hover,
+.admin-input:focus {
+  color: #fff;
+  background: #22577A;
+}
+
 .admin-input {
   @apply transition-all duration-200 border-gray-300 focus:border-blue-500 focus:ring-2 focus:ring-blue-200;
 }

@@ -131,26 +131,16 @@ export default function EnhancedPriceCalculation({
   const packageRooms = parsePackageArray(packageData.rooms);
   // Handle tours - can be single ID, array of IDs, or array of tour objects with pricing
   let packageTours: number[] = [];
-  let tourPricingData: {
-    [key: number]: {
-      adultPrice: number;
-      childPrice: number;
-      infantPrice: number;
-    };
-  } = {};
-
+  let tourPricingData: { [key: number]: { adultPrice: number; childPrice: number; infantPrice: number } } = {};
+  
   if (packageData.selectedTourId) {
     packageTours = [packageData.selectedTourId];
   } else if (packageData.tourSelection) {
     const parsedTours = parsePackageArray(packageData.tourSelection);
-    console.log("EnhancedPriceCalculation - Parsed tours data:", parsedTours);
-
+    console.log('EnhancedPriceCalculation - Parsed tours data:', parsedTours);
+    
     // Handle new tour pricing structure with adult/child/infant prices
-    if (
-      parsedTours.length > 0 &&
-      typeof parsedTours[0] === "object" &&
-      "id" in parsedTours[0]
-    ) {
+    if (parsedTours.length > 0 && typeof parsedTours[0] === 'object' && 'id' in parsedTours[0]) {
       // New format: [{id: 6, adultPrice: 200000, childPrice: 120000, infantPrice: 80000}]
       parsedTours.forEach((tour: any) => {
         if (tour.id) {
@@ -158,15 +148,13 @@ export default function EnhancedPriceCalculation({
           tourPricingData[tour.id] = {
             adultPrice: (tour.adultPrice || 0) / 100, // Convert from piasters to EGP
             childPrice: (tour.childPrice || 0) / 100,
-            infantPrice: (tour.infantPrice || 0) / 100,
+            infantPrice: (tour.infantPrice || 0) / 100
           };
         }
       });
     } else {
       // Old format: [6, 7, 8] or ["6", "7", "8"]
-      packageTours = parsedTours
-        .map((id) => (typeof id === "string" ? parseInt(id) : id))
-        .filter((id) => !isNaN(id));
+      packageTours = parsedTours.map(id => typeof id === 'string' ? parseInt(id) : id).filter(id => !isNaN(id));
     }
   } else if (packageData.selectedTourIds) {
     packageTours = parsePackageArray(packageData.selectedTourIds);
@@ -188,8 +176,15 @@ export default function EnhancedPriceCalculation({
 
   // Base package cost is now excluded from calculations
   let packageBaseCost = 0;
+  let adultPrice = 0;
+  let childPrice = 0;
+  let infantPrice = 0;
 
-  // Calculate the number of nights and days based on the date range first
+  // Calculate room costs based on selected rooms
+  let roomsCost = 0;
+  let roomsBreakdown: { name: string; nights: number; cost: number }[] = [];
+
+  // Calculate the number of nights and days based on the date range
   let actualNights = packageData.duration || 1; // Default to package duration
   let days = actualNights + 1;
   if (dateMode === "range" && startDate && endDate) {
@@ -203,140 +198,43 @@ export default function EnhancedPriceCalculation({
     days = actualNights + 1;
   }
 
-  // Smart Room Distribution Logic (similar to RoomDistributionWithStars)
-  const calculateRoomDistribution = () => {
-    const availableRooms =
-      packageRooms.length > 0 ? packageRooms : allRooms.slice(0, 5); // Limit to first 5 rooms for calculation
-
-    if (availableRooms.length === 0) {
-      // Fallback to simple calculation if no rooms available
-      const basePrice = packageData.discountedPrice || packageData.price;
-      return {
-        adultPrice: basePrice,
-        childPrice: Math.round(basePrice * 0.7),
-        infantPrice: Math.round(basePrice * 0.3),
-        totalRoomsCost: 0,
-        roomsBreakdown: [],
-      };
-    }
-
-    const totalTravelers = adults + children + infants;
-
-    // Sort rooms by capacity (highest adults capacity first)
-    const sortedRooms = [...availableRooms].sort(
-      (a, b) =>
-        (b.max_adults || b.maxAdults || 2) - (a.max_adults || a.maxAdults || 2),
-    );
-
-    let remainingAdults = adults;
-    let remainingChildren = children;
-    let remainingInfants = infants;
-
-    const distribution = sortedRooms.map((room) => {
-      let assignedAdults = 0;
-      let assignedChildren = 0;
-      let assignedInfants = 0;
-
-      const maxOccupancy = room.max_occupancy || room.maxOccupancy || 2;
-      const maxAdults = room.max_adults || room.maxAdults || 2;
-      const maxChildren = room.max_children || room.maxChildren || 2;
-      const maxInfants = room.max_infants || room.maxInfants || 1;
-
-      // First, assign adults up to room capacity
-      if (remainingAdults > 0 && maxAdults > 0) {
-        assignedAdults = Math.min(remainingAdults, maxAdults);
-        remainingAdults -= assignedAdults;
-      }
-
-      // Assign children/infants with adults first (preferred arrangement)
-      if (assignedAdults > 0) {
-        // Then assign children if there's space and adults present
-        const remainingCapacity = maxOccupancy - assignedAdults;
-        if (remainingChildren > 0 && remainingCapacity > 0 && maxChildren > 0) {
-          assignedChildren = Math.min(
-            remainingChildren,
-            Math.min(remainingCapacity, maxChildren),
-          );
-          remainingChildren -= assignedChildren;
-        }
-
-        // Finally assign infants if there's space and adults present
-        const finalRemainingCapacity =
-          maxOccupancy - assignedAdults - assignedChildren;
-        if (
-          remainingInfants > 0 &&
-          finalRemainingCapacity > 0 &&
-          maxInfants > 0
-        ) {
-          assignedInfants = Math.min(
-            remainingInfants,
-            Math.min(finalRemainingCapacity, maxInfants),
-          );
-          remainingInfants -= assignedInfants;
-        }
-      }
-
-      const totalAssigned = assignedAdults + assignedChildren + assignedInfants;
-      const pricePerPerson = room.customPrice || room.price || 0;
-      const totalCostPerNight = totalAssigned * pricePerPerson;
-      const totalCost = totalCostPerNight * actualNights;
-
-      return {
-        room,
-        assignedAdults,
-        assignedChildren,
-        assignedInfants,
-        totalAssigned,
-        totalCost,
-        totalCostPerNight,
-        pricePerPerson,
-        isUsed: totalAssigned > 0,
-      };
-    });
-
-    // Calculate average price per person across all used rooms
-    const usedRooms = distribution.filter((d) => d.isUsed);
-    const totalAssignedTravelers = usedRooms.reduce(
-      (sum, d) => sum + d.totalAssigned,
-      0,
-    );
-    const totalRoomsCost = usedRooms.reduce((sum, d) => sum + d.totalCost, 0);
-
-    let avgPricePerPerson = 0;
-    if (totalAssignedTravelers > 0) {
-      avgPricePerPerson =
-        totalRoomsCost / totalAssignedTravelers / actualNights;
-    } else if (usedRooms.length > 0) {
-      avgPricePerPerson = usedRooms[0].pricePerPerson;
-    } else {
-      avgPricePerPerson = packageData.discountedPrice || packageData.price;
-    }
-
-    return {
-      adultPrice: avgPricePerPerson,
-      childPrice: Math.round(avgPricePerPerson * 0.7),
-      infantPrice: Math.round(avgPricePerPerson * 0.3),
-      totalRoomsCost,
-      roomsBreakdown: usedRooms.map((d) => ({
-        name: `${d.room.name} (${d.totalAssigned} guests)`,
-        nights: actualNights,
-        cost: d.totalCost,
-      })),
-      distribution: usedRooms,
-    };
-  };
-
-  const roomDistribution = calculateRoomDistribution();
-  const adultPrice = roomDistribution.adultPrice;
-  const childPrice = roomDistribution.childPrice;
-  const infantPrice = roomDistribution.infantPrice;
-
   // Calculate total number of PAX
   const totalPAX = adults + children + infants;
 
-  // Get room costs from smart distribution
-  const roomsCost = roomDistribution.totalRoomsCost || 0;
-  const roomsBreakdown = roomDistribution.roomsBreakdown || [];
+  // Calculate costs for package rooms automatically (no user selection needed)
+  if (packageRooms.length > 0) {
+    // Use the first available room for cost calculation
+    const packageRoom = packageRooms[0];
+    if (packageRoom) {
+      // Use the price from packageRooms data
+      const roomPricePerNight = packageRoom.customPrice || packageRoom.price;
+      // SPECIFICATION FORMULA: Room Cost × Nights × PAX
+      const roomTotalCost = roomPricePerNight * actualNights * totalPAX;
+
+      roomsCost += roomTotalCost;
+      roomsBreakdown.push({
+        name: packageRoom.name,
+        nights: actualNights,
+        cost: roomTotalCost,
+      });
+    }
+  }
+  // Fallback to allRooms if no package rooms available
+  else if (allRooms.length > 0) {
+    const room = allRooms[0]; // Use first available room
+    if (room) {
+      const roomPricePerNight = room.price;
+      // SPECIFICATION FORMULA: Room Cost × Nights × PAX
+      const roomTotalCost = roomPricePerNight * actualNights * totalPAX;
+
+      roomsCost += roomTotalCost;
+      roomsBreakdown.push({
+        name: room.name,
+        nights: actualNights,
+        cost: roomTotalCost,
+      });
+    }
+  }
 
   // Calculate tours cost based on package tours
   let toursCost = 0;
@@ -347,32 +245,29 @@ export default function EnhancedPriceCalculation({
       // Use custom pricing data if available, otherwise fall back to tour database
       if (tourPricingData[tourId]) {
         const pricing = tourPricingData[tourId];
-        const totalTourCost =
-          pricing.adultPrice * adults +
-          pricing.childPrice * children +
-          pricing.infantPrice * infants;
+        const totalTourCost = 
+          (pricing.adultPrice * adults) + 
+          (pricing.childPrice * children) + 
+          (pricing.infantPrice * infants);
 
         toursCost += totalTourCost;
-
+        
         // Try to get tour name from database, fallback to ID
         const tour = allTours.find((t) => t.id === tourId);
         toursBreakdown.push({
           name: tour?.name || `Tour #${tourId}`,
           price: totalTourCost,
         });
-
-        console.log(
-          `EnhancedPriceCalculation - Tour ${tourId} cost calculation:`,
-          {
-            adults: adults,
-            children: children,
-            infants: infants,
-            adultPrice: pricing.adultPrice,
-            childPrice: pricing.childPrice,
-            infantPrice: pricing.infantPrice,
-            totalCost: totalTourCost,
-          },
-        );
+        
+        console.log(`EnhancedPriceCalculation - Tour ${tourId} cost calculation:`, {
+          adults: adults,
+          children: children,
+          infants: infants,
+          adultPrice: pricing.adultPrice,
+          childPrice: pricing.childPrice,
+          infantPrice: pricing.infantPrice,
+          totalCost: totalTourCost
+        });
       } else if (allTours.length > 0) {
         // Fallback to old pricing method
         const tour = allTours.find((t) => t.id === tourId);
@@ -489,198 +384,42 @@ export default function EnhancedPriceCalculation({
   }
 
   // Only show calculation section when all requirements are met
-  const { t, currentLanguage } = useLanguage
-    ? useLanguage()
-    : { t: (k: string, d: string) => d, currentLanguage: "ar" };
+  const { t, currentLanguage } = useLanguage ? useLanguage() : { t: (k: string, d: string) => d, currentLanguage: 'ar' };
   // صياغة النصوص حسب اللغة
-  const isArabic = currentLanguage === "ar";
+  const isArabic = currentLanguage === 'ar';
   const nightsText = isArabic
-    ? `${actualNights} ${t("night", actualNights === 1 ? "ليلة" : "ليالي")}`
-    : `${actualNights} ${t("night", actualNights === 1 ? "night" : "nights")}`;
+    ? `${actualNights} ${t('night', actualNights === 1 ? 'ليلة' : 'ليالي')}`
+    : `${actualNights} ${t('night', actualNights === 1 ? 'night' : 'nights')}`;
   const daysText = isArabic
-    ? `${days} ${t("day", days === 1 ? "يوم" : "أيام")}`
-    : `${days} ${t("day", days === 1 ? "day" : "days")}`;
-  const egpText = isArabic ? "ج.م" : "EGP";
-  // Calculate individual totals for detailed breakdown - using actualNights instead of days
-  const adultTotal = adults * adultPrice * actualNights;
-  const childTotal = children * childPrice * actualNights;
-  const infantTotal = infants * infantPrice * actualNights;
-  const grandTotal = adultTotal + childTotal + infantTotal;
-
+    ? `${days} ${t('day', days === 1 ? 'يوم' : 'أيام')}`
+    : `${days} ${t('day', days === 1 ? 'day' : 'days')}`;
+  const egpText = isArabic ? 'ج.م' : 'EGP';
   // مفاتيح الترجمة: price_breakdown, subtotal, vat, service_fee, total, savings
   return (
     <div className="mt-4 p-4 bg-gray-50 rounded-lg border">
-      <h4 className="font-bold mb-2">
-        {t("price_breakdown", isArabic ? "تفصيل السعر" : "Price Breakdown")}
-      </h4>
-      <div className="flex flex-col gap-2 text-sm">
-        <div className="mb-2 text-muted-foreground">
-          {isArabic
-            ? `${nightsText} / ${daysText}`
-            : `${nightsText} / ${daysText}`}
-          {roomDistribution.distribution &&
-            roomDistribution.distribution.length > 0 && (
-              <div className="text-xs mt-1">
-                {isArabic
-                  ? `${roomDistribution.distribution.length} غرف مطلوبة للتوزيع التلقائي`
-                  : `${roomDistribution.distribution.length} rooms required for automatic distribution`}
-              </div>
-            )}
+      <h4 className="font-bold mb-2">{t("price_breakdown", isArabic ? "تفصيل السعر" : "Price Breakdown")}</h4>
+      <div className="flex flex-col gap-1 text-sm">
+        <div className="mb-1 text-muted-foreground">
+          {isArabic ? `${nightsText} / ${daysText}` : `${nightsText} / ${daysText}`}
         </div>
-
-        {/* Detailed Breakdown */}
-        {adults > 0 && (
-          <div className="flex justify-between items-center">
-            <span>
-              {t("adults", isArabic ? "البالغين" : "Adults")} ({adults} ×{" "}
-              {formatPrice(adultPrice)} × {actualNights}{" "}
-              {t("nights", isArabic ? "ليالي" : "nights")}):
-            </span>
-            <span className="font-medium">
-              {formatPrice(adultTotal)} {egpText}
-            </span>
-          </div>
-        )}
-
-        {children > 0 && (
-          <div className="flex justify-between items-center">
-            <span>
-              {t("children", isArabic ? "الأطفال" : "Children")} ({children} ×{" "}
-              {formatPrice(childPrice)} × {actualNights}{" "}
-              {t("nights", isArabic ? "ليالي" : "nights")}):
-            </span>
-            <span className="font-medium">
-              {formatPrice(childTotal)} {egpText}
-            </span>
-          </div>
-        )}
-
-        {infants > 0 && (
-          <div className="flex justify-between items-center">
-            <span>
-              {t("infants", isArabic ? "الرضع" : "Infants")} ({infants} ×{" "}
-              {formatPrice(infantPrice)} × {actualNights}{" "}
-              {t("nights", isArabic ? "ليالي" : "nights")}):
-            </span>
-            <span className="font-medium">
-              {formatPrice(infantTotal)} {egpText}
-            </span>
-          </div>
-        )}
-
-        {/* Border separation before grand total */}
-        <div className="border-t pt-2 mt-2">
-          <div className="flex justify-between items-center font-bold text-lg">
-            <span>{t("total", isArabic ? "الإجمالي" : "Total")}:</span>
-            <span className="text-primary">
-              {formatPrice(grandTotal)} {egpText}
-            </span>
-          </div>
+        <div>{t("subtotal", isArabic ? "المجموع الفرعي" : "Subtotal")}:
+          <span className="font-medium">{formatPrice(subtotal)} {egpText}</span>
         </div>
-
-        {/* Additional costs if applicable */}
-        {(roomsCost > 0 ||
-          toursCost > 0 ||
-          excursionsCost > 0 ||
-          upgradePrice > 0) && (
-          <div className="mt-3 pt-2 border-t">
-            <div className="text-xs text-muted-foreground mb-2">
-              {t(
-                "additional_costs",
-                isArabic ? "تكاليف إضافية" : "Additional Costs",
-              )}
-              :
-            </div>
-            {roomsCost > 0 && (
-              <div className="flex justify-between text-xs">
-                <span>
-                  {t("accommodation", isArabic ? "الإقامة" : "Accommodation")}:
-                </span>
-                <span>
-                  {formatPrice(roomsCost)} {egpText}
-                </span>
-              </div>
-            )}
-            {toursCost > 0 && (
-              <div className="flex justify-between text-xs">
-                <span>{t("tours", isArabic ? "الجولات" : "Tours")}:</span>
-                <span>
-                  {formatPrice(toursCost)} {egpText}
-                </span>
-              </div>
-            )}
-            {excursionsCost > 0 && (
-              <div className="flex justify-between text-xs">
-                <span>
-                  {t("excursions", isArabic ? "الرحلات" : "Excursions")}:
-                </span>
-                <span>
-                  {formatPrice(excursionsCost)} {egpText}
-                </span>
-              </div>
-            )}
-            {upgradePrice > 0 && (
-              <div className="flex justify-between text-xs">
-                <span>{t("upgrades", isArabic ? "ترقيات" : "Upgrades")}:</span>
-                <span>
-                  {formatPrice(upgradePrice)} {egpText}
-                </span>
-              </div>
-            )}
+        {vatEnabled && (
+          <div>{t("vat", isArabic ? "ضريبة القيمة المضافة" : "VAT")}:
+            <span className="font-medium">{formatPrice(vatAmount)} {egpText}</span>
           </div>
         )}
-
-        {/* VAT and Service Fees */}
-        {(vatEnabled || serviceFeeEnabled) && (
-          <div className="mt-2 pt-2 border-t">
-            {vatEnabled && (
-              <div className="flex justify-between text-xs">
-                <span>
-                  {t("vat", isArabic ? "ضريبة القيمة المضافة" : "VAT")}:
-                </span>
-                <span>
-                  {formatPrice(vatAmount)} {egpText}
-                </span>
-              </div>
-            )}
-            {serviceFeeEnabled && (
-              <div className="flex justify-between text-xs">
-                <span>
-                  {t("service_fee", isArabic ? "رسوم الخدمة" : "Service Fee")}:
-                </span>
-                <span>
-                  {formatPrice(serviceFee)} {egpText}
-                </span>
-              </div>
-            )}
+        {serviceFeeEnabled && (
+          <div>{t("service_fee", isArabic ? "رسوم الخدمة" : "Service Fee")}:
+            <span className="font-medium">{formatPrice(serviceFee)} {egpText}</span>
           </div>
         )}
-
-        {/* Final Total with all costs */}
-        {(roomsCost > 0 ||
-          toursCost > 0 ||
-          excursionsCost > 0 ||
-          upgradePrice > 0 ||
-          vatEnabled ||
-          serviceFeeEnabled) && (
-          <div className="border-t pt-2 mt-2">
-            <div className="flex justify-between items-center font-bold text-lg">
-              <span>
-                {t("final_total", isArabic ? "المجموع النهائي" : "Final Total")}
-                :
-              </span>
-              <span className="text-primary">
-                {formatPrice(total)} {egpText}
-              </span>
-            </div>
-          </div>
-        )}
-
+        <div className="font-bold text-lg mt-2">{t("total", isArabic ? "الإجمالي" : "Total")}:
+          <span className="text-primary">{formatPrice(total)} {egpText}</span>
+        </div>
         {hasDiscount && (
-          <div className="text-green-700 text-xs mt-1">
-            {t("savings", isArabic ? "توفير" : "Savings")}:{" "}
-            {formatPrice(savings)} {egpText}
-          </div>
+          <div className="text-green-700">{t("savings", isArabic ? "توفير" : "Savings")}: {formatPrice(savings)} {egpText}</div>
         )}
       </div>
     </div>
