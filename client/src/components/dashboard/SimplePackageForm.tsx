@@ -4358,7 +4358,7 @@ export function PackageCreatorForm({
                                   <div className="border-t pt-2 mt-2">
                                     <div className="flex items-center justify-between">
                                       <span className="font-semibold text-green-900">
-                                        Total Package Capacity:
+                                        Total Package Capacity (Updated):
                                       </span>
                                       <div className="flex gap-2">
                                         <Badge variant="secondary">
