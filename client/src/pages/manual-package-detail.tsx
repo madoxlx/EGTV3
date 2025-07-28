@@ -933,6 +933,29 @@ export default function ManualPackageDetail() {
                 </Card>
               )}
 
+            {/* Price Breakdown */}
+            <Card>
+              <CardHeader>
+                <CardTitle className="flex items-center gap-2">
+                  <Star className="h-5 w-5" />
+                  Price Breakdown
+                </CardTitle>
+              </CardHeader>
+              <CardContent>
+                <EnhancedPriceCalculation 
+                  packageData={packageData}
+                  adults={2}
+                  children={0}
+                  infants={0}
+                  hotelPackage=""
+                  selectedRooms={[]}
+                  dateMode="range"
+                  startDate={packageData.startDate}
+                  endDate={packageData.endDate}
+                />
+              </CardContent>
+            </Card>
+
             {/* Transportation */}
             {packageData.transportation && (
               <Card>
@@ -992,29 +1015,6 @@ export default function ManualPackageDetail() {
                 </CardContent>
               </Card>
             ) : null}
-
-            {/* Price Breakdown */}
-            <Card>
-              <CardHeader>
-                <CardTitle className="flex items-center gap-2">
-                  <Star className="h-5 w-5" />
-                  Price Breakdown
-                </CardTitle>
-              </CardHeader>
-              <CardContent>
-                <EnhancedPriceCalculation 
-                  packageData={packageData}
-                  adults={2}
-                  children={0}
-                  infants={0}
-                  hotelPackage=""
-                  selectedRooms={[]}
-                  dateMode="range"
-                  startDate={packageData.startDate}
-                  endDate={packageData.endDate}
-                />
-              </CardContent>
-            </Card>
 
             {/* Custom Text Section */}
             {packageData.customText && (
