@@ -1344,8 +1344,6 @@ export default function PackageDetail() {
                               <BookPackageButton
                                 package={packageData}
                                 className="w-full bg-primary hover:bg-primary/90 text-white"
-                                disabled={isBookingDisabled}
-                                disabledReason={bookingDisabledReason}
                                 onClick={() => {
                                   // Validate form before booking
                                   return validateBookingForm();
