@@ -4356,86 +4356,74 @@ export function PackageCreatorForm({
                                       </span>
                                       <div className="flex gap-2">
                                         <Badge variant="secondary">
-                                        Adults: {(form.watch("rooms") || [])
-                                            .reduce(
-                                              (total: number, room: any) => {
-                                                const roomData =
-                                                  filteredRooms.find(
-                                                    (r) => r.id === room.id,
-                                                  );
-                                                if (!roomData) return total;
-                                                return (
-                                                  total +
-                                                  (roomData?.max_adults ||
-                                                    roomData?.maxAdults ||
-                                                    2)
-                                                );
-                                              },
-                                              0,
-                                            )}
+                                        Adults: {(() => {
+                                          try {
+                                            const rooms = form.watch("rooms") || [];
+                                            return rooms.reduce((total: number, room: any) => {
+                                              if (!room || !room.id) return total;
+                                              const foundRoom = filteredRooms?.find((r) => r?.id === room?.id);
+                                              if (!foundRoom) return total;
+                                              const adults = foundRoom?.max_adults || foundRoom?.maxAdults || 2;
+                                              return total + adults;
+                                            }, 0);
+                                          } catch (error) {
+                                            return 0;
+                                          }
+                                        })()}
                                         </Badge>
                                         <Badge variant="secondary">
                                           Children:{" "}
-                                          {(form.watch("rooms") || [])
-                                            .reduce(
-                                              (total: number, room: any) => {
-                                                const roomData =
-                                                  filteredRooms.find(
-                                                    (r) => r.id === room.id,
-                                                  );
-                                                if (!roomData) return total;
-                                                return (
-                                                  total +
-                                                  (roomData?.max_children ||
-                                                    roomData?.maxChildren ||
-                                                    0)
-                                                );
-                                              },
-                                              0,
-                                            )}
+                                          {(() => {
+                                            try {
+                                              const rooms = form.watch("rooms") || [];
+                                              return rooms.reduce((total: number, room: any) => {
+                                                if (!room || !room.id) return total;
+                                                const foundRoom = filteredRooms?.find((r) => r?.id === room?.id);
+                                                if (!foundRoom) return total;
+                                                const children = foundRoom?.max_children || foundRoom?.maxChildren || 0;
+                                                return total + children;
+                                              }, 0);
+                                            } catch (error) {
+                                              return 0;
+                                            }
+                                          })()}
                                         </Badge>
                                         <Badge variant="secondary">
                                           Infants:{" "}
-                                          {(form.watch("rooms") || [])
-                                            .reduce(
-                                              (total: number, room: any) => {
-                                                const roomData =
-                                                  filteredRooms.find(
-                                                    (r) => r.id === room.id,
-                                                  );
-                                                if (!roomData) return total;
-                                                return (
-                                                  total +
-                                                  (roomData?.max_infants ||
-                                                    roomData?.maxInfants ||
-                                                    0)
-                                                );
-                                              },
-                                              0,
-                                            )}
+                                          {(() => {
+                                            try {
+                                              const rooms = form.watch("rooms") || [];
+                                              return rooms.reduce((total: number, room: any) => {
+                                                if (!room || !room.id) return total;
+                                                const foundRoom = filteredRooms?.find((r) => r?.id === room?.id);
+                                                if (!foundRoom) return total;
+                                                const infants = foundRoom?.max_infants || foundRoom?.maxInfants || 0;
+                                                return total + infants;
+                                              }, 0);
+                                            } catch (error) {
+                                              return 0;
+                                            }
+                                          })()}
                                         </Badge>
                                         <Badge
                                           variant="default"
                                           className="bg-green-700"
                                         >
                                           Total:{" "}
-                                          {(form.watch("rooms") || [])
-                                            .reduce(
-                                              (total: number, room: any) => {
-                                                const roomData =
-                                                  filteredRooms.find(
-                                                    (r) => r.id === room.id,
-                                                  );
-                                                if (!roomData) return total;
-                                                return (
-                                                  total +
-                                                  (roomData?.max_occupancy ||
-                                                    roomData?.maxOccupancy ||
-                                                    2)
-                                                );
-                                              },
-                                              0,
-                                            )}{" "}
+                                          {(() => {
+                                            try {
+                                              const rooms = form.watch("rooms") || [];
+                                              return rooms.reduce((total: number, room: any) => {
+                                                if (!room || !room.id) return total;
+                                                const foundRoom = filteredRooms?.find((r) => r?.id === room?.id);
+                                                if (!foundRoom) return total;
+                                                const capacity = foundRoom?.max_occupancy || foundRoom?.maxOccupancy || 2;
+                                                return total + capacity;
+                                              }, 0);
+                                            } catch (error) {
+                                              return 0;
+                                            }
+                                          })()}{" "}
                                           guests
                                         </Badge>
                                       </div>
