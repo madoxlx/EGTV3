@@ -896,6 +896,7 @@ export function PackageCreatorForm({
         adultCount: formData.adultCount,
         childrenCount: formData.childrenCount,
         infantCount: formData.infantCount,
+        roomDistributionOrder: formData.roomDistributionOrder || 1,
         maxGroupSize: formData.maxGroupSize || 15,
 
         // Package features and inclusions - Use custom features arrays only
@@ -1585,6 +1586,7 @@ export function PackageCreatorForm({
           adultCount: existingPackageData.adultCount || 2,
           childrenCount: existingPackageData.childrenCount || 0,
           infantCount: existingPackageData.infantCount || 0,
+          roomDistributionOrder: existingPackageData.roomDistributionOrder || 1,
           maxGroupSize: existingPackageData.maxGroupSize || 15,
           featured: existingPackageData.featured || false,
           slug: existingPackageData.slug || "",
