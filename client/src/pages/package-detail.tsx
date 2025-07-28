@@ -5,6 +5,7 @@ import PackageLayout from "@/components/PackageLayout";
 import { Button } from "@/components/ui/button";
 import BookPackageButton from "@/components/BookPackageButton";
 import IncludedTours from "@/components/IncludedTours";
+import OptionalTours from "@/components/OptionalTours";
 import RoomDistributionWithStars from "@/components/RoomDistributionWithStars";
 import EnhancedPriceCalculation from "@/components/EnhancedPriceCalculation";
 
@@ -1329,6 +1330,14 @@ export default function PackageDetail() {
                                   {t("tours_included_in_package", "Tours Included in Package")}
                                 </label>
                                 <IncludedTours packageData={packageData} />
+                              </div>
+
+                              {/* Optional Tours */}
+                              <div>
+                                <label className="text-sm font-medium mb-2 block">
+                                  {t("optional_tours_available", "Optional Tours & Activities")}
+                                </label>
+                                <OptionalTours packageData={packageData} />
                               </div>
 
                               {/* Book Package Button */}

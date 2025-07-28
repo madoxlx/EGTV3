@@ -88,6 +88,19 @@ The application uses a comprehensive PostgreSQL schema with the following core e
 
 ## Recent Changes
 
+### Optional Tours with Cart Integration Implementation Complete (July 28, 2025)
+- **IncludedTours Component Enhancement**: Enhanced existing IncludedTours component with `showAsOptional` prop to display tours as optional add-ons rather than included features
+- **Cart Integration**: Added full cart functionality allowing users to add tours to cart with proper `CartItemData` structure including tour details, pricing, and default booking parameters
+- **Visual Design System**: Implemented conditional styling with blue theme for optional tours vs green theme for included tours with distinct "Add to Cart" buttons vs "Included" badges
+- **OptionalTours Component**: Created dedicated OptionalTours component that wraps IncludedTours with `showAsOptional=true` for clean separation of concerns
+- **Package Detail Integration**: Updated both package-detail.tsx and manual-package-detail.tsx pages to display separate "Included Tours" and "Optional Tours & Activities" sections
+- **Dynamic Content**: Optional tours show "Add to Cart" buttons with shopping cart icons, while included tours show "Included" badges with checkmark icons
+- **Cart Functionality**: Tours can be added to cart with default values (2 adults, 0 children/infants, 1 week travel date) and proper pricing structure
+- **User Experience**: Clear distinction between what's included in package vs what can be added as optional extras with appropriate messaging and visual cues
+- **Error Handling**: Fixed TypeScript errors in useCart hook with proper error type casting for improved type safety
+- **Responsive Design**: Both included and optional tour sections maintain responsive design with proper spacing and visual hierarchy
+- **Production Ready**: Complete optional tours system ready for users to enhance their packages with additional activities while maintaining clear pricing transparency
+
 ### Comprehensive Tour Translation Keys Implementation Complete (July 27, 2025)
 - **Tour Translation System Enhancement**: Successfully added 83 comprehensive Arabic translation keys covering all tour-related functionality and user interfaces
 - **Complete Coverage**: Added translations for tour attributes (duration, group size, rating, difficulty), booking elements (pricing, availability, actions), content sections (overview, itinerary, highlights), and status indicators (available, sold out, featured)

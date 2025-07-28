@@ -44,6 +44,7 @@ import {
 } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import IncludedTours from "@/components/IncludedTours";
+import OptionalTours from "@/components/OptionalTours";
 import EnhancedPriceCalculation from "@/components/EnhancedPriceCalculation";
 
 // Simplified Package type for manual packages
@@ -1015,6 +1016,19 @@ export default function ManualPackageDetail() {
                 </CardContent>
               </Card>
             ) : null}
+
+            {/* Optional Tours & Activities */}
+            <Card>
+              <CardHeader>
+                <CardTitle className="flex items-center gap-2">
+                  <MapPin className="h-5 w-5" />
+                  Optional Tours & Activities
+                </CardTitle>
+              </CardHeader>
+              <CardContent>
+                <OptionalTours packageData={packageData} />
+              </CardContent>
+            </Card>
 
             {/* Custom Text Section */}
             {packageData.customText && (

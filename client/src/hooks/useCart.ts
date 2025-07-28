@@ -59,10 +59,10 @@ export function useCart() {
         console.error('Error fetching cart:', error);
         
         // Handle different error types
-        if (error.message?.includes('401') || error.message?.includes('Authentication required')) {
+        if ((error as any).message?.includes('401') || (error as any).message?.includes('Authentication required')) {
           // User not authenticated, silently return empty cart
           return [];
-        } else if (error.message?.includes('Expected JSON response')) {
+        } else if ((error as any).message?.includes('Expected JSON response')) {
           // Got HTML instead of JSON, likely authentication issue
           console.warn('Cart API returned HTML instead of JSON - user may not be authenticated');
           return [];
