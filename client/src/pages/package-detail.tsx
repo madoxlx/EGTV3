@@ -1528,13 +1528,11 @@ export default function PackageDetail() {
 
                               {/* Total Price Display */}
                               <div className="border-t pt-4">
-                                <div className="font-bold text-xl text-center">
-                                  {t("total", "Total")}:{" "}
-                                  <span className="text-primary">
+                                <div className="space-y-2">
+                                  {/* Price Breakdown */}
+                                  <div className="text-sm space-y-1">
                                     {(() => {
-                                      // Calculate total price similar to EnhancedPriceCalculation
                                       const basePrice = packageData?.price || 0;
-                                      const totalTravelers = adults + children + infants;
                                       const nights = (() => {
                                         if (startDate && endDate) {
                                           const start = new Date(startDate);
@@ -1546,11 +1544,73 @@ export default function PackageDetail() {
                                         return packageData?.duration || 1;
                                       })();
                                       
-                                      const accommodationCost = totalTravelers * basePrice * nights;
-                                      const formattedPrice = (accommodationCost / 100).toLocaleString();
-                                      return `${formattedPrice} EGP`;
+                                      // Different pricing for each category
+                                      const adultPrice = basePrice; // Full price for adults
+                                      const childPrice = Math.round(basePrice * 0.7); // 70% for children
+                                      const infantPrice = Math.round(basePrice * 0.3); // 30% for infants
+                                      
+                                      const adultTotal = adults * adultPrice * nights;
+                                      const childTotal = children * childPrice * nights;
+                                      const infantTotal = infants * infantPrice * nights;
+                                      const grandTotal = adultTotal + childTotal + infantTotal;
+                                      
+                                      return (
+                                        <>
+                                          {adults > 0 && (
+                                            <div className="flex justify-between">
+                                              <span>{t("adults", "Adults")} ({adults} × {(adultPrice / 100).toLocaleString()} × {nights} {t("days", "days")}):</span>
+                                              <span>{(adultTotal / 100).toLocaleString()} EGP</span>
+                                            </div>
+                                          )}
+                                          {children > 0 && (
+                                            <div className="flex justify-between">
+                                              <span>{t("children", "Children")} ({children} × {(childPrice / 100).toLocaleString()} × {nights} {t("days", "days")}):</span>
+                                              <span>{(childTotal / 100).toLocaleString()} EGP</span>
+                                            </div>
+                                          )}
+                                          {infants > 0 && (
+                                            <div className="flex justify-between">
+                                              <span>{t("infants", "Infants")} ({infants} × {(infantPrice / 100).toLocaleString()} × {nights} {t("days", "days")}):</span>
+                                              <span>{(infantTotal / 100).toLocaleString()} EGP</span>
+                                            </div>
+                                          )}
+                                        </>
+                                      );
                                     })()}
-                                  </span>
+                                  </div>
+                                  
+                                  {/* Total */}
+                                  <div className="border-t pt-2">
+                                    <div className="font-bold text-xl text-center">
+                                      {t("total", "Total")}:{" "}
+                                      <span className="text-primary">
+                                        {(() => {
+                                          const basePrice = packageData?.price || 0;
+                                          const nights = (() => {
+                                            if (startDate && endDate) {
+                                              const start = new Date(startDate);
+                                              const end = new Date(endDate);
+                                              const diffTime = Math.abs(end.getTime() - start.getTime());
+                                              const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+                                              return Math.max(1, diffDays - 1);
+                                            }
+                                            return packageData?.duration || 1;
+                                          })();
+                                          
+                                          const adultPrice = basePrice;
+                                          const childPrice = Math.round(basePrice * 0.7);
+                                          const infantPrice = Math.round(basePrice * 0.3);
+                                          
+                                          const adultTotal = adults * adultPrice * nights;
+                                          const childTotal = children * childPrice * nights;
+                                          const infantTotal = infants * infantPrice * nights;
+                                          const grandTotal = adultTotal + childTotal + infantTotal;
+                                          
+                                          return `${(grandTotal / 100).toLocaleString()} EGP`;
+                                        })()}
+                                      </span>
+                                    </div>
+                                  </div>
                                 </div>
                               </div>
 
