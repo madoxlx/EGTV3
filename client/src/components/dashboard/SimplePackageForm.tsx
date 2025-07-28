@@ -235,6 +235,12 @@ const packageFormSchema = z.object({
     .min(1, { message: "At least 1 adult is required" }),
   childrenCount: z.coerce.number().min(0, { message: "Cannot be negative" }),
   infantCount: z.coerce.number().min(0, { message: "Cannot be negative" }),
+  
+  // Room distribution settings
+  roomDistributionOrder: z.coerce
+    .number()
+    .min(1, { message: "Order must be at least 1" })
+    .default(1),
 
   // Pricing
             // pricingMode: z.enum(["per_booking", "per_percentage", "per_amount"]), // حذف - غير مطلوب
@@ -770,6 +776,7 @@ export function PackageCreatorForm({
       adultCount: 2,
       childrenCount: 0,
       infantCount: 0,
+      roomDistributionOrder: 1,
       featured: false,
       slug: "",
       // Policy fields
@@ -4245,6 +4252,40 @@ export function PackageCreatorForm({
                           }}
                         />
                       </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+              </div>
+
+              {/* Room Distribution Order */}
+              <div className="pt-4 border-t border-gray-200">
+                <h4 className="text-md font-medium mb-3 text-gray-800">Room Distribution Settings</h4>
+                <FormField
+                  control={form.control}
+                  name="roomDistributionOrder"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel className="text-sm font-medium">
+                        Order 
+                        <span className="text-red-500 ml-1">*</span>
+                      </FormLabel>
+                      <FormControl>
+                        <Input
+                          type="number"
+                          min="1"
+                          placeholder="1"
+                          {...field}
+                          onChange={(e) => {
+                            const value = parseInt(e.target.value) || 1;
+                            field.onChange(value);
+                          }}
+                          className="w-32"
+                        />
+                      </FormControl>
+                      <FormDescription className="text-xs text-gray-600">
+                        Specify the room number to begin traveler distribution (e.g., 1 for the first room).
+                      </FormDescription>
                       <FormMessage />
                     </FormItem>
                   )}
