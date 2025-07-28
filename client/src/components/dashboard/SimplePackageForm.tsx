@@ -1435,9 +1435,17 @@ export function PackageCreatorForm({
           Array.isArray(parsedSelectedHotels) &&
           parsedSelectedHotels.length > 0
         ) {
-          // Convert hotel IDs to strings if they aren't already
-          const hotelIds = parsedSelectedHotels.map((h) => String(h));
+          // Extract hotel IDs from objects or use values directly if they're already IDs
+          const hotelIds = parsedSelectedHotels.map((h) => {
+            // If h is an object with an id property, extract the id
+            if (typeof h === 'object' && h !== null && 'id' in h) {
+              return String(h.id);
+            }
+            // Otherwise, assume it's already an ID and convert to string
+            return String(h);
+          });
           console.log("Setting selectedHotels state:", hotelIds);
+          console.log("Original parsed data:", parsedSelectedHotels);
 
           // Update available rooms based on selected hotels
           const hotelRooms = allRooms.filter((room) =>
@@ -4234,9 +4242,11 @@ export function PackageCreatorForm({
                                 id={`hotel-${hotel.id}`}
                                 checked={
                                   Array.isArray(field.value) &&
-                                  (field.value.includes(hotel.id) ||
-                                    field.value.includes(String(hotel.id)) ||
-                                    field.value.includes(Number(hotel.id)))
+                                  field.value.some(item => {
+                                    // Handle both hotel objects and hotel IDs
+                                    const itemId = typeof item === 'object' && item !== null && 'id' in item ? item.id : item;
+                                    return itemId == hotel.id || String(itemId) === String(hotel.id);
+                                  })
                                 }
                                 onCheckedChange={(checked) => {
                                   const currentSelection = Array.isArray(
@@ -4244,29 +4254,44 @@ export function PackageCreatorForm({
                                   )
                                     ? field.value
                                     : [];
+                                  
+                                  // Extract IDs from current selection (handle both objects and IDs)
+                                  const currentIds = currentSelection.map(item => {
+                                    // Handle hotel objects with id property
+                                    if (typeof item === 'object' && item !== null && 'id' in item) {
+                                      return item.id;
+                                    }
+                                    // Handle direct ID values
+                                    return item;
+                                  }).filter(id => id !== null && id !== undefined);
+                                  
                                   let newSelection;
                                   if (checked) {
-                                    newSelection = [
-                                      ...currentSelection,
-                                      hotel.id,
-                                    ];
+                                    // Add hotel ID if not already present
+                                    if (!currentIds.includes(hotel.id)) {
+                                      newSelection = [...currentIds, hotel.id];
+                                    } else {
+                                      newSelection = currentIds;
+                                    }
                                   } else {
-                                    // Fixed deselection logic to handle both string and number IDs
-                                    newSelection = currentSelection.filter(
-                                      (id) => {
-                                        // Handle both string and number comparison
-                                        return id !== hotel.id && 
-                                               String(id) !== String(hotel.id) && 
-                                               Number(id) !== Number(hotel.id);
-                                      }
+                                    // Remove hotel ID
+                                    newSelection = currentIds.filter(id => 
+                                      id !== hotel.id && 
+                                      String(id) !== String(hotel.id) && 
+                                      Number(id) !== Number(hotel.id)
                                     );
                                   }
+                                  
                                   console.log("Hotel selection change:", {
                                     hotelId: hotel.id,
                                     checked,
-                                    currentSelection,
+                                    currentSelection: currentSelection.map(item => 
+                                      typeof item === 'object' ? `{id: ${item?.id}, name: ${item?.name}}` : item
+                                    ),
+                                    currentIds,
                                     newSelection
                                   });
+                                  
                                   field.onChange(newSelection);
                                   handleHotelSelectionChange(newSelection);
                                 }}

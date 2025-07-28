@@ -88,14 +88,17 @@ The application uses a comprehensive PostgreSQL schema with the following core e
 
 ## Recent Changes
 
-### Hotel Selection Deselection Fix Complete (July 28, 2025)
+### Hotel Selection and Room Display Fix Complete (July 28, 2025)
 - **Hotel Deselection Issue Resolution**: Fixed critical bug where selected hotels could not be deselected in admin package edit form at `/admin/packages/edit/{id}`
-- **Type Handling Enhancement**: Improved hotel ID comparison logic to handle both string and number types during selection/deselection operations
-- **Enhanced Filter Logic**: Updated deselection filter to properly compare hotel IDs using String() and Number() conversions for robust type matching
-- **Debug Logging Addition**: Added comprehensive console logging for hotel selection changes to track selection state and troubleshoot issues
+- **Room Display Fix**: Resolved issue where rooms weren't showing when hotels were selected due to form storing hotel objects instead of hotel IDs
+- **Object vs ID Handling**: Enhanced form initialization to properly extract hotel IDs from database objects during package editing
+- **Type-Safe Comparison Logic**: Implemented robust comparison logic that handles both hotel objects and hotel IDs in checkbox states
+- **Data Structure Normalization**: Fixed form state to consistently use hotel IDs rather than full hotel objects for selection tracking
+- **Enhanced Filter Logic**: Updated selection/deselection filter to properly handle mixed data types with comprehensive ID extraction
+- **Debug Logging Enhancement**: Added detailed console logging for hotel selection changes and room filtering debugging
 - **Form State Consistency**: Enhanced `handleHotelSelectionChange` function to normalize all hotel IDs to strings for consistent form storage
-- **User Experience Fix**: Hotel checkboxes now properly toggle between selected and unselected states, enabling full hotel management in package editing
-- **Production Ready**: Hotel selection interface now fully functional with reliable selection and deselection capabilities
+- **User Experience Fix**: Hotel checkboxes now properly toggle and room sections display correctly when hotels are selected/deselected
+- **Production Ready**: Complete hotel and room management system operational with reliable selection, deselection, and room display capabilities
 
 ### Smart Room Distribution Integration in Price Calculation Complete (July 28, 2025)
 - **Intelligent Room Distribution Algorithm**: Successfully integrated the smart room distribution logic from RoomDistributionWithStars component into EnhancedPriceCalculation for automatic traveler allocation
