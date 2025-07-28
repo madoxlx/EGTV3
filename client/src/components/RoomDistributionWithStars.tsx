@@ -219,18 +219,25 @@ export default function RoomDistributionWithStars({
       travelers: { adults, children, infants }
     });
     
-    // If roomDistributionOrder is specified and valid, reorder the rooms to start from that position
-    if (roomDistributionOrder && roomDistributionOrder > 1 && roomDistributionOrder <= rooms.length) {
-      const startIndex = roomDistributionOrder - 1; // Convert from 1-based to 0-based index
-      console.log(`🔄 Reordering rooms to start from position ${roomDistributionOrder} (index ${startIndex})`);
-      
-      // Rotate array to start from the specified room
-      const beforeStart = sortedRooms.slice(0, startIndex);
-      const fromStart = sortedRooms.slice(startIndex);
-      sortedRooms.length = 0; // Clear array
-      sortedRooms.push(...fromStart, ...beforeStart);
-      
-      console.log("🏠 New room order:", sortedRooms.map(r => r.name));
+    // Handle room ordering based on roomDistributionOrder
+    if (roomDistributionOrder && roomDistributionOrder >= 1 && roomDistributionOrder <= rooms.length) {
+      if (roomDistributionOrder === 1) {
+        console.log("🏠 Using original room order (starting from position 1)");
+        console.log(`✅ First room will be: "${sortedRooms[0]?.name}"`);
+        // Keep original room order when starting from position 1
+        // sortedRooms already contains the original order
+      } else {
+        const startIndex = roomDistributionOrder - 1; // Convert from 1-based to 0-based index
+        console.log(`🔄 Reordering rooms to start from position ${roomDistributionOrder} (index ${startIndex})`);
+        
+        // Rotate array to start from the specified room
+        const beforeStart = sortedRooms.slice(0, startIndex);
+        const fromStart = sortedRooms.slice(startIndex);
+        sortedRooms.length = 0; // Clear array
+        sortedRooms.push(...fromStart, ...beforeStart);
+        
+        console.log("🏠 New room order:", sortedRooms.map(r => r.name));
+      }
     } else {
       console.log("📋 Using default room order (by capacity)");
       // Default: sort by capacity (highest to lowest) for optimal allocation
