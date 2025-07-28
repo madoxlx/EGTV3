@@ -88,6 +88,15 @@ The application uses a comprehensive PostgreSQL schema with the following core e
 
 ## Recent Changes
 
+### Hotel Selection Deselection Fix Complete (July 28, 2025)
+- **Hotel Deselection Issue Resolution**: Fixed critical bug where selected hotels could not be deselected in admin package edit form at `/admin/packages/edit/{id}`
+- **Type Handling Enhancement**: Improved hotel ID comparison logic to handle both string and number types during selection/deselection operations
+- **Enhanced Filter Logic**: Updated deselection filter to properly compare hotel IDs using String() and Number() conversions for robust type matching
+- **Debug Logging Addition**: Added comprehensive console logging for hotel selection changes to track selection state and troubleshoot issues
+- **Form State Consistency**: Enhanced `handleHotelSelectionChange` function to normalize all hotel IDs to strings for consistent form storage
+- **User Experience Fix**: Hotel checkboxes now properly toggle between selected and unselected states, enabling full hotel management in package editing
+- **Production Ready**: Hotel selection interface now fully functional with reliable selection and deselection capabilities
+
 ### Smart Room Distribution Integration in Price Calculation Complete (July 28, 2025)
 - **Intelligent Room Distribution Algorithm**: Successfully integrated the smart room distribution logic from RoomDistributionWithStars component into EnhancedPriceCalculation for automatic traveler allocation
 - **Enhanced Price Calculation Logic**: Replaced simple package price calculation with sophisticated room-based pricing that considers actual room capacity and traveler distribution

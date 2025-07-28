@@ -1948,9 +1948,11 @@ export function PackageCreatorForm({
     filterRoomsByCapacity(allRooms, adultCount, childrenCount, infantCount);
   }, []);
 
-  const handleHotelSelectionChange = (selectedHotelIds: string[]) => {
+  const handleHotelSelectionChange = (selectedHotelIds: (string | number)[]) => {
     console.log("🏨 HOTEL SELECTION CHANGED:", selectedHotelIds);
-    form.setValue("selectedHotels", selectedHotelIds);
+    // Convert all IDs to strings for consistent form storage
+    const stringIds = selectedHotelIds.map(id => String(id));
+    form.setValue("selectedHotels", stringIds);
     updateAvailableRooms(selectedHotelIds);
 
     // Force re-render by triggering form watch
@@ -4249,10 +4251,22 @@ export function PackageCreatorForm({
                                       hotel.id,
                                     ];
                                   } else {
+                                    // Fixed deselection logic to handle both string and number IDs
                                     newSelection = currentSelection.filter(
-                                      (id) => id !== hotel.id,
+                                      (id) => {
+                                        // Handle both string and number comparison
+                                        return id !== hotel.id && 
+                                               String(id) !== String(hotel.id) && 
+                                               Number(id) !== Number(hotel.id);
+                                      }
                                     );
                                   }
+                                  console.log("Hotel selection change:", {
+                                    hotelId: hotel.id,
+                                    checked,
+                                    currentSelection,
+                                    newSelection
+                                  });
                                   field.onChange(newSelection);
                                   handleHotelSelectionChange(newSelection);
                                 }}
