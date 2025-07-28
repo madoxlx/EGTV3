@@ -414,10 +414,10 @@ export default function EnhancedPriceCalculation({
     ? `${days} ${t("day", days === 1 ? "يوم" : "أيام")}`
     : `${days} ${t("day", days === 1 ? "day" : "days")}`;
   const egpText = isArabic ? "ج.م" : "EGP";
-  // Calculate individual totals for detailed breakdown
-  const adultTotal = adults * adultPrice * days;
-  const childTotal = children * childPrice * days;
-  const infantTotal = infants * infantPrice * days;
+  // Calculate individual totals for detailed breakdown - using actualNights instead of days
+  const adultTotal = adults * adultPrice * actualNights;
+  const childTotal = children * childPrice * actualNights;
+  const infantTotal = infants * infantPrice * actualNights;
   const grandTotal = adultTotal + childTotal + infantTotal;
 
   // مفاتيح الترجمة: price_breakdown, subtotal, vat, service_fee, total, savings
@@ -437,7 +437,7 @@ export default function EnhancedPriceCalculation({
         {adults > 0 && (
           <div className="flex justify-between items-center">
             <span>
-              {t("adults", isArabic ? "البالغين" : "Adults")} ({adults} × {formatPrice(adultPrice)} × {days} {t("days", isArabic ? "أيام" : "days")}):
+              {t("adults", isArabic ? "البالغين" : "Adults")} ({adults} × {formatPrice(adultPrice)} × {actualNights} {t("nights", isArabic ? "ليالي" : "nights")}):
             </span>
             <span className="font-medium">{formatPrice(adultTotal)} {egpText}</span>
           </div>
@@ -446,7 +446,7 @@ export default function EnhancedPriceCalculation({
         {children > 0 && (
           <div className="flex justify-between items-center">
             <span>
-              {t("children", isArabic ? "الأطفال" : "Children")} ({children} × {formatPrice(childPrice)} × {days} {t("days", isArabic ? "أيام" : "days")}):
+              {t("children", isArabic ? "الأطفال" : "Children")} ({children} × {formatPrice(childPrice)} × {actualNights} {t("nights", isArabic ? "ليالي" : "nights")}):
             </span>
             <span className="font-medium">{formatPrice(childTotal)} {egpText}</span>
           </div>
@@ -455,7 +455,7 @@ export default function EnhancedPriceCalculation({
         {infants > 0 && (
           <div className="flex justify-between items-center">
             <span>
-              {t("infants", isArabic ? "الرضع" : "Infants")} ({infants} × {formatPrice(infantPrice)} × {days} {t("days", isArabic ? "أيام" : "days")}):
+              {t("infants", isArabic ? "الرضع" : "Infants")} ({infants} × {formatPrice(infantPrice)} × {actualNights} {t("nights", isArabic ? "ليالي" : "nights")}):
             </span>
             <span className="font-medium">{formatPrice(infantTotal)} {egpText}</span>
           </div>

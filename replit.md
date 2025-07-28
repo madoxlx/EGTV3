@@ -219,12 +219,13 @@ The application uses a comprehensive PostgreSQL schema with the following core e
   - **Production Ready**: Complete Arabic navigation title system ready for bilingual website deployment
 
 ### Enhanced Price Breakdown with Detailed Calculation Formulas Complete (July 28, 2025)
-- **Detailed Breakdown Display**: Successfully implemented comprehensive pricing calculation breakdown showing exact formulas: (quantity × price × days) for each traveler category
+- **Detailed Breakdown Display**: Successfully implemented comprehensive pricing calculation breakdown showing exact formulas: (quantity × price × nights) for each traveler category
 - **Pricing Tier Implementation**: Enhanced pricing structure with Adults (100% of package price), Children (70% of package price), and Infants (30% of package price)
 - **Visual Layout Enhancement**: Added professional pricing breakdown with individual totals displayed on the right side, separated by clear borders and sections
 - **Smart Category Display**: Implemented conditional rendering that only shows pricing categories for travelers that have been selected (hides empty categories)
-- **Multilingual Support**: Full Arabic and English translation support for all pricing elements including "Adults", "Children", "Infants", "days", and "Total" labels
-- **Formula Transparency**: Clear calculation display showing "Adults (4 × 4,950 × 5 days)" format for complete pricing transparency
+- **Multilingual Support**: Full Arabic and English translation support for all pricing elements including "Adults", "Children", "Infants", "nights", and "Total" labels
+- **Formula Transparency**: Clear calculation display showing "Adults (2 × 4,950 × 4 nights)" format for complete pricing transparency
+- **Calculation Logic Fix**: Corrected pricing calculation to use actual nights instead of days for accurate hotel booking calculations
 - **Progressive Disclosure**: Organized pricing breakdown with main traveler costs first, followed by additional costs (accommodation, tours, upgrades) and fees (VAT, service fees)
 - **Enhanced User Experience**: Professional card-based layout with proper spacing, typography hierarchy, and color-coded totals with primary color highlighting
 - **Production Ready**: Complete detailed pricing breakdown system operational with accurate calculations and multilingual display
