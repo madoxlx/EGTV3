@@ -54,6 +54,7 @@ interface RoomDistributionWithStarsProps {
   startDate?: string;
   endDate?: string;
   onBookingStatusChange?: (disabled: boolean, reason?: string) => void;
+  roomDistributionOrder?: number;
 }
 
 export default function RoomDistributionWithStars({
@@ -67,6 +68,7 @@ export default function RoomDistributionWithStars({
   startDate,
   endDate,
   onBookingStatusChange,
+  roomDistributionOrder = 1,
 }: RoomDistributionWithStarsProps) {
   // Fetch all rooms data
   const { data: allRooms = [], isLoading: isLoadingRooms } = useQuery<Room[]>({
@@ -206,8 +208,34 @@ export default function RoomDistributionWithStars({
       };
     }
 
-    // Sort rooms by capacity (highest to lowest)
-    const sortedRooms = [...rooms].sort((a, b) => b.max_adults - a.max_adults);
+    // Sort rooms respecting roomDistributionOrder  
+    const sortedRooms = [...rooms];
+    
+    // Debug logging for room distribution order
+    console.log("🔧 Room Distribution Debug:", {
+      roomDistributionOrder,
+      totalRooms: rooms.length,
+      roomNames: rooms.map(r => r.name),
+      travelers: { adults, children, infants }
+    });
+    
+    // If roomDistributionOrder is specified and valid, reorder the rooms to start from that position
+    if (roomDistributionOrder && roomDistributionOrder > 1 && roomDistributionOrder <= rooms.length) {
+      const startIndex = roomDistributionOrder - 1; // Convert from 1-based to 0-based index
+      console.log(`🔄 Reordering rooms to start from position ${roomDistributionOrder} (index ${startIndex})`);
+      
+      // Rotate array to start from the specified room
+      const beforeStart = sortedRooms.slice(0, startIndex);
+      const fromStart = sortedRooms.slice(startIndex);
+      sortedRooms.length = 0; // Clear array
+      sortedRooms.push(...fromStart, ...beforeStart);
+      
+      console.log("🏠 New room order:", sortedRooms.map(r => r.name));
+    } else {
+      console.log("📋 Using default room order (by capacity)");
+      // Default: sort by capacity (highest to lowest) for optimal allocation
+      sortedRooms.sort((a, b) => b.max_adults - a.max_adults);
+    }
     
     let remainingAdults = adults;
     let remainingChildren = children;
@@ -334,7 +362,7 @@ export default function RoomDistributionWithStars({
     }
     
     return { capacityExceeded: false, rooms: distribution };
-  }, [rooms, adults, children, infants, nights]);
+  }, [rooms, adults, children, infants, nights, roomDistributionOrder]);
 
   const roomDistribution = React.useMemo(() => calculateRoomDistribution(), [calculateRoomDistribution]);
 

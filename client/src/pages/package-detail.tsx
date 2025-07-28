@@ -1334,6 +1334,7 @@ export default function PackageDetail() {
                                 startDate={startDate}
                                 endDate={endDate}
                                 onBookingStatusChange={handleBookingStatusChange}
+                                roomDistributionOrder={(packageData as any).roomDistributionOrder || 1}
                               />
 
                               {/* Included Tours */}

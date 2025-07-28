@@ -263,6 +263,9 @@ export const packages = pgTable("packages", {
   adultCount: integer("adult_count").default(2),
   childrenCount: integer("children_count").default(0),
   infantCount: integer("infant_count").default(0),
+  
+  // Room distribution settings
+  roomDistributionOrder: integer("room_distribution_order").default(1),
 
   // Additional metadata
   maxGroupSize: integer("max_group_size").default(15),
