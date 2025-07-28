@@ -189,41 +189,7 @@ export default function EnhancedPriceCalculation({
   // Base package cost is now excluded from calculations
   let packageBaseCost = 0;
   
-  // Calculate pricing tiers based on room distribution logic
-  let roomPricePerPerson = 0;
-  let selectedRoom = null;
-  
-  // Get room information from package rooms or available rooms
-  if (packageRooms.length > 0) {
-    selectedRoom = packageRooms[0];
-    roomPricePerPerson = selectedRoom?.customPrice || selectedRoom?.price || 0;
-  } else if (allRooms.length > 0) {
-    selectedRoom = allRooms[0];
-    roomPricePerPerson = selectedRoom?.price || 0;
-  }
-  
-  // If no room price found, fallback to base package price
-  if (roomPricePerPerson === 0) {
-    roomPricePerPerson = packageData.discountedPrice || packageData.price;
-  }
-  
-  // Smart room distribution logic starting with double rooms
-  const totalTravelers = adults + children + infants;
-  const maxOccupancyPerRoom = selectedRoom?.max_occupancy || 2; // Default to double room
-  const requiredRooms = Math.ceil(totalTravelers / maxOccupancyPerRoom);
-  
-  // Calculate cost per person based on room sharing
-  const costPerPersonInRoom = roomPricePerPerson / Math.min(totalTravelers, maxOccupancyPerRoom);
-  
-  const adultPrice = costPerPersonInRoom; // 100% of cost per person in shared room
-  const childPrice = Math.round(costPerPersonInRoom * 0.7); // 70% of cost per person
-  const infantPrice = Math.round(costPerPersonInRoom * 0.3); // 30% of cost per person
-
-  // Calculate room costs based on smart distribution
-  let roomsCost = 0;
-  let roomsBreakdown: { name: string; nights: number; cost: number }[] = [];
-
-  // Calculate the number of nights and days based on the date range
+  // Calculate the number of nights and days based on the date range first
   let actualNights = packageData.duration || 1; // Default to package duration
   let days = actualNights + 1;
   if (dateMode === "range" && startDate && endDate) {
@@ -236,20 +202,122 @@ export default function EnhancedPriceCalculation({
     actualNights = packageData.duration || 1;
     days = actualNights + 1;
   }
+  
+  // Smart Room Distribution Logic (similar to RoomDistributionWithStars)
+  const calculateRoomDistribution = () => {
+    const availableRooms = packageRooms.length > 0 ? packageRooms : allRooms.slice(0, 5); // Limit to first 5 rooms for calculation
+    
+    if (availableRooms.length === 0) {
+      // Fallback to simple calculation if no rooms available
+      const basePrice = packageData.discountedPrice || packageData.price;
+      return {
+        adultPrice: basePrice,
+        childPrice: Math.round(basePrice * 0.7),
+        infantPrice: Math.round(basePrice * 0.3),
+        totalRoomsCost: 0,
+        roomsBreakdown: []
+      };
+    }
+
+    const totalTravelers = adults + children + infants;
+    
+    // Sort rooms by capacity (highest adults capacity first)
+    const sortedRooms = [...availableRooms].sort((a, b) => (b.max_adults || b.maxAdults || 2) - (a.max_adults || a.maxAdults || 2));
+    
+    let remainingAdults = adults;
+    let remainingChildren = children;
+    let remainingInfants = infants;
+    
+    const distribution = sortedRooms.map((room) => {
+      let assignedAdults = 0;
+      let assignedChildren = 0;
+      let assignedInfants = 0;
+      
+      const maxOccupancy = room.max_occupancy || room.maxOccupancy || 2;
+      const maxAdults = room.max_adults || room.maxAdults || 2;
+      const maxChildren = room.max_children || room.maxChildren || 2;
+      const maxInfants = room.max_infants || room.maxInfants || 1;
+      
+      // First, assign adults up to room capacity
+      if (remainingAdults > 0 && maxAdults > 0) {
+        assignedAdults = Math.min(remainingAdults, maxAdults);
+        remainingAdults -= assignedAdults;
+      }
+      
+      // Assign children/infants with adults first (preferred arrangement)
+      if (assignedAdults > 0) {
+        // Then assign children if there's space and adults present
+        const remainingCapacity = maxOccupancy - assignedAdults;
+        if (remainingChildren > 0 && remainingCapacity > 0 && maxChildren > 0) {
+          assignedChildren = Math.min(remainingChildren, Math.min(remainingCapacity, maxChildren));
+          remainingChildren -= assignedChildren;
+        }
+        
+        // Finally assign infants if there's space and adults present
+        const finalRemainingCapacity = maxOccupancy - assignedAdults - assignedChildren;
+        if (remainingInfants > 0 && finalRemainingCapacity > 0 && maxInfants > 0) {
+          assignedInfants = Math.min(remainingInfants, Math.min(finalRemainingCapacity, maxInfants));
+          remainingInfants -= assignedInfants;
+        }
+      }
+      
+      const totalAssigned = assignedAdults + assignedChildren + assignedInfants;
+      const pricePerPerson = room.customPrice || room.price || 0;
+      const totalCostPerNight = totalAssigned * pricePerPerson;
+      const totalCost = totalCostPerNight * actualNights;
+      
+      return {
+        room,
+        assignedAdults,
+        assignedChildren,
+        assignedInfants,
+        totalAssigned,
+        totalCost,
+        totalCostPerNight,
+        pricePerPerson,
+        isUsed: totalAssigned > 0,
+      };
+    });
+    
+    // Calculate average price per person across all used rooms
+    const usedRooms = distribution.filter(d => d.isUsed);
+    const totalAssignedTravelers = usedRooms.reduce((sum, d) => sum + d.totalAssigned, 0);
+    const totalRoomsCost = usedRooms.reduce((sum, d) => sum + d.totalCost, 0);
+    
+    let avgPricePerPerson = 0;
+    if (totalAssignedTravelers > 0) {
+      avgPricePerPerson = totalRoomsCost / totalAssignedTravelers / actualNights;
+    } else if (usedRooms.length > 0) {
+      avgPricePerPerson = usedRooms[0].pricePerPerson;
+    } else {
+      avgPricePerPerson = packageData.discountedPrice || packageData.price;
+    }
+    
+    return {
+      adultPrice: avgPricePerPerson,
+      childPrice: Math.round(avgPricePerPerson * 0.7),
+      infantPrice: Math.round(avgPricePerPerson * 0.3),
+      totalRoomsCost,
+      roomsBreakdown: usedRooms.map(d => ({
+        name: `${d.room.name} (${d.totalAssigned} guests)`,
+        nights: actualNights,
+        cost: d.totalCost,
+      })),
+      distribution: usedRooms
+    };
+  };
+  
+  const roomDistribution = calculateRoomDistribution();
+  const adultPrice = roomDistribution.adultPrice;
+  const childPrice = roomDistribution.childPrice;
+  const infantPrice = roomDistribution.infantPrice;
 
   // Calculate total number of PAX
   const totalPAX = adults + children + infants;
 
-  // Calculate room costs based on automatic distribution
-  if (selectedRoom) {
-    const totalRoomCost = roomPricePerPerson * requiredRooms * actualNights;
-    roomsCost = totalRoomCost;
-    roomsBreakdown.push({
-      name: `${selectedRoom.name} (${requiredRooms} ${requiredRooms === 1 ? 'room' : 'rooms'})`,
-      nights: actualNights,
-      cost: totalRoomCost,
-    });
-  }
+  // Get room costs from smart distribution
+  const roomsCost = roomDistribution.totalRoomsCost || 0;
+  const roomsBreakdown = roomDistribution.roomsBreakdown || [];
 
   // Calculate tours cost based on package tours
   let toursCost = 0;
@@ -431,11 +499,11 @@ export default function EnhancedPriceCalculation({
           {isArabic
             ? `${nightsText} / ${daysText}`
             : `${nightsText} / ${daysText}`}
-          {selectedRoom && (
+          {roomDistribution.distribution && roomDistribution.distribution.length > 0 && (
             <div className="text-xs mt-1">
               {isArabic 
-                ? `${requiredRooms} غرف مطلوبة (بحد أقصى ${maxOccupancyPerRoom} أشخاص لكل غرفة)`
-                : `${requiredRooms} rooms required (max ${maxOccupancyPerRoom} people per room)`
+                ? `${roomDistribution.distribution.length} غرف مطلوبة للتوزيع التلقائي`
+                : `${roomDistribution.distribution.length} rooms required for automatic distribution`
               }
             </div>
           )}
@@ -466,6 +534,44 @@ export default function EnhancedPriceCalculation({
               {t("infants", isArabic ? "الرضع" : "Infants")} ({infants} × {formatPrice(infantPrice)} × {actualNights} {t("nights", isArabic ? "ليالي" : "nights")}):
             </span>
             <span className="font-medium">{formatPrice(infantTotal)} {egpText}</span>
+          </div>
+        )}
+
+        {/* Room Distribution Details */}
+        {roomDistribution.distribution && roomDistribution.distribution.length > 0 && (
+          <div className="border-t pt-2 mt-2">
+            <h5 className="font-medium mb-2 text-blue-800">
+              {isArabic ? "توزيع الغرف التلقائي" : "Smart Room Distribution"}
+            </h5>
+            {roomDistribution.distribution.map((dist: any, index: number) => (
+              <div key={index} className="bg-blue-50 rounded-md p-2 border border-blue-200 mb-2">
+                <div className="flex justify-between items-center mb-1">
+                  <span className="font-medium text-sm text-blue-900">
+                    {isArabic ? `غرفة ${index + 1}: ` : `Room ${index + 1}: `}{dist.room.name}
+                  </span>
+                  <span className="text-sm font-semibold text-blue-900">
+                    {formatPrice(dist.totalCost)} {egpText}
+                  </span>
+                </div>
+                <div className="text-xs text-gray-700 space-y-1">
+                  {dist.assignedAdults > 0 && (
+                    <div>• {dist.assignedAdults} {isArabic ? "بالغ" : "adult(s)"}</div>
+                  )}
+                  {dist.assignedChildren > 0 && (
+                    <div>• {dist.assignedChildren} {isArabic ? "طفل" : "child(ren)"}</div>
+                  )}
+                  {dist.assignedInfants > 0 && (
+                    <div>• {dist.assignedInfants} {isArabic ? "رضيع" : "infant(s)"}</div>
+                  )}
+                  <div className="text-blue-700 font-medium">
+                    {isArabic ? "الإجمالي:" : "Total:"} {dist.totalAssigned}/{dist.room.max_occupancy || dist.room.maxOccupancy} {isArabic ? "شخص" : "people"}
+                  </div>
+                  <div className="text-blue-600">
+                    ({dist.totalAssigned} × {formatPrice(dist.pricePerPerson)} × {actualNights} {isArabic ? "ليالي" : "nights"})
+                  </div>
+                </div>
+              </div>
+            ))}
           </div>
         )}
 
