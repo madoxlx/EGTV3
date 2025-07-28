@@ -189,16 +189,17 @@ export default function EnhancedPriceCalculation({
   // Base package cost is now excluded from calculations
   let packageBaseCost = 0;
   
-  // Calculate pricing tiers based on room price per person instead of base package price
+  // Calculate pricing tiers based on room distribution logic
   let roomPricePerPerson = 0;
+  let selectedRoom = null;
   
-  // Get room price per person from package rooms or available rooms
+  // Get room information from package rooms or available rooms
   if (packageRooms.length > 0) {
-    const packageRoom = packageRooms[0];
-    roomPricePerPerson = packageRoom?.customPrice || packageRoom?.price || 0;
+    selectedRoom = packageRooms[0];
+    roomPricePerPerson = selectedRoom?.customPrice || selectedRoom?.price || 0;
   } else if (allRooms.length > 0) {
-    const room = allRooms[0];
-    roomPricePerPerson = room?.price || 0;
+    selectedRoom = allRooms[0];
+    roomPricePerPerson = selectedRoom?.price || 0;
   }
   
   // If no room price found, fallback to base package price
@@ -206,11 +207,19 @@ export default function EnhancedPriceCalculation({
     roomPricePerPerson = packageData.discountedPrice || packageData.price;
   }
   
-  const adultPrice = roomPricePerPerson; // 100% of room price per person
-  const childPrice = Math.round(roomPricePerPerson * 0.7); // 70% of room price per person
-  const infantPrice = Math.round(roomPricePerPerson * 0.3); // 30% of room price per person
+  // Smart room distribution logic starting with double rooms
+  const totalTravelers = adults + children + infants;
+  const maxOccupancyPerRoom = selectedRoom?.max_occupancy || 2; // Default to double room
+  const requiredRooms = Math.ceil(totalTravelers / maxOccupancyPerRoom);
+  
+  // Calculate cost per person based on room sharing
+  const costPerPersonInRoom = roomPricePerPerson / Math.min(totalTravelers, maxOccupancyPerRoom);
+  
+  const adultPrice = costPerPersonInRoom; // 100% of cost per person in shared room
+  const childPrice = Math.round(costPerPersonInRoom * 0.7); // 70% of cost per person
+  const infantPrice = Math.round(costPerPersonInRoom * 0.3); // 30% of cost per person
 
-  // Calculate room costs based on selected rooms - Now included in individual pricing
+  // Calculate room costs based on smart distribution
   let roomsCost = 0;
   let roomsBreakdown: { name: string; nights: number; cost: number }[] = [];
 
@@ -231,8 +240,16 @@ export default function EnhancedPriceCalculation({
   // Calculate total number of PAX
   const totalPAX = adults + children + infants;
 
-  // Room costs are now included in the per-person pricing above
-  // No separate room cost calculation needed
+  // Calculate room costs based on automatic distribution
+  if (selectedRoom) {
+    const totalRoomCost = roomPricePerPerson * requiredRooms * actualNights;
+    roomsCost = totalRoomCost;
+    roomsBreakdown.push({
+      name: `${selectedRoom.name} (${requiredRooms} ${requiredRooms === 1 ? 'room' : 'rooms'})`,
+      nights: actualNights,
+      cost: totalRoomCost,
+    });
+  }
 
   // Calculate tours cost based on package tours
   let toursCost = 0;
@@ -414,6 +431,14 @@ export default function EnhancedPriceCalculation({
           {isArabic
             ? `${nightsText} / ${daysText}`
             : `${nightsText} / ${daysText}`}
+          {selectedRoom && (
+            <div className="text-xs mt-1">
+              {isArabic 
+                ? `${requiredRooms} غرف مطلوبة (بحد أقصى ${maxOccupancyPerRoom} أشخاص لكل غرفة)`
+                : `${requiredRooms} rooms required (max ${maxOccupancyPerRoom} people per room)`
+              }
+            </div>
+          )}
         </div>
         
         {/* Detailed Breakdown */}

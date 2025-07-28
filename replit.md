@@ -227,6 +227,7 @@ The application uses a comprehensive PostgreSQL schema with the following core e
 - **Formula Transparency**: Clear calculation display showing "Adults (2 × 4,950 × 4 nights)" format for complete pricing transparency
 - **Calculation Logic Fix**: Corrected pricing calculation to use actual nights instead of days for accurate hotel booking calculations
 - **Room-Based Pricing**: Updated calculation to use room price per person instead of base package price for more accurate individual pricing
+- **Smart Room Distribution**: Implemented automatic room distribution starting with double rooms, calculating required rooms based on occupancy limits and distributing costs per person accordingly
 - **Progressive Disclosure**: Organized pricing breakdown with main traveler costs first, followed by additional costs (accommodation, tours, upgrades) and fees (VAT, service fees)
 - **Enhanced User Experience**: Professional card-based layout with proper spacing, typography hierarchy, and color-coded totals with primary color highlighting
 - **Production Ready**: Complete detailed pricing breakdown system operational with accurate calculations and multilingual display
