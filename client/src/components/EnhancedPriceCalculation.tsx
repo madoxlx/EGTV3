@@ -189,13 +189,28 @@ export default function EnhancedPriceCalculation({
   // Base package cost is now excluded from calculations
   let packageBaseCost = 0;
   
-  // Calculate pricing tiers based on base package price
-  const basePackagePrice = packageData.discountedPrice || packageData.price;
-  const adultPrice = basePackagePrice; // 100% of package price
-  const childPrice = Math.round(basePackagePrice * 0.7); // 70% of package price
-  const infantPrice = Math.round(basePackagePrice * 0.3); // 30% of package price
+  // Calculate pricing tiers based on room price per person instead of base package price
+  let roomPricePerPerson = 0;
+  
+  // Get room price per person from package rooms or available rooms
+  if (packageRooms.length > 0) {
+    const packageRoom = packageRooms[0];
+    roomPricePerPerson = packageRoom?.customPrice || packageRoom?.price || 0;
+  } else if (allRooms.length > 0) {
+    const room = allRooms[0];
+    roomPricePerPerson = room?.price || 0;
+  }
+  
+  // If no room price found, fallback to base package price
+  if (roomPricePerPerson === 0) {
+    roomPricePerPerson = packageData.discountedPrice || packageData.price;
+  }
+  
+  const adultPrice = roomPricePerPerson; // 100% of room price per person
+  const childPrice = Math.round(roomPricePerPerson * 0.7); // 70% of room price per person
+  const infantPrice = Math.round(roomPricePerPerson * 0.3); // 30% of room price per person
 
-  // Calculate room costs based on selected rooms
+  // Calculate room costs based on selected rooms - Now included in individual pricing
   let roomsCost = 0;
   let roomsBreakdown: { name: string; nights: number; cost: number }[] = [];
 
@@ -216,40 +231,8 @@ export default function EnhancedPriceCalculation({
   // Calculate total number of PAX
   const totalPAX = adults + children + infants;
 
-  // Calculate costs for package rooms automatically (no user selection needed)
-  if (packageRooms.length > 0) {
-    // Use the first available room for cost calculation
-    const packageRoom = packageRooms[0];
-    if (packageRoom) {
-      // Use the price from packageRooms data
-      const roomPricePerNight = packageRoom.customPrice || packageRoom.price;
-      // SPECIFICATION FORMULA: Room Cost × Nights × PAX
-      const roomTotalCost = roomPricePerNight * actualNights * totalPAX;
-
-      roomsCost += roomTotalCost;
-      roomsBreakdown.push({
-        name: packageRoom.name,
-        nights: actualNights,
-        cost: roomTotalCost,
-      });
-    }
-  }
-  // Fallback to allRooms if no package rooms available
-  else if (allRooms.length > 0) {
-    const room = allRooms[0]; // Use first available room
-    if (room) {
-      const roomPricePerNight = room.price;
-      // SPECIFICATION FORMULA: Room Cost × Nights × PAX
-      const roomTotalCost = roomPricePerNight * actualNights * totalPAX;
-
-      roomsCost += roomTotalCost;
-      roomsBreakdown.push({
-        name: room.name,
-        nights: actualNights,
-        cost: roomTotalCost,
-      });
-    }
-  }
+  // Room costs are now included in the per-person pricing above
+  // No separate room cost calculation needed
 
   // Calculate tours cost based on package tours
   let toursCost = 0;

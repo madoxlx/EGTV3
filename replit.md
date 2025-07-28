@@ -226,6 +226,7 @@ The application uses a comprehensive PostgreSQL schema with the following core e
 - **Multilingual Support**: Full Arabic and English translation support for all pricing elements including "Adults", "Children", "Infants", "nights", and "Total" labels
 - **Formula Transparency**: Clear calculation display showing "Adults (2 × 4,950 × 4 nights)" format for complete pricing transparency
 - **Calculation Logic Fix**: Corrected pricing calculation to use actual nights instead of days for accurate hotel booking calculations
+- **Room-Based Pricing**: Updated calculation to use room price per person instead of base package price for more accurate individual pricing
 - **Progressive Disclosure**: Organized pricing breakdown with main traveler costs first, followed by additional costs (accommodation, tours, upgrades) and fees (VAT, service fees)
 - **Enhanced User Experience**: Professional card-based layout with proper spacing, typography hierarchy, and color-coded totals with primary color highlighting
 - **Production Ready**: Complete detailed pricing breakdown system operational with accurate calculations and multilingual display
