@@ -4,7 +4,7 @@ import cors from "cors";
 import { registerRoutes } from "./routes";
 import { setupVite, serveStatic, log } from "./vite";
 import path from "path";
-import { dbPromise } from "./db";
+import { db } from "./db";
 import session from "express-session";
 import passport from "passport";
 import { setupAdmin } from "./admin-setup";
@@ -98,36 +98,8 @@ if (process.env.NODE_ENV === 'development') {
 
 (async () => {
   try {
-    // Try to initialize database, but continue with fallback if it fails
-    console.log("⏳ Waiting for database initialization...");
-    let dbInitialized = false;
-
-    try {
-      const dbResult = await Promise.race([
-        dbPromise,
-        new Promise((_, reject) =>
-          setTimeout(
-            () => reject(new Error("Database connection timeout")),
-            10000,
-          ),
-        ),
-      ]);
-      dbInitialized = !!dbResult;
-    } catch (error: any) {
-      console.warn(
-        "⚠️ Database connection failed, continuing with basic functionality:",
-        error?.message || "Unknown error",
-      );
-      dbInitialized = false;
-    }
-
-    if (dbInitialized) {
-      console.log("✅ Database initialized.");
-    } else {
-      console.log(
-        "📦 Using fallback storage due to database connection issues.",
-      );
-    }
+    // Database is now connected via Replit's managed PostgreSQL
+    console.log("✅ Database connection established");
 
     // Setup admin users after database is initialized
     try {

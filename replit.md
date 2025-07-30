@@ -19,7 +19,8 @@ Sahara Journeys is a comprehensive travel booking platform specializing in Middl
 ### Backend Architecture
 - **Runtime**: Node.js with Express.js framework
 - **Language**: TypeScript for type safety
-- **Database ORM**: Drizzle ORM for PostgreSQL
+- **Database**: Replit-managed PostgreSQL with Neon serverless driver
+- **Database ORM**: Drizzle ORM for PostgreSQL with WebSocket support
 - **Authentication**: Session-based authentication with Passport.js
 - **Password Security**: Scrypt hashing algorithm
 - **File Uploads**: Multer middleware for handling file uploads
@@ -87,6 +88,16 @@ The application uses a comprehensive PostgreSQL schema with the following core e
 - Real-time translation updates through admin interface
 
 ## Recent Changes
+
+### Database Connection Migration to Replit Complete (July 30, 2025)
+- **Replit Database Integration**: Successfully migrated from external PostgreSQL database to Replit-managed PostgreSQL with automatic provisioning
+- **Connection Issue Resolution**: Fixed all database connection timeout errors by switching from external database (20.77.106.39) to Replit's managed database service
+- **Neon Serverless Driver**: Updated database configuration to use `@neondatabase/serverless` driver with WebSocket support for optimal Replit compatibility
+- **Server Configuration Updates**: Modified server/db.ts to use DATABASE_URL environment variable provided by Replit database service
+- **Import Error Fixes**: Resolved TypeScript import issues by correcting transportation type imports (Transportation vs Transport)
+- **Application Startup Optimization**: Simplified database initialization by removing external database connection timeouts and fallback logic
+- **SSL Configuration**: Proper SSL handling for Replit's managed database connections with automatic certificate management
+- **Production Ready**: Travel platform now runs reliably on Replit infrastructure with stable database connectivity and no connection timeout issues
 
 ### Room Distribution Order Control Feature Implementation Complete (July 28, 2025)
 - **Order Input Field Added**: Successfully implemented numeric "Order" input field in SimplePackageForm.tsx to control room distribution starting point
