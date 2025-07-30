@@ -1,0 +1,92 @@
+🔥 Query params: {}
+Error listing packages: error: column "accommodation_highlights" does not exist
+    at file:///home/runner/workspace/node_modules/@neondatabase/serverless/index.mjs:1345:74
+    at process.processTicksAndRejections (node:internal/process/task_queues:95:5)
+    at async NeonPreparedQuery.execute (/home/runner/workspace/node_modules/src/neon-serverless/session.ts:102:18)
+    at async DatabaseStorage.listPackages (/home/runner/workspace/server/storage.ts:633:14)
+    at async <anonymous> (/home/runner/workspace/server/routes.ts:594:24) {
+  length: 125,
+  severity: 'ERROR',
+  code: '42703',
+  detail: undefined,
+  hint: undefined,
+  position: '463',
+  internalPosition: undefined,
+  internalQuery: undefined,
+  where: undefined,
+  schema: undefined,
+  table: undefined,
+  column: undefined,
+  dataType: undefined,
+  constraint: undefined,
+  file: 'parse_relation.c',
+  line: '3722',
+  routine: 'errorMissingColumn'
+}
+8:38:08 AM [express] GET /api/packages 200 in 136ms
+🔧 Session Debug - GET /src/lib/admin-route.tsx
+   Session ID: ToMd0z39BUMfcnkNMtUzJ6jJWd9kI6Pa
+   Session User: None
+🔧 Session Debug - GET /src/components/admin/SessionGuard.tsx
+   Session ID: i4yCrNuos1k-RH15z23oHu5Sr3N6nSfD
+   Session User: None
+🔥 API ROUTE DEBUG: GET /api/menus/location/header
+🔥 Query params: {}
+🔥 STORAGE: getMenuByLocation called with location: header
+🔥 API ROUTE DEBUG: GET /api/destinations
+🔥 Query params: {}
+🔥 API ROUTE DEBUG: GET /api/countries
+🔥 Query params: {}
+🔥 API ROUTE: GET /api/countries
+🔥 Query params: {}
+🔥 Active filter: undefined
+🔍 listCountries called with active: undefined
+🔥 API ROUTE DEBUG: GET /api/cities
+🔥 Query params: {}
+🔥 API ROUTE DEBUG: GET /api/packages
+🔥 Query params: {}
+🔥 STORAGE: getMenuByLocation query returned: 1 results
+🔥 STORAGE: Found menu: {"id":1,"name":"header-menu","location":"header","description":null,"active":true,"createdAt":"2025-07-30T08:06:25.593Z","updatedAt":"2025-07-30T08:06:25.593Z"}
+8:38:11 AM [express] GET /api/destinations 304 in 477ms
+8:38:11 AM [express] GET /api/tour-categories 304 in 481ms
+8:38:11 AM [express] GET /api/cities 304 in 477ms
+🔍 listCountries returning: 3 countries
+🔍 Sample data: {
+  id: 1,
+  name: 'Egypt',
+  code: 'EG',
+  description: 'Land of Pharaohs',
+  imageUrl: 'https://images.unsplash.com/photo-1503177119275-0aa32b3a9368',
+  active: true,
+  createdAt: 2025-07-30T08:06:25.826Z,
+  updatedAt: 2025-07-30T08:06:25.826Z
+}
+🔥 Countries returned from storage: 3
+8:38:11 AM [express] GET /api/countries 304 in 508ms
+8:38:11 AM [express] GET /api/menus/location/header 304 in 609ms
+🔥 API ROUTE DEBUG: GET /api/homepage-sections?active=true
+🔥 Query params: { active: 'true' }
+Error listing packages: error: column "accommodation_highlights" does not exist
+    at file:///home/runner/workspace/node_modules/@neondatabase/serverless/index.mjs:1345:74
+    at process.processTicksAndRejections (node:internal/process/task_queues:95:5)
+    at async NeonPreparedQuery.execute (/home/runner/workspace/node_modules/src/neon-serverless/session.ts:102:18)
+    at async DatabaseStorage.listPackages (/home/runner/workspace/server/storage.ts:633:14)
+    at async <anonymous> (/home/runner/workspace/server/routes.ts:594:24) {
+  length: 125,
+  severity: 'ERROR',
+  code: '42703',
+  detail: undefined,
+  hint: undefined,
+  position: '463',
+  internalPosition: undefined,
+  internalQuery: undefined,
+  where: undefined,
+  schema: undefined,
+  table: undefined,
+  column: undefined,
+  dataType: undefined,
+  constraint: undefined,
+  file: 'parse_relation.c',
+  line: '3722',
+  routine: 'errorMissingColumn'
+}
