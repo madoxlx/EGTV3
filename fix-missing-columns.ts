@@ -1,3 +1,4 @@
+
 #!/usr/bin/env tsx
 
 import { Pool } from "pg";
@@ -9,20 +10,153 @@ console.log("🔧 إضافة الأعمدة المفقودة...");
 const pool = new Pool({
   connectionString: databaseUrl,
   ssl: false,
-  connectionTimeoutMillis: 30000,
-  max: 20,
+  connectionTimeoutMillis: 60000,
+  max: 10,
+  idleTimeoutMillis: 30000,
 });
 
 async function fixMissingColumns() {
+  let client;
   try {
+    client = await pool.connect();
+    console.log("🔌 تم الاتصال بقاعدة البيانات بنجاح");
+
+    console.log("🔨 إضافة أعمدة مفقودة في جدول homepage_sections...");
+    
+    // Check existing columns first
+    const existingColumns = await client.query(`
+      SELECT column_name 
+      FROM information_schema.columns 
+      WHERE table_name = 'homepage_sections' AND table_schema = 'public'
+      ORDER BY ordinal_position;
+    `);
+    
+    const columnNames = existingColumns.rows.map(row => row.column_name);
+    console.log("📋 أعمدة homepage_sections الحالية:", columnNames.length, "columns");
+
+    // Define all missing columns that might cause errors
+    const homepageMissingColumns = [
+      { name: 'features', type: 'JSONB DEFAULT \'[]\'::jsonb' },
+      { name: 'title_ar', type: 'TEXT' },
+      { name: 'subtitle_ar', type: 'TEXT' },
+      { name: 'description_ar', type: 'TEXT' },
+      { name: 'button_text_ar', type: 'TEXT' },
+      { name: 'feature1_title_ar', type: 'TEXT' },
+      { name: 'feature1_description_ar', type: 'TEXT' },
+      { name: 'feature2_title_ar', type: 'TEXT' },
+      { name: 'feature2_description_ar', type: 'TEXT' },
+      { name: 'tourists_label', type: 'TEXT DEFAULT \'Tourists\'' },
+      { name: 'destinations_label', type: 'TEXT DEFAULT \'Destinations\'' },
+      { name: 'hotels_label', type: 'TEXT DEFAULT \'Hotels\'' },
+      { name: 'tourists_label_ar', type: 'TEXT DEFAULT \'السياح\'' },
+      { name: 'destinations_label_ar', type: 'TEXT DEFAULT \'الوجهات\'' },
+      { name: 'hotels_label_ar', type: 'TEXT DEFAULT \'الفنادق\'' },
+      { name: '"order"', type: 'INTEGER DEFAULT 0' },
+      { name: 'created_by', type: 'INTEGER' },
+      { name: 'updated_by', type: 'INTEGER' },
+      { name: 'secondary_button_text', type: 'TEXT' },
+      { name: 'secondary_button_link', type: 'TEXT' },
+      { name: 'secondary_button_text_ar', type: 'TEXT' }
+    ];
+
+    for (const column of homepageMissingColumns) {
+      if (!columnNames.includes(column.name.replace(/"/g, ''))) {
+        try {
+          await client.query(`ALTER TABLE homepage_sections ADD COLUMN IF NOT EXISTS ${column.name} ${column.type};`);
+          console.log(`  ✅ عمود ${column.name} تم إضافته`);
+        } catch (error) {
+          console.log(`  ⚠️ عمود ${column.name}: ${error.message}`);
+        }
+      } else {
+        console.log(`  ⏭️ عمود ${column.name} موجود بالفعل`);
+      }
+    }
+
     console.log("🔨 إضافة أعمدة مفقودة في جدول packages...");
     
-    // Add missing category column (should reference category_id)
-    // The error suggests we need "category" but we have "category_id", so let's add both
-    await pool.query(`ALTER TABLE packages ADD COLUMN IF NOT EXISTS category TEXT;`);
+    // Check packages table columns
+    const packageColumns = await client.query(`
+      SELECT column_name 
+      FROM information_schema.columns 
+      WHERE table_name = 'packages' AND table_schema = 'public'
+      ORDER BY ordinal_position;
+    `);
     
-    // Update category based on category_id if we have sample data
-    await pool.query(`
+    const packageColumnNames = packageColumns.rows.map(row => row.column_name);
+    console.log("📋 أعمدة packages الحالية:", packageColumnNames.length, "columns");
+
+    // Define missing package columns that cause errors
+    const packageMissingColumns = [
+      { name: 'route', type: 'TEXT' },
+      { name: 'accommodation_highlights', type: 'JSONB DEFAULT \'[]\'::jsonb' },
+      { name: 'what_to_pack', type: 'JSONB DEFAULT \'[]\'::jsonb' },
+      { name: 'travel_route', type: 'TEXT' },
+      { name: 'selected_tour_id', type: 'INTEGER' },
+      { name: 'transportation', type: 'JSONB DEFAULT \'{}\'::jsonb' },
+      { name: 'category', type: 'TEXT' }
+    ];
+
+    for (const column of packageMissingColumns) {
+      if (!packageColumnNames.includes(column.name)) {
+        try {
+          await client.query(`ALTER TABLE packages ADD COLUMN IF NOT EXISTS ${column.name} ${column.type};`);
+          console.log(`  ✅ عمود ${column.name} تم إضافته في packages`);
+        } catch (error) {
+          console.log(`  ⚠️ عمود ${column.name} في packages: ${error.message}`);
+        }
+      } else {
+        console.log(`  ⏭️ عمود ${column.name} موجود بالفعل في packages`);
+      }
+    }
+
+    console.log("🔨 إضافة أعمدة مفقودة في جدول users...");
+    
+    // Check users table columns
+    const userColumns = await client.query(`
+      SELECT column_name 
+      FROM information_schema.columns 
+      WHERE table_name = 'users' AND table_schema = 'public'
+      ORDER BY ordinal_position;
+    `);
+    
+    const userColumnNames = userColumns.rows.map(row => row.column_name);
+    console.log("📋 أعمدة users الحالية:", userColumnNames.length, "columns");
+
+    // Define missing user columns
+    const userMissingColumns = [
+      { name: 'date_of_birth', type: 'DATE' },
+      { name: 'passport_number', type: 'TEXT' },
+      { name: 'passport_expiry', type: 'DATE' },
+      { name: 'emergency_contact', type: 'TEXT' },
+      { name: 'emergency_phone', type: 'TEXT' },
+      { name: 'preferred_language', type: 'TEXT DEFAULT \'en\'' },
+      { name: 'email_notifications', type: 'BOOLEAN DEFAULT true' },
+      { name: 'sms_notifications', type: 'BOOLEAN DEFAULT true' },
+      { name: 'marketing_emails', type: 'BOOLEAN DEFAULT false' },
+      { name: 'email_verified', type: 'BOOLEAN DEFAULT false' },
+      { name: 'phone_verified', type: 'BOOLEAN DEFAULT false' },
+      { name: 'last_login_at', type: 'TIMESTAMP' },
+      { name: 'login_count', type: 'INTEGER DEFAULT 0' },
+      { name: 'profile_picture_url', type: 'TEXT' },
+      { name: 'timezone', type: 'TEXT DEFAULT \'UTC\'' }
+    ];
+
+    for (const column of userMissingColumns) {
+      if (!userColumnNames.includes(column.name)) {
+        try {
+          await client.query(`ALTER TABLE users ADD COLUMN IF NOT EXISTS ${column.name} ${column.type};`);
+          console.log(`  ✅ عمود ${column.name} تم إضافته في users`);
+        } catch (error) {
+          console.log(`  ⚠️ عمود ${column.name} في users: ${error.message}`);
+        }
+      } else {
+        console.log(`  ⏭️ عمود ${column.name} موجود بالفعل في users`);
+      }
+    }
+
+    // Update packages with category based on category_id if needed
+    console.log("🔄 تحديث فئات الحزم...");
+    await client.query(`
       UPDATE packages SET category = 
         CASE 
           WHEN category_id = 1 THEN 'Cultural Tours'
@@ -32,121 +166,44 @@ async function fixMissingColumns() {
           WHEN category_id = 5 THEN 'Desert Safari'
           ELSE 'General'
         END
-      WHERE category IS NULL;
+      WHERE category IS NULL OR category = '';
     `);
 
-    console.log("  ✅ عمود category تم إضافته");
-
-    console.log("🔨 إضافة أعمدة مفقودة في جدول homepage_sections...");
-    
-    // Check what columns exist in homepage_sections
-    const homepageColumns = await pool.query(`
-      SELECT column_name 
-      FROM information_schema.columns 
-      WHERE table_name = 'homepage_sections' AND table_schema = 'public'
-      ORDER BY ordinal_position;
-    `);
-    
-    console.log("📋 أعمدة homepage_sections الحالية:", homepageColumns.rows.map(r => r.column_name));
-
-    // Add missing columns for homepage_sections
-    const missingHomepageColumns = [
-      'description TEXT',
-      'subtitle TEXT', 
-      'button_text TEXT',
-      'button_link TEXT',
-      'secondary_button_text TEXT',
-      'secondary_button_link TEXT',
-      'tourists_count TEXT DEFAULT \'5000+\'',
-      'destinations_count TEXT DEFAULT \'300+\'',
-      'hotels_count TEXT DEFAULT \'200+\'',
-      'show_statistics BOOLEAN DEFAULT false',
-      'featured_item1_title TEXT',
-      'featured_item1_description TEXT', 
-      'featured_item1_icon TEXT',
-      'featured_item2_title TEXT',
-      'featured_item2_description TEXT',
-      'featured_item2_icon TEXT',
-      'background_color TEXT DEFAULT \'#ffffff\'',
-      'text_color TEXT DEFAULT \'#000000\'',
-      'image_position TEXT DEFAULT \'left\'',
-      'order_position INTEGER DEFAULT 0',
-      'active BOOLEAN DEFAULT true',
-      'created_at TIMESTAMP DEFAULT NOW()',
-      'updated_at TIMESTAMP DEFAULT NOW()'
-    ];
-
-    for (const column of missingHomepageColumns) {
-      const columnName = column.split(' ')[0];
-      try {
-        await pool.query(`ALTER TABLE homepage_sections ADD COLUMN IF NOT EXISTS ${column};`);
-        console.log(`  ✅ عمود ${columnName} تم إضافته`);
-      } catch (error) {
-        console.log(`  ⚠️ عمود ${columnName} موجود بالفعل أو فشل إضافته`);
-      }
-    }
-
-    console.log("🔨 التحقق من جداول أخرى قد تحتاج أعمدة...");
-
-    // Check if countries table is empty
-    const countriesCount = await pool.query(`SELECT COUNT(*) FROM countries;`);
-    console.log(`📊 عدد البلدان: ${countriesCount.rows[0].count}`);
-    
-    if (parseInt(countriesCount.rows[0].count) === 0) {
-      console.log("🌍 إضافة بيانات البلدان الأساسية...");
-      await pool.query(`
-        INSERT INTO countries (name, code, description) VALUES
-        ('Egypt', 'EG', 'The land of pharaohs and ancient wonders'),
-        ('Jordan', 'JO', 'The Hashemite Kingdom with ancient Petra'),
-        ('UAE', 'AE', 'Modern cities and desert adventures'),
-        ('Morocco', 'MA', 'The gateway to Africa with rich culture'),
-        ('Turkey', 'TR', 'Bridge between Europe and Asia');
-      `);
-      console.log("✅ بيانات البلدان تم إضافتها");
-    }
-
-    // Add some sample packages if none exist
-    const packagesCount = await pool.query(`SELECT COUNT(*) FROM packages;`);
-    console.log(`📦 عدد الحزم: ${packagesCount.rows[0].count}`);
-    
-    if (parseInt(packagesCount.rows[0].count) === 0) {
-      console.log("📦 إضافة حزم تجريبية...");
-      await pool.query(`
-        INSERT INTO packages (
-          title, name, description, short_description, overview, price, 
-          currency, duration, category, featured, active, type
-        ) VALUES
-        ('Cairo City Tour', 'Cairo City Tour', 'Explore the vibrant capital of Egypt', 'Full day Cairo exploration', 'Visit the most iconic landmarks of Cairo including the Pyramids', 99.99, 'USD', 1, 'Cultural Tours', true, true, 'package'),
-        ('Luxor Adventure', 'Luxor Adventure', 'Journey through ancient Egyptian history', 'Historical sites tour', 'Discover the treasures of ancient Thebes', 149.99, 'USD', 2, 'Adventure Travel', true, true, 'package'),
-        ('Red Sea Diving', 'Red Sea Diving', 'Underwater exploration in the Red Sea', 'Diving experience', 'World-class diving sites with vibrant coral reefs', 199.99, 'USD', 3, 'Adventure Travel', false, true, 'package');
-      `);
-      console.log("✅ حزم تجريبية تم إضافتها");
-    }
-
-    // Test the queries that were failing
-    console.log("🧪 اختبار الاستعلامات...");
+    // Test critical API queries
+    console.log("🧪 اختبار الاستعلامات الحرجة...");
     
     try {
-      const packages = await pool.query('SELECT id, title, category, price FROM packages LIMIT 3');
-      console.log(`✅ استعلام الحزم نجح - وجدت ${packages.rows.length} حزم`);
+      const homepageTest = await client.query('SELECT id, title, features FROM homepage_sections LIMIT 1');
+      console.log(`✅ استعلام homepage_sections نجح`);
     } catch (error) {
-      console.log("❌ فشل استعلام الحزم:", error.message);
+      console.log("❌ فشل استعلام homepage_sections:", error.message);
     }
 
     try {
-      const homepage = await pool.query('SELECT id, title, description FROM homepage_sections LIMIT 3');
-      console.log(`✅ استعلام أقسام الصفحة الرئيسية نجح - وجدت ${homepage.rows.length} أقسام`);
+      const packagesTest = await client.query('SELECT id, title, category, route FROM packages LIMIT 1');
+      console.log(`✅ استعلام packages نجح`);
     } catch (error) {
-      console.log("❌ فشل استعلام أقسام الصفحة الرئيسية:", error.message);
+      console.log("❌ فشل استعلام packages:", error.message);
     }
 
-    console.log("🎉 إضافة الأعمدة المفقودة اكتملت!");
+    try {
+      const usersTest = await client.query('SELECT id, username, date_of_birth FROM users LIMIT 1');
+      console.log(`✅ استعلام users نجح`);
+    } catch (error) {
+      console.log("❌ فشل استعلام users:", error.message);
+    }
+
+    console.log("🎉 إضافة الأعمدة المفقودة اكتملت بنجاح!");
 
   } catch (error) {
     console.error("❌ خطأ في إضافة الأعمدة:", error);
     throw error;
   } finally {
+    if (client) {
+      client.release();
+    }
     await pool.end();
+    console.log("🔌 تم إغلاق الاتصال بقاعدة البيانات");
   }
 }
 
