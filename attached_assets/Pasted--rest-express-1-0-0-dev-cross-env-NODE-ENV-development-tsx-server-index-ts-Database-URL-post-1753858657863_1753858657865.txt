@@ -1,0 +1,242 @@
+> rest-express@1.0.0 dev
+> cross-env NODE_ENV=development tsx server/index.ts
+
+Database URL: postgresql:****@20.77.106.39:5432/mydb
+Attempting to connect to external PostgreSQL database...
+Database URL: postgresql:****@20.77.106.39:5432/mydb
+🔑 Google AI API Key status: Found (AIzaSyBLsu...)
+🔍 Full environment check: {
+  hasGoogleAIKey: false,
+  hasOldGoogleKey: false,
+  hasGeminiKey: false,
+  nodeEnv: 'development',
+  keyLength: 39,
+  usingFallback: true
+}
+⏳ Waiting for database initialization...
+❌ Failed to connect to external database:
+⏱️  Connection timeout: The database server may be unreachable or overloaded.
+📝 Please check:
+   1. Database server is running and accessible
+   2. Firewall allows connections from external IPs
+   3. pg_hba.conf includes entry for external connections
+   4. Credentials are correct
+📦 Using fallback storage due to database connection issues.
+🔐 Setting up admin users...
+❌ Error setting up admin users: Error: Connection terminated due to connection timeout
+    at /home/runner/workspace/node_modules/pg-pool/index.js:45:11
+    at process.processTicksAndRejections (node:internal/process/task_queues:95:5)
+    at async <anonymous> (/home/runner/workspace/node_modules/src/node-postgres/session.ts:104:19)
+    at async setupAdmin (/home/runner/workspace/server/admin-setup.ts:20:27)
+    at async <anonymous> (/home/runner/workspace/server/index.ts:134:7) {
+  [cause]: Error: Connection terminated unexpectedly
+      at Connection.<anonymous> (/home/runner/workspace/node_modules/pg/lib/client.js:136:73)
+      at Object.onceWrapper (node:events:638:28)
+      at Connection.emit (node:events:524:28)
+      at Socket.<anonymous> (/home/runner/workspace/node_modules/pg/lib/connection.js:62:12)
+      at Socket.emit (node:events:524:28)
+      at TCP.<anonymous> (node:net:343:12)
+}
+✅ Admin setup completed
+✅ Unified auth setup completed
+✅ Hero slides routes setup completed
+🔧 Setting up upload routes...
+✅ Upload routes and static serving setup completed
+🔧 Setting up upload routes...
+✅ API routes registered successfully
+⚠️  Skipping automatic database initialization to prevent startup delays
+💡 Database is already configured and ready to use
+✅ Vite development setup completed
+6:57:02 AM [express] ✅ Server serving on port 8080
+🌍 Application available at http://localhost:8080
+🔧 Session Debug - GET /src/lib/admin-route.tsx
+   Session ID: KJ3M2s6IvtmdQ5WhP33cn6TfMQszuIpt
+   Session User: None
+🔧 Session Debug - GET /src/lib/admin-route.tsx
+   Session ID: i5TEEqNmOngMgIfRig_l5TLWr_cM6w0r
+   Session User: None
+⚠️  Database connection check failed: Connection terminated due to connection timeout
+🔧 Session Debug - GET /src/components/admin/SessionGuard.tsx
+   Session ID: PEidFgVndDtXYdx98oRaDiBb6N-XSN5K
+   Session User: None
+🔥 API ROUTE DEBUG: GET /api/menus/location/header
+🔥 Query params: {}
+🔥 STORAGE: getMenuByLocation called with location: header
+🔥 API ROUTE DEBUG: GET /api/cities
+🔥 Query params: {}
+🔥 API ROUTE DEBUG: GET /api/destinations
+🔥 Query params: {}
+🔥 API ROUTE DEBUG: GET /api/countries
+🔥 Query params: {}
+🔥 API ROUTE: GET /api/countries
+🔥 Query params: {}
+🔥 Active filter: undefined
+🔍 listCountries called with active: undefined
+🔥 API ROUTE DEBUG: GET /api/packages
+🔥 Query params: {}
+❌ STORAGE ERROR getting menu by location: Error: Connection terminated due to connection timeout
+    at /home/runner/workspace/node_modules/pg-pool/index.js:45:11
+    at process.processTicksAndRejections (node:internal/process/task_queues:95:5)
+    at async <anonymous> (/home/runner/workspace/node_modules/src/node-postgres/session.ts:104:19)
+    at async DatabaseStorage.getMenuByLocation (/home/runner/workspace/server/storage.ts:1195:22)
+    at async <anonymous> (/home/runner/workspace/server/routes.ts:4717:20) {
+  [cause]: Error: Connection terminated unexpectedly
+      at Connection.<anonymous> (/home/runner/workspace/node_modules/pg/lib/client.js:136:73)
+      at Object.onceWrapper (node:events:638:28)
+      at Connection.emit (node:events:524:28)
+      at Socket.<anonymous> (/home/runner/workspace/node_modules/pg/lib/connection.js:62:12)
+      at Socket.emit (node:events:524:28)
+      at TCP.<anonymous> (node:net:343:12)
+}
+❌ Stack trace: Error: Connection terminated due to connection timeout
+    at /home/runner/workspace/node_modules/pg-pool/index.js:45:11
+    at process.processTicksAndRejections (node:internal/process/task_queues:95:5)
+    at async <anonymous> (/home/runner/workspace/node_modules/src/node-postgres/session.ts:104:19)
+    at async DatabaseStorage.getMenuByLocation (/home/runner/workspace/server/storage.ts:1195:22)
+    at async <anonymous> (/home/runner/workspace/server/routes.ts:4717:20)
+6:57:24 AM [express] GET /api/menus/location/header 404 in 10034ms
+Error listing cities: Error: Connection terminated due to connection timeout
+    at /home/runner/workspace/node_modules/pg-pool/index.js:45:11
+    at process.processTicksAndRejections (node:internal/process/task_queues:95:5)
+    at async <anonymous> (/home/runner/workspace/node_modules/src/node-postgres/session.ts:104:19)
+    at async DatabaseStorage.listCities (/home/runner/workspace/server/storage.ts:421:14)
+    at async <anonymous> (/home/runner/workspace/server/routes.ts:1252:22) {
+  [cause]: Error: Connection terminated unexpectedly
+      at Connection.<anonymous> (/home/runner/workspace/node_modules/pg/lib/client.js:136:73)
+      at Object.onceWrapper (node:events:638:28)
+      at Connection.emit (node:events:524:28)
+      at Socket.<anonymous> (/home/runner/workspace/node_modules/pg/lib/connection.js:62:12)
+      at Socket.emit (node:events:524:28)
+      at TCP.<anonymous> (node:net:343:12)
+}
+6:57:24 AM [express] GET /api/cities 200 in 10006ms
+Error listing destinations: Error: Connection terminated due to connection timeout
+    at /home/runner/workspace/node_modules/pg-pool/index.js:45:11
+    at process.processTicksAndRejections (node:internal/process/task_queues:95:5)
+    at async <anonymous> (/home/runner/workspace/node_modules/src/node-postgres/session.ts:104:19)
+    at async DatabaseStorage.listDestinations (/home/runner/workspace/server/storage.ts:512:14)
+    at async <anonymous> (/home/runner/workspace/server/routes.ts:529:28) {
+  [cause]: Error: Connection terminated unexpectedly
+      at Connection.<anonymous> (/home/runner/workspace/node_modules/pg/lib/client.js:136:73)
+      at Object.onceWrapper (node:events:638:28)
+      at Connection.emit (node:events:524:28)
+      at Socket.<anonymous> (/home/runner/workspace/node_modules/pg/lib/connection.js:62:12)
+      at Socket.emit (node:events:524:28)
+      at TCP.<anonymous> (node:net:343:12)
+}
+6:57:24 AM [express] GET /api/destinations 200 in 10005ms
+Error listing tour categories: Error: Connection terminated due to connection timeout
+    at /home/runner/workspace/node_modules/pg-pool/index.js:45:11
+    at process.processTicksAndRejections (node:internal/process/task_queues:95:5)
+    at async DatabaseStorage.listTourCategories (/home/runner/workspace/server/storage.ts:1490:22)
+    at async <anonymous> (/home/runner/workspace/server/index.ts:188:28) {
+  [cause]: Error: Connection terminated unexpectedly
+      at Connection.<anonymous> (/home/runner/workspace/node_modules/pg/lib/client.js:136:73)
+      at Object.onceWrapper (node:events:638:28)
+      at Connection.emit (node:events:524:28)
+      at Socket.<anonymous> (/home/runner/workspace/node_modules/pg/lib/connection.js:62:12)
+      at Socket.emit (node:events:524:28)
+      at TCP.<anonymous> (node:net:343:12)
+}
+6:57:24 AM [express] GET /api/tour-categories 200 in 10003ms
+Error listing countries: Error: Connection terminated due to connection timeout
+    at /home/runner/workspace/node_modules/pg-pool/index.js:45:11
+    at process.processTicksAndRejections (node:internal/process/task_queues:95:5)
+    at async <anonymous> (/home/runner/workspace/node_modules/src/node-postgres/session.ts:104:19)
+    at async DatabaseStorage.listCountries (/home/runner/workspace/server/storage.ts:363:18)
+    at async <anonymous> (/home/runner/workspace/server/routes.ts:1198:25) {
+  [cause]: Error: Connection terminated unexpectedly
+      at Connection.<anonymous> (/home/runner/workspace/node_modules/pg/lib/client.js:136:73)
+      at Object.onceWrapper (node:events:638:28)
+      at Connection.emit (node:events:524:28)
+      at Socket.<anonymous> (/home/runner/workspace/node_modules/pg/lib/connection.js:62:12)
+      at Socket.emit (node:events:524:28)
+      at TCP.<anonymous> (node:net:343:12)
+}
+🔥 Countries returned from storage: 0
+6:57:24 AM [express] GET /api/countries 200 in 10002ms
+🔥 API ROUTE DEBUG: GET /api/menus/location/footer
+🔥 Query params: {}
+🔥 STORAGE: getMenuByLocation called with location: footer
+🔥 API ROUTE DEBUG: GET /api/homepage-sections?active=true
+🔥 Query params: { active: 'true' }
+Error listing packages: Error: Connection terminated due to connection timeout
+    at /home/runner/workspace/node_modules/pg-pool/index.js:45:11
+    at process.processTicksAndRejections (node:internal/process/task_queues:95:5)
+    at async <anonymous> (/home/runner/workspace/node_modules/src/node-postgres/session.ts:104:19)
+    at async DatabaseStorage.listPackages (/home/runner/workspace/server/storage.ts:633:14)
+    at async <anonymous> (/home/runner/workspace/server/routes.ts:594:24) {
+  [cause]: Error: Connection terminated unexpectedly
+      at Connection.<anonymous> (/home/runner/workspace/node_modules/pg/lib/client.js:136:73)
+      at Object.onceWrapper (node:events:638:28)
+      at Connection.emit (node:events:524:28)
+      at Socket.<anonymous> (/home/runner/workspace/node_modules/pg/lib/connection.js:62:12)
+      at Socket.emit (node:events:524:28)
+      at TCP.<anonymous> (node:net:343:12)
+}
+6:57:24 AM [express] GET /api/packages 200 in 10004ms
+❌ STORAGE ERROR getting menu by location: Error: Connection terminated due to connection timeout
+    at /home/runner/workspace/node_modules/pg-pool/index.js:45:11
+    at process.processTicksAndRejections (node:internal/process/task_queues:95:5)
+    at async <anonymous> (/home/runner/workspace/node_modules/src/node-postgres/session.ts:104:19)
+    at async DatabaseStorage.getMenuByLocation (/home/runner/workspace/server/storage.ts:1195:22)
+    at async <anonymous> (/home/runner/workspace/server/routes.ts:4717:20) {
+  [cause]: Error: Connection terminated unexpectedly
+      at Connection.<anonymous> (/home/runner/workspace/node_modules/pg/lib/client.js:136:73)
+      at Object.onceWrapper (node:events:638:28)
+      at Connection.emit (node:events:524:28)
+      at Socket.<anonymous> (/home/runner/workspace/node_modules/pg/lib/connection.js:62:12)
+      at Socket.emit (node:events:524:28)
+      at TCP.<anonymous> (node:net:343:12)
+}
+❌ Stack trace: Error: Connection terminated due to connection timeout
+    at /home/runner/workspace/node_modules/pg-pool/index.js:45:11
+    at process.processTicksAndRejections (node:internal/process/task_queues:95:5)
+    at async <anonymous> (/home/runner/workspace/node_modules/src/node-postgres/session.ts:104:19)
+    at async DatabaseStorage.getMenuByLocation (/home/runner/workspace/server/storage.ts:1195:22)
+    at async <anonymous> (/home/runner/workspace/server/routes.ts:4717:20)
+6:57:34 AM [express] GET /api/menus/location/footer 404 in 10016ms
+Error getting site language settings: Error: Connection terminated due to connection timeout
+    at /home/runner/workspace/node_modules/pg-pool/index.js:45:11
+    at process.processTicksAndRejections (node:internal/process/task_queues:95:5)
+    at async DatabaseStorage.getSiteLanguageSettings (/home/runner/workspace/server/storage.ts:1596:22)
+    at async <anonymous> (/home/runner/workspace/server/index.ts:199:26) {
+  [cause]: Error: Connection terminated unexpectedly
+      at Connection.<anonymous> (/home/runner/workspace/node_modules/pg/lib/client.js:136:73)
+      at Object.onceWrapper (node:events:638:28)
+      at Connection.emit (node:events:524:28)
+      at Socket.<anonymous> (/home/runner/workspace/node_modules/pg/lib/connection.js:62:12)
+      at Socket.emit (node:events:524:28)
+      at TCP.<anonymous> (node:net:343:12)
+}
+6:57:34 AM [express] GET /api/translations/settings 200 in 10009ms
+Error listing homepage sections: Error: Connection terminated due to connection timeout
+    at /home/runner/workspace/node_modules/pg-pool/index.js:45:11
+    at process.processTicksAndRejections (node:internal/process/task_queues:95:5)
+    at async <anonymous> (/home/runner/workspace/node_modules/src/node-postgres/session.ts:104:19)
+    at async DatabaseStorage.listHomepageSections (/home/runner/workspace/server/storage.ts:1124:16)
+    at async <anonymous> (/home/runner/workspace/server/routes.ts:6685:24) {
+  [cause]: Error: Connection terminated unexpectedly
+      at Connection.<anonymous> (/home/runner/workspace/node_modules/pg/lib/client.js:136:73)
+      at Object.onceWrapper (node:events:638:28)
+      at Connection.emit (node:events:524:28)
+      at Socket.<anonymous> (/home/runner/workspace/node_modules/pg/lib/connection.js:62:12)
+      at Socket.emit (node:events:524:28)
+      at TCP.<anonymous> (node:net:343:12)
+}
+6:57:34 AM [express] GET /api/homepage-sections 200 in 10024ms
+Error listing translations: Error: Connection terminated due to connection timeout
+    at /home/runner/workspace/node_modules/pg-pool/index.js:45:11
+    at process.processTicksAndRejections (node:internal/process/task_queues:95:5)
+    at async <anonymous> (/home/runner/workspace/node_modules/src/node-postgres/session.ts:104:19)
+    at async DatabaseStorage.listTranslations (/home/runner/workspace/server/storage.ts:1532:14)
+    at async <anonymous> (/home/runner/workspace/server/index.ts:176:30) {
+  [cause]: Error: Connection terminated unexpectedly
+      at Connection.<anonymous> (/home/runner/workspace/node_modules/pg/lib/client.js:136:73)
+      at Object.onceWrapper (node:events:638:28)
+      at Connection.emit (node:events:524:28)
+      at Socket.<anonymous> (/home/runner/workspace/node_modules/pg/lib/connection.js:62:12)
+      at Socket.emit (node:events:524:28)
+      at TCP.<anonymous> (node:net:343:12)
+}
+6:57:34 AM [express] GET /api/translations 200 in 10003ms
