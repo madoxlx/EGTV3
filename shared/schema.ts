@@ -1349,7 +1349,6 @@ export const insertDestinationSchema = createInsertSchema(destinations).omit({
 export const insertPackageSchema = createInsertSchema(packages)
   .pick({
     title: true,
-    description: true,
     shortDescription: true,
     overview: true,
     price: true,
