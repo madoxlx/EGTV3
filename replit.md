@@ -19,8 +19,8 @@ Sahara Journeys is a comprehensive travel booking platform specializing in Middl
 ### Backend Architecture
 - **Runtime**: Node.js with Express.js framework
 - **Language**: TypeScript for type safety
-- **Database**: Replit-managed PostgreSQL with Neon serverless driver
-- **Database ORM**: Drizzle ORM for PostgreSQL with WebSocket support
+- **Database**: External PostgreSQL database (31.97.114.175:5432/egt)
+- **Database ORM**: Drizzle ORM for PostgreSQL with node-postgres driver
 - **Authentication**: Session-based authentication with Passport.js
 - **Password Security**: Scrypt hashing algorithm
 - **File Uploads**: Multer middleware for handling file uploads
@@ -88,6 +88,15 @@ The application uses a comprehensive PostgreSQL schema with the following core e
 - Real-time translation updates through admin interface
 
 ## Recent Changes
+
+### External PostgreSQL Database Integration (July 30, 2025)
+- **Database Migration**: Successfully migrated from Neon serverless to external PostgreSQL database (31.97.114.175:5432/egt)
+- **Connection Configuration**: Updated server/db.ts to use standard PostgreSQL driver (node-postgres) instead of Neon serverless driver
+- **Environment Variables**: Configured DATABASE_URL as secure secret for external database connection string
+- **Table Creation**: Created complete database schema with all required tables (countries, cities, destinations, hotels, packages, rooms, users, package_categories)
+- **Basic Data Seeding**: Populated database with essential sample data (countries, cities, destinations, admin user, package categories)
+- **Application Verification**: Confirmed successful application startup with external database connectivity
+- **Production Ready**: Travel platform now fully operational with external PostgreSQL database hosting
 
 ### Database Schema Synchronization and Column Error Resolution (July 30, 2025)
 - **Critical Column Error Fix**: Successfully resolved "column 'accommodation_highlights' does not exist" error that was preventing packages API from functioning
