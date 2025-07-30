@@ -1,0 +1,121 @@
+
+> rest-express@1.0.0 dev
+> cross-env NODE_ENV=development tsx server/index.ts
+
+🔑 Google AI API Key status: Found (AIzaSyBLsu...)
+🔍 Full environment check: {
+  hasGoogleAIKey: false,
+  hasOldGoogleKey: false,
+  hasGeminiKey: false,
+  nodeEnv: 'development',
+  keyLength: 39,
+  usingFallback: true
+}
+✅ Database connection established
+🔐 Setting up admin users...
+✅ Main admin user already exists
+✅ Test admin user already exists
+✅ Admin setup completed
+✅ Unified auth setup completed
+✅ Hero slides routes setup completed
+🔧 Setting up upload routes...
+✅ Upload routes and static serving setup completed
+🔧 Setting up upload routes...
+✅ API routes registered successfully
+⚠️  Skipping automatic database initialization to prevent startup delays
+💡 Database is already configured and ready to use
+✅ Vite development setup completed
+8:04:58 AM [express] ✅ Server serving on port 8080
+🌍 Application available at http://localhost:8080
+✅ Database connection verified
+🔧 Session Debug - GET /src/lib/admin-route.tsx
+   Session ID: dF54a4-BUfap_U0BmFJU-Kc_xv7r6bbr
+   Session User: None
+🔧 Session Debug - GET /src/components/admin/SessionGuard.tsx
+   Session ID: 8blwSLNM5YclJbcBXbbayiLc_Hc4usWD
+   Session User: None
+🔥 API ROUTE DEBUG: GET /api/menus/location/header
+🔥 Query params: {}
+🔥 STORAGE: getMenuByLocation called with location: header
+🔥 API ROUTE DEBUG: GET /api/countries
+🔥 Query params: {}
+🔥 API ROUTE: GET /api/countries
+🔥 Query params: {}
+🔥 Active filter: undefined
+🔍 listCountries called with active: undefined
+🔥 API ROUTE DEBUG: GET /api/destinations
+🔥 Query params: {}
+🔥 STORAGE: getMenuByLocation query returned: 0 results
+🔥 STORAGE: Found menu: None
+8:05:05 AM [express] GET /api/menus/location/header 404 in 121ms
+🔥 API ROUTE DEBUG: GET /api/packages
+🔥 Query params: {}
+🔥 API ROUTE DEBUG: GET /api/homepage-sections?active=true
+🔥 Query params: { active: 'true' }
+Error listing packages: error: column "review_count" does not exist
+    at file:///home/runner/workspace/node_modules/@neondatabase/serverless/index.mjs:1345:74
+    at process.processTicksAndRejections (node:internal/process/task_queues:95:5)
+    at async NeonPreparedQuery.execute (/home/runner/workspace/node_modules/src/neon-serverless/session.ts:102:18)
+    at async DatabaseStorage.listPackages (/home/runner/workspace/server/storage.ts:633:14)
+    at async <anonymous> (/home/runner/workspace/server/routes.ts:594:24) {
+  length: 113,
+  severity: 'ERROR',
+  code: '42703',
+  detail: undefined,
+  hint: undefined,
+  position: '165',
+  internalPosition: undefined,
+  internalQuery: undefined,
+  where: undefined,
+  schema: undefined,
+  table: undefined,
+  column: undefined,
+  dataType: undefined,
+  constraint: undefined,
+  file: 'parse_relation.c',
+  line: '3722',
+  routine: 'errorMissingColumn'
+}
+8:05:05 AM [express] GET /api/packages 304 in 177ms
+🔥 API ROUTE DEBUG: GET /api/cities
+🔥 Query params: {}
+🔥 API ROUTE DEBUG: GET /api/menus/location/footer
+🔥 Query params: {}
+🔥 STORAGE: getMenuByLocation called with location: footer
+🔍 listCountries returning: 0 countries
+🔍 Sample data: undefined
+🔥 Countries returned from storage: 0
+8:05:05 AM [express] GET /api/countries 304 in 501ms
+8:05:05 AM [express] GET /api/destinations 304 in 499ms
+Error listing homepage sections: error: column "button_link" does not exist
+    at file:///home/runner/workspace/node_modules/@neondatabase/serverless/index.mjs:1345:74
+    at process.processTicksAndRejections (node:internal/process/task_queues:95:5)
+    at async NeonPreparedQuery.execute (/home/runner/workspace/node_modules/src/neon-serverless/session.ts:102:18)
+    at async DatabaseStorage.listHomepageSections (/home/runner/workspace/server/storage.ts:1124:16)
+    at async <anonymous> (/home/runner/workspace/server/routes.ts:6685:24) {
+  length: 111,
+  severity: 'ERROR',
+  code: '42703',
+  detail: undefined,
+  hint: undefined,
+  position: '78',
+  internalPosition: undefined,
+  internalQuery: undefined,
+  where: undefined,
+  schema: undefined,
+  table: undefined,
+  column: undefined,
+  dataType: undefined,
+  constraint: undefined,
+  file: 'parse_relation.c',
+  line: '3722',
+  routine: 'errorMissingColumn'
+}
+8:05:05 AM [express] GET /api/homepage-sections 304 in 476ms
+8:05:06 AM [express] GET /api/translations 304 in 121ms
+8:05:06 AM [express] GET /api/translations/settings 304 in 118ms
+8:05:06 AM [express] GET /api/cities 304 in 494ms
+8:05:06 AM [express] GET /api/tour-categories 304 in 500ms
+🔥 STORAGE: getMenuByLocation query returned: 0 results
+🔥 STORAGE: Found menu: None
+8:05:06 AM [express] GET /api/menus/location/footer 404 in 463ms
