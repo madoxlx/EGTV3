@@ -1,5 +1,4 @@
 import React from 'react';
-import { Layout } from '@/components/Layout';
 import { Card, CardContent, CardHeader, CardTitle, CardFooter } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Separator } from '@/components/ui/separator';
@@ -142,8 +141,7 @@ const TransportationSearchResults: React.FC = () => {
   ];
 
   return (
-    <Layout>
-      <div className="container mx-auto py-8 px-4">
+    <div className="container mx-auto py-8 px-4">
         <div className="mb-6">
           <h1 className="text-3xl font-bold mb-2">Transportation Search Results</h1>
           <p className="text-lg text-muted-foreground">
@@ -542,7 +540,6 @@ const TransportationSearchResults: React.FC = () => {
           </TabsContent>
         </Tabs>
       </div>
-    </Layout>
   );
 };
 
