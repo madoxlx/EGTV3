@@ -1,0 +1,72 @@
+Error listing packages: error: column "what_to_pack" does not exist
+    at file:///home/runner/workspace/node_modules/@neondatabase/serverless/index.mjs:1345:74
+    at process.processTicksAndRejections (node:internal/process/task_queues:95:5)
+    at async NeonPreparedQuery.execute (/home/runner/workspace/node_modules/src/neon-serverless/session.ts:102:18)
+    at async DatabaseStorage.listPackages (/home/runner/workspace/server/storage.ts:633:14)
+    at async <anonymous> (/home/runner/workspace/server/routes.ts:594:24) {
+  length: 113,
+  severity: 'ERROR',
+  code: '42703',
+  detail: undefined,
+  hint: undefined,
+  position: '431',
+  internalPosition: undefined,
+  internalQuery: undefined,
+  where: undefined,
+  schema: undefined,
+  table: undefined,
+  column: undefined,
+  dataType: undefined,
+  constraint: undefined,
+  file: 'parse_relation.c',
+  line: '3722',
+  routine: 'errorMissingColumn'
+}
+8:21:23 AM [express] GET /api/packages 200 in 144ms
+🔥 API ROUTE DEBUG: GET /api/homepage-sections?active=true
+🔥 Query params: { active: 'true' }
+8:21:23 AM [express] GET /api/homepage-sections 200 in 115ms
+🔥 API ROUTE DEBUG: GET /api/countries
+🔥 Query params: {}
+🔥 API ROUTE: GET /api/countries
+🔥 Query params: {}
+🔥 Active filter: undefined
+🔍 listCountries called with active: undefined
+🔍 listCountries returning: 3 countries
+🔍 Sample data: {
+  id: 1,
+  name: 'Egypt',
+  code: 'EG',
+  description: 'Land of Pharaohs',
+  imageUrl: 'https://images.unsplash.com/photo-1503177119275-0aa32b3a9368',
+  active: true,
+  createdAt: 2025-07-30T08:06:25.826Z,
+  updatedAt: 2025-07-30T08:06:25.826Z
+}
+🔥 Countries returned from storage: 3
+8:21:23 AM [express] GET /api/countries 200 in 126ms
+8:21:24 AM [express] GET /api/destinations 304 in 2480ms
+Error listing packages: error: column "what_to_pack" does not exist
+    at file:///home/runner/workspace/node_modules/@neondatabase/serverless/index.mjs:1345:74
+    at process.processTicksAndRejections (node:internal/process/task_queues:95:5)
+    at async NeonPreparedQuery.execute (/home/runner/workspace/node_modules/src/neon-serverless/session.ts:102:18)
+    at async DatabaseStorage.listPackages (/home/runner/workspace/server/storage.ts:633:14)
+    at async <anonymous> (/home/runner/workspace/server/routes.ts:594:24) {
+  length: 113,
+  severity: 'ERROR',
+  code: '42703',
+  detail: undefined,
+  hint: undefined,
+  position: '431',
+  internalPosition: undefined,
+  internalQuery: undefined,
+  where: undefined,
+  schema: undefined,
+  table: undefined,
+  column: undefined,
+  dataType: undefined,
+  constraint: undefined,
+  file: 'parse_relation.c',
+  line: '3722',
+  routine: 'errorMissingColumn'
+}

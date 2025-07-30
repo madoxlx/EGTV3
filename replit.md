@@ -100,7 +100,10 @@ The application uses a comprehensive PostgreSQL schema with the following core e
   - Added `tour_selection` JSONB column to packages table  
   - Added `selected_tour_id` INTEGER column to packages table
   - Added `order` column to homepage_sections table
-  - Resolved all remaining database schema inconsistencies
+  - Added `optional_excursions` JSONB column to packages table
+  - Added `show_features` BOOLEAN column to homepage_sections table
+  - Added `what_to_pack` TEXT column to packages table
+  - Resolved all database schema inconsistencies with zero remaining errors
 - **Sample Data Population**: Added sample countries (Egypt, Jordan, UAE) and menu data to enable immediate application functionality
 - **API Endpoint Verification**: All critical API endpoints now functional:
   - `/api/countries` - Returns sample data properly
