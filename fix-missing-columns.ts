@@ -56,7 +56,14 @@ async function fixMissingColumns() {
       { name: 'updated_by', type: 'INTEGER' },
       { name: 'secondary_button_text', type: 'TEXT' },
       { name: 'secondary_button_link', type: 'TEXT' },
-      { name: 'secondary_button_text_ar', type: 'TEXT' }
+      { name: 'secondary_button_text_ar', type: 'TEXT' },
+      { name: 'show_statistics', type: 'BOOLEAN DEFAULT true' },
+      { name: 'show_features', type: 'BOOLEAN DEFAULT true' },
+      { name: 'image_position', type: 'TEXT DEFAULT \'left\'' },
+      { name: 'background_color', type: 'TEXT DEFAULT \'white\'' },
+      { name: 'text_color', type: 'TEXT DEFAULT \'black\'' },
+      { name: 'feature1_icon', type: 'TEXT DEFAULT \'calendar\'' },
+      { name: 'feature2_icon', type: 'TEXT DEFAULT \'user-check\'' }
     ];
 
     for (const column of homepageMissingColumns) {
