@@ -1,20 +1,17 @@
-import { Pool } from 'pg';
-import { drizzle } from 'drizzle-orm/node-postgres';
+import { Pool } from "pg";
+import { drizzle } from "drizzle-orm/node-postgres";
 import * as schema from "@shared/schema";
 
-if (!process.env.DATABASE_URL) {
-  throw new Error(
-    "DATABASE_URL must be set. Did you forget to provision a database?",
-  );
-}
+// اتصال مباشر بقاعدة البيانات
+const connectionString =
+  "postgresql://postgres:MyStrongPAssw0rds@31.97.114.175:5432/egt";
 
-export const pool = new Pool({ 
-  connectionString: process.env.DATABASE_URL,
-  ssl: false // Disable SSL for your external PostgreSQL
+export const pool = new Pool({
+  connectionString,
+  ssl: false, // لو السيرفر مش بيحتاج SSL، خليه false
 });
+
 export const db = drizzle(pool, { schema });
 
-// Add dbPromise for compatibility with existing code
+// للتماشي مع الكود الموجود اللي بيعتمد على dbPromise
 export const dbPromise = Promise.resolve(db);
-
-

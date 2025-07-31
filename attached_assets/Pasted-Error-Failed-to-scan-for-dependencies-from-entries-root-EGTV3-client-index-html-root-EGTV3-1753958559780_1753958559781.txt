@@ -1,0 +1,170 @@
+Error:   Failed to scan for dependencies from entries:
+  /root/EGTV3/client/index.html
+/root/EGTV3/client/public/admin-test.html
+
+  ✘ [ERROR] Unexpected closing "TabsContent" tag does not match opening "div" tag
+
+    client/src/pages/admin/EnhancedHotelEditPage.tsx:1917:16:
+      1917 │               </TabsContent>
+           │                 ~~~~~~~~~~~
+           ╵                 div
+
+  The opening "div" tag is here:
+
+    client/src/pages/admin/EnhancedHotelEditPage.tsx:1845:19:
+      1845 │                   <div className="flex items-center justify-betw...
+           ╵                    ~~~
+
+
+✘ [ERROR] Unexpected closing "Tabs" tag does not match opening "div" tag
+
+    client/src/pages/admin/EnhancedHotelEditPage.tsx:1918:14:
+      1918 │             </Tabs>
+           │               ~~~~
+           ╵               div
+
+  The opening "div" tag is here:
+
+    client/src/pages/admin/EnhancedHotelEditPage.tsx:1844:17:
+      1844 │                 <div className="space-y-4">
+           ╵                  ~~~
+
+
+✘ [ERROR] Unexpected closing "form" tag does not match opening "TabsContent" tag
+
+    client/src/pages/admin/EnhancedHotelEditPage.tsx:1938:12:
+      1938 │           </form>
+           │             ~~~~
+           ╵             TabsContent
+
+  The opening "TabsContent" tag is here:
+
+    client/src/pages/admin/EnhancedHotelEditPage.tsx:1837:15:
+      1837 │               <TabsContent value="rooms-faqs" className="space-y...
+           ╵                ~~~~~~~~~~~
+
+
+✘ [ERROR] Unexpected closing "Form" tag does not match opening "Tabs" tag
+
+    client/src/pages/admin/EnhancedHotelEditPage.tsx:1939:10:
+      1939 │         </Form>
+           │           ~~~~
+           ╵           Tabs
+
+  The opening "Tabs" tag is here:
+
+    client/src/pages/admin/EnhancedHotelEditPage.tsx:862:13:
+      862 │             <Tabs defaultValue="basic" className="w-full">
+          ╵              ~~~~
+
+
+✘ [ERROR] The character "}" is not valid inside a JSX element
+
+    client/src/pages/admin/EnhancedHotelEditPage.tsx:1940:7:
+      1940 │       )}
+           │        ^
+           ╵        {'}'}
+
+  Did you mean to escape it as "{'}'}" instead?
+
+
+✘ [ERROR] Unexpected closing "div" tag does not match opening "form" tag
+
+    client/src/pages/admin/EnhancedHotelEditPage.tsx:1963:6:
+      1963 │     </div>
+           │       ~~~
+           ╵       form
+
+  The opening "form" tag is here:
+
+    client/src/pages/admin/EnhancedHotelEditPage.tsx:861:11:
+      861 │           <form onSubmit={form.handleSubmit(onSubmit)} className=...
+          ╵            ~~~~
+
+
+✘ [ERROR] The character "}" is not valid inside a JSX element
+
+    client/src/pages/admin/EnhancedHotelEditPage.tsx:1965:0:
+      1965 │ }
+           │ ^
+           ╵ {'}'}
+
+  Did you mean to escape it as "{'}'}" instead?
+
+
+✘ [ERROR] Unexpected end of file before a closing "Form" tag
+
+    client/src/pages/admin/EnhancedHotelEditPage.tsx:1966:0:
+      1966 │
+           │ ^
+           ╵ </Form>
+
+  The opening "Form" tag is here:
+
+    client/src/pages/admin/EnhancedHotelEditPage.tsx:860:9:
+      860 │         <Form {...form}>
+          ╵          ~~~~
+
+
+    at failureErrorWithLog (/root/EGTV3/node_modules/vite/node_modules/esbuild/lib/main.js:1472:15)
+    at /root/EGTV3/node_modules/vite/node_modules/esbuild/lib/main.js:945:25
+    at runOnEndCallbacks (/root/EGTV3/node_modules/vite/node_modules/esbuild/lib/main.js:1315:45)
+    at buildResponseToResult (/root/EGTV3/node_modules/vite/node_modules/esbuild/lib/main.js:943:7)
+    at /root/EGTV3/node_modules/vite/node_modules/esbuild/lib/main.js:955:9
+    at new Promise (<anonymous>)
+    at requestCallbacks.on-end (/root/EGTV3/node_modules/vite/node_modules/esbuild/lib/main.js:954:54)
+    at handleRequest (/root/EGTV3/node_modules/vite/node_modules/esbuild/lib/main.js:647:17)
+    at handleIncomingPacket (/root/EGTV3/node_modules/vite/node_modules/esbuild/lib/main.js:672:7)
+    at Socket.readFromStdout (/root/EGTV3/node_modules/vite/node_modules/esbuild/lib/main.js:600:7)
+root@srv934099:~/EGTV3# Error:   Failed to scan for dependencies from entries:
+  /root/EGTV3/client/index.html
+/root/EGTV3/client/public/admin-test.html
+
+  ✘ [ERROR] Unexpected closing "TabsContent" tag does not match opening "div" tag
+
+    client/src/pages/admin/EnhancedHotelEditPage.tsx:1917:16:
+      1917 │               </TabsContent>
+           │                 ~~~~~~~~~~~
+           ╵                 div
+
+  The opening "div" tag is here:
+
+    client/src/pages/admin/EnhancedHotelEditPage.tsx:1845:19:
+      1845 │                   <div className="flex items-center justify-betw...
+           ╵                    ~~~
+
+
+✘ [ERROR] Unexpected closing "Tabs" tag does not match opening "div" tag
+
+    client/src/pages/admin/EnhancedHotelEditPage.tsx:1918:14:
+      1918 │             </Tabs>
+           │               ~~~~
+           ╵               div
+
+  The opening "div" tag is here:
+
+    client/src/pages/admin/EnhancedHotelEditPage.tsx:1844:17:
+      1844 │                 <div className="space-y-4">
+           ╵                  ~~~
+
+
+✘ [ERROR] Unexpected closing "form" tag does not match opening "TabsContent" tag
+
+    client/src/pages/admin/EnhancedHotelEditPage.tsx:1938:12:
+      1938 │           </form>
+           │             ~~~~
+           ╵             TabsContent
+
+  The opening "TabsContent" tag is here:
+
+    client/src/pages/admin/EnhancedHotelEditPage.tsx:1837:15:
+      1837 │               <TabsContent value="rooms-faqs" className="space-y...
+           ╵                ~~~~~~~~~~~
+
+
+✘ [ERROR] Unexpected closing "Form" tag does not match opening "Tabs" tag
+
+    client/src/pages/admin/EnhancedHotelEditPage.tsx:1939:10:
+      1939 │         </Form>
+           │           ~~~~
+r
