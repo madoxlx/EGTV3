@@ -300,7 +300,7 @@ export default function EnhancedHotelEditPage() {
   const [selectedCountryId, setSelectedCountryId] = useState<number | null>(
     null,
   );
-  
+
   // Features state for the new visual grid interface
   const [hotelFeatures, setHotelFeatures] = useState<{ name: string; icon: string }[]>([]);
   const [customFeatureName, setCustomFeatureName] = useState("");
@@ -1426,7 +1426,7 @@ export default function EnhancedHotelEditPage() {
                     <Check className="h-4 w-4" />
                     Available Features
                   </h4>
-                  
+
                   <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-3">
                     {predefinedFeatures.map((feature, index) => {
                       const isSelected = hotelFeatures.some(f => f.name === feature.name);
@@ -1447,7 +1447,7 @@ export default function EnhancedHotelEditPage() {
                           }`}>
                             {isSelected && <Check className="h-3 w-3 text-white" />}
                           </div>
-                          
+
                           <div className="flex items-center gap-2 flex-1">
                             {(() => {
                               const IconComponent = featureIconOptions.find(option => option.name === feature.icon)?.component;
@@ -1467,7 +1467,7 @@ export default function EnhancedHotelEditPage() {
                     <Plus className="h-4 w-4" />
                     Add Custom Feature
                   </h4>
-                  
+
                   <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
                     <div className="space-y-2">
                       <label className="text-sm font-medium">Feature Name</label>
@@ -1477,7 +1477,7 @@ export default function EnhancedHotelEditPage() {
                         placeholder="Enter feature name"
                       />
                     </div>
-                    
+
                     <div className="space-y-2">
                       <label className="text-sm font-medium">Icon</label>
                       <Select value={customFeatureIcon} onValueChange={setCustomFeatureIcon}>
@@ -1496,7 +1496,7 @@ export default function EnhancedHotelEditPage() {
                         </SelectContent>
                       </Select>
                     </div>
-                    
+
                     <div className="flex items-end">
                       <Button
                         type="button"
@@ -1520,7 +1520,7 @@ export default function EnhancedHotelEditPage() {
                       </Badge>
                       Selected Features
                     </h4>
-                    
+
                     <div className="flex flex-wrap gap-2">
                       {hotelFeatures.map((feature, index) => (
                         <div
