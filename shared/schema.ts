@@ -1,6 +1,7 @@
 import {
   pgTable,
   text,
+  varchar,
   integer,
   serial,
   primaryKey,
@@ -18,9 +19,11 @@ import { z } from "zod";
 export const countries = pgTable("countries", {
   id: serial("id").primaryKey(),
   name: text("name").notNull(),
-  code: text("code").notNull(),
-  description: text("description"),
-  imageUrl: text("image_url"),
+  nameAr: text("name_ar"),
+  code: varchar("code", { length: 3 }).notNull(),
+  flagUrl: text("flag_url"),
+  currency: varchar("currency", { length: 3 }),
+  language: varchar("language", { length: 50 }),
   active: boolean("active").default(true),
   createdAt: timestamp("created_at").notNull().defaultNow(),
   updatedAt: timestamp("updated_at").defaultNow(),
