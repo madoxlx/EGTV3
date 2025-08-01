@@ -2,12 +2,15 @@ import { drizzle } from 'drizzle-orm/postgres-js';
 import postgres from 'postgres';
 import { users } from './shared/schema';
 import { eq } from 'drizzle-orm';
-import * as crypto from 'crypto';
+import { scrypt, randomBytes } from 'crypto';
+import { promisify } from 'util';
+
+const scryptAsync = promisify(scrypt);
 
 async function hashPassword(password: string): Promise<string> {
-  const salt = crypto.randomBytes(16);
-  const hashedPassword = crypto.scryptSync(password, salt, 64);
-  return salt.toString('hex') + ':' + hashedPassword.toString('hex');
+  const salt = randomBytes(16).toString("hex");
+  const buf = (await scryptAsync(password, salt, 64)) as Buffer;
+  return `${buf.toString("hex")}.${salt}`;
 }
 
 async function createAdminUser() {
@@ -15,10 +18,10 @@ async function createAdminUser() {
   const client = postgres(databaseUrl);
   const db = drizzle(client);
 
-  const username = 'admin';
-  const password = 'AdminTest123123@#';
-  const email = 'admin@saharajourneys.com';
-  const fullName = 'Admin User';
+  const username = 'eetadmin';
+  const password = 'admin@eet';
+  const email = 'admin@egyptexpresstvl.com';
+  const fullName = 'ahmed dev';
 
   try {
     // Check if admin user exists
@@ -35,7 +38,8 @@ async function createAdminUser() {
       await db
         .update(users)
         .set({
-          password: hashedPassword,
+          password: hashedPassword, // Store hashed password in password field
+          passwordHash: hashedPassword, // Store hashed password in passwordHash field
           email: email,
           fullName: fullName,
           role: 'admin'
@@ -47,7 +51,8 @@ async function createAdminUser() {
       // Create new user
       await db.insert(users).values({
         username: username,
-        password: hashedPassword,
+        password: hashedPassword, // Store hashed password in password field
+        passwordHash: hashedPassword, // Store hashed password in passwordHash field
         email: email,
         fullName: fullName,
         role: 'admin'

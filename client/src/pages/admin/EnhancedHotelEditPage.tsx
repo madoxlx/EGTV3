@@ -1840,9 +1840,6 @@ export default function EnhancedHotelEditPage() {
                   Frequently Asked Questions
                 </h3>
 
-                {/* Room Types */}
-                <div className="space-y-4">
-                  <div className="flex items-center justify-between">
                 {/* FAQs */}
                 <div className="space-y-4">
                   <div className="flex items-center justify-between">

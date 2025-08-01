@@ -1,0 +1,87 @@
+Attempting to connect with URL: postgresql://neondb_owner:****@ep-dawn-voice-a8bd2yi7-pooler.eastus2.azure.neon.tech/neondb?sslmode=require
+Warning: connect.session() MemoryStore is not
+designed for a production environment, as it will leak
+memory, and will not scale past a single process.
+Database connection established successfully
+✅ Vite modules loaded successfully
+⏳ Waiting for database initialization...
+✅ Database initialized.
+🔐 Setting up admin users...
+✅ Main admin user already exists
+✅ Test admin user already exists
+✅ Admin setup completed
+✅ Unified auth setup completed
+✅ Hero slides routes setup completed
+✅ Routes registered successfully
+🌍 Sahara Journeys server running on 0.0.0.0:80
+📱 Local access: http://localhost
+🌐 External access: http://74.179.85.9
+⚙️ Admin panel: http://74.179.85.9/admin
+11:37:27 AM [express] serving on port 80
+🔧 Initializing database...
+📋 Creating database schema...
+✅ Database schema created successfully
+🔄 Checking database setup...
+{
+  severity_local: 'NOTICE',
+  severity: 'NOTICE',
+  code: '42701',
+  message: 'column "slug" of relation "packages" already exists, skipping',
+  file: 'tablecmds.c',
+  line: '7471',
+  routine: 'check_for_column_name_collision'
+}
+✅ Ensured packages table has slug column
+{
+  severity_local: 'NOTICE',
+  severity: 'NOTICE',
+  code: '42P07',
+  message: 'relation "countries" already exists, skipping',
+  file: 'parse_utilcmd.c',
+  line: '207',
+  routine: 'transformCreateStmt'
+}
+✅ Ensured countries table exists
+{
+  severity_local: 'NOTICE',
+  severity: 'NOTICE',
+  code: '42P07',
+  message: 'relation "nationalities" already exists, skipping',
+  file: 'parse_utilcmd.c',
+  line: '207',
+  routine: 'transformCreateStmt'
+}
+✅ Ensured nationalities table exists
+{
+  severity_local: 'NOTICE',
+  severity: 'NOTICE',
+  code: '42P07',
+  message: 'relation "visas" already exists, skipping',
+  file: 'parse_utilcmd.c',
+  line: '207',
+  routine: 'transformCreateStmt'
+}
+✅ Ensured visas table exists
+{
+  severity_local: 'NOTICE',
+  severity: 'NOTICE',
+  code: '42P07',
+  message: 'relation "nationality_visa_requirements" already exists, skipping',
+  file: 'parse_utilcmd.c',
+  line: '207',
+  routine: 'transformCreateStmt'
+}
+✅ Ensured nationality_visa_requirements table exists
+✅ All necessary visa tables are created
+✅ Database setup complete!
+🔐 Setting up admin users...
+✅ Main admin user already exists
+✅ Test admin user already exists
+🏷️ Seeding package categories...
+🏷️ Seeding package categories...
+✅ Package categories already seeded
+✅ Package categories seeding complete
+✅ Package categories already seeded
+🌱 Seeding data...
+✅ Data already seeded
+✅ Database initialization complete!

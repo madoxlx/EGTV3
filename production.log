@@ -1,0 +1,22 @@
+Attempting to connect with URL: postgresql://neondb_owner:****@ep-dawn-voice-a8bd2yi7-pooler.eastus2.azure.neon.tech/neondb?sslmode=require
+Warning: connect.session() MemoryStore is not
+designed for a production environment, as it will leak
+memory, and will not scale past a single process.
+Database connection established successfully
+✅ Vite modules loaded successfully
+⏳ Waiting for database initialization...
+✅ Database initialized.
+🔐 Setting up admin users...
+✅ Main admin user already exists
+✅ Test admin user already exists
+✅ Admin setup completed
+✅ Unified auth setup completed
+✅ Hero slides routes setup completed
+✅ Routes registered successfully
+🌍 Sahara Journeys server running on 0.0.0.0:80
+📱 Local access: http://localhost
+🌐 External access: http://74.179.85.9
+⚙️ Admin panel: http://74.179.85.9/admin
+11:40:19 AM [express] serving on port 80
+🔧 Initializing database...
+📋 Creating database schema...

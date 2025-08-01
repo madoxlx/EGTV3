@@ -6488,6 +6488,102 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
+  // Admin Hotel Categories API Routes
+  app.get('/api/admin/hotel-categories', isAdmin, async (req, res) => {
+    try {
+      const active = req.query.active === 'true' ? true : undefined;
+      const categories = await storage.listHotelCategories(active);
+      res.json(categories);
+    } catch (error) {
+      console.error('Error fetching hotel categories:', error);
+      res.status(500).json({ message: 'Failed to fetch hotel categories' });
+    }
+  });
+
+  app.get('/api/admin/hotel-categories/:id', isAdmin, async (req, res) => {
+    try {
+      const id = parseInt(req.params.id);
+      if (isNaN(id)) {
+        return res.status(400).json({ message: 'Invalid category ID' });
+      }
+
+      const category = await storage.getHotelCategory(id);
+      if (!category) {
+        return res.status(404).json({ message: 'Hotel category not found' });
+      }
+
+      res.json(category);
+    } catch (error) {
+      console.error('Error fetching hotel category:', error);
+      res.status(500).json({ message: 'Failed to fetch hotel category' });
+    }
+  });
+
+  app.post('/api/admin/hotel-categories', isAdmin, async (req, res) => {
+    try {
+      const { name, description, active } = req.body;
+      if (!name) {
+        return res.status(400).json({ message: 'Name is required' });
+      }
+
+      const newCategory = await storage.createHotelCategory({
+        name,
+        description: description || null,
+        active: active !== undefined ? active : true
+      });
+
+      res.status(201).json(newCategory);
+    } catch (error) {
+      console.error('Error creating hotel category:', error);
+      res.status(500).json({ message: 'Failed to create hotel category' });
+    }
+  });
+
+  app.patch('/api/admin/hotel-categories/:id', isAdmin, async (req, res) => {
+    try {
+      const id = parseInt(req.params.id);
+      if (isNaN(id)) {
+        return res.status(400).json({ message: 'Invalid category ID' });
+      }
+
+      const { name, description, active } = req.body;
+      const updatedData: Record<string, any> = {};
+
+      if (name !== undefined) updatedData.name = name;
+      if (description !== undefined) updatedData.description = description;
+      if (active !== undefined) updatedData.active = active;
+
+      const updatedCategory = await storage.updateHotelCategory(id, updatedData);
+      if (!updatedCategory) {
+        return res.status(404).json({ message: 'Hotel category not found' });
+      }
+
+      res.json(updatedCategory);
+    } catch (error) {
+      console.error('Error updating hotel category:', error);
+      res.status(500).json({ message: 'Failed to update hotel category' });
+    }
+  });
+
+  app.delete('/api/admin/hotel-categories/:id', isAdmin, async (req, res) => {
+    try {
+      const id = parseInt(req.params.id);
+      if (isNaN(id)) {
+        return res.status(400).json({ message: 'Invalid category ID' });
+      }
+
+      const success = await storage.deleteHotelCategory(id);
+      if (!success) {
+        return res.status(404).json({ message: 'Hotel category not found or could not be deleted' });
+      }
+
+      res.status(204).end();
+    } catch (error) {
+      console.error('Error deleting hotel category:', error);
+      res.status(500).json({ message: 'Failed to delete hotel category' });
+    }
+  });
+
   // Room Categories API Routes
   app.get('/api/room-categories', async (req, res) => {
     try {

@@ -98,6 +98,7 @@ const TourCategoriesPage = lazy(() => import("@/pages/admin/tours/categories"));
 const RoomCategoriesPage = lazy(() => import("@/pages/admin/rooms/categories"));
 const RoomAmenitiesPage = lazy(() => import("@/pages/admin/rooms/RoomAmenitiesPage"));
 const PackageCategoriesPage = lazy(() => import("@/pages/admin/packages/categories"));
+const HotelCategoriesPage = lazy(() => import("@/pages/admin/hotels/categories"));
 const DataExportImportPage = lazy(() => import("@/pages/admin/DataExportImportPage"));
 const VisasManagement = lazy(() => import("@/pages/admin/VisasManagement"));
 
@@ -168,6 +169,10 @@ function Router() {
           <AdminRoute
             path="/admin/hotels"
             component={AdvancedHotelsManagement}
+          />
+          <AdminRoute
+            path="/admin/hotels/categories"
+            component={HotelCategoriesPage}
           />
           <AdminRoute
             path="/admin/rooms/categories"
